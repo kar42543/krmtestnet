@@ -244,7 +244,7 @@
                         <span class="text-xs text-green-500 opacity-0 group-hover:opacity-100 transition-opacity">Connect</span>
                     </button>
                     
-                    <!-- Phantom Button (UPDATED: Now Active) -->
+                    <!-- Phantom Button -->
                     <button onclick="connectWallet('Phantom')" class="w-full flex items-center justify-between p-4 rounded-xl border border-gray-700 hover:border-purple-500 hover:bg-purple-900/10 transition-all group">
                         <div class="flex items-center gap-3">
                             <i class="fa-solid fa-ghost text-2xl text-gray-300 group-hover:text-purple-400"></i>
@@ -280,7 +280,11 @@
                 <!-- Task 1: Twitter -->
                 <div id="task-twitter" class="glass-panel p-6 rounded-xl border border-gray-800 transition-all">
                     <div class="flex justify-between items-start mb-4">
-                        <div class="bg-white/10 p-3 rounded-lg"><i class="fa-brands fa-x-twitter text-white text-xl"></i></div>
+                        <!-- X LOGO (SVG FIX) -->
+                        <div class="bg-white/10 p-3 rounded-lg flex items-center justify-center w-11 h-11">
+                            <!-- SVG X Logo for guaranteed display -->
+                            <svg viewBox="0 0 24 24" aria-hidden="true" class="w-5 h-5 fill-white"><g><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></g></svg>
+                        </div>
                         <span class="bg-green-900/30 text-xs px-2 py-1 rounded text-green-400">Required</span>
                     </div>
                     <h4 class="font-bold text-lg mb-2">Social Verification</h4>
@@ -451,24 +455,27 @@
             window.scrollTo(0, 0);
         }
 
-        // --- WALLET CONNECTION (MetaMask & Phantom) ---
+        // --- WALLET CONNECTION (ROBUST FIX) ---
         async function connectWallet(providerType) {
             const btn = document.getElementById('globalConnectBtn');
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Connecting...';
 
             try {
                 if (providerType === 'Phantom') {
-                    // PHANTOM LOGIC (Simulated check + Login)
-                    // Check if window.solana is present
+                    // PHANTOM LOGIC
                     if ('solana' in window) {
                         const provider = window.solana;
                         if (provider.isPhantom) {
-                            const resp = await provider.connect();
-                            handleLoginSuccess(resp.publicKey.toString(), 'Phantom');
-                            return;
+                            try {
+                                const resp = await provider.connect();
+                                handleLoginSuccess(resp.publicKey.toString(), 'Phantom');
+                                return;
+                            } catch (err) {
+                                throw new Error("User rejected connection");
+                            }
                         }
                     }
-                    // If not found, simulated success for Testnet purposes
+                    // Simulate for visual if no phantom installed
                     setTimeout(() => {
                         handleLoginSuccess('Solana...8xP2', 'Phantom');
                     }, 1000);
@@ -476,10 +483,20 @@
                 } else {
                     // METAMASK / EVM LOGIC
                     if (typeof window.ethereum !== 'undefined') {
-                        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                        handleLoginSuccess(accounts[0], 'MetaMask');
+                        try {
+                            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                            handleLoginSuccess(accounts[0], 'MetaMask');
+                        } catch (err) {
+                            if (err.code === 4001) {
+                                alert("Connection rejected by user.");
+                            } else if (err.code === -32002) {
+                                alert("Request pending. Please check your wallet extension icon!");
+                            } else {
+                                alert("Connection Error: " + err.message);
+                            }
+                            btn.innerHTML = 'Connect Wallet';
+                        }
                     } else {
-                        // If no MetaMask, try generic catch or alert
                         alert("MetaMask not found! Please install it.");
                         btn.innerHTML = 'Connect Wallet';
                     }
@@ -487,7 +504,7 @@
             } catch (error) {
                 console.error(error);
                 btn.innerHTML = 'Connect Wallet';
-                alert("Connection failed: " + error.message);
+                alert("Error: " + error.message);
             }
         }
 
@@ -508,7 +525,6 @@
             document.getElementById('wallet-connected').classList.remove('hidden');
             document.getElementById('userAddress').innerText = address;
             
-            // Show Add Network Button only for MetaMask
             if(type === 'Phantom') {
                 document.getElementById('addNetworkBtn').style.display = 'none';
             } else {
