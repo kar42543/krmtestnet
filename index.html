@@ -137,43 +137,6 @@
             transform: translateY(0);
         }
 
-        /* --- SIDEBARS (DESKTOP ONLY) --- */
-        .sidebar {
-            position: fixed;
-            top: 25%;
-            width: 200px;
-            z-index: 0;
-            display: none; /* Hidden on mobile by default */
-        }
-        @media (min-width: 1280px) {
-            .sidebar { display: block; }
-        }
-        
-        .sidebar-left { left: 40px; }
-        .sidebar-right { right: 40px; }
-
-        .stat-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            font-size: 12px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            padding-bottom: 4px;
-        }
-        .stat-label { color: #6b7280; font-family: 'Space Grotesk', monospace; text-transform: uppercase; }
-        .stat-val { color: #4ade80; font-family: monospace; }
-
-        .tx-feed-item {
-            font-family: monospace;
-            font-size: 10px;
-            color: #6b7280;
-            margin-bottom: 8px;
-            animation: fadeInTx 0.5s ease;
-        }
-        .tx-feed-item span { color: #4ade80; }
-
-        @keyframes fadeInTx { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
-
         /* Mobile Menu */
         #mobile-menu { transition: max-height 0.4s ease-in-out, opacity 0.4s ease-in-out; max-height: 0; opacity: 0; overflow: hidden; }
         #mobile-menu.open { max-height: 300px; opacity: 1; }
@@ -200,28 +163,6 @@
         <div class="orb-ring ring-3"></div>
         <div class="core-k">K</div>
     </div>
-
-    <!-- 3. LEFT SIDEBAR (NETWORK HUD) -->
-    <aside class="sidebar sidebar-left">
-        <div class="glass-panel p-4 rounded-lg">
-            <h4 class="text-xs text-gray-500 uppercase tracking-widest mb-4 border-b border-green-500/20 pb-2">Network Status</h4>
-            <div class="stat-row"><span class="stat-label">Block Height</span><span class="stat-val" id="stat-block">12,402,192</span></div>
-            <div class="stat-row"><span class="stat-label">TPS (Live)</span><span class="stat-val" id="stat-tps">4,291</span></div>
-            <div class="stat-row"><span class="stat-label">Avg Gas</span><span class="stat-val" id="stat-gas">0.0001 KRM</span></div>
-            <div class="stat-row"><span class="stat-label">Validators</span><span class="stat-val">1,204</span></div>
-            <div class="stat-row"><span class="stat-label">Status</span><span class="stat-val text-green-400">● Operational</span></div>
-        </div>
-    </aside>
-
-    <!-- 4. RIGHT SIDEBAR (LIVE TX FEED) -->
-    <aside class="sidebar sidebar-right">
-        <div class="glass-panel p-4 rounded-lg">
-            <h4 class="text-xs text-gray-500 uppercase tracking-widest mb-4 border-b border-green-500/20 pb-2">Recent Blocks</h4>
-            <div id="tx-feed" class="h-[150px] overflow-hidden">
-                <!-- JS will populate this -->
-            </div>
-        </div>
-    </aside>
 
     <!-- Navigation -->
     <nav class="fixed w-full z-50 glass-panel border-b-0 border-white/5">
@@ -282,10 +223,20 @@
                 <div class="p-7 bg-black/40 rounded-xl h-full">
                     <h3 class="text-lg font-bold mb-6 text-center tracking-wide text-gray-200 uppercase text-xs">Authentication</h3>
                     <div id="wallet-actions" class="space-y-3">
-                        <button onclick="connectWallet('MetaMask')" class="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 hover:border-green-500/50 hover:bg-green-500/10 transition-all group">
-                            <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center"><i class="fa-brands fa-ethereum text-xl text-gray-300 group-hover:text-green-400"></i></div><div class="text-left"><div class="font-bold text-white">MetaMask</div><div class="text-[10px] text-gray-500 uppercase tracking-wider">EVM Compatible</div></div></div>
-                            <i class="fa-solid fa-chevron-right text-gray-600 group-hover:text-green-500 transition-colors"></i>
+                        <!-- MetaMask (Orange) -->
+                        <button onclick="connectWallet('MetaMask')" class="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 hover:border-orange-500/50 hover:bg-orange-500/10 transition-all group">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-full bg-orange-500/20 text-orange-500 flex items-center justify-center">
+                                    <i class="fa-brands fa-ethereum text-xl"></i>
+                                </div>
+                                <div class="text-left">
+                                    <div class="font-bold text-white">MetaMask</div>
+                                    <div class="text-[10px] text-gray-500 uppercase tracking-wider">EVM Compatible</div>
+                                </div>
+                            </div>
+                            <i class="fa-solid fa-chevron-right text-gray-600 group-hover:text-orange-500 transition-colors"></i>
                         </button>
+                        <!-- Phantom -->
                         <button onclick="connectWallet('Phantom')" class="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 hover:border-purple-500/50 hover:bg-purple-500/10 transition-all group">
                             <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center"><i class="fa-solid fa-ghost text-xl text-gray-300 group-hover:text-purple-400"></i></div><div class="text-left"><div class="font-bold text-white">Phantom</div><div class="text-[10px] text-gray-500 uppercase tracking-wider">Solana / Multi-chain</div></div></div>
                             <i class="fa-solid fa-chevron-right text-gray-600 group-hover:text-purple-500 transition-colors"></i>
@@ -307,30 +258,46 @@
                 </div>
             </div>
 
-            <!-- Tasks -->
-            <div id="tasks-section" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto opacity-50 pointer-events-none transition-opacity duration-500">
+            <!-- Tasks (CHAIN: X -> Trade -> Form) -->
+            <div id="tasks-section" class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto opacity-50 pointer-events-none transition-opacity duration-500">
+                
+                <!-- 1. Twitter -->
                 <div id="task-twitter" class="glass-panel p-6 rounded-xl relative group overflow-hidden">
                     <div class="flex justify-between items-start mb-6 relative z-10">
                         <div class="bg-white/5 border border-white/10 p-3 rounded-lg flex items-center justify-center w-11 h-11"><svg viewBox="0 0 24 24" aria-hidden="true" class="w-5 h-5 fill-white"><g><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></g></svg></div>
-                        <span class="bg-green-500/10 border border-green-500/20 text-[10px] px-2 py-1 rounded text-green-400 uppercase tracking-wider font-bold">Required</span>
+                        <span class="bg-green-500/10 border border-green-500/20 text-[10px] px-2 py-1 rounded text-green-400 uppercase tracking-wider font-bold">Step 1</span>
                     </div>
                     <h4 class="font-bold text-xl mb-2 text-white relative z-10">Social Identity</h4>
-                    <p class="text-sm text-gray-400 mb-6 leading-relaxed relative z-10">Follow the official X account to verify you are a human and unlock the whitelist application.</p>
+                    <p class="text-sm text-gray-400 mb-6 leading-relaxed relative z-10">Follow the official X account to verify you are a human.</p>
                     <div class="flex gap-3 relative z-10">
                         <a href="https://x.com/karim7652117665" target="_blank" onclick="activateVerify('btn-verify-tw')" class="flex-1 bg-white/5 border border-white/10 hover:bg-white/10 text-white py-3 rounded-lg text-center text-sm font-medium transition-colors">Launch X</a>
                         <button id="btn-verify-tw" onclick="verifyTask('task-twitter', this)" class="flex-1 btn-disabled text-white py-3 rounded-lg text-sm font-medium transition-all" disabled>Verify</button>
                     </div>
                 </div>
+
+                <!-- 2. Trading (Locked) -->
+                <div id="task-trade" class="glass-panel p-6 rounded-xl task-locked transition-all duration-500">
+                    <div class="flex justify-between items-start mb-6">
+                        <div class="bg-blue-500/10 border border-blue-500/20 p-3 rounded-lg flex items-center justify-center w-12 h-12"><i class="fa-solid fa-chart-line text-blue-400 text-lg"></i></div>
+                        <span id="badge-trade" class="bg-gray-800 text-[10px] px-2 py-1 rounded text-gray-400 uppercase tracking-wider font-bold">Step 2</span>
+                    </div>
+                    <h4 class="font-bold text-xl mb-2 text-white">Volume Generator</h4>
+                    <p class="text-sm text-gray-400 mb-6 leading-relaxed">Trade $100+ volume on the Karchain Testnet DEX.</p>
+                    <div class="flex gap-3">
+                        <button id="btn-trade-check" onclick="verifyTask('task-trade', this)" class="w-full btn-disabled text-white py-3 rounded-lg text-sm font-medium transition-all" disabled>Check Volume</button>
+                    </div>
+                </div>
+
+                <!-- 3. Form (Locked) -->
                 <div id="task-form" class="glass-panel p-6 rounded-xl task-locked transition-all duration-500">
                     <div class="flex justify-between items-start mb-6">
                         <div class="bg-indigo-500/10 border border-indigo-500/20 p-3 rounded-lg flex items-center justify-center w-12 h-12"><i class="fa-solid fa-file-signature text-indigo-400 text-lg"></i></div>
-                        <span id="lock-badge" class="bg-gray-800 text-[10px] px-2 py-1 rounded text-gray-400 uppercase tracking-wider font-bold">Locked</span>
+                        <span id="badge-form" class="bg-gray-800 text-[10px] px-2 py-1 rounded text-gray-400 uppercase tracking-wider font-bold">Step 3</span>
                     </div>
                     <h4 class="font-bold text-xl mb-2 text-white">Whitelist Access</h4>
-                    <p class="text-sm text-gray-400 mb-6 leading-relaxed">Submit your wallet address to the Genesis Block registry for Mainnet airdrop allocation.</p>
+                    <p class="text-sm text-gray-400 mb-6 leading-relaxed">Submit your wallet address to the Genesis Block registry.</p>
                     <div class="flex gap-3">
                         <a id="btn-open-form" href="https://docs.google.com/forms" target="_blank" class="flex-1 bg-white/5 border border-white/10 text-white py-3 rounded-lg text-center text-sm font-medium transition-colors pointer-events-none opacity-50">Open Form</a>
-                        <div class="flex-1 flex items-center justify-center text-xs text-gray-500 border border-transparent">Awaiting Unlock</div>
                     </div>
                 </div>
             </div>
@@ -426,7 +393,7 @@
 
     <!-- --- LOGIC SCRIPTS --- -->
     <script>
-        // --- 0. BACKGROUND PARTICLES & SIDEBAR LOGIC ---
+        // --- 0. BACKGROUND PARTICLES (CANVAS) ---
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
@@ -473,34 +440,6 @@
             requestAnimationFrame(animateParticles);
         }
         initParticles(); animateParticles();
-
-        // --- SIDEBAR DATA UPDATER ---
-        function updateStats() {
-            const blockEl = document.getElementById('stat-block');
-            const tpsEl = document.getElementById('stat-tps');
-            const gasEl = document.getElementById('stat-gas');
-            
-            if(blockEl) {
-                let currentBlock = parseInt(blockEl.innerText.replace(/,/g, ''));
-                blockEl.innerText = (currentBlock + 1).toLocaleString();
-            }
-            if(tpsEl) tpsEl.innerText = (Math.floor(Math.random() * (5000 - 3000 + 1)) + 3000).toLocaleString();
-            if(gasEl) gasEl.innerText = (0.0001 + Math.random() * 0.00005).toFixed(5) + ' KRM';
-        }
-        setInterval(updateStats, 2000);
-
-        // --- FAKE TX FEED ---
-        function addFakeTx() {
-            const feed = document.getElementById('tx-feed');
-            if(!feed) return;
-            const hash = '0x' + Math.random().toString(16).substr(2, 8) + '...' + Math.random().toString(16).substr(2, 4);
-            const div = document.createElement('div');
-            div.className = 'tx-feed-item';
-            div.innerHTML = `<span>Block ${Math.floor(Math.random() * 100)}:</span> ${hash}`;
-            feed.prepend(div);
-            if(feed.children.length > 8) feed.lastChild.remove();
-        }
-        setInterval(addFakeTx, 1500);
 
 
         // --- 1. CONFIGURATION ---
@@ -611,7 +550,7 @@
             } catch (error) { alert("Error: " + error.message); }
         }
 
-        // --- 4. TASKS LOGIC ---
+        // --- 4. TASKS LOGIC (CHAINED) ---
         function activateVerify(btnId) {
             const btn = document.getElementById(btnId);
             btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Checking API...';
@@ -626,13 +565,36 @@
         function verifyTask(taskId, btnElement) {
             btnElement.innerHTML = '<i class="fa-solid fa-check"></i> Success';
             btnElement.classList.replace('bg-green-600', 'bg-green-900/50');
+            btnElement.classList.remove('btn-disabled');
             btnElement.classList.add('text-green-400', 'border', 'border-green-500/50');
             btnElement.disabled = true;
             
+            const taskCard = document.getElementById(taskId);
+            taskCard.classList.add('border-green-500/30'); // Visual cue for done
+            
+            // CHAIN LOGIC
             if(taskId === 'task-twitter') {
+                // Unlock Trading
+                const tradeCard = document.getElementById('task-trade');
+                const tradeBtn = document.getElementById('btn-trade-check');
+                const tradeBadge = document.getElementById('badge-trade');
+                
+                tradeCard.classList.remove('task-locked');
+                tradeBtn.classList.remove('btn-disabled');
+                tradeBtn.classList.add('bg-blue-600', 'hover:bg-blue-500');
+                tradeBtn.disabled = false;
+                
+                tradeBadge.innerText = "UNLOCKED";
+                tradeBadge.classList.replace('bg-gray-800', 'bg-blue-900');
+                tradeBadge.classList.replace('text-gray-400', 'text-blue-400');
+                
+                alert("Twitter Verified! Trading Task Unlocked.");
+            } 
+            else if (taskId === 'task-trade') {
+                // Unlock Form
                 const formCard = document.getElementById('task-form');
                 const formBtn = document.getElementById('btn-open-form');
-                const badge = document.getElementById('lock-badge');
+                const formBadge = document.getElementById('badge-form');
                 
                 formCard.classList.remove('task-locked');
                 formBtn.classList.remove('pointer-events-none', 'opacity-50');
@@ -640,11 +602,11 @@
                 formBtn.classList.replace('bg-white/5', 'bg-indigo-600');
                 formBtn.classList.add('hover:bg-indigo-500');
                 
-                badge.innerText = "UNLOCKED";
-                badge.classList.replace('bg-gray-800', 'bg-green-900');
-                badge.classList.replace('text-gray-400', 'text-green-400');
+                formBadge.innerText = "UNLOCKED";
+                formBadge.classList.replace('bg-gray-800', 'bg-indigo-900');
+                formBadge.classList.replace('text-gray-400', 'text-indigo-400');
                 
-                alert("Identity Verified. Access Granted.");
+                alert("Trading Volume Verified! Whitelist Form Unlocked.");
             }
         }
     </script>
