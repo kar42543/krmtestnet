@@ -14,16 +14,13 @@
     <!-- Social Media Tags -->
     <meta property="og:title" content="Karchain | Incentivized Testnet Live">
     <meta property="og:description" content="Participate in the Karchain Testnet. Connect wallet, complete tasks, and verify eligibility for the KRM Airdrop.">
-    <meta property="og:image" content="https://i.imgur.com/YOUR_IMAGE_LINK.png"> <!-- НЕ ЗАБУДЬ ЗАМІНИТИ НА СВОЄ ЛОГО (з Imgur) -->
+    <meta property="og:image" content="https://i.imgur.com/YOUR_IMAGE_LINK.png"> <!-- ЗАМІНИ НА СВОЄ ЛОГО -->
     <meta property="og:url" content="https://karchain-website.vercel.app">
     <meta property="og:type" content="website">
     
-    <!-- GOOGLE VERIFICATION CODE -->
-    <!-- <meta name="google-site-verification" content="..." /> -->
-
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/12409/12409608.png">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
     
     <style>
@@ -129,7 +126,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Verify Button States */
+        /* Button States */
         .btn-disabled {
             opacity: 0.5;
             cursor: not-allowed;
@@ -144,6 +141,31 @@
             border-color: #22c55e;
             background: rgba(21, 128, 61, 0.1);
         }
+        
+        /* Locked Task Style */
+        .task-locked {
+            opacity: 0.4;
+            pointer-events: none;
+            filter: grayscale(100%);
+            position: relative;
+        }
+        .task-locked::after {
+            content: '\f023'; /* FontAwesome Lock Icon */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 40px;
+            color: #fff;
+            text-shadow: 0 0 10px #000;
+        }
+
+        /* Mobile Menu Animation */
+        #mobile-menu {
+            transition: all 0.3s ease-in-out;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
@@ -152,12 +174,16 @@
     <nav class="fixed w-full z-50 glass-panel border-b border-white/10">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
-                <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer" onclick="showPage('home')">
+                
+                <!-- Logo & Brand -->
+                <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer z-50" onclick="showPage('home')">
                     <div class="w-8 h-8 rounded-full border border-green-500 flex items-center justify-center bg-green-900/20">
                         <span class="text-green-400 font-bold">K</span>
                     </div>
                     <span class="text-white font-bold text-xl tracking-wider brand-font">KARCHAIN</span>
                 </div>
+
+                <!-- Desktop Menu (Hidden on Mobile) -->
                 <div class="hidden md:block">
                     <div class="ml-10 flex items-baseline space-x-8">
                         <button onclick="showPage('home')" id="nav-home" class="nav-link active text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Testnet & Airdrop</button>
@@ -165,12 +191,26 @@
                         <button onclick="showPage('support')" id="nav-support" class="nav-link text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Support</button>
                     </div>
                 </div>
-                <div>
-                    <button id="globalConnectBtn" onclick="connectWallet()" class="bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded-full text-sm font-bold transition-all shadow-[0_0_15px_rgba(21,128,61,0.5)]">
+
+                <!-- Connect Button & Mobile Hamburger -->
+                <div class="flex items-center gap-4">
+                    <button id="globalConnectBtn" onclick="connectWallet()" class="bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded-full text-sm font-bold transition-all shadow-[0_0_15px_rgba(21,128,61,0.5)] z-50 relative">
                         Connect Wallet
+                    </button>
+                    
+                    <!-- Mobile Hamburger Button -->
+                    <button onclick="toggleMobileMenu()" class="md:hidden text-gray-300 hover:text-white focus:outline-none z-50 relative">
+                        <i class="fa-solid fa-bars text-2xl"></i>
                     </button>
                 </div>
             </div>
+        </div>
+
+        <!-- Mobile Dropdown Menu -->
+        <div id="mobile-menu" class="hidden md:hidden absolute top-20 left-0 w-full glass-panel border-b border-white/10 flex flex-col p-4 space-y-4 shadow-2xl">
+            <button onclick="showPage('home'); toggleMobileMenu()" class="text-left text-gray-300 hover:text-green-400 py-2 border-b border-gray-800">Testnet & Airdrop</button>
+            <button onclick="showPage('about'); toggleMobileMenu()" class="text-left text-gray-300 hover:text-green-400 py-2 border-b border-gray-800">Vision & Tech</button>
+            <button onclick="showPage('support'); toggleMobileMenu()" class="text-left text-gray-300 hover:text-green-400 py-2">Support</button>
         </div>
     </nav>
 
@@ -190,7 +230,7 @@
                     Incentivized Testnet
                 </h1>
                 <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-10">
-                    Participate in the future of modular consensus. Complete tasks, secure the network, and verify your <span class="text-neon">KRM</span> eligibility.
+                    Participate in the future of modular consensus. Complete tasks to unlock the registration form.
                 </p>
             </div>
 
@@ -235,17 +275,17 @@
 
             <!-- Tasks Grid -->
             <div id="tasks-section" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto opacity-50 pointer-events-none transition-opacity">
-                <!-- Twitter Task (UPDATED) -->
+                
+                <!-- Task 1: Twitter (X) -->
                 <div id="task-twitter" class="glass-panel p-6 rounded-xl border border-gray-800 transition-all">
                     <div class="flex justify-between items-start mb-4">
-                        <div class="bg-blue-900/30 p-3 rounded-lg"><i class="fa-brands fa-twitter text-blue-400 text-xl"></i></div>
-                        <span class="bg-gray-800 text-xs px-2 py-1 rounded text-gray-400">Optional</span>
+                        <div class="bg-white/10 p-3 rounded-lg"><i class="fa-brands fa-x-twitter text-white text-xl"></i></div>
+                        <span class="bg-green-900/30 text-xs px-2 py-1 rounded text-green-400">Required</span>
                     </div>
-                    <h4 class="font-bold text-lg mb-2">Social Amplification</h4>
-                    <p class="text-sm text-gray-400 mb-4">Follow Karchain on X and retweet the pinned announcement.</p>
+                    <h4 class="font-bold text-lg mb-2">Social Verification</h4>
+                    <p class="text-sm text-gray-400 mb-4">Follow us on X (Twitter) to unlock the application form.</p>
                     
                     <div class="flex gap-2">
-                        <!-- LINK CHANGED HERE -->
                         <a href="https://x.com/karim7652117665" target="_blank" onclick="activateVerify('btn-verify-tw')" class="flex-1 bg-transparent border border-gray-600 hover:bg-gray-800 text-white py-2 rounded text-center text-sm transition-colors">
                             <i class="fa-solid fa-arrow-up-right-from-square mr-2"></i> Open X
                         </a>
@@ -255,21 +295,22 @@
                     </div>
                 </div>
 
-                <!-- Discord Task -->
-                <div id="task-discord" class="glass-panel p-6 rounded-xl border border-gray-800 transition-all">
+                <!-- Task 2: Google Form (LOCKED INITIALLY) -->
+                <div id="task-form" class="glass-panel p-6 rounded-xl border border-gray-800 transition-all task-locked">
                     <div class="flex justify-between items-start mb-4">
-                        <div class="bg-indigo-900/30 p-3 rounded-lg"><i class="fa-brands fa-discord text-indigo-400 text-xl"></i></div>
-                        <span class="bg-green-900/30 text-xs px-2 py-1 rounded text-green-400">High Priority</span>
+                        <div class="bg-indigo-900/30 p-3 rounded-lg"><i class="fa-solid fa-file-contract text-indigo-400 text-xl"></i></div>
+                        <span class="bg-gray-800 text-xs px-2 py-1 rounded text-gray-400">Locked</span>
                     </div>
-                    <h4 class="font-bold text-lg mb-2">Community Validation</h4>
-                    <p class="text-sm text-gray-400 mb-4">Join the Discord server and obtain the "Early Tester" role.</p>
+                    <h4 class="font-bold text-lg mb-2">Whitelisting Application</h4>
+                    <p class="text-sm text-gray-400 mb-4">Complete the form to register your wallet for the Mainnet drop.</p>
                     
                     <div class="flex gap-2">
-                        <a href="https://discord.gg/karchain" target="_blank" onclick="activateVerify('btn-verify-ds')" class="flex-1 bg-transparent border border-gray-600 hover:bg-gray-800 text-white py-2 rounded text-center text-sm transition-colors">
-                            <i class="fa-solid fa-arrow-up-right-from-square mr-2"></i> Open Discord
+                        <!-- ВСТАВ ПОСИЛАННЯ НА СВОЮ ГУГЛ ФОРМУ ТУТ -->
+                        <a id="btn-open-form" href="https://docs.google.com/forms" target="_blank" class="flex-1 bg-transparent border border-gray-600 hover:bg-gray-800 text-white py-2 rounded text-center text-sm transition-colors pointer-events-none opacity-50">
+                            <i class="fa-solid fa-lock mr-2"></i> Locked
                         </a>
-                        <button id="btn-verify-ds" onclick="verifyTask('task-discord', this)" class="flex-1 btn-disabled text-white py-2 rounded text-sm transition-all" disabled>
-                            Verify
+                        <button class="flex-1 btn-disabled text-white py-2 rounded text-sm transition-all" disabled>
+                            Pending
                         </button>
                     </div>
                 </div>
@@ -278,7 +319,7 @@
         </section>
 
 
-        <!-- PAGE 2: VISION / ABOUT US -->
+        <!-- PAGE 2: VISION / ABOUT US (MASSIVE EXPANSION) -->
         <section id="about" class="page-section">
             <div class="max-w-4xl mx-auto">
                 <div class="text-center mb-16">
@@ -286,51 +327,63 @@
                     <div class="h-1 w-20 bg-green-500 mx-auto"></div>
                 </div>
 
-                <div class="space-y-12 text-lg text-gray-300 leading-relaxed text-justify">
+                <div class="space-y-12 text-lg text-gray-300 leading-relaxed text-justify font-light">
+                    <!-- Intro -->
                     <p>
-                        <span class="text-neon font-bold">Karchain</span> is not merely a technological iteration; it is a fundamental reimagining of the decentralized consensus paradigm. Born from the collective intellect of a global consortium of over 200 distributed systems engineers, cryptographers, and economic theorists, Karchain addresses the Blockchain Trilemma with a novel, modular architecture that defies conventional limitations.
+                        <span class="text-neon font-bold">Karchain</span> represents a paradigm shift in decentralized infrastructure. We are not merely building another blockchain; we are engineering the final layer of global settlement. While first-generation protocols struggled with the "Blockchain Trilemma"—the inability to achieve security, scalability, and decentralization simultaneously—Karchain has solved this equation through four years of stealth research and development by a consortium of over 200 distributed systems engineers, cryptographers, and economic theorists from MIT, ETH Zurich, and top-tier tech giants.
                     </p>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 my-12">
-                        <div class="glass-panel p-8 rounded-xl border-l-4 border-green-500">
-                            <h3 class="text-white font-bold text-xl mb-3">Adaptive State Sharding</h3>
-                            <p class="text-sm text-gray-400">Our proprietary mechanism allows the network to dynamically partition its state, ensuring that throughput scales linearly with node participation. This eliminates congestion bottlenecks found in monolithic chains.</p>
-                        </div>
-                        <div class="glass-panel p-8 rounded-xl border-l-4 border-green-500">
-                            <h3 class="text-white font-bold text-xl mb-3">Proof-of-Synchrony</h3>
-                            <p class="text-sm text-gray-400">A next-generation consensus algorithm that achieves deterministic finality in sub-second timeframes, utilizing quantum-resistant cryptographic signatures to secure asset integrity for the next century.</p>
-                        </div>
+                    <!-- Tech Block 1 -->
+                    <div class="glass-panel p-8 rounded-xl border-l-4 border-green-500">
+                        <h3 class="text-white font-bold text-2xl mb-4">The Modular Consensus Engine</h3>
+                        <p class="mb-4">
+                            Traditional monolithic blockchains attempt to handle execution, settlement, consensus, and data availability on a single layer. This inevitably leads to network congestion and exorbitant gas fees during peak usage. Karchain decouples these functions. By utilizing **Adaptive State Sharding**, our network dynamically partitions its state, ensuring that throughput scales linearly with node participation. 
+                        </p>
+                        <p>
+                            Unlike optimistic rollups that require a challenge period, Karchain utilizes **Zero-Knowledge Validity Proofs (ZK-SNARKs)** to offer instant finality. This means assets can be bridged, traded, and settled in sub-second timeframes with mathematical certainty, eliminating the risk of reorganization attacks.
+                        </p>
                     </div>
 
+                    <!-- Tech Block 2 -->
+                    <div class="glass-panel p-8 rounded-xl border-l-4 border-green-500">
+                        <h3 class="text-white font-bold text-2xl mb-4">Proof-of-Synchrony & Green Tech</h3>
+                        <p class="mb-4">
+                            We have deprecated the energy-intensive Proof-of-Work model. Karchain introduces **Proof-of-Synchrony (PoS-X)**, a novel consensus algorithm that minimizes communication overhead between validators. This architecture allows the network to run on hyper-lightweight nodes, meaning a Karchain validator can technically run on a standard smartphone, democratizing access to network security.
+                        </p>
+                        <p>
+                            This efficiency makes Karchain one of the first **Carbon-Negative** Layer-1 protocols. We don't just neutralize our footprint; the governance DAO allocates a portion of all transaction fees to verifiable carbon capture initiatives, aligning financial incentives with planetary health.
+                        </p>
+                    </div>
+
+                    <!-- Vision Block -->
                     <p>
-                        In an era defined by digital sovereignty, the Karchain Foundation believes that infrastructure must be invisible yet invincible. We have spent four years in stealth development, rigorously stress-testing our Besu-based core against adversarial conditions that would cripple legacy networks. The result is a seamless, EVM-equivalent environment that invites developers to deploy existing applications while unlocking performance capabilities previously thought impossible.
+                        In an era defined by digital sovereignty, infrastructure must be invisible yet invincible. Karchain is built to be the substrate for the next generation of the internet (Web3). Whether it is Decentralized Finance (DeFi) requiring high-frequency trading capabilities, or Supply Chain systems needing immutable tracking, Karchain provides the EVM-equivalent environment necessary for mass adoption.
                     </p>
+                    
                     <p>
-                        The KRM token acts as the kinetic energy of this ecosystem. It is the governance instrument, the security bond, and the medium of exchange. By participating in this ecosystem, you are not just a user; you are a validator of a new digital epoch. We are building the rails for the global economy of 2030, and Karchain is the engine.
+                        The **KRM token** acts as the kinetic energy of this ecosystem. It is the governance instrument, the security bond, and the medium of exchange. By participating in this Testnet, you are validating a system designed to secure trillions of dollars in value by 2030. You are the pioneers of the Karchain Epoch.
                     </p>
                 </div>
 
                 <!-- Team Footer -->
                 <div class="mt-20 border-t border-gray-800 pt-10">
-                    <h3 class="text-center text-2xl font-bold mb-10">Engineered By</h3>
+                    <h3 class="text-center text-2xl font-bold mb-10">Engineered By The Best</h3>
                     <div class="flex flex-wrap justify-center gap-10 opacity-70">
-                        <div class="text-xl font-bold tracking-widest">BESU CORE</div>
-                        <div class="text-xl font-bold tracking-widest">ETHEREUM ALLIANCE</div>
-                        <div class="text-xl font-bold tracking-widest">ZK-LABS</div>
+                        <div class="text-xl font-bold tracking-widest text-green-500">BESU CORE</div>
+                        <div class="text-xl font-bold tracking-widest text-white">ETHEREUM ALLIANCE</div>
+                        <div class="text-xl font-bold tracking-widest text-green-500">ZK-LABS</div>
+                        <div class="text-xl font-bold tracking-widest text-white">OPEN DAO</div>
                     </div>
                 </div>
             </div>
         </section>
 
 
-        <!-- PAGE 3: SUPPORT (UPDATED LINKS) -->
+        <!-- PAGE 3: SUPPORT -->
         <section id="support" class="page-section">
             <div class="max-w-4xl mx-auto text-center mb-12">
                 <h1 class="text-4xl font-bold text-white mb-4">Karchain Support</h1>
                 <p class="text-gray-400">Need help? We've got you covered.</p>
-                <p class="text-gray-500 text-sm max-w-lg mx-auto">
-                    Karchain is committed to providing fast and reliable support. Browse through our resources, FAQs, and guides to get the help you need.
-                </p>
             </div>
 
             <!-- Contact & Buttons Block -->
@@ -351,59 +404,18 @@
 
                     <!-- Right: Green Buttons (LINKED TO TG) -->
                     <div class="flex flex-col gap-3 w-full md:w-auto">
-                        <!-- LINK CHANGED HERE -->
                         <a href="https://t.me/tgkarim1" target="_blank" class="bg-[#064e3b] hover:bg-[#065f46] text-[#4ade80] border border-[#065f46] px-6 py-3 rounded-lg font-bold flex items-center gap-3 transition-all min-w-[250px] justify-center no-underline">
                             <i class="fa-solid fa-comment-dots"></i> Chat with Support
                         </a>
-                        <!-- LINK CHANGED HERE -->
                         <a href="https://t.me/tgkarim1" target="_blank" class="bg-[#064e3b] hover:bg-[#065f46] text-[#4ade80] border border-[#065f46] px-6 py-3 rounded-lg font-bold flex items-center gap-3 transition-all min-w-[250px] justify-center no-underline">
                             <i class="fa-solid fa-users"></i> Join the Discussion
                         </a>
                     </div>
                 </div>
             </div>
-
-            <!-- FAQ Section -->
-            <div class="max-w-4xl mx-auto mb-16">
-                <h3 class="text-2xl font-bold text-center mb-8">Frequently Asked Questions:</h3>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-10 text-left">
-                    <!-- Column 1 -->
-                    <div class="space-y-8">
-                        <div>
-                            <h4 class="font-bold text-white text-lg mb-2">How can I add Karchain to MetaMask?</h4>
-                            <p class="text-gray-400 text-sm leading-relaxed">
-                                Open MetaMask → Click "Add Network" → Enter Karchain network details (RPC URL, Chain ID, Symbol, Block Explorer). You can find these details on the Testnet page.
-                            </p>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-white text-lg mb-2">How do I report a bug?</h4>
-                            <p class="text-gray-400 text-sm leading-relaxed">
-                                Use our bug report form or email <span class="text-green-500 cursor-pointer">support@karchain.io</span> with a detailed description and screenshots if possible.
-                            </p>
-                        </div>
-                    </div>
-
-                    <!-- Column 2 -->
-                    <div class="space-y-8">
-                        <div>
-                            <h4 class="font-bold text-white text-lg mb-2">How do I check my testnet balance?</h4>
-                            <p class="text-gray-400 text-sm leading-relaxed">
-                                Visit your dashboard and connect your wallet. The balance will appear under your account overview section automatically.
-                            </p>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-white text-lg mb-2">How can I participate in the testnet?</h4>
-                            <p class="text-gray-400 text-sm leading-relaxed">
-                                Sign up on our Testnet page, get free tokens from the faucet, and follow the tasks in your dashboard to earn eligibility points.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+            
             <!-- Guides Links -->
-            <div class="max-w-3xl mx-auto text-center">
+            <div class="max-w-3xl mx-auto text-center mt-12">
                 <h3 class="text-2xl font-bold mb-6">Guides / Tutorials</h3>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <a href="#" class="text-green-400 hover:text-green-300 hover:underline">Getting Started with Karchain</a>
@@ -426,26 +438,30 @@
         const NETWORK_CONFIG = {
             chainId: '0x13881',
             chainName: 'Karchain Testnet',
-            nativeCurrency: {
-                name: 'Karchain Token',
-                symbol: 'KRM',
-                decimals: 18
-            },
+            nativeCurrency: { name: 'Karchain Token', symbol: 'KRM', decimals: 18 },
             rpcUrls: ['https://rpc-mumbai.maticvigil.com'],
             blockExplorerUrls: ['https://mumbai.polygonscan.com']
         };
 
-        // --- 2. NAVIGATION ---
+        // --- 2. MOBILE MENU TOGGLE ---
+        function toggleMobileMenu() {
+            const menu = document.getElementById('mobile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // --- 3. NAVIGATION ---
         function showPage(pageId) {
             document.querySelectorAll('.page-section').forEach(section => section.classList.remove('active'));
             document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
+            
             const navLink = document.getElementById('nav-' + pageId);
             if(navLink) navLink.classList.add('active');
+            
             window.scrollTo(0, 0);
         }
 
-        // --- 3. REAL WALLET CONNECTION ---
+        // --- 4. REAL WALLET CONNECTION ---
         let userAccount = null;
 
         async function connectWallet() {
@@ -481,7 +497,7 @@
             document.getElementById('tasks-locked-msg').style.display = 'none';
         }
 
-        // --- 4. ADD NETWORK ---
+        // --- 5. ADD NETWORK ---
         async function addKarchainNetwork() {
             if(!window.ethereum) return;
             try {
@@ -494,7 +510,7 @@
             }
         }
 
-        // --- 5. SOCIAL LOGIC ---
+        // --- 6. SOCIAL LOGIC (CHAINED) ---
         function activateVerify(btnId) {
             const btn = document.getElementById(btnId);
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking...';
@@ -511,9 +527,27 @@
             btnElement.classList.remove('btn-ready');
             btnElement.classList.add('bg-green-600', 'cursor-default');
             btnElement.disabled = true;
+            
             const taskCard = document.getElementById(taskId);
             taskCard.classList.add('task-completed');
-            alert("Task Verified! Points added to allocation.");
+            
+            // SPECIAL LOGIC: UNLOCK GOOGLE FORM AFTER TWITTER
+            if(taskId === 'task-twitter') {
+                const formCard = document.getElementById('task-form');
+                const formBtn = document.getElementById('btn-open-form');
+                
+                // Remove Lock Visuals
+                formCard.classList.remove('task-locked');
+                
+                // Enable Button
+                formBtn.classList.remove('pointer-events-none', 'opacity-50');
+                formBtn.innerHTML = '<i class="fa-solid fa-file-pen mr-2"></i> Open Form';
+                formBtn.classList.add('bg-indigo-900', 'hover:bg-indigo-800');
+                
+                alert("Twitter Verified! Form Unlocked.");
+            } else {
+                alert("Task Verified!");
+            }
         }
     </script>
 </body>
