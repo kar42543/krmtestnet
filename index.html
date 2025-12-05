@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karchain | Incentivized Testnet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Base Setup */
+        body {
+            background-color: #050505;
+            color: #e5e5e5;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .brand-font {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #15803d;
+            border-radius: 4px;
+        }
+
+        /* Animations */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        @keyframes pulse-glow {
+            0% { box-shadow: 0 0 20px rgba(21, 128, 61, 0.2); }
+            50% { box-shadow: 0 0 40px rgba(34, 197, 94, 0.5); }
+            100% { box-shadow: 0 0 20px rgba(21, 128, 61, 0.2); }
+        }
+
+        @keyframes spin-slow {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .animate-float {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .logo-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto;
+        }
+
+        /* Abstract Logo CSS (K-Shape / Ethereal) */
+        .ethereal-logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100px;
+            height: 100px;
+            border: 2px solid #4ade80;
+            border-radius: 50%;
+            box-shadow: 0 0 30px #15803d;
+            animation: pulse-glow 3s infinite;
+        }
+        
+        .ethereal-inner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(45deg);
+            width: 60px;
+            height: 60px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            background: rgba(21, 128, 61, 0.1);
+        }
+
+        .glass-panel {
+            background: rgba(20, 20, 20, 0.6);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Navigation Active State */
+        .nav-link.active {
+            color: #4ade80;
+            border-bottom: 2px solid #4ade80;
+        }
+
+        /* Matrix-like Green Text */
+        .text-neon {
+            color: #4ade80;
+            text-shadow: 0 0 10px rgba(74, 222, 128, 0.3);
+        }
+
+        /* Hide sections by default */
+        .page-section {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .page-section.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- Navigation -->
+    <nav class="fixed w-full z-50 glass-panel border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <div class="flex-shrink-0 flex items-center gap-2 cursor-pointer" onclick="showPage('home')">
+                    <div class="w-8 h-8 rounded-full border border-green-500 flex items-center justify-center bg-green-900/20">
+                        <span class="text-green-400 font-bold">K</span>
+                    </div>
+                    <span class="text-white font-bold text-xl tracking-wider brand-font">KARCHAIN</span>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-10 flex items-baseline space-x-8">
+                        <button onclick="showPage('home')" id="nav-home" class="nav-link active text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Testnet & Airdrop</button>
+                        <button onclick="showPage('about')" id="nav-about" class="nav-link text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Vision & Tech</button>
+                        <button onclick="showPage('support')" id="nav-support" class="nav-link text-gray-300 hover:text-white px-3 py-2 rounded-md text-sm font-medium transition-colors">Support</button>
+                    </div>
+                </div>
+                <div>
+                    <button id="globalConnectBtn" class="bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded-full text-sm font-bold transition-all shadow-[0_0_15px_rgba(21,128,61,0.5)]">
+                        Connect Wallet
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-grow pt-24 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full">
+
+        <!-- PAGE 1: TESTNET / AIRDROP -->
+        <section id="home" class="page-section active">
+            
+            <!-- Hero Animation -->
+            <div class="text-center py-12">
+                <div class="logo-container animate-float mb-8">
+                    <div class="ethereal-logo"></div>
+                    <div class="ethereal-inner"></div>
+                </div>
+                <h1 class="text-5xl md:text-7xl font-bold mb-4 bg-clip-text text-transparent bg-gradient-to-r from-white via-gray-200 to-gray-500">
+                    Incentivized Testnet
+                </h1>
+                <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-10">
+                    Participate in the future of modular consensus. Complete tasks, secure the network, and verify your <span class="text-neon">KRM</span> eligibility.
+                </p>
+            </div>
+
+            <!-- Wallet Connection Panel -->
+            <div class="max-w-md mx-auto glass-panel rounded-2xl p-8 mb-12">
+                <h3 class="text-xl font-bold mb-6 text-center">Step 1: Connect Identity</h3>
+                <div class="space-y-4">
+                    <button onclick="connectWallet('MetaMask')" class="w-full flex items-center justify-between p-4 rounded-xl border border-gray-700 hover:border-green-500 hover:bg-green-900/10 transition-all group">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-brands fa-ethereum text-2xl text-gray-300 group-hover:text-green-400"></i>
+                            <span class="font-medium text-lg">MetaMask</span>
+                        </div>
+                        <span class="text-xs text-green-500 opacity-0 group-hover:opacity-100 transition-opacity">Detecting...</span>
+                    </button>
+                    
+                    <button onclick="connectWallet('Phantom')" class="w-full flex items-center justify-between p-4 rounded-xl border border-gray-700 hover:border-purple-500 hover:bg-purple-900/10 transition-all group">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-ghost text-2xl text-gray-300 group-hover:text-purple-400"></i>
+                            <span class="font-medium text-lg">Phantom</span>
+                        </div>
+                        <span class="text-xs text-purple-400">Multi-chain Support</span>
+                    </button>
+                </div>
+
+                <!-- Hidden Balance Div -->
+                <div id="balanceDisplay" class="hidden mt-6 pt-6 border-t border-gray-700 text-center animate-pulse">
+                    <p class="text-gray-400 text-sm">Estimated Airdrop Allocation:</p>
+                    <div class="text-4xl font-bold text-neon mt-2">5,250 KRM</div>
+                    <p class="text-xs text-gray-500 mt-2">Based on wallet history snapshot.</p>
+                </div>
+            </div>
+
+            <!-- Tasks Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                <div class="glass-panel p-6 rounded-xl border border-gray-800">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="bg-blue-900/30 p-3 rounded-lg"><i class="fa-brands fa-twitter text-blue-400 text-xl"></i></div>
+                        <span class="bg-gray-800 text-xs px-2 py-1 rounded text-gray-400">Optional</span>
+                    </div>
+                    <h4 class="font-bold text-lg mb-2">Social Amplification</h4>
+                    <p class="text-sm text-gray-400 mb-4">Follow Karchain on X and retweet the pinned announcement.</p>
+                    <button class="w-full py-2 rounded border border-gray-600 hover:bg-gray-800 text-sm">Start Task</button>
+                </div>
+
+                <div class="glass-panel p-6 rounded-xl border border-gray-800">
+                    <div class="flex justify-between items-start mb-4">
+                        <div class="bg-indigo-900/30 p-3 rounded-lg"><i class="fa-brands fa-discord text-indigo-400 text-xl"></i></div>
+                        <span class="bg-green-900/30 text-xs px-2 py-1 rounded text-green-400">High Priority</span>
+                    </div>
+                    <h4 class="font-bold text-lg mb-2">Community Validation</h4>
+                    <p class="text-sm text-gray-400 mb-4">Join the Discord server and obtain the "Early Tester" role.</p>
+                    <button class="w-full py-2 rounded bg-indigo-600 hover:bg-indigo-700 text-white text-sm">Verify</button>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- PAGE 2: VISION / ABOUT US (THE WATER) -->
+        <section id="about" class="page-section">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-bold mb-6 text-white">The Architecture of Trust</h2>
+                    <div class="h-1 w-20 bg-green-500 mx-auto"></div>
+                </div>
+
+                <div class="space-y-12 text-lg text-gray-300 leading-relaxed text-justify">
+                    <p>
+                        <span class="text-neon font-bold">Karchain</span> is not merely a technological iteration; it is a fundamental reimagining of the decentralized consensus paradigm. Born from the collective intellect of a global consortium of over 200 distributed systems engineers, cryptographers, and economic theorists, Karchain addresses the Blockchain Trilemma with a novel, modular architecture that defies conventional limitations.
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 my-12">
+                        <div class="glass-panel p-8 rounded-xl border-l-4 border-green-500">
+                            <h3 class="text-white font-bold text-xl mb-3">Adaptive State Sharding</h3>
+                            <p class="text-sm text-gray-400">Our proprietary mechanism allows the network to dynamically partition its state, ensuring that throughput scales linearly with node participation. This eliminates congestion bottlenecks found in monolithic chains.</p>
+                        </div>
+                        <div class="glass-panel p-8 rounded-xl border-l-4 border-green-500">
+                            <h3 class="text-white font-bold text-xl mb-3">Proof-of-Synchrony</h3>
+                            <p class="text-sm text-gray-400">A next-generation consensus algorithm that achieves deterministic finality in sub-second timeframes, utilizing quantum-resistant cryptographic signatures to secure asset integrity for the next century.</p>
+                        </div>
+                    </div>
+
+                    <p>
+                        In an era defined by digital sovereignty, the Karchain Foundation believes that infrastructure must be invisible yet invincible. We have spent four years in stealth development, rigorously stress-testing our Besu-based core against adversarial conditions that would cripple legacy networks. The result is a seamless, EVM-equivalent environment that invites developers to deploy existing applications while unlocking performance capabilities previously thought impossible.
+                    </p>
+                    <p>
+                        The KRM token acts as the kinetic energy of this ecosystem. It is the governance instrument, the security bond, and the medium of exchange. By participating in this ecosystem, you are not just a user; you are a validator of a new digital epoch. We are building the rails for the global economy of 2030, and Karchain is the engine.
+                    </p>
+                </div>
+
+                <!-- Fake Team / Stats -->
+                <div class="mt-20 border-t border-gray-800 pt-10">
+                    <h3 class="text-center text-2xl font-bold mb-10">Engineered By</h3>
+                    <div class="flex flex-wrap justify-center gap-10 opacity-70">
+                        <!-- Just logos or text representing big partners -->
+                        <div class="text-xl font-bold tracking-widest">BESU CORE</div>
+                        <div class="text-xl font-bold tracking-widest">ETHEREUM ALLIANCE</div>
+                        <div class="text-xl font-bold tracking-widest">ZK-LABS</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- PAGE 3: SUPPORT (EXACT COPY) -->
+        <section id="support" class="page-section">
+            <div class="max-w-4xl mx-auto text-center mb-12">
+                <h1 class="text-4xl font-bold text-white mb-4">Karchain Support</h1>
+                <p class="text-gray-400">Need help? We've got you covered.</p>
+                <p class="text-gray-500 text-sm max-w-lg mx-auto">
+                    Karchain is committed to providing fast and reliable support. Browse through our resources, FAQs, and guides to get the help you need.
+                </p>
+            </div>
+
+            <!-- Contact & Buttons Block -->
+            <div class="max-w-4xl mx-auto glass-panel p-8 rounded-xl border border-gray-800 mb-12">
+                <div class="flex flex-col md:flex-row justify-between items-center gap-8">
+                    <!-- Left: Contacts -->
+                    <div class="text-left space-y-4 w-full md:w-1/2">
+                        <h3 class="text-xl font-bold text-white mb-6">Contact Us Directly:</h3>
+                        <a href="mailto:support@karchain.io" class="flex items-center gap-3 text-gray-300 hover:text-green-400 transition-colors">
+                            <i class="fa-regular fa-envelope text-xl"></i>
+                            <span class="text-lg">support@karchain.io</span>
+                        </a>
+                        <div class="flex items-center gap-3 text-gray-300">
+                            <i class="fa-regular fa-comments text-xl"></i>
+                            <span class="text-lg">Live Chat (Available 24/7)</span>
+                        </div>
+                    </div>
+
+                    <!-- Right: Green Buttons -->
+                    <div class="flex flex-col gap-3 w-full md:w-auto">
+                        <button class="bg-[#064e3b] hover:bg-[#065f46] text-[#4ade80] border border-[#065f46] px-6 py-3 rounded-lg font-bold flex items-center gap-3 transition-all min-w-[250px] justify-center">
+                            <i class="fa-solid fa-comment-dots"></i> Chat with Support
+                        </button>
+                        <button class="bg-[#064e3b] hover:bg-[#065f46] text-[#4ade80] border border-[#065f46] px-6 py-3 rounded-lg font-bold flex items-center gap-3 transition-all min-w-[250px] justify-center">
+                            <i class="fa-solid fa-users"></i> Join the Discussion
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FAQ Section -->
+            <div class="max-w-4xl mx-auto mb-16">
+                <h3 class="text-2xl font-bold text-center mb-8">Frequently Asked Questions:</h3>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-10 text-left">
+                    <!-- Column 1 -->
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="font-bold text-white text-lg mb-2">How can I add Karchain to MetaMask?</h4>
+                            <p class="text-gray-400 text-sm leading-relaxed">
+                                Open MetaMask → Click "Add Network" → Enter Karchain network details (RPC URL, Chain ID, Symbol, Block Explorer). You can find these details on the Testnet page.
+                            </p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-lg mb-2">How do I report a bug?</h4>
+                            <p class="text-gray-400 text-sm leading-relaxed">
+                                Use our bug report form or email <span class="text-green-500 cursor-pointer">support@karchain.io</span> with a detailed description and screenshots if possible.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Column 2 -->
+                    <div class="space-y-8">
+                        <div>
+                            <h4 class="font-bold text-white text-lg mb-2">How do I check my testnet balance?</h4>
+                            <p class="text-gray-400 text-sm leading-relaxed">
+                                Visit your dashboard and connect your wallet. The balance will appear under your account overview section automatically.
+                            </p>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-white text-lg mb-2">How can I participate in the testnet?</h4>
+                            <p class="text-gray-400 text-sm leading-relaxed">
+                                Sign up on our Testnet page, get free tokens from the faucet, and follow the tasks in your dashboard to earn eligibility points.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Guides Links -->
+            <div class="max-w-3xl mx-auto text-center">
+                <h3 class="text-2xl font-bold mb-6">Guides / Tutorials</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <a href="#" class="text-green-400 hover:text-green-300 hover:underline">Getting Started with Karchain</a>
+                    <a href="#" class="text-green-400 hover:text-green-300 hover:underline">Connecting Wallets</a>
+                    <a href="#" class="text-green-400 hover:text-green-300 hover:underline">Sending Transactions on Testnet</a>
+                    <a href="#" class="text-green-400 hover:text-green-300 hover:underline">Claiming Tokens from the Faucet</a>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="border-t border-gray-900 bg-black py-8 text-center text-gray-600 text-sm">
+        <p>&copy; 2025 Karchain Foundation. All rights reserved.</p>
+        <div class="flex justify-center gap-4 mt-2">
+            <a href="#" class="hover:text-white">Privacy Policy</a>
+            <a href="#" class="hover:text-white">Terms of Service</a>
+        </div>
+    </footer>
+
+    <!-- Logic Script -->
+    <script>
+        // Navigation Logic
+        function showPage(pageId) {
+            // Hide all sections
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from nav links
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+
+            // Show selected section
+            document.getElementById(pageId).classList.add('active');
+            
+            // Add active class to nav link
+            const navLink = document.getElementById('nav-' + pageId);
+            if(navLink) navLink.classList.add('active');
+
+            // Scroll to top
+            window.scrollTo(0, 0);
+        }
+
+        // Wallet Logic (Simulation)
+        async function connectWallet(provider) {
+            const btn = document.getElementById('globalConnectBtn');
+            const balanceDiv = document.getElementById('balanceDisplay');
+            
+            // Simulation of connecting
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Connecting...';
+            
+            setTimeout(() => {
+                // Determine address based on provider
+                let address = provider === 'Phantom' ? 'Solana...8xP2' : '0x71C...9A2';
+                
+                btn.innerHTML = address;
+                btn.classList.remove('bg-green-700');
+                btn.classList.add('bg-gray-800', 'border', 'border-green-500');
+                
+                // Show Eligibility Balance
+                if(balanceDiv) {
+                    balanceDiv.classList.remove('hidden');
+                }
+
+                alert(`Success! Connected with ${provider}. Your eligibility has been calculated.`);
+            }, 1500);
+        }
+    </script>
+</body>
+</html>
