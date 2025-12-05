@@ -9,14 +9,6 @@
     <meta name="description" content="Karchain is a hyper-scalable Layer-1 blockchain featuring Adaptive State Sharding and Proof-of-Synchrony. Join the Incentivized Testnet to earn KRM rewards.">
     <meta name="keywords" content="Karchain, KRM token, Blockchain, Testnet, Airdrop, Layer 1, Crypto, Modular Consensus, Web3">
     <meta name="author" content="Karchain Foundation">
-    <meta name="robots" content="index, follow">
-
-    <!-- Social Media Tags -->
-    <meta property="og:title" content="Karchain | Incentivized Testnet Live">
-    <meta property="og:description" content="Participate in the Karchain Testnet. Connect wallet, complete tasks, and verify eligibility for the KRM Airdrop.">
-    <meta property="og:image" content="https://i.imgur.com/YOUR_IMAGE_LINK.png">
-    <meta property="og:url" content="https://karchain-website.vercel.app">
-    <meta property="og:type" content="website">
     
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/12409/12409608.png">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -26,7 +18,7 @@
     <style>
         /* --- CORE SETTINGS --- */
         body {
-            background-color: #020402; /* Almost black */
+            background-color: #020402;
             color: #e5e5e5;
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
@@ -44,11 +36,11 @@
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -2; /* Behind everything */
+            z-index: -2;
             opacity: 0.4;
         }
 
-        /* --- 3D KRM OBJECT (CSS ONLY) --- */
+        /* --- 3D KRM OBJECT --- */
         .krm-orb-container {
             position: fixed;
             top: 50%;
@@ -59,7 +51,7 @@
             z-index: -1;
             pointer-events: none;
             perspective: 1000px;
-            opacity: 0.15; /* Subtle background presence */
+            opacity: 0.15;
             filter: blur(2px);
         }
 
@@ -85,8 +77,8 @@
             font-size: 150px;
             font-family: 'Space Grotesk', sans-serif;
             font-weight: 700;
-            color: rgba(74, 222, 128, 0.05); /* Almost invisible fill */
-            -webkit-text-stroke: 2px rgba(74, 222, 128, 0.4); /* Neon outline */
+            color: rgba(74, 222, 128, 0.05);
+            -webkit-text-stroke: 2px rgba(74, 222, 128, 0.4);
             animation: pulse-core 4s ease-in-out infinite;
         }
 
@@ -109,7 +101,7 @@
 
         /* --- GLASSMORPHISM UI --- */
         .glass-panel {
-            background: rgba(10, 10, 10, 0.4); /* Darker, more transparent */
+            background: rgba(10, 10, 10, 0.4);
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255, 255, 255, 0.08);
@@ -122,71 +114,83 @@
             box-shadow: 0 0 20px rgba(74, 222, 128, 0.1);
         }
 
-        /* --- TYPOGRAPHY & UTILS --- */
-        .text-neon {
-            color: #4ade80;
-            text-shadow: 0 0 15px rgba(74, 222, 128, 0.4);
-        }
-
+        /* --- UTILS --- */
+        .text-neon { color: #4ade80; text-shadow: 0 0 15px rgba(74, 222, 128, 0.4); }
         .nav-link { position: relative; }
         .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 0;
-            height: 2px;
-            bottom: 0;
-            left: 50%;
-            background-color: #4ade80;
-            transition: all 0.3s ease;
-            transform: translateX(-50%);
+            content: ''; position: absolute; width: 0; height: 2px; bottom: 0; left: 50%;
+            background-color: #4ade80; transition: all 0.3s ease; transform: translateX(-50%);
         }
         .nav-link:hover::after, .nav-link.active::after { width: 80%; }
         .nav-link.active { color: #fff; }
 
-        /* Mobile Menu Animation */
-        #mobile-menu {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            transform-origin: top;
-        }
-        
-        /* Locked Task Style */
-        .task-locked {
-            opacity: 0.5;
-            pointer-events: none;
-            filter: grayscale(100%);
-            position: relative;
-        }
-        .task-locked::after {
-            content: '\f023'; 
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 32px;
-            color: rgba(255,255,255,0.8);
-            background: rgba(0,0,0,0.5);
-            padding: 15px;
-            border-radius: 50%;
-            backdrop-filter: blur(4px);
-        }
-
+        /* --- PAGE TRANSITIONS (SMOOTHER) --- */
         .page-section {
             display: none;
-            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
         }
-        .page-section.active { display: block; }
+        .page-section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- SIDEBARS (DESKTOP ONLY) --- */
+        .sidebar {
+            position: fixed;
+            top: 25%;
+            width: 200px;
+            z-index: 0;
+            display: none; /* Hidden on mobile by default */
+        }
+        @media (min-width: 1280px) {
+            .sidebar { display: block; }
+        }
         
-        @keyframes slideUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .sidebar-left { left: 40px; }
+        .sidebar-right { right: 40px; }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            font-size: 12px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            padding-bottom: 4px;
+        }
+        .stat-label { color: #6b7280; font-family: 'Space Grotesk', monospace; text-transform: uppercase; }
+        .stat-val { color: #4ade80; font-family: monospace; }
+
+        .tx-feed-item {
+            font-family: monospace;
+            font-size: 10px;
+            color: #6b7280;
+            margin-bottom: 8px;
+            animation: fadeInTx 0.5s ease;
+        }
+        .tx-feed-item span { color: #4ade80; }
+
+        @keyframes fadeInTx { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+
+        /* Mobile Menu */
+        #mobile-menu { transition: max-height 0.4s ease-in-out, opacity 0.4s ease-in-out; max-height: 0; opacity: 0; overflow: hidden; }
+        #mobile-menu.open { max-height: 300px; opacity: 1; }
+        
+        /* Locked Task */
+        .task-locked { opacity: 0.5; pointer-events: none; filter: grayscale(100%); position: relative; }
+        .task-locked::after {
+            content: '\f023'; font-family: "Font Awesome 6 Free"; font-weight: 900;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 32px; color: rgba(255,255,255,0.8); background: rgba(0,0,0,0.5);
+            padding: 15px; border-radius: 50%; backdrop-filter: blur(4px);
         }
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <!-- 1. NETWORK BACKGROUND (CANVAS) -->
+    <!-- 1. NETWORK BACKGROUND -->
     <canvas id="bg-canvas"></canvas>
 
     <!-- 2. 3D BACKGROUND OBJECT -->
@@ -197,20 +201,38 @@
         <div class="core-k">K</div>
     </div>
 
+    <!-- 3. LEFT SIDEBAR (NETWORK HUD) -->
+    <aside class="sidebar sidebar-left">
+        <div class="glass-panel p-4 rounded-lg">
+            <h4 class="text-xs text-gray-500 uppercase tracking-widest mb-4 border-b border-green-500/20 pb-2">Network Status</h4>
+            <div class="stat-row"><span class="stat-label">Block Height</span><span class="stat-val" id="stat-block">12,402,192</span></div>
+            <div class="stat-row"><span class="stat-label">TPS (Live)</span><span class="stat-val" id="stat-tps">4,291</span></div>
+            <div class="stat-row"><span class="stat-label">Avg Gas</span><span class="stat-val" id="stat-gas">0.0001 KRM</span></div>
+            <div class="stat-row"><span class="stat-label">Validators</span><span class="stat-val">1,204</span></div>
+            <div class="stat-row"><span class="stat-label">Status</span><span class="stat-val text-green-400">● Operational</span></div>
+        </div>
+    </aside>
+
+    <!-- 4. RIGHT SIDEBAR (LIVE TX FEED) -->
+    <aside class="sidebar sidebar-right">
+        <div class="glass-panel p-4 rounded-lg">
+            <h4 class="text-xs text-gray-500 uppercase tracking-widest mb-4 border-b border-green-500/20 pb-2">Recent Blocks</h4>
+            <div id="tx-feed" class="h-[150px] overflow-hidden">
+                <!-- JS will populate this -->
+            </div>
+        </div>
+    </aside>
+
     <!-- Navigation -->
     <nav class="fixed w-full z-50 glass-panel border-b-0 border-white/5">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-20">
-                
-                <!-- Logo -->
                 <div class="flex-shrink-0 flex items-center gap-3 cursor-pointer z-50 group" onclick="showPage('home')">
                     <div class="w-9 h-9 rounded-lg border border-green-500/50 flex items-center justify-center bg-green-900/10 group-hover:bg-green-500/20 transition-all shadow-[0_0_10px_rgba(34,197,94,0.2)]">
                         <i class="fa-solid fa-cube text-green-400 text-sm"></i>
                     </div>
                     <span class="text-white font-bold text-xl tracking-widest brand-font">KARCHAIN</span>
                 </div>
-
-                <!-- Desktop Menu -->
                 <div class="hidden md:block">
                     <div class="ml-10 flex items-baseline space-x-10">
                         <button onclick="showPage('home')" id="nav-home" class="nav-link active text-gray-400 hover:text-white text-sm font-medium tracking-wide transition-colors uppercase">Testnet</button>
@@ -218,21 +240,16 @@
                         <button onclick="showPage('support')" id="nav-support" class="nav-link text-gray-400 hover:text-white text-sm font-medium tracking-wide transition-colors uppercase">Support</button>
                     </div>
                 </div>
-
-                <!-- Connect Button & Hamburger -->
                 <div class="flex items-center gap-4">
                     <button id="globalConnectBtn" onclick="connectWallet('MetaMask')" class="bg-white/5 hover:bg-white/10 border border-white/10 text-white px-5 py-2.5 rounded-lg text-sm font-bold transition-all hover:scale-105 hover:border-green-500/50 z-50 relative backdrop-blur-md">
                         Connect Wallet
                     </button>
-                    
                     <button onclick="toggleMobileMenu()" class="md:hidden text-gray-300 hover:text-white focus:outline-none z-50 relative p-2">
                         <i class="fa-solid fa-bars-staggered text-2xl"></i>
                     </button>
                 </div>
             </div>
         </div>
-
-        <!-- Mobile Dropdown -->
         <div id="mobile-menu" class="hidden md:hidden absolute top-20 left-0 w-full glass-panel border-b border-white/10 flex flex-col p-4 space-y-2 shadow-2xl backdrop-blur-xl">
             <button onclick="showPage('home'); toggleMobileMenu()" class="text-left text-gray-300 hover:text-green-400 hover:bg-white/5 p-3 rounded-lg transition-colors">Testnet & Airdrop</button>
             <button onclick="showPage('about'); toggleMobileMenu()" class="text-left text-gray-300 hover:text-green-400 hover:bg-white/5 p-3 rounded-lg transition-colors">Vision & Tech</button>
@@ -245,81 +262,43 @@
 
         <!-- PAGE 1: TESTNET / AIRDROP -->
         <section id="home" class="page-section active">
-            
             <div class="text-center py-10 lg:py-20 relative">
-                <!-- Decorative glowing gradient behind text -->
                 <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[300px] bg-green-500/10 blur-[100px] -z-10 rounded-full"></div>
-                
-                <!-- UPDATED HEADLINE: Smaller size, better wording -->
                 <h1 class="text-4xl md:text-6xl font-bold mb-6 text-white tracking-tight leading-tight">
-                    ARCHITECTING <br>
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">DIGITAL TRUST</span>
+                    ARCHITECTING <br> <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">DIGITAL TRUST</span>
                 </h1>
                 <p class="text-base md:text-lg text-gray-400 max-w-xl mx-auto mb-10 font-light leading-relaxed">
                     Join the Incentivized Testnet powered by Adaptive State Sharding. Validate the network, secure the future, earn KRM.
                 </p>
-                
                 <div class="flex justify-center gap-4">
-                    <button onclick="document.getElementById('wallet-actions').scrollIntoView({behavior: 'smooth'})" class="px-8 py-3 bg-green-600 hover:bg-green-500 text-black font-bold rounded-lg transition-all transform hover:scale-105 shadow-[0_0_20px_rgba(34,197,94,0.4)]">
-                        Start Testing
-                    </button>
-                    <a href="#about" onclick="showPage('about')" class="px-8 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-medium rounded-lg transition-all backdrop-blur-sm">
-                        Learn More
-                    </a>
+                    <button onclick="document.getElementById('wallet-actions').scrollIntoView({behavior: 'smooth'})" class="px-8 py-3 bg-green-600 hover:bg-green-500 text-black font-bold rounded-lg transition-all transform hover:scale-105 shadow-[0_0_20px_rgba(34,197,94,0.4)]">Start Testing</button>
+                    <a href="#about" onclick="showPage('about')" class="px-8 py-3 bg-white/5 border border-white/10 hover:bg-white/10 text-white font-medium rounded-lg transition-all backdrop-blur-sm">Learn More</a>
                 </div>
             </div>
 
-            <!-- Wallet Connection Panel -->
+            <!-- Wallet Panel -->
             <div class="max-w-md mx-auto glass-panel rounded-2xl p-1 mb-12 relative overflow-hidden group">
-                <!-- Subtle glow effect inside card -->
                 <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent opacity-50"></div>
-                
                 <div class="p-7 bg-black/40 rounded-xl h-full">
                     <h3 class="text-lg font-bold mb-6 text-center tracking-wide text-gray-200 uppercase text-xs">Authentication</h3>
-                    
                     <div id="wallet-actions" class="space-y-3">
-                        <!-- MetaMask Button -->
                         <button onclick="connectWallet('MetaMask')" class="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 hover:border-green-500/50 hover:bg-green-500/10 transition-all group">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                                    <i class="fa-brands fa-ethereum text-xl text-gray-300 group-hover:text-green-400"></i>
-                                </div>
-                                <div class="text-left">
-                                    <div class="font-bold text-white">MetaMask</div>
-                                    <div class="text-[10px] text-gray-500 uppercase tracking-wider">EVM Compatible</div>
-                                </div>
-                            </div>
+                            <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center"><i class="fa-brands fa-ethereum text-xl text-gray-300 group-hover:text-green-400"></i></div><div class="text-left"><div class="font-bold text-white">MetaMask</div><div class="text-[10px] text-gray-500 uppercase tracking-wider">EVM Compatible</div></div></div>
                             <i class="fa-solid fa-chevron-right text-gray-600 group-hover:text-green-500 transition-colors"></i>
                         </button>
-                        
-                        <!-- Phantom Button -->
                         <button onclick="connectWallet('Phantom')" class="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 border border-white/10 hover:border-purple-500/50 hover:bg-purple-500/10 transition-all group">
-                            <div class="flex items-center gap-4">
-                                <div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center">
-                                    <i class="fa-solid fa-ghost text-xl text-gray-300 group-hover:text-purple-400"></i>
-                                </div>
-                                <div class="text-left">
-                                    <div class="font-bold text-white">Phantom</div>
-                                    <div class="text-[10px] text-gray-500 uppercase tracking-wider">Solana / Multi-chain</div>
-                                </div>
-                            </div>
+                            <div class="flex items-center gap-4"><div class="w-10 h-10 rounded-full bg-white/10 flex items-center justify-center"><i class="fa-solid fa-ghost text-xl text-gray-300 group-hover:text-purple-400"></i></div><div class="text-left"><div class="font-bold text-white">Phantom</div><div class="text-[10px] text-gray-500 uppercase tracking-wider">Solana / Multi-chain</div></div></div>
                             <i class="fa-solid fa-chevron-right text-gray-600 group-hover:text-purple-500 transition-colors"></i>
                         </button>
                     </div>
-
-                    <!-- Active Wallet Display -->
                     <div id="wallet-connected" class="hidden text-center pt-2">
                         <div class="bg-green-500/10 border border-green-500/30 rounded-lg p-5 mb-4 relative overflow-hidden">
                             <div class="absolute -right-4 -top-4 w-16 h-16 bg-green-500/20 rounded-full blur-xl"></div>
                             <p class="text-[10px] text-green-400 uppercase tracking-widest mb-1">Active Session</p>
                             <p id="userAddress" class="font-mono text-white text-lg truncate tracking-tight">0x00...000</p>
                         </div>
-                        <button id="addNetworkBtn" onclick="addKarchainNetwork()" class="text-xs text-gray-400 hover:text-white flex items-center justify-center gap-2 mx-auto transition-colors">
-                            <i class="fa-solid fa-plus-circle"></i> Add Karchain RPC
-                        </button>
+                        <button id="addNetworkBtn" onclick="addKarchainNetwork()" class="text-xs text-gray-400 hover:text-white flex items-center justify-center gap-2 mx-auto transition-colors"><i class="fa-solid fa-plus-circle"></i> Add Karchain RPC</button>
                     </div>
-
-                    <!-- Balance Div -->
                     <div id="balanceDisplay" class="hidden mt-6 pt-6 border-t border-white/10 text-center">
                         <p class="text-gray-500 text-xs uppercase tracking-widest mb-2">Estimated Allocation</p>
                         <div class="text-5xl font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-green-400 font-mono">5,250</div>
@@ -328,50 +307,30 @@
                 </div>
             </div>
 
-            <!-- Tasks Grid -->
+            <!-- Tasks -->
             <div id="tasks-section" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto opacity-50 pointer-events-none transition-opacity duration-500">
-                
-                <!-- Task 1: Twitter -->
                 <div id="task-twitter" class="glass-panel p-6 rounded-xl relative group overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                    
                     <div class="flex justify-between items-start mb-6 relative z-10">
-                        <div class="bg-white/5 border border-white/10 p-3 rounded-lg flex items-center justify-center w-12 h-12">
-                            <svg viewBox="0 0 24 24" aria-hidden="true" class="w-5 h-5 fill-white"><g><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></g></svg>
-                        </div>
+                        <div class="bg-white/5 border border-white/10 p-3 rounded-lg flex items-center justify-center w-11 h-11"><svg viewBox="0 0 24 24" aria-hidden="true" class="w-5 h-5 fill-white"><g><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"></path></g></svg></div>
                         <span class="bg-green-500/10 border border-green-500/20 text-[10px] px-2 py-1 rounded text-green-400 uppercase tracking-wider font-bold">Required</span>
                     </div>
                     <h4 class="font-bold text-xl mb-2 text-white relative z-10">Social Identity</h4>
                     <p class="text-sm text-gray-400 mb-6 leading-relaxed relative z-10">Follow the official X account to verify you are a human and unlock the whitelist application.</p>
-                    
                     <div class="flex gap-3 relative z-10">
-                        <a href="https://x.com/karim7652117665" target="_blank" onclick="activateVerify('btn-verify-tw')" class="flex-1 bg-white/5 border border-white/10 hover:bg-white/10 text-white py-3 rounded-lg text-center text-sm font-medium transition-colors">
-                            Launch X
-                        </a>
-                        <button id="btn-verify-tw" onclick="verifyTask('task-twitter', this)" class="flex-1 btn-disabled text-white py-3 rounded-lg text-sm font-medium transition-all" disabled>
-                            Verify
-                        </button>
+                        <a href="https://x.com/karim7652117665" target="_blank" onclick="activateVerify('btn-verify-tw')" class="flex-1 bg-white/5 border border-white/10 hover:bg-white/10 text-white py-3 rounded-lg text-center text-sm font-medium transition-colors">Launch X</a>
+                        <button id="btn-verify-tw" onclick="verifyTask('task-twitter', this)" class="flex-1 btn-disabled text-white py-3 rounded-lg text-sm font-medium transition-all" disabled>Verify</button>
                     </div>
                 </div>
-
-                <!-- Task 2: Form (Locked) -->
                 <div id="task-form" class="glass-panel p-6 rounded-xl task-locked transition-all duration-500">
                     <div class="flex justify-between items-start mb-6">
-                        <div class="bg-indigo-500/10 border border-indigo-500/20 p-3 rounded-lg flex items-center justify-center w-12 h-12">
-                            <i class="fa-solid fa-file-signature text-indigo-400 text-lg"></i>
-                        </div>
+                        <div class="bg-indigo-500/10 border border-indigo-500/20 p-3 rounded-lg flex items-center justify-center w-12 h-12"><i class="fa-solid fa-file-signature text-indigo-400 text-lg"></i></div>
                         <span id="lock-badge" class="bg-gray-800 text-[10px] px-2 py-1 rounded text-gray-400 uppercase tracking-wider font-bold">Locked</span>
                     </div>
                     <h4 class="font-bold text-xl mb-2 text-white">Whitelist Access</h4>
                     <p class="text-sm text-gray-400 mb-6 leading-relaxed">Submit your wallet address to the Genesis Block registry for Mainnet airdrop allocation.</p>
-                    
                     <div class="flex gap-3">
-                        <a id="btn-open-form" href="https://docs.google.com/forms" target="_blank" class="flex-1 bg-white/5 border border-white/10 text-white py-3 rounded-lg text-center text-sm font-medium transition-colors pointer-events-none opacity-50">
-                            Open Form
-                        </a>
-                        <div class="flex-1 flex items-center justify-center text-xs text-gray-500 border border-transparent">
-                            Awaiting Unlock
-                        </div>
+                        <a id="btn-open-form" href="https://docs.google.com/forms" target="_blank" class="flex-1 bg-white/5 border border-white/10 text-white py-3 rounded-lg text-center text-sm font-medium transition-colors pointer-events-none opacity-50">Open Form</a>
+                        <div class="flex-1 flex items-center justify-center text-xs text-gray-500 border border-transparent">Awaiting Unlock</div>
                     </div>
                 </div>
             </div>
@@ -379,7 +338,7 @@
         </section>
 
 
-        <!-- PAGE 2: VISION -->
+        <!-- PAGE 2: VISION (EXPANDED WITH "WATER") -->
         <section id="about" class="page-section">
             <div class="max-w-4xl mx-auto">
                 <div class="text-center mb-16 relative">
@@ -387,42 +346,34 @@
                     <div class="h-1 w-24 bg-green-500 mx-auto rounded-full shadow-[0_0_15px_#22c55e]"></div>
                 </div>
 
-                <div class="space-y-8 text-lg text-gray-300 font-light leading-relaxed">
-                    <!-- Tech Block 1 -->
-                    <div class="glass-panel p-10 rounded-2xl border-l-2 border-green-500 hover:translate-x-2 transition-transform">
-                        <div class="flex items-center gap-4 mb-4">
-                            <i class="fa-solid fa-layer-group text-green-400 text-2xl"></i>
-                            <h3 class="text-white font-bold text-2xl">Modular Consensus Engine</h3>
-                        </div>
-                        <p class="text-gray-400 text-base">
-                            Karchain decouples execution from consensus. By utilizing <strong class="text-white">Adaptive State Sharding</strong>, our network dynamically partitions its state, ensuring that throughput scales linearly with node participation, eliminating the bottlenecks of monolithic chains.
-                        </p>
+                <div class="space-y-12 text-lg text-gray-300 font-light leading-relaxed">
+                    <!-- SECTION 1: GENESIS -->
+                    <div>
+                        <h3 class="text-2xl text-white font-bold mb-4 font-mono">01 // The Post-Blockchain Era</h3>
+                        <p class="mb-4">Karchain represents a paradigm shift in decentralized infrastructure. We are not merely building another blockchain; we are engineering the final layer of global settlement. While first-generation protocols struggled with the "Blockchain Trilemma"—the inability to achieve security, scalability, and decentralization simultaneously—Karchain has solved this equation through four years of stealth research.</p>
+                        <p>Our consortium of over 200 distributed systems engineers, cryptographers, and economic theorists from MIT, ETH Zurich, and top-tier tech giants have built a system designed not for the constraints of today, but for the infinite demand of tomorrow's digital economy.</p>
                     </div>
 
-                    <!-- Tech Block 2 -->
-                    <div class="glass-panel p-10 rounded-2xl border-l-2 border-green-500 hover:translate-x-2 transition-transform">
-                        <div class="flex items-center gap-4 mb-4">
-                            <i class="fa-solid fa-bolt text-green-400 text-2xl"></i>
-                            <h3 class="text-white font-bold text-2xl">Zero-Knowledge Finality</h3>
-                        </div>
-                        <p class="text-gray-400 text-base">
-                            Utilizing ZK-SNARKs to offer instant finality. Assets can be bridged, traded, and settled in sub-second timeframes with mathematical certainty, eliminating the risk of reorganization attacks common in optimistic rollups.
-                        </p>
+                    <!-- SECTION 2: TECH -->
+                    <div class="glass-panel p-8 rounded-xl border-l-2 border-green-500">
+                        <h3 class="text-xl text-green-400 font-bold mb-2 font-mono">Hyper-Graph Sharding Technology</h3>
+                        <p class="text-base text-gray-400">Traditional monolithic blockchains inevitably lead to congestion. Karchain utilizes **Adaptive State Sharding**, dynamically partitioning the network state. This ensures that throughput scales linearly with node participation. We employ **Zero-Knowledge Validity Proofs (ZK-SNARKs)** to offer instant finality, allowing assets to be bridged and settled in sub-second timeframes with mathematical certainty.</p>
                     </div>
 
-                    <!-- Tech Block 3 -->
-                    <div class="glass-panel p-10 rounded-2xl border-l-2 border-green-500 hover:translate-x-2 transition-transform">
-                        <div class="flex items-center gap-4 mb-4">
-                            <i class="fa-solid fa-leaf text-green-400 text-2xl"></i>
-                            <h3 class="text-white font-bold text-2xl">Carbon-Negative State</h3>
-                        </div>
-                        <p class="text-gray-400 text-base">
-                            We have deprecated Proof-of-Work. Karchain introduces <strong class="text-white">Proof-of-Synchrony (PoS-X)</strong>, allowing validators to run on hyper-lightweight hardware, democratizing access to network security while maintaining a negative carbon footprint.
-                        </p>
+                    <!-- SECTION 3: ECOSYSTEM -->
+                    <div>
+                        <h3 class="text-2xl text-white font-bold mb-4 font-mono">02 // The Economic Singularity</h3>
+                        <p class="mb-4">We have deprecated the energy-intensive Proof-of-Work model. Karchain introduces **Proof-of-Synchrony (PoS-X)**, a novel consensus algorithm that minimizes communication overhead. This allows validators to run on hyper-lightweight nodes—even smartphones—democratizing access to network security.</p>
+                        <p>The **KRM token** is the kinetic energy of this ecosystem. It serves a triple utility role: governing protocol parameters via the DAO, securing the network through staking, and fueling the execution of complex smart contracts. By holding KRM, you are not just an investor; you are a custodian of the new internet.</p>
+                    </div>
+
+                    <!-- SECTION 4: FUTURE -->
+                    <div class="glass-panel p-8 rounded-xl border-l-2 border-purple-500">
+                        <h3 class="text-xl text-purple-400 font-bold mb-2 font-mono">Interstellar Roadmap</h3>
+                        <p class="text-base text-gray-400">We are building the rails for the global economy of 2030. Our roadmap includes native integration with the Interplanetary File System (IPFS) for decentralized storage, quantum-resistant signature schemes to future-proof assets against next-gen computing threats, and seamless AI-agent interoperability.</p>
                     </div>
                 </div>
                 
-                <!-- Partners Strip -->
                 <div class="mt-20 border-t border-white/10 pt-10 text-center">
                     <p class="text-xs uppercase tracking-[0.2em] text-gray-500 mb-8">Technology Partners</p>
                     <div class="flex flex-wrap justify-center gap-12 opacity-50 grayscale hover:grayscale-0 transition-all duration-500">
@@ -441,33 +392,20 @@
                 <h1 class="text-4xl md:text-5xl font-bold text-white mb-4">SUPPORT CENTER</h1>
                 <p class="text-gray-400">Technical assistance & Community resources</p>
             </div>
-
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-12">
-                <!-- Direct Support -->
                 <div class="glass-panel p-8 rounded-xl text-left">
-                    <div class="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center mb-6">
-                        <i class="fa-regular fa-life-ring text-green-400 text-xl"></i>
-                    </div>
+                    <div class="w-12 h-12 bg-green-500/10 rounded-lg flex items-center justify-center mb-6"><i class="fa-regular fa-life-ring text-green-400 text-xl"></i></div>
                     <h3 class="text-xl font-bold text-white mb-2">Technical Issues?</h3>
                     <p class="text-gray-400 text-sm mb-6">Chat directly with our engineering team for node setup or faucet issues.</p>
-                    <a href="https://t.me/tgkarim1" target="_blank" class="block w-full py-3 bg-white/5 border border-white/10 hover:bg-green-600 hover:border-green-600 hover:text-black text-white text-center rounded-lg font-bold transition-all">
-                        Open Support Ticket
-                    </a>
+                    <a href="https://t.me/tgkarim1" target="_blank" class="block w-full py-3 bg-white/5 border border-white/10 hover:bg-green-600 hover:border-green-600 hover:text-black text-white text-center rounded-lg font-bold transition-all">Open Support Ticket</a>
                 </div>
-
-                <!-- Community -->
                 <div class="glass-panel p-8 rounded-xl text-left">
-                    <div class="w-12 h-12 bg-indigo-500/10 rounded-lg flex items-center justify-center mb-6">
-                        <i class="fa-brands fa-telegram text-indigo-400 text-xl"></i>
-                    </div>
+                    <div class="w-12 h-12 bg-indigo-500/10 rounded-lg flex items-center justify-center mb-6"><i class="fa-brands fa-telegram text-indigo-400 text-xl"></i></div>
                     <h3 class="text-xl font-bold text-white mb-2">Join the Community</h3>
                     <p class="text-gray-400 text-sm mb-6">Discuss governance, price action, and development in our main channel.</p>
-                    <a href="https://t.me/tgkarim1" target="_blank" class="block w-full py-3 bg-white/5 border border-white/10 hover:bg-indigo-600 hover:border-indigo-600 text-white text-center rounded-lg font-bold transition-all">
-                        Enter Telegram
-                    </a>
+                    <a href="https://t.me/tgkarim1" target="_blank" class="block w-full py-3 bg-white/5 border border-white/10 hover:bg-indigo-600 hover:border-indigo-600 text-white text-center rounded-lg font-bold transition-all">Enter Telegram</a>
                 </div>
             </div>
-            
             <div class="max-w-3xl mx-auto border-t border-white/10 pt-12">
                 <h3 class="text-sm font-bold uppercase tracking-widest text-gray-500 mb-6 text-center">Documentation</h3>
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
@@ -488,70 +426,81 @@
 
     <!-- --- LOGIC SCRIPTS --- -->
     <script>
-        // --- 0. BACKGROUND PARTICLES (CANVAS) ---
+        // --- 0. BACKGROUND PARTICLES & SIDEBAR LOGIC ---
         const canvas = document.getElementById('bg-canvas');
         const ctx = canvas.getContext('2d');
         let particles = [];
         
-        function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
+        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         window.addEventListener('resize', resizeCanvas);
         resizeCanvas();
 
         class Particle {
             constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.vx = (Math.random() - 0.5) * 0.5;
-                this.vy = (Math.random() - 0.5) * 0.5;
+                this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height;
+                this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5;
                 this.size = Math.random() * 2;
             }
             update() {
-                this.x += this.vx;
-                this.y += this.vy;
+                this.x += this.vx; this.y += this.vy;
                 if(this.x < 0 || this.x > canvas.width) this.vx *= -1;
                 if(this.y < 0 || this.y > canvas.height) this.vy *= -1;
             }
             draw() {
                 ctx.fillStyle = 'rgba(74, 222, 128, 0.5)';
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
             }
         }
 
         function initParticles() {
             particles = [];
-            const count = window.innerWidth < 768 ? 30 : 60; // Fewer particles on mobile
+            const count = window.innerWidth < 768 ? 30 : 60;
             for(let i=0; i<count; i++) particles.push(new Particle());
         }
 
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             particles.forEach(p => {
-                p.update();
-                p.draw();
-                // Draw connections
+                p.update(); p.draw();
                 particles.forEach(p2 => {
-                    const dx = p.x - p2.x;
-                    const dy = p.y - p2.y;
-                    const dist = Math.sqrt(dx*dx + dy*dy);
+                    const dx = p.x - p2.x; const dy = p.y - p2.y; const dist = Math.sqrt(dx*dx + dy*dy);
                     if(dist < 150) {
                         ctx.strokeStyle = `rgba(74, 222, 128, ${0.1 - dist/1500})`;
-                        ctx.lineWidth = 0.5;
-                        ctx.beginPath();
-                        ctx.moveTo(p.x, p.y);
-                        ctx.lineTo(p2.x, p2.y);
-                        ctx.stroke();
+                        ctx.lineWidth = 0.5; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
                     }
                 });
             });
             requestAnimationFrame(animateParticles);
         }
-        initParticles();
-        animateParticles();
+        initParticles(); animateParticles();
+
+        // --- SIDEBAR DATA UPDATER ---
+        function updateStats() {
+            const blockEl = document.getElementById('stat-block');
+            const tpsEl = document.getElementById('stat-tps');
+            const gasEl = document.getElementById('stat-gas');
+            
+            if(blockEl) {
+                let currentBlock = parseInt(blockEl.innerText.replace(/,/g, ''));
+                blockEl.innerText = (currentBlock + 1).toLocaleString();
+            }
+            if(tpsEl) tpsEl.innerText = (Math.floor(Math.random() * (5000 - 3000 + 1)) + 3000).toLocaleString();
+            if(gasEl) gasEl.innerText = (0.0001 + Math.random() * 0.00005).toFixed(5) + ' KRM';
+        }
+        setInterval(updateStats, 2000);
+
+        // --- FAKE TX FEED ---
+        function addFakeTx() {
+            const feed = document.getElementById('tx-feed');
+            if(!feed) return;
+            const hash = '0x' + Math.random().toString(16).substr(2, 8) + '...' + Math.random().toString(16).substr(2, 4);
+            const div = document.createElement('div');
+            div.className = 'tx-feed-item';
+            div.innerHTML = `<span>Block ${Math.floor(Math.random() * 100)}:</span> ${hash}`;
+            feed.prepend(div);
+            if(feed.children.length > 8) feed.lastChild.remove();
+        }
+        setInterval(addFakeTx, 1500);
 
 
         // --- 1. CONFIGURATION ---
@@ -566,17 +515,36 @@
         // --- 2. UI LOGIC ---
         function toggleMobileMenu() {
             const menu = document.getElementById('mobile-menu');
-            menu.classList.toggle('hidden');
+            if (menu.classList.contains('hidden')) {
+                menu.classList.remove('hidden');
+                setTimeout(() => menu.classList.add('open'), 10); // Trigger transition
+            } else {
+                menu.classList.remove('open');
+                setTimeout(() => menu.classList.add('hidden'), 400); // Wait for transition
+            }
         }
 
         function showPage(pageId) {
-            document.querySelectorAll('.page-section').forEach(section => section.classList.remove('active'));
+            // Smooth Opacity Transition for Pages
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    section.classList.remove('active');
+                    if(section.id === pageId) {
+                        section.classList.add('active');
+                        setTimeout(() => {
+                            section.style.opacity = '1';
+                            section.style.transform = 'translateY(0)';
+                        }, 50);
+                    }
+                }, 300); // Wait for fade out
+            });
+
             document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
-            document.getElementById(pageId).classList.add('active');
-            
             const navLink = document.getElementById('nav-' + pageId);
             if(navLink) navLink.classList.add('active');
-            window.scrollTo(0, 0);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         // --- 3. WALLET LOGIC ---
@@ -593,7 +561,6 @@
                             handleLoginSuccess(resp.publicKey.toString(), 'Phantom');
                         } catch (err) { throw new Error("Connection rejected"); }
                     } else {
-                        // Simulating Phantom for demo
                         setTimeout(() => handleLoginSuccess('Solana...8xP2', 'Phantom'), 800);
                     }
                 } else {
