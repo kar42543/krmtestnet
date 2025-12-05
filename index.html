@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Karchain | Incentivized Testnet</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/12409/12409608.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
@@ -46,11 +47,6 @@
             100% { box-shadow: 0 0 20px rgba(21, 128, 61, 0.2); }
         }
 
-        @keyframes spin-slow {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-
         .animate-float {
             animation: float 6s ease-in-out infinite;
         }
@@ -62,7 +58,6 @@
             margin: 0 auto;
         }
 
-        /* Abstract Logo CSS (K-Shape / Ethereal) */
         .ethereal-logo {
             position: absolute;
             top: 50%;
@@ -94,19 +89,16 @@
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
         }
 
-        /* Navigation Active State */
         .nav-link.active {
             color: #4ade80;
             border-bottom: 2px solid #4ade80;
         }
 
-        /* Matrix-like Green Text */
         .text-neon {
             color: #4ade80;
             text-shadow: 0 0 10px rgba(74, 222, 128, 0.3);
         }
 
-        /* Hide sections by default */
         .page-section {
             display: none;
             animation: fadeIn 0.5s ease-in-out;
@@ -118,6 +110,22 @@
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Verify Button States */
+        .btn-disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background-color: #374151;
+        }
+        .btn-ready {
+            background-color: #15803d;
+            cursor: pointer;
+            animation: pulse-glow 2s infinite;
+        }
+        .task-completed {
+            border-color: #22c55e;
+            background: rgba(21, 128, 61, 0.1);
         }
     </style>
 </head>
@@ -141,7 +149,7 @@
                     </div>
                 </div>
                 <div>
-                    <button id="globalConnectBtn" class="bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded-full text-sm font-bold transition-all shadow-[0_0_15px_rgba(21,128,61,0.5)]">
+                    <button id="globalConnectBtn" onclick="connectWallet()" class="bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded-full text-sm font-bold transition-all shadow-[0_0_15px_rgba(21,128,61,0.5)]">
                         Connect Wallet
                     </button>
                 </div>
@@ -172,58 +180,87 @@
             <!-- Wallet Connection Panel -->
             <div class="max-w-md mx-auto glass-panel rounded-2xl p-8 mb-12">
                 <h3 class="text-xl font-bold mb-6 text-center">Step 1: Connect Identity</h3>
-                <div class="space-y-4">
-                    <button onclick="connectWallet('MetaMask')" class="w-full flex items-center justify-between p-4 rounded-xl border border-gray-700 hover:border-green-500 hover:bg-green-900/10 transition-all group">
+                <div id="wallet-actions" class="space-y-4">
+                    <button onclick="connectWallet()" class="w-full flex items-center justify-between p-4 rounded-xl border border-gray-700 hover:border-green-500 hover:bg-green-900/10 transition-all group">
                         <div class="flex items-center gap-3">
                             <i class="fa-brands fa-ethereum text-2xl text-gray-300 group-hover:text-green-400"></i>
-                            <span class="font-medium text-lg">MetaMask</span>
+                            <span class="font-medium text-lg">MetaMask / EVM</span>
                         </div>
-                        <span class="text-xs text-green-500 opacity-0 group-hover:opacity-100 transition-opacity">Detecting...</span>
+                        <span class="text-xs text-green-500 opacity-0 group-hover:opacity-100 transition-opacity">Connect</span>
                     </button>
                     
-                    <button onclick="connectWallet('Phantom')" class="w-full flex items-center justify-between p-4 rounded-xl border border-gray-700 hover:border-purple-500 hover:bg-purple-900/10 transition-all group">
+                    <button onclick="alert('Phantom support coming in Phase 2')" class="w-full flex items-center justify-between p-4 rounded-xl border border-gray-700 hover:border-purple-500 hover:bg-purple-900/10 transition-all group opacity-70">
                         <div class="flex items-center gap-3">
                             <i class="fa-solid fa-ghost text-2xl text-gray-300 group-hover:text-purple-400"></i>
-                            <span class="font-medium text-lg">Phantom</span>
+                            <span class="font-medium text-lg">Phantom (Soon)</span>
                         </div>
-                        <span class="text-xs text-purple-400">Multi-chain Support</span>
                     </button>
                 </div>
 
-                <!-- Hidden Balance Div -->
+                <!-- Active Wallet Display (Hidden by default) -->
+                <div id="wallet-connected" class="hidden text-center">
+                    <div class="bg-green-900/20 border border-green-500/30 rounded-lg p-4 mb-4">
+                        <p class="text-xs text-green-400 uppercase tracking-widest">Connected Address</p>
+                        <p id="userAddress" class="font-mono text-white text-lg truncate">0x00...000</p>
+                    </div>
+                    <button onclick="addKarchainNetwork()" class="text-xs text-gray-400 hover:text-white underline">
+                        Add Karchain Network to MetaMask
+                    </button>
+                </div>
+
+                <!-- Balance Div -->
                 <div id="balanceDisplay" class="hidden mt-6 pt-6 border-t border-gray-700 text-center animate-pulse">
-                    <p class="text-gray-400 text-sm">Estimated Airdrop Allocation:</p>
+                    <p class="text-gray-400 text-sm">Projected Airdrop Allocation:</p>
                     <div class="text-4xl font-bold text-neon mt-2">5,250 KRM</div>
-                    <p class="text-xs text-gray-500 mt-2">Based on wallet history snapshot.</p>
+                    <p class="text-xs text-gray-500 mt-2">Eligibility confirmed.</p>
                 </div>
             </div>
 
             <!-- Tasks Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-                <div class="glass-panel p-6 rounded-xl border border-gray-800">
+            <div id="tasks-section" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto opacity-50 pointer-events-none transition-opacity">
+                <!-- Twitter Task -->
+                <div id="task-twitter" class="glass-panel p-6 rounded-xl border border-gray-800 transition-all">
                     <div class="flex justify-between items-start mb-4">
                         <div class="bg-blue-900/30 p-3 rounded-lg"><i class="fa-brands fa-twitter text-blue-400 text-xl"></i></div>
                         <span class="bg-gray-800 text-xs px-2 py-1 rounded text-gray-400">Optional</span>
                     </div>
                     <h4 class="font-bold text-lg mb-2">Social Amplification</h4>
                     <p class="text-sm text-gray-400 mb-4">Follow Karchain on X and retweet the pinned announcement.</p>
-                    <button class="w-full py-2 rounded border border-gray-600 hover:bg-gray-800 text-sm">Start Task</button>
+                    
+                    <div class="flex gap-2">
+                        <a href="https://twitter.com/karchain_net" target="_blank" onclick="activateVerify('btn-verify-tw')" class="flex-1 bg-transparent border border-gray-600 hover:bg-gray-800 text-white py-2 rounded text-center text-sm transition-colors">
+                            <i class="fa-solid fa-arrow-up-right-from-square mr-2"></i> Open X
+                        </a>
+                        <button id="btn-verify-tw" onclick="verifyTask('task-twitter', this)" class="flex-1 btn-disabled text-white py-2 rounded text-sm transition-all" disabled>
+                            Verify
+                        </button>
+                    </div>
                 </div>
 
-                <div class="glass-panel p-6 rounded-xl border border-gray-800">
+                <!-- Discord Task -->
+                <div id="task-discord" class="glass-panel p-6 rounded-xl border border-gray-800 transition-all">
                     <div class="flex justify-between items-start mb-4">
                         <div class="bg-indigo-900/30 p-3 rounded-lg"><i class="fa-brands fa-discord text-indigo-400 text-xl"></i></div>
                         <span class="bg-green-900/30 text-xs px-2 py-1 rounded text-green-400">High Priority</span>
                     </div>
                     <h4 class="font-bold text-lg mb-2">Community Validation</h4>
                     <p class="text-sm text-gray-400 mb-4">Join the Discord server and obtain the "Early Tester" role.</p>
-                    <button class="w-full py-2 rounded bg-indigo-600 hover:bg-indigo-700 text-white text-sm">Verify</button>
+                    
+                    <div class="flex gap-2">
+                        <a href="https://discord.gg/karchain" target="_blank" onclick="activateVerify('btn-verify-ds')" class="flex-1 bg-transparent border border-gray-600 hover:bg-gray-800 text-white py-2 rounded text-center text-sm transition-colors">
+                            <i class="fa-solid fa-arrow-up-right-from-square mr-2"></i> Open Discord
+                        </a>
+                        <button id="btn-verify-ds" onclick="verifyTask('task-discord', this)" class="flex-1 btn-disabled text-white py-2 rounded text-sm transition-all" disabled>
+                            Verify
+                        </button>
+                    </div>
                 </div>
             </div>
+            <p id="tasks-locked-msg" class="text-center text-gray-500 mt-4 text-sm">Please connect wallet to unlock tasks.</p>
         </section>
 
 
-        <!-- PAGE 2: VISION / ABOUT US (THE WATER) -->
+        <!-- PAGE 2: VISION / ABOUT US (FULL VERSION RESTORED) -->
         <section id="about" class="page-section">
             <div class="max-w-4xl mx-auto">
                 <div class="text-center mb-16">
@@ -255,11 +292,10 @@
                     </p>
                 </div>
 
-                <!-- Fake Team / Stats -->
+                <!-- Team / Stats Footer -->
                 <div class="mt-20 border-t border-gray-800 pt-10">
                     <h3 class="text-center text-2xl font-bold mb-10">Engineered By</h3>
                     <div class="flex flex-wrap justify-center gap-10 opacity-70">
-                        <!-- Just logos or text representing big partners -->
                         <div class="text-xl font-bold tracking-widest">BESU CORE</div>
                         <div class="text-xl font-bold tracking-widest">ETHEREUM ALLIANCE</div>
                         <div class="text-xl font-bold tracking-widest">ZK-LABS</div>
@@ -269,7 +305,7 @@
         </section>
 
 
-        <!-- PAGE 3: SUPPORT (EXACT COPY) -->
+        <!-- PAGE 3: SUPPORT (FULL VERSION RESTORED) -->
         <section id="support" class="page-section">
             <div class="max-w-4xl mx-auto text-center mb-12">
                 <h1 class="text-4xl font-bold text-white mb-4">Karchain Support</h1>
@@ -361,61 +397,125 @@
     </main>
 
     <footer class="border-t border-gray-900 bg-black py-8 text-center text-gray-600 text-sm">
-        <p>&copy; 2025 Karchain Foundation. All rights reserved.</p>
-        <div class="flex justify-center gap-4 mt-2">
-            <a href="#" class="hover:text-white">Privacy Policy</a>
-            <a href="#" class="hover:text-white">Terms of Service</a>
-        </div>
+        <p>&copy; 2025 Karchain Foundation.</p>
     </footer>
 
-    <!-- Logic Script -->
+    <!-- LOGIC SCRIPT -->
     <script>
-        // Navigation Logic
-        function showPage(pageId) {
-            // Hide all sections
-            document.querySelectorAll('.page-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            
-            // Remove active class from nav links
-            document.querySelectorAll('.nav-link').forEach(link => {
-                link.classList.remove('active');
-            });
+        // --- 1. CONFIGURATION (EDIT THIS WITH YOUR REAL DATA) ---
+        const NETWORK_CONFIG = {
+            chainId: '0x13881', // Приклад: 80001 (Mumbai) в hex. Зміни на свій!
+            chainName: 'Karchain Testnet',
+            nativeCurrency: {
+                name: 'Karchain Token',
+                symbol: 'KRM',
+                decimals: 18
+            },
+            rpcUrls: ['https://rpc-mumbai.maticvigil.com'], // Встав сюди свій реальний RPC
+            blockExplorerUrls: ['https://mumbai.polygonscan.com'] // Встав свій експлорер
+        };
 
-            // Show selected section
+        // --- 2. NAVIGATION ---
+        function showPage(pageId) {
+            document.querySelectorAll('.page-section').forEach(section => section.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(link => link.classList.remove('active'));
             document.getElementById(pageId).classList.add('active');
-            
-            // Add active class to nav link
             const navLink = document.getElementById('nav-' + pageId);
             if(navLink) navLink.classList.add('active');
-
-            // Scroll to top
             window.scrollTo(0, 0);
         }
 
-        // Wallet Logic (Simulation)
-        async function connectWallet(provider) {
-            const btn = document.getElementById('globalConnectBtn');
-            const balanceDiv = document.getElementById('balanceDisplay');
-            
-            // Simulation of connecting
-            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Connecting...';
-            
-            setTimeout(() => {
-                // Determine address based on provider
-                let address = provider === 'Phantom' ? 'Solana...8xP2' : '0x71C...9A2';
-                
-                btn.innerHTML = address;
-                btn.classList.remove('bg-green-700');
-                btn.classList.add('bg-gray-800', 'border', 'border-green-500');
-                
-                // Show Eligibility Balance
-                if(balanceDiv) {
-                    balanceDiv.classList.remove('hidden');
-                }
+        // --- 3. REAL WALLET CONNECTION ---
+        let userAccount = null;
 
-                alert(`Success! Connected with ${provider}. Your eligibility has been calculated.`);
-            }, 1500);
+        async function connectWallet() {
+            const btn = document.getElementById('globalConnectBtn');
+            
+            // Check if MetaMask is installed
+            if (typeof window.ethereum !== 'undefined') {
+                try {
+                    btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Connecting...';
+                    
+                    // Request Access
+                    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                    userAccount = accounts[0];
+                    
+                    // UI Updates on Success
+                    handleLoginSuccess(userAccount);
+                    
+                } catch (error) {
+                    console.error(error);
+                    btn.innerHTML = 'Connect Wallet';
+                    alert("Connection failed: " + error.message);
+                }
+            } else {
+                alert("MetaMask not found! Please install it.");
+                window.open("https://metamask.io/download/", "_blank");
+            }
+        }
+
+        function handleLoginSuccess(address) {
+            // Shorten Address
+            const shortAddr = address.substring(0, 6) + "..." + address.substring(address.length - 4);
+            
+            // Update Header Button
+            const navBtn = document.getElementById('globalConnectBtn');
+            navBtn.innerText = shortAddr;
+            navBtn.classList.remove('bg-green-700');
+            navBtn.classList.add('bg-gray-800', 'border', 'border-green-500', 'text-green-400');
+
+            // Update Panel
+            document.getElementById('wallet-actions').classList.add('hidden');
+            document.getElementById('wallet-connected').classList.remove('hidden');
+            document.getElementById('userAddress').innerText = address;
+            document.getElementById('balanceDisplay').classList.remove('hidden');
+
+            // Unlock Tasks
+            document.getElementById('tasks-section').classList.remove('opacity-50', 'pointer-events-none');
+            document.getElementById('tasks-locked-msg').style.display = 'none';
+        }
+
+        // --- 4. ADD NETWORK FUNCTION ---
+        async function addKarchainNetwork() {
+            if(!window.ethereum) return;
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_addEthereumChain',
+                    params: [NETWORK_CONFIG]
+                });
+            } catch (error) {
+                alert("Error adding network: " + error.message);
+            }
+        }
+
+        // --- 5. SOCIAL MEDIA "VERIFICATION" LOGIC ---
+        function activateVerify(btnId) {
+            const btn = document.getElementById(btnId);
+            
+            // Change button state to "Checking..."
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking...';
+            
+            // Enable button after 5 seconds (simulating API check time)
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.classList.remove('btn-disabled');
+                btn.classList.add('btn-ready');
+                btn.innerHTML = 'Verify Now';
+            }, 5000);
+        }
+
+        function verifyTask(taskId, btnElement) {
+            // Visual success effect
+            btnElement.innerHTML = '<i class="fa-solid fa-check"></i> Verified';
+            btnElement.classList.remove('btn-ready');
+            btnElement.classList.add('bg-green-600', 'cursor-default');
+            btnElement.disabled = true;
+
+            const taskCard = document.getElementById(taskId);
+            taskCard.classList.add('task-completed');
+            
+            // Add Confetti or Celebration here if needed
+            alert("Task Verified! Points added to allocation.");
         }
     </script>
 </body>
