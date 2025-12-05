@@ -3,7 +3,24 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Karchain | Incentivized Testnet</title>
+    
+    <!-- --- SEO BLOCK --- -->
+    <title>Karchain | The Modular Consensus Layer & Testnet</title>
+    <meta name="description" content="Karchain is a hyper-scalable Layer-1 blockchain featuring Adaptive State Sharding and Proof-of-Synchrony. Join the Incentivized Testnet to earn KRM rewards.">
+    <meta name="keywords" content="Karchain, KRM token, Blockchain, Testnet, Airdrop, Layer 1, Crypto, Modular Consensus, Web3">
+    <meta name="author" content="Karchain Foundation">
+    <meta name="robots" content="index, follow">
+
+    <!-- Social Media Tags -->
+    <meta property="og:title" content="Karchain | Incentivized Testnet Live">
+    <meta property="og:description" content="Participate in the Karchain Testnet. Connect wallet, complete tasks, and verify eligibility for the KRM Airdrop.">
+    <meta property="og:image" content="https://i.imgur.com/YOUR_IMAGE_LINK.png"> <!-- НЕ ЗАБУДЬ ЗАМІНИТИ НА СВОЄ ЛОГО (з Imgur) -->
+    <meta property="og:url" content="https://karchain-website.vercel.app">
+    <meta property="og:type" content="website">
+    
+    <!-- GOOGLE VERIFICATION CODE -->
+    <!-- <meta name="google-site-verification" content="..." /> -->
+
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/12409/12409608.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
@@ -197,7 +214,7 @@
                     </button>
                 </div>
 
-                <!-- Active Wallet Display (Hidden by default) -->
+                <!-- Active Wallet Display -->
                 <div id="wallet-connected" class="hidden text-center">
                     <div class="bg-green-900/20 border border-green-500/30 rounded-lg p-4 mb-4">
                         <p class="text-xs text-green-400 uppercase tracking-widest">Connected Address</p>
@@ -218,7 +235,7 @@
 
             <!-- Tasks Grid -->
             <div id="tasks-section" class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto opacity-50 pointer-events-none transition-opacity">
-                <!-- Twitter Task -->
+                <!-- Twitter Task (UPDATED) -->
                 <div id="task-twitter" class="glass-panel p-6 rounded-xl border border-gray-800 transition-all">
                     <div class="flex justify-between items-start mb-4">
                         <div class="bg-blue-900/30 p-3 rounded-lg"><i class="fa-brands fa-twitter text-blue-400 text-xl"></i></div>
@@ -228,7 +245,8 @@
                     <p class="text-sm text-gray-400 mb-4">Follow Karchain on X and retweet the pinned announcement.</p>
                     
                     <div class="flex gap-2">
-                        <a href="https://twitter.com/karchain_net" target="_blank" onclick="activateVerify('btn-verify-tw')" class="flex-1 bg-transparent border border-gray-600 hover:bg-gray-800 text-white py-2 rounded text-center text-sm transition-colors">
+                        <!-- LINK CHANGED HERE -->
+                        <a href="https://x.com/karim7652117665" target="_blank" onclick="activateVerify('btn-verify-tw')" class="flex-1 bg-transparent border border-gray-600 hover:bg-gray-800 text-white py-2 rounded text-center text-sm transition-colors">
                             <i class="fa-solid fa-arrow-up-right-from-square mr-2"></i> Open X
                         </a>
                         <button id="btn-verify-tw" onclick="verifyTask('task-twitter', this)" class="flex-1 btn-disabled text-white py-2 rounded text-sm transition-all" disabled>
@@ -260,7 +278,7 @@
         </section>
 
 
-        <!-- PAGE 2: VISION / ABOUT US (FULL VERSION RESTORED) -->
+        <!-- PAGE 2: VISION / ABOUT US -->
         <section id="about" class="page-section">
             <div class="max-w-4xl mx-auto">
                 <div class="text-center mb-16">
@@ -292,7 +310,7 @@
                     </p>
                 </div>
 
-                <!-- Team / Stats Footer -->
+                <!-- Team Footer -->
                 <div class="mt-20 border-t border-gray-800 pt-10">
                     <h3 class="text-center text-2xl font-bold mb-10">Engineered By</h3>
                     <div class="flex flex-wrap justify-center gap-10 opacity-70">
@@ -305,7 +323,7 @@
         </section>
 
 
-        <!-- PAGE 3: SUPPORT (FULL VERSION RESTORED) -->
+        <!-- PAGE 3: SUPPORT (UPDATED LINKS) -->
         <section id="support" class="page-section">
             <div class="max-w-4xl mx-auto text-center mb-12">
                 <h1 class="text-4xl font-bold text-white mb-4">Karchain Support</h1>
@@ -331,14 +349,16 @@
                         </div>
                     </div>
 
-                    <!-- Right: Green Buttons -->
+                    <!-- Right: Green Buttons (LINKED TO TG) -->
                     <div class="flex flex-col gap-3 w-full md:w-auto">
-                        <button class="bg-[#064e3b] hover:bg-[#065f46] text-[#4ade80] border border-[#065f46] px-6 py-3 rounded-lg font-bold flex items-center gap-3 transition-all min-w-[250px] justify-center">
+                        <!-- LINK CHANGED HERE -->
+                        <a href="https://t.me/tgkarim1" target="_blank" class="bg-[#064e3b] hover:bg-[#065f46] text-[#4ade80] border border-[#065f46] px-6 py-3 rounded-lg font-bold flex items-center gap-3 transition-all min-w-[250px] justify-center no-underline">
                             <i class="fa-solid fa-comment-dots"></i> Chat with Support
-                        </button>
-                        <button class="bg-[#064e3b] hover:bg-[#065f46] text-[#4ade80] border border-[#065f46] px-6 py-3 rounded-lg font-bold flex items-center gap-3 transition-all min-w-[250px] justify-center">
+                        </a>
+                        <!-- LINK CHANGED HERE -->
+                        <a href="https://t.me/tgkarim1" target="_blank" class="bg-[#064e3b] hover:bg-[#065f46] text-[#4ade80] border border-[#065f46] px-6 py-3 rounded-lg font-bold flex items-center gap-3 transition-all min-w-[250px] justify-center no-underline">
                             <i class="fa-solid fa-users"></i> Join the Discussion
-                        </button>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -402,17 +422,17 @@
 
     <!-- LOGIC SCRIPT -->
     <script>
-        // --- 1. CONFIGURATION (EDIT THIS WITH YOUR REAL DATA) ---
+        // --- 1. CONFIGURATION ---
         const NETWORK_CONFIG = {
-            chainId: '0x13881', // Приклад: 80001 (Mumbai) в hex. Зміни на свій!
+            chainId: '0x13881',
             chainName: 'Karchain Testnet',
             nativeCurrency: {
                 name: 'Karchain Token',
                 symbol: 'KRM',
                 decimals: 18
             },
-            rpcUrls: ['https://rpc-mumbai.maticvigil.com'], // Встав сюди свій реальний RPC
-            blockExplorerUrls: ['https://mumbai.polygonscan.com'] // Встав свій експлорер
+            rpcUrls: ['https://rpc-mumbai.maticvigil.com'],
+            blockExplorerUrls: ['https://mumbai.polygonscan.com']
         };
 
         // --- 2. NAVIGATION ---
@@ -430,19 +450,12 @@
 
         async function connectWallet() {
             const btn = document.getElementById('globalConnectBtn');
-            
-            // Check if MetaMask is installed
             if (typeof window.ethereum !== 'undefined') {
                 try {
                     btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Connecting...';
-                    
-                    // Request Access
                     const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                     userAccount = accounts[0];
-                    
-                    // UI Updates on Success
                     handleLoginSuccess(userAccount);
-                    
                 } catch (error) {
                     console.error(error);
                     btn.innerHTML = 'Connect Wallet';
@@ -455,27 +468,20 @@
         }
 
         function handleLoginSuccess(address) {
-            // Shorten Address
             const shortAddr = address.substring(0, 6) + "..." + address.substring(address.length - 4);
-            
-            // Update Header Button
             const navBtn = document.getElementById('globalConnectBtn');
             navBtn.innerText = shortAddr;
             navBtn.classList.remove('bg-green-700');
             navBtn.classList.add('bg-gray-800', 'border', 'border-green-500', 'text-green-400');
-
-            // Update Panel
             document.getElementById('wallet-actions').classList.add('hidden');
             document.getElementById('wallet-connected').classList.remove('hidden');
             document.getElementById('userAddress').innerText = address;
             document.getElementById('balanceDisplay').classList.remove('hidden');
-
-            // Unlock Tasks
             document.getElementById('tasks-section').classList.remove('opacity-50', 'pointer-events-none');
             document.getElementById('tasks-locked-msg').style.display = 'none';
         }
 
-        // --- 4. ADD NETWORK FUNCTION ---
+        // --- 4. ADD NETWORK ---
         async function addKarchainNetwork() {
             if(!window.ethereum) return;
             try {
@@ -488,14 +494,10 @@
             }
         }
 
-        // --- 5. SOCIAL MEDIA "VERIFICATION" LOGIC ---
+        // --- 5. SOCIAL LOGIC ---
         function activateVerify(btnId) {
             const btn = document.getElementById(btnId);
-            
-            // Change button state to "Checking..."
             btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Checking...';
-            
-            // Enable button after 5 seconds (simulating API check time)
             setTimeout(() => {
                 btn.disabled = false;
                 btn.classList.remove('btn-disabled');
@@ -505,16 +507,12 @@
         }
 
         function verifyTask(taskId, btnElement) {
-            // Visual success effect
             btnElement.innerHTML = '<i class="fa-solid fa-check"></i> Verified';
             btnElement.classList.remove('btn-ready');
             btnElement.classList.add('bg-green-600', 'cursor-default');
             btnElement.disabled = true;
-
             const taskCard = document.getElementById(taskId);
             taskCard.classList.add('task-completed');
-            
-            // Add Confetti or Celebration here if needed
             alert("Task Verified! Points added to allocation.");
         }
     </script>
