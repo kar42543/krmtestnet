@@ -183,6 +183,31 @@
         .btn-primary:hover::before { left: 100%; }
         .btn-primary:hover { box-shadow: 0 0 20px rgba(34, 197, 94, 0.4); border-color: #4ade80; }
 
+        .btn-logout {
+            background: rgba(239, 68, 68, 0.1);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-logout::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .btn-logout:hover::before { left: 100%; }
+        .btn-logout:hover { 
+            background: rgba(239, 68, 68, 0.2); 
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4); 
+            border-color: #ef4444;
+        }
+
         .text-gradient {
             background: linear-gradient(to right, #ffffff, #4ade80);
             -webkit-background-clip: text;
@@ -289,6 +314,15 @@
             border-radius: 50%;
             transition: all 0.3s ease;
         }
+        
+        /* Logout button container */
+        .logout-container {
+            position: absolute;
+            top: 6rem;
+            right: 1.5rem;
+            z-index: 50;
+            display: none;
+        }
     </style>
 </head>
 <body class="antialiased selection:bg-green-500 selection:text-white">
@@ -369,6 +403,13 @@
                     <i class="fa-solid fa-bars"></i>
                 </button>
             </div>
+        </div>
+
+        <!-- Logout Button (Top Right, Appears when connected) -->
+        <div id="logoutContainer" class="logout-container">
+            <button onclick="App.wallet.disconnect()" class="btn-logout px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest flex items-center gap-2 shadow-lg">
+                <i class="fa-solid fa-right-from-bracket"></i> <span>Logout</span>
+            </button>
         </div>
     </nav>
 
@@ -796,7 +837,7 @@
 
     <!-- --- APPLICATION LOGIC --- -->
     <script>
-        // --- 1. CONFIGURATION ---
+        // --- 1. CONFIGURATION & STORAGE ---
         const Config = {
             chain: {
                 id: 1337,
@@ -805,6 +846,13 @@
                 rpc: 'https://relationless-improperly-nettie.ngrok-free.dev',
                 symbol: 'KAR'
             }
+        };
+
+        // Storage keys
+        const STORAGE_KEYS = {
+            WALLET_CONNECTED: 'karchain_wallet_connected',
+            WALLET_ADDRESS: 'karchain_wallet_address',
+            LAST_CONNECTED: 'karchain_last_connected'
         };
 
         // --- 2. UI CONTROLLER ---
@@ -816,6 +864,8 @@
                 UI.initWaterDrops();
                 // Init FAQ
                 UI.initFAQ();
+                // Check for saved wallet connection
+                UI.checkSavedConnection();
                 // Show Home
                 UI.showPage('home');
             },
@@ -892,6 +942,31 @@
                 });
             },
 
+            checkSavedConnection: () => {
+                const isConnected = localStorage.getItem(STORAGE_KEYS.WALLET_CONNECTED);
+                const savedAddress = localStorage.getItem(STORAGE_KEYS.WALLET_ADDRESS);
+                
+                if (isConnected === 'true' && savedAddress) {
+                    // Set the state but don't try to reconnect automatically
+                    // (for security reasons, we don't auto-connect)
+                    App.state.address = savedAddress;
+                    // Show connected UI without actual provider connection
+                    UI.setConnectedState(savedAddress, '0.00');
+                }
+            },
+
+            saveConnection: (address) => {
+                localStorage.setItem(STORAGE_KEYS.WALLET_CONNECTED, 'true');
+                localStorage.setItem(STORAGE_KEYS.WALLET_ADDRESS, address);
+                localStorage.setItem(STORAGE_KEYS.LAST_CONNECTED, Date.now().toString());
+            },
+
+            clearConnection: () => {
+                localStorage.removeItem(STORAGE_KEYS.WALLET_CONNECTED);
+                localStorage.removeItem(STORAGE_KEYS.WALLET_ADDRESS);
+                localStorage.removeItem(STORAGE_KEYS.LAST_CONNECTED);
+            },
+
             showPage: (id) => {
                 // Hide all pages
                 document.querySelectorAll('.page-content').forEach(el => {
@@ -954,6 +1029,9 @@
             },
 
             setConnectedState: (address, balance) => {
+                // Show logout button
+                document.getElementById('logoutContainer').style.display = 'block';
+                
                 // Update Header
                 const btn = document.getElementById('connectBtn');
                 const short = `${address.substring(0,6)}...${address.substring(address.length-4)}`;
@@ -971,6 +1049,9 @@
             },
 
             resetState: () => {
+                // Hide logout button
+                document.getElementById('logoutContainer').style.display = 'none';
+                
                 const btn = document.getElementById('connectBtn');
                 btn.innerHTML = '<i class="fa-solid fa-wallet"></i> <span>Connect Wallet</span>';
                 btn.onclick = UI.openModal;
@@ -1002,6 +1083,9 @@
                         await App.wallet.switchNetwork();
                         const bal = await App.wallet.getBalance();
                         
+                        // Save connection to localStorage
+                        UI.saveConnection(App.state.address);
+                        
                         UI.setConnectedState(App.state.address, bal);
 
                     } catch (e) {
@@ -1012,7 +1096,47 @@
 
                 disconnect: () => {
                     App.state.address = null;
+                    App.state.provider = null;
+                    
+                    // Clear from localStorage
+                    UI.clearConnection();
+                    
+                    // Reset UI
                     UI.resetState();
+                    
+                    // Show disconnect notification
+                    App.ui.showNotification('Wallet disconnected', 'success');
+                },
+
+                showNotification: (message, type = 'info') => {
+                    // Create notification element
+                    const notification = document.createElement('div');
+                    notification.className = `fixed top-4 right-4 glass-panel px-6 py-4 rounded-xl z-[1000] transform transition-all duration-300 ${
+                        type === 'success' ? 'border-green-500/30 bg-green-900/20' :
+                        type === 'error' ? 'border-red-500/30 bg-red-900/20' :
+                        'border-blue-500/30 bg-blue-900/20'
+                    }`;
+                    notification.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <i class="fas ${
+                                type === 'success' ? 'fa-check-circle text-green-400' :
+                                type === 'error' ? 'fa-exclamation-circle text-red-400' :
+                                'fa-info-circle text-blue-400'
+                            }"></i>
+                            <span class="text-white">${message}</span>
+                        </div>
+                    `;
+                    
+                    document.body.appendChild(notification);
+                    
+                    // Remove after 3 seconds
+                    setTimeout(() => {
+                        notification.style.opacity = '0';
+                        notification.style.transform = 'translateX(100%)';
+                        setTimeout(() => {
+                            document.body.removeChild(notification);
+                        }, 300);
+                    }, 3000);
                 },
 
                 switchNetwork: async () => {
@@ -1043,6 +1167,32 @@
                         const bal = await App.state.provider.getBalance(App.state.address);
                         return parseFloat(ethers.utils.formatEther(bal)).toFixed(2);
                     } catch { return '0.00'; }
+                },
+
+                // Auto-reconnect on page refresh if wallet was previously connected
+                tryReconnect: async () => {
+                    const isConnected = localStorage.getItem(STORAGE_KEYS.WALLET_CONNECTED);
+                    const savedAddress = localStorage.getItem(STORAGE_KEYS.WALLET_ADDRESS);
+                    
+                    if (isConnected === 'true' && savedAddress && window.ethereum) {
+                        try {
+                            const provider = new ethers.providers.Web3Provider(window.ethereum);
+                            const accounts = await provider.send("eth_accounts", []);
+                            
+                            if (accounts.length > 0 && accounts[0].toLowerCase() === savedAddress.toLowerCase()) {
+                                // Same wallet is still connected in MetaMask
+                                App.state.address = accounts[0];
+                                App.state.provider = provider;
+                                
+                                const bal = await App.wallet.getBalance();
+                                UI.setConnectedState(App.state.address, bal);
+                                return true;
+                            }
+                        } catch (e) {
+                            console.log("Auto-reconnect failed:", e);
+                        }
+                    }
+                    return false;
                 }
             },
 
@@ -1083,9 +1233,21 @@
             }
         };
 
-        // Init Application
-        window.onload = () => App.ui.init();
-        window.App = App; // Expose to global scope for onclick handlers
+        // Expose to global scope
+        window.App = App;
+
+        // Try auto-reconnect on page load
+        window.addEventListener('load', async () => {
+            await App.ui.init();
+            
+            // Try to auto-reconnect if wallet was previously connected
+            if (localStorage.getItem(STORAGE_KEYS.WALLET_CONNECTED) === 'true') {
+                // Small delay to let everything initialize
+                setTimeout(async () => {
+                    await App.wallet.tryReconnect();
+                }, 1000);
+            }
+        });
     </script>
 </body>
 </html>
