@@ -2,1353 +2,959 @@
 <html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KarChain | Sovereign Consensus Layer</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#020402">
+    <meta name="description" content="KarChain is the first hyper-scalable Layer-1 blockchain featuring Adaptive State Sharding and Proof-of-Synchrony consensus mechanism. Join the Incentivized Testnet today.">
+    <meta name="keywords" content="KarChain, Blockchain, Layer 1, Crypto, Web3, Sharding, Consensus, Testnet, Airdrop, KRM Token">
+    <meta name="author" content="KarChain Foundation">
+    <meta property="og:title" content="KarChain | The Sovereign Consensus Layer">
+    <meta property="og:description" content="The final settlement layer for the decentralized web. Built on Besu. Secured by Proof-of-Synchrony.">
+    <meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/12409/12409608.png">
+    <meta property="og:url" content="https://karchain.network">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <title>KarChain | The Sovereign Consensus Layer</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/12409/12409608.png">
+
+    <!-- Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script> <!-- GSAP for advanced animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'k-black': '#020402',
+                        'k-dark': '#050a05',
+                        'k-green': '#4ade80',
+                        'k-green-dark': '#15803d',
+                        'k-gray': '#a3a3a3',
+                        'k-border': 'rgba(255, 255, 255, 0.08)',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    animation: {
+                        'spin-slow': 'spin 20s linear infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        /* Базові стилі */
+        /* --- GLOBAL RESET & TYPOGRAPHY --- */
         :root {
-            --primary: #4ade80;
-            --primary-dark: #15803d;
-            --bg: #020402;
-            --card-bg: rgba(15, 15, 15, 0.7);
+            --glass-bg: rgba(10, 10, 10, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --neon-glow: 0 0 20px rgba(74, 222, 128, 0.3);
         }
-        
+
         body {
-            background: var(--bg);
+            background-color: #020402;
             color: #e5e5e5;
-            font-family: 'Inter', sans-serif;
             overflow-x: hidden;
+            cursor: default;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #020402; }
+        ::-webkit-scrollbar-thumb { background: #15803d; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4ade80; }
+
+        ::selection { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+
+        /* --- BACKGROUND FX --- */
+        #webgl-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -10; opacity: 0.4; pointer-events: none;
         }
         
-        /* Фонові ефекти */
-        .bg-grid {
+        .grid-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -9; pointer-events: none;
             background-image: 
                 linear-gradient(rgba(74, 222, 128, 0.03) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(74, 222, 128, 0.03) 1px, transparent 1px);
             background-size: 60px 60px;
-            mask-image: radial-gradient(circle at center, black 40%, transparent 90%);
+            mask-image: radial-gradient(circle at center, black 30%, transparent 80%);
         }
-        
-        .glow-orb {
-            background: radial-gradient(circle, rgba(74, 222, 128, 0.1) 0%, transparent 70%);
-            filter: blur(120px);
+
+        /* --- COMPONENTS --- */
+        .glass-panel {
+            background: rgba(15, 15, 15, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        
-        /* Навігація */
-        .nav-link {
-            position: relative;
+
+        .glass-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+            border: 1px solid rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
             transition: all 0.3s ease;
         }
-        
-        .nav-link.active {
-            color: var(--primary);
+
+        .glass-card:hover {
+            border-color: rgba(74, 222, 128, 0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px -10px rgba(74, 222, 128, 0.1);
+        }
+
+        .btn-primary {
+            background: #15803d;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid #16a34a;
         }
         
-        .nav-link.active::after {
+        .btn-primary::before {
             content: '';
             position: absolute;
-            bottom: -4px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: var(--primary);
-            box-shadow: 0 0 10px var(--primary);
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
         }
         
-        /* Картки */
-        .glass-card {
-            background: var(--card-bg);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
+        .btn-primary:hover::before { left: 100%; }
+        .btn-primary:hover { box-shadow: 0 0 20px rgba(34, 197, 94, 0.4); border-color: #4ade80; }
+
+        .text-gradient {
+            background: linear-gradient(to right, #ffffff, #4ade80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
-        
-        /* Анімації */
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+
+        /* --- ANIMATIONS --- */
+        .fade-in-up { animation: fadeInUp 0.8s ease-out forwards; opacity: 0; transform: translateY(30px); }
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
         }
-        
-        .float {
-            animation: float 6s ease-in-out infinite;
+
+        /* Gyro Animation (Vision Page) */
+        .gyro-wrapper { perspective: 1000px; width: 300px; height: 300px; position: relative; }
+        .gyro { position: absolute; top: 50%; left: 50%; transform-style: preserve-3d; }
+        .gyro-ring {
+            position: absolute; top: 50%; left: 50%; border-radius: 50%;
+            border: 1px solid rgba(74, 222, 128, 0.6);
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.2);
         }
+        .gr-1 { width: 200px; height: 200px; margin: -100px; animation: rotate1 10s linear infinite; border-left-color: transparent; }
+        .gr-2 { width: 160px; height: 160px; margin: -80px; animation: rotate2 8s linear infinite; border-top-color: transparent; border-width: 2px; }
+        .gr-3 { width: 120px; height: 120px; margin: -60px; animation: rotate3 6s linear infinite; border-right-color: transparent; }
         
-        @keyframes pulse-slow {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
-        .pulse-slow {
-            animation: pulse-slow 4s ease-in-out infinite;
-        }
-        
-        /* Mobile menu */
-        .mobile-menu {
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-        }
-        
-        .mobile-menu.open {
-            transform: translateX(0);
-        }
-        
-        /* Заблоковані задачі */
+        @keyframes rotate1 { 0% { transform: rotateX(0) rotateY(0); } 100% { transform: rotateX(360deg) rotateY(360deg); } }
+        @keyframes rotate2 { 0% { transform: rotateX(0) rotateY(0); } 100% { transform: rotateX(-360deg) rotateY(180deg); } }
+        @keyframes rotate3 { 0% { transform: rotateX(0) rotateY(0); } 100% { transform: rotateX(180deg) rotateY(-360deg); } }
+
+        /* Wallet Option Hover Effect */
+        .wallet-option img { filter: grayscale(100%); transition: 0.3s; }
+        .wallet-option:hover img { filter: grayscale(0%); transform: scale(1.1); }
+        .wallet-option:hover { border-color: #4ade80; background: rgba(74, 222, 128, 0.05); }
+
+        /* Page Switching Logic */
+        .page-content { display: none; opacity: 0; transition: opacity 0.5s ease; }
+        .page-content.active { display: block; opacity: 1; }
+
+        /* Stats Counter */
+        .stat-value { font-variant-numeric: tabular-nums; }
+
+        /* Footer Links */
+        .footer-link { color: #737373; transition: 0.3s; text-decoration: none; position: relative; }
+        .footer-link:hover { color: #4ade80; }
+        .footer-link::after { content: ''; position: absolute; width: 0; height: 1px; bottom: -2px; left: 0; background: #4ade80; transition: 0.3s; }
+        .footer-link:hover::after { width: 100%; }
+
+        /* Task Locked State */
         .task-locked {
+            pointer-events: none;
             opacity: 0.6;
             filter: grayscale(0.8);
-            pointer-events: none;
             position: relative;
         }
-        
         .task-locked::after {
-            content: '\f023';
-            font-family: 'Font Awesome 6 Free';
+            content: '\f023'; /* Lock Icon */
+            font-family: "Font Awesome 6 Free";
             font-weight: 900;
             position: absolute;
-            top: 50%;
-            left: 50%;
+            top: 50%; left: 50%;
             transform: translate(-50%, -50%);
             font-size: 32px;
-            color: rgba(255, 255, 255, 0.8);
-            background: rgba(0, 0, 0, 0.7);
+            color: rgba(255,255,255,0.8);
+            background: rgba(0,0,0,0.7);
             padding: 20px;
             border-radius: 50%;
             backdrop-filter: blur(5px);
         }
-        
-        /* Wallet icons */
-        .wallet-icon {
-            filter: grayscale(100%);
-            transition: all 0.3s ease;
-        }
-        
-        .wallet-option:hover .wallet-icon {
-            filter: grayscale(0%);
-            transform: scale(1.1);
-        }
-        
-        /* Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: #0a0a0a;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: var(--primary-dark);
-            border-radius: 3px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--primary);
-        }
-        
-        /* Utility classes */
-        .page {
-            display: none;
-        }
-        
-        .page.active {
-            display: block;
-            animation: fadeIn 0.5s ease forwards;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* Particle canvas */
-        #particle-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
-            pointer-events: none;
-        }
-        
-        /* Логотип K з точкою */
-        .k-logo {
-            fill: #4ade80;
-            filter: drop-shadow(0 0 8px rgba(74, 222, 128, 0.5));
-        }
-        
-        .k-logo .dot {
-            animation: pulse 2s ease-in-out infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.2); opacity: 0.7; }
-        }
-        
-        /* Counter animation */
-        .counter {
-            font-variant-numeric: tabular-nums;
-        }
-        
-        /* FAQ стилі */
-        .faq-answer {
-            display: none;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-        
-        .faq-item.open .faq-answer {
-            display: block;
-            animation: slideDown 0.3s ease;
-        }
-        
-        @keyframes slideDown {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        .faq-item.open .faq-icon {
-            transform: rotate(180deg);
-        }
-        
-        /* Відступи для "води" */
-        .water-content {
-            margin-top: 2rem;
-            padding-top: 2rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-        }
     </style>
 </head>
-<body class="antialiased">
-    <!-- Фонові елементи -->
-    <div class="fixed inset-0 bg-grid z-[-2]"></div>
-    <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] glow-orb pulse-slow z-[-1]"></div>
-    <canvas id="particle-canvas"></canvas>
+<body class="antialiased selection:bg-green-500 selection:text-white">
+
+    <!-- --- BACKGROUND LAYERS --- -->
+    <div class="grid-overlay"></div>
+    <canvas id="webgl-canvas"></canvas>
     
-    <!-- Навігація -->
-    <nav class="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-xl border-b border-white/5">
-        <div class="container mx-auto px-4 h-20 flex items-center justify-between">
-            <!-- Логотип -->
-            <div class="flex items-center gap-3 cursor-pointer" onclick="showPage('home')">
-                <div class="w-10 h-10 glass-card flex items-center justify-center group hover:border-green-500/50 transition-colors">
-                    <!-- Буква K з точкою всередині -->
-                    <svg class="w-8 h-8 k-logo" viewBox="0 0 100 100">
-                        <!-- Основа букви K -->
-                        <path d="M30 20 L30 80" stroke="currentColor" stroke-width="8" stroke-linecap="round" fill="none"/>
-                        <path d="M30 50 L70 20" stroke="currentColor" stroke-width="8" stroke-linecap="round" fill="none"/>
-                        <path d="M30 50 L70 80" stroke="currentColor" stroke-width="8" stroke-linecap="round" fill="none"/>
-                        <!-- Точка всередині -->
-                        <circle cx="50" cy="50" r="8" fill="#4ade80" class="dot"/>
+    <!-- Glow Orb (Fixed center) -->
+    <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-green-500/5 rounded-full blur-[120px] -z-5 pointer-events-none animate-pulse-slow"></div>
+
+    <!-- --- NAVIGATION --- -->
+    <nav class="fixed top-0 w-full z-50 border-b border-white/5 bg-black/40 backdrop-blur-xl transition-all duration-300" id="navbar">
+        <div class="max-w-[1600px] mx-auto px-6 h-24 flex items-center justify-between">
+            
+            <!-- LOGO -->
+            <div class="flex items-center gap-4 cursor-pointer group" onclick="App.router.navigate('home')">
+                <div class="relative w-10 h-10 flex items-center justify-center">
+                    <!-- SVG Logo -->
+                    <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_15px_rgba(74,222,128,0.6)] transition-transform duration-500 group-hover:rotate-180">
+                        <path d="M20 10 V90" stroke="#4ade80" stroke-width="8" stroke-linecap="round"/>
+                        <path d="M80 10 L20 50 L80 90" stroke="#4ade80" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="20" cy="50" r="10" fill="#22c55e"/>
+                        <circle cx="80" cy="10" r="8" fill="#22c55e"/>
+                        <circle cx="80" cy="90" r="8" fill="#22c55e"/>
                     </svg>
                 </div>
-                <div>
-                    <div class="text-lg font-bold text-white">KARCHAIN</div>
-                    <div class="text-xs text-gray-500 font-mono">Genesis Testnet</div>
+                <div class="flex flex-col">
+                    <span class="text-xl font-bold tracking-[0.2em] text-white group-hover:text-green-400 transition-colors font-display">KARCHAIN</span>
+                    <span class="text-[10px] text-gray-500 uppercase tracking-widest font-mono group-hover:text-gray-300">Testnet Phase 1</span>
                 </div>
             </div>
 
-            <!-- Десктоп навігація -->
-            <div class="hidden lg:flex items-center gap-8">
-                <button onclick="showPage('home')" class="nav-link text-sm font-medium" data-page="home">Testnet</button>
-                <button onclick="showPage('vision')" class="nav-link text-sm font-medium" data-page="vision">Vision</button>
-                <button onclick="showPage('ecosystem')" class="nav-link text-sm font-medium" data-page="ecosystem">Ecosystem</button>
-                <button onclick="showPage('support')" class="nav-link text-sm font-medium" data-page="support">Support</button>
+            <!-- MENU (Desktop) -->
+            <div class="hidden lg:flex items-center gap-12">
+                <button onclick="App.router.navigate('home')" id="nav-home" class="nav-link text-sm font-bold uppercase tracking-widest text-white border-b-2 border-green-500 pb-1">Testnet</button>
+                <button onclick="App.router.navigate('vision')" id="nav-vision" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white transition-colors pb-1 border-b-2 border-transparent hover:border-green-500/50">Vision</button>
+                <button onclick="App.router.navigate('ecosystem')" id="nav-ecosystem" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white transition-colors pb-1 border-b-2 border-transparent hover:border-green-500/50">Ecosystem</button>
+                <button onclick="App.router.navigate('support')" id="nav-support" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white transition-colors pb-1 border-b-2 border-transparent hover:border-green-500/50">Support</button>
             </div>
 
-            <!-- Кнопки -->
-            <div class="flex items-center gap-4">
-                <button onclick="openWalletModal()" id="connectBtn" class="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm font-medium transition-colors">
-                    <i class="fas fa-wallet text-green-400 mr-2"></i>
-                    <span class="hidden sm:inline">Connect Wallet</span>
+            <!-- CONNECT BUTTON -->
+            <div class="flex items-center gap-4 relative">
+                <div id="network-status" class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-green-900/20 border border-green-500/30 rounded-full">
+                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span class="text-[10px] font-mono text-green-400 uppercase">Besu Active</span>
+                </div>
+
+                <button id="connectBtn" onclick="App.ui.openModal()" class="btn-primary px-8 py-3 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 shadow-lg">
+                    <i class="fa-solid fa-wallet"></i> <span>Connect Wallet</span>
                 </button>
-                
-                <!-- Мобільне меню -->
-                <button onclick="toggleMobileMenu()" class="lg:hidden text-gray-400 hover:text-white p-2">
-                    <i class="fas fa-bars text-xl"></i>
+
+                <!-- User Dropdown (Hidden by default) -->
+                <div id="userDropdown" class="hidden absolute top-16 right-0 w-64 glass-panel rounded-xl p-4 z-50 transform origin-top-right transition-all duration-200 scale-95 opacity-0">
+                    <div class="flex items-center gap-3 mb-4 pb-4 border-b border-white/10">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-blue-600"></div>
+                        <div>
+                            <p class="text-white font-bold text-sm">My Wallet</p>
+                            <p class="text-gray-500 text-xs font-mono" id="dropdownAddress">0x00...0000</p>
+                        </div>
+                    </div>
+                    <div class="space-y-1">
+                        <button class="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/5 rounded hover:text-white transition-colors"><i class="fa-solid fa-clock-rotate-left mr-2"></i> History</button>
+                        <button class="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/5 rounded hover:text-white transition-colors"><i class="fa-solid fa-gear mr-2"></i> Settings</button>
+                        <button onclick="App.wallet.disconnect()" class="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded transition-colors mt-2"><i class="fa-solid fa-right-from-bracket mr-2"></i> Disconnect</button>
+                    </div>
+                </div>
+
+                <button onclick="App.ui.toggleMobile()" class="lg:hidden text-white text-2xl p-2">
+                    <i class="fa-solid fa-bars"></i>
                 </button>
             </div>
         </div>
     </nav>
 
-    <!-- Мобільне меню -->
-    <div id="mobileMenu" class="mobile-menu fixed inset-0 z-40 bg-black/95 backdrop-blur-xl lg:hidden">
-        <div class="flex flex-col items-center justify-center h-full space-y-8">
-            <button onclick="toggleMobileMenu()" class="absolute top-6 right-6 text-white text-2xl">
-                <i class="fas fa-times"></i>
-            </button>
-            
-            <button onclick="showPage('home'); toggleMobileMenu()" class="text-2xl font-bold text-white">Testnet</button>
-            <button onclick="showPage('vision'); toggleMobileMenu()" class="text-2xl font-bold text-white">Vision</button>
-            <button onclick="showPage('ecosystem'); toggleMobileMenu()" class="text-2xl font-bold text-white">Ecosystem</button>
-            <button onclick="showPage('support'); toggleMobileMenu()" class="text-2xl font-bold text-white">Support</button>
-            
-            <button onclick="openWalletModal(); toggleMobileMenu()" class="px-8 py-3 bg-green-600 text-white font-bold rounded-full">
-                Connect Wallet
-            </button>
+    <!-- MOBILE MENU OVERLAY -->
+    <div id="mobile-menu" class="fixed inset-0 z-[60] bg-black/95 backdrop-blur-xl transform translate-x-full transition-transform duration-300 flex flex-col items-center justify-center space-y-8">
+        <button onclick="App.ui.toggleMobile()" class="absolute top-8 right-8 text-gray-400 hover:text-white text-4xl">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div class="flex flex-col items-center gap-8">
+            <a onclick="App.router.navigate('home'); App.ui.toggleMobile()" class="text-3xl font-bold text-white uppercase tracking-widest hover:text-green-400 transition-colors">Testnet</a>
+            <a onclick="App.router.navigate('vision'); App.ui.toggleMobile()" class="text-3xl font-bold text-white uppercase tracking-widest hover:text-green-400 transition-colors">Vision</a>
+            <a onclick="App.router.navigate('ecosystem'); App.ui.toggleMobile()" class="text-3xl font-bold text-white uppercase tracking-widest hover:text-green-400 transition-colors">Ecosystem</a>
+            <a onclick="App.router.navigate('support'); App.ui.toggleMobile()" class="text-3xl font-bold text-white uppercase tracking-widest hover:text-green-400 transition-colors">Support</a>
         </div>
     </div>
 
-    <!-- Модальне вікно гаманців -->
-    <div id="walletModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/80" onclick="closeWalletModal()"></div>
-        <div class="glass-card max-w-md w-full p-6 relative">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-xl font-bold text-white">Connect Wallet</h3>
-                <button onclick="closeWalletModal()" class="text-gray-400 hover:text-white">
-                    <i class="fas fa-times"></i>
-                </button>
+    <!-- WALLET CONNECT MODAL -->
+    <div id="connect-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="App.ui.closeModal()"></div>
+        <div class="relative glass-panel w-full max-w-md rounded-2xl p-8 transform scale-95 opacity-0 transition-all duration-300" id="modal-content">
+            <div class="flex justify-between items-center mb-8">
+                <h3 class="text-2xl font-bold text-white font-display">Connect Wallet</h3>
+                <button onclick="App.ui.closeModal()" class="text-gray-400 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
             </div>
             
+            <p class="text-gray-400 text-sm mb-6">Select your wallet to authenticate with the KarChain Network.</p>
+
             <div class="space-y-3">
                 <!-- MetaMask -->
-                <button onclick="connectWallet('metamask')" class="wallet-option w-full p-4 glass-card hover:bg-white/5 rounded-xl flex items-center gap-4">
-                    <div class="w-10 h-10 flex items-center justify-center">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" 
-                             class="wallet-icon w-6 h-6" 
-                             alt="MetaMask"
-                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🦊</text></svg>'">
+                <div onclick="App.wallet.connect('MetaMask')" class="wallet-option group border border-white/10 hover:border-green-500 p-4 rounded-xl bg-white/5 cursor-pointer transition-all flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" class="w-8 h-8" alt="MetaMask">
+                        </div>
+                        <div>
+                            <div class="font-bold text-white text-lg group-hover:text-green-400 transition-colors">MetaMask</div>
+                            <div class="text-xs text-gray-500 uppercase font-mono">Browser Extension</div>
+                        </div>
                     </div>
-                    <div class="text-left">
-                        <div class="font-bold text-white">MetaMask</div>
-                        <div class="text-xs text-gray-500">Browser Extension</div>
-                    </div>
-                </button>
+                    <div class="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_10px_#4ade80]"></div>
+                </div>
 
                 <!-- Trust Wallet -->
-                <button onclick="connectWallet('trust')" class="wallet-option w-full p-4 glass-card hover:bg-white/5 rounded-xl flex items-center gap-4">
-                    <div class="w-10 h-10 flex items-center justify-center">
-                        <img src="https://trustwallet.com/assets/images/media/assets/TWT.png" 
-                             class="wallet-icon w-6 h-6" 
-                             alt="Trust Wallet"
-                             onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🔒</text></svg>'">
+                <div onclick="App.wallet.connect('Trust')" class="wallet-option group border border-white/10 hover:border-blue-500 p-4 rounded-xl bg-white/5 cursor-pointer transition-all flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                            <img src="https://trustwallet.com/assets/images/media/assets/trust_platform.svg" class="w-8 h-8" alt="Trust">
+                        </div>
+                        <div>
+                            <div class="font-bold text-white text-lg group-hover:text-blue-400 transition-colors">Trust Wallet</div>
+                            <div class="text-xs text-gray-500 uppercase font-mono">Mobile / Desktop</div>
+                        </div>
                     </div>
-                    <div class="text-left">
-                        <div class="font-bold text-white">Trust Wallet</div>
-                        <div class="text-xs text-gray-500">Mobile & Extension</div>
-                    </div>
-                </button>
+                </div>
 
                 <!-- WalletConnect -->
-                <button onclick="connectWallet('walletconnect')" class="wallet-option w-full p-4 glass-card hover:bg-white/5 rounded-xl flex items-center gap-4">
-                    <div class="w-10 h-10 flex items-center justify-center">
-                        <i class="fas fa-qrcode text-white text-xl wallet-icon"></i>
+                <div onclick="App.wallet.connect('WC')" class="wallet-option group border border-white/10 hover:border-blue-400 p-4 rounded-xl bg-white/5 cursor-pointer transition-all flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                            <i class="fa-solid fa-qrcode text-2xl text-gray-400 group-hover:text-blue-400 transition-colors"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-white text-lg group-hover:text-blue-300 transition-colors">WalletConnect</div>
+                            <div class="text-xs text-gray-500 uppercase font-mono">Scan QR Code</div>
+                        </div>
                     </div>
-                    <div class="text-left">
-                        <div class="font-bold text-white">WalletConnect</div>
-                        <div class="text-xs text-gray-500">QR Code</div>
-                    </div>
-                </button>
+                </div>
+            </div>
+
+            <div class="mt-8 pt-6 border-t border-white/10 text-center">
+                <p class="text-[10px] text-gray-600 uppercase tracking-widest">By connecting, you agree to our <a href="#" class="text-green-500 hover:underline">Terms</a> & <a href="#" class="text-green-500 hover:underline">Privacy Policy</a></p>
             </div>
         </div>
     </div>
 
-    <!-- Контент -->
-    <main class="pt-24 pb-20">
-        <!-- Сторінка 1: Testnet -->
-        <div id="page-home" class="page active container mx-auto px-4">
-            <!-- Герой -->
-            <div class="text-center mb-16">
-                <h1 class="text-4xl md:text-6xl font-bold text-white mb-6">
-                    ARCHITECTING <br>
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">
-                        DIGITAL TRUST
-                    </span>
-                </h1>
-                <p class="text-gray-400 max-w-2xl mx-auto mb-10">
-                    Participate in the KarChain Genesis Testnet. Validate the modular consensus layer, generate volume, and secure your allocation.
-                </p>
-                
-                <!-- Статистика -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto">
-                    <div class="glass-card p-6 text-center hover:scale-105 transition-transform">
-                        <div class="text-2xl font-bold text-white mb-2 counter" data-target="12942">0</div>
-                        <div class="text-xs text-gray-500 uppercase">Blocks</div>
-                    </div>
-                    <div class="glass-card p-6 text-center hover:scale-105 transition-transform">
-                        <div class="text-2xl font-bold text-white mb-2 counter" data-target="450">0</div>
-                        <div class="text-xs text-gray-500 uppercase">Avg TPS</div>
-                    </div>
-                    <div class="glass-card p-6 text-center hover:scale-105 transition-transform">
-                        <div class="text-2xl font-bold text-white mb-2">0.4s</div>
-                        <div class="text-xs text-gray-500 uppercase">Finality</div>
-                    </div>
-                    <div class="glass-card p-6 text-center hover:scale-105 transition-transform">
-                        <div class="text-2xl font-bold text-white mb-2 counter" data-target="156">0</div>
-                        <div class="text-xs text-gray-500 uppercase">Validators</div>
-                    </div>
-                </div>
+
+    <!-- === PAGES === -->
+    
+    <!-- 1. HOME / DASHBOARD -->
+    <div id="page-home" class="page-content active pt-32 pb-20 px-4">
+        
+        <!-- Hero -->
+        <div class="max-w-7xl mx-auto text-center mb-24 relative z-10 fade-in-up">
+            <h1 class="text-4xl md:text-7xl font-bold text-white mb-6 leading-tight">
+                THE ARCHITECTURE OF <br> <span class="text-gradient">DIGITAL TRUST</span>
+            </h1>
+            <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto font-light leading-relaxed mb-10">
+                KarChain is the modular consensus layer designed for the next billion users. 
+                <br>Join the Incentivized Testnet and secure your place in the genesis block.
+            </p>
+            
+            <div class="flex flex-wrap justify-center gap-6">
+                <button onclick="App.ui.scrollTo('dashboard-ui')" class="btn-primary px-10 py-4 rounded-full text-sm font-bold uppercase tracking-widest">
+                    Launch App
+                </button>
+                <button onclick="App.router.navigate('vision')" class="px-10 py-4 border border-white/10 hover:bg-white/5 text-white rounded-full text-sm font-bold uppercase tracking-widest transition-all">
+                    Read Manifesto
+                </button>
             </div>
 
-            <!-- Дашборд -->
-            <div class="max-w-4xl mx-auto">
-                <!-- Заблокований стан -->
-                <div id="dashboardLocked" class="glass-card p-12 text-center">
-                    <div class="w-24 h-24 mx-auto mb-8 rounded-full bg-white/5 flex items-center justify-center pulse-slow">
-                        <i class="fas fa-lock text-3xl text-gray-600"></i>
-                    </div>
-                    <h2 class="text-2xl font-bold text-white mb-4">Dashboard Locked</h2>
-                    <p class="text-gray-500 mb-8 max-w-md mx-auto">
-                        Connect your wallet to view your testnet allocation and track progress. The dashboard provides real-time insights into your participation in the KarChain testnet, including token balances, task completion status, and reward tracking.
-                    </p>
-                    <button onclick="openWalletModal()" class="px-8 py-3 bg-green-600 hover:bg-green-500 text-white font-bold rounded-lg transition-colors hover:scale-105">
-                        Connect Wallet
-                    </button>
+            <!-- Network Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mt-16 border-t border-white/10 pt-8">
+                <div>
+                    <p class="text-3xl font-bold text-white stat-value">12,492</p>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest">Blocks Minted</p>
                 </div>
+                <div>
+                    <p class="text-3xl font-bold text-white stat-value">0.4s</p>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest">Block Time</p>
+                </div>
+                <div>
+                    <p class="text-3xl font-bold text-white stat-value">15,000+</p>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest">Transactions</p>
+                </div>
+                <div>
+                    <p class="text-3xl font-bold text-white stat-value">138</p>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest">Active Validators</p>
+                </div>
+            </div>
+        </div>
 
-                <!-- Активний стан -->
-                <div id="dashboardActive" class="hidden">
-                    <!-- Баланс -->
-                    <div class="glass-card p-8 mb-8">
-                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                            <div>
-                                <div class="text-sm text-gray-500 mb-2">Available Balance</div>
-                                <div class="flex items-baseline gap-3">
-                                    <span id="balance" class="text-4xl md:text-5xl font-bold text-white">0.00</span>
-                                    <span class="text-lg font-bold text-green-500">KAR</span>
-                                </div>
-                                <div id="walletAddress" class="text-sm text-gray-400 font-mono mt-2">0x0000...0000</div>
-                            </div>
-                            <div class="flex gap-3">
-                                <button onclick="requestTokens()" class="px-4 py-2 bg-green-600 hover:bg-green-500 text-white rounded-lg hover:scale-105 transition-transform">
-                                    Get Test Tokens
-                                </button>
-                                <button onclick="disconnectWallet()" class="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg hover:scale-105 transition-transform">
-                                    Disconnect
-                                </button>
-                            </div>
+        <!-- Dashboard UI -->
+        <div id="dashboard-ui" class="max-w-6xl mx-auto fade-in-up delay-200">
+            <div class="glass-panel rounded-3xl p-1 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent opacity-50"></div>
+                <div class="bg-black/80 backdrop-blur-xl rounded-[20px] p-8 md:p-12">
+                    
+                    <!-- State: Locked -->
+                    <div id="view-locked" class="text-center py-20">
+                        <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/10 shadow-lg">
+                            <i class="fa-solid fa-lock text-3xl text-gray-600"></i>
                         </div>
-                        
-                        <!-- Додатковий контент -->
-                        <div class="water-content mt-8 pt-8 border-t border-white/5">
-                            <p class="text-gray-400 text-sm">
-                                Your KAR tokens represent your participation in the testnet ecosystem. Use them to interact with decentralized applications, pay for transaction fees, and participate in governance proposals. The testnet environment simulates real-world conditions to ensure network stability before mainnet launch.
-                            </p>
-                        </div>
+                        <h2 class="text-3xl font-bold text-white mb-3 font-display">Dashboard Locked</h2>
+                        <p class="text-gray-400 mb-8 max-w-md mx-auto">Connect your wallet to authenticate your session and view your testnet allocation.</p>
+                        <button onclick="App.ui.openModal()" class="btn-primary px-12 py-4 rounded-xl text-sm font-bold uppercase tracking-widest shadow-xl hover:scale-105 transition-transform">
+                            Connect Wallet
+                        </button>
                     </div>
 
-                    <!-- Задачі -->
-                    <div class="glass-card p-8">
+                    <!-- State: Active -->
+                    <div id="view-active" class="hidden">
+                        <div class="flex flex-col md:flex-row justify-between items-end border-b border-white/10 pb-8 mb-8">
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase tracking-widest mb-2">Available Balance</p>
+                                <div class="flex items-baseline gap-3">
+                                    <span id="balanceVal" class="text-7xl font-bold text-white font-mono tracking-tighter">0.00</span>
+                                    <span class="text-xl font-bold text-green-500 bg-green-500/10 px-3 py-1 rounded-lg">KAR</span>
+                                </div>
+                            </div>
+                            <div class="mt-6 md:mt-0 text-right">
+                                <div class="flex items-center justify-end gap-2 text-green-400 mb-1">
+                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                    <span class="text-xs font-bold uppercase">Connected to Besu</span>
+                                </div>
+                                <p class="text-sm text-gray-400 font-mono bg-white/5 px-3 py-1 rounded" id="walletAddrDisp">0x0000...0000</p>
+                            </div>
+                        </div>
+
                         <h3 class="text-xl font-bold text-white mb-6">Incentivized Tasks</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <!-- Задача 1 -->
-                            <div class="glass-card p-6 hover:border-green-500/30 transition-colors hover:scale-105">
-                                <div class="flex justify-between items-start mb-4">
-                                    <div class="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center">
-                                        <i class="fab fa-twitter text-green-400"></i>
-                                    </div>
-                                    <span class="text-xs font-bold text-green-400 bg-green-500/10 px-2 py-1 rounded">Step 1</span>
+                            
+                            <!-- Task 1 -->
+                            <div class="glass-card p-8 rounded-2xl border border-white/10 relative overflow-hidden group">
+                                <div class="absolute top-0 right-0 bg-green-500/20 text-green-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Step 1</div>
+                                <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-6 text-2xl text-white group-hover:text-green-400 transition-colors">
+                                    <i class="fa-brands fa-x-twitter"></i>
                                 </div>
-                                <h4 class="font-bold text-white mb-2">Social Identity</h4>
-                                <p class="text-sm text-gray-400 mb-4">Follow our official channels and engage with the community to establish your social presence within the KarChain ecosystem.</p>
-                                <div class="flex gap-2">
-                                    <a href="https://x.com/karim7652117665" target="_blank" 
-                                       onclick="startTask(1)"
-                                       class="flex-1 py-2 bg-white/5 hover:bg-white/10 text-center rounded text-xs font-medium transition-colors">
-                                        Open X
-                                    </a>
-                                    <button id="verifyTask1" onclick="verifyTask(1)" 
-                                            class="flex-1 py-2 bg-green-600 hover:bg-green-500 text-white rounded text-xs font-medium transition-colors">
-                                        Verify
-                                    </button>
+                                <h4 class="text-xl font-bold text-white mb-2">Social Identity</h4>
+                                <p class="text-sm text-gray-400 mb-6">Verify your humanity by following our official X account.</p>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <a href="https://x.com/karim7652117665" target="_blank" onclick="App.tasks.start(1)" class="py-3 bg-white/10 hover:bg-white/20 text-center rounded-lg text-xs font-bold text-white transition-colors">OPEN X</a>
+                                    <button id="verify-1" onclick="App.tasks.verify(1)" class="py-3 border border-white/20 text-gray-500 rounded-lg text-xs font-bold cursor-not-allowed transition-colors" disabled>VERIFY</button>
                                 </div>
                             </div>
 
-                            <!-- Задача 2 -->
-                            <div id="task2" class="glass-card p-6 task-locked hover:border-blue-500/30 transition-colors">
-                                <div class="flex justify-between items-start mb-4">
-                                    <div class="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-chart-line text-blue-400"></i>
-                                    </div>
-                                    <span class="text-xs font-bold text-blue-400 bg-blue-500/10 px-2 py-1 rounded">Step 2</span>
+                            <!-- Task 2 -->
+                            <div id="card-task-2" class="glass-card p-8 rounded-2xl border border-white/10 task-locked transition-all duration-500">
+                                <div class="absolute top-0 right-0 bg-blue-500/20 text-blue-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Step 2</div>
+                                <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-6 text-2xl text-white group-hover:text-blue-400 transition-colors">
+                                    <i class="fa-solid fa-chart-simple"></i>
                                 </div>
-                                <h4 class="font-bold text-white mb-2">Trading Volume</h4>
-                                <p class="text-sm text-gray-400 mb-4">Generate trading volume on decentralized exchanges to help test network throughput and liquidity mechanisms.</p>
-                                <button onclick="checkVolume()" class="w-full py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded text-xs font-medium transition-colors">
-                                    Check Status
-                                </button>
+                                <h4 class="text-xl font-bold text-white mb-2">Volume Gen</h4>
+                                <p class="text-sm text-gray-400 mb-6">Generate $100+ trading volume on the testnet DEX.</p>
+                                <button onclick="App.tasks.verify(2)" class="w-full py-3 bg-blue-600/20 border border-blue-500/30 hover:bg-blue-600 text-blue-400 hover:text-white rounded-lg text-xs font-bold transition-colors">CHECK STATUS</button>
                             </div>
 
-                            <!-- Задача 3 -->
-                            <div id="task3" class="glass-card p-6 task-locked hover:border-purple-500/30 transition-colors">
-                                <div class="flex justify-between items-start mb-4">
-                                    <div class="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center">
-                                        <i class="fas fa-file-contract text-purple-400"></i>
-                                    </div>
-                                    <span class="text-xs font-bold text-purple-400 bg-purple-500/10 px-2 py-1 rounded">Final</span>
+                            <!-- Task 3 -->
+                            <div id="card-task-3" class="glass-card p-8 rounded-2xl border border-white/10 task-locked transition-all duration-500">
+                                <div class="absolute top-0 right-0 bg-purple-500/20 text-purple-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Final</div>
+                                <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-6 text-2xl text-white group-hover:text-purple-400 transition-colors">
+                                    <i class="fa-solid fa-file-signature"></i>
                                 </div>
-                                <h4 class="font-bold text-white mb-2">Whitelist Registration</h4>
-                                <p class="text-sm text-gray-400 mb-4">Register for the Genesis block allocation to secure your position in the upcoming mainnet launch.</p>
-                                <button id="whitelistBtn" onclick="openWhitelistForm()" 
-                                        class="w-full py-2 bg-purple-600 hover:bg-purple-500 text-white rounded text-xs font-medium transition-colors opacity-50 cursor-not-allowed">
-                                    Open Form
-                                </button>
+                                <h4 class="text-xl font-bold text-white mb-2">Whitelist</h4>
+                                <p class="text-sm text-gray-400 mb-6">Submit your wallet address to the Genesis Registry.</p>
+                                <a id="btn-form" href="https://docs.google.com/forms" target="_blank" class="block w-full py-3 bg-purple-600 hover:bg-purple-500 text-white text-center rounded-lg text-xs font-bold transition-colors pointer-events-none opacity-50">OPEN FORM</a>
                             </div>
                         </div>
                         
-                        <!-- Додатковий контент про задачі -->
-                        <div class="water-content mt-8 pt-8 border-t border-white/5">
-                            <p class="text-gray-400 text-sm">
-                                Complete all three tasks to maximize your testnet rewards and secure your position in the Genesis allocation. Each completed task contributes to your overall reputation score and increases your chances of receiving mainnet tokens. The tasks are designed to test different aspects of the network while providing valuable feedback to the development team.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Додатковий контент сторінки -->
-            <div class="water-content mt-16 pt-16 border-t border-white/5">
-                <div class="glass-card p-8">
-                    <h3 class="text-xl font-bold text-white mb-6">About KarChain Testnet</h3>
-                    <div class="grid md:grid-cols-2 gap-8">
-                        <div>
-                            <h4 class="font-bold text-white mb-4">Network Features</h4>
-                            <ul class="text-gray-400 space-y-2 text-sm">
-                                <li class="flex items-center gap-2">
-                                    <i class="fas fa-check text-green-400"></i>
-                                    <span>Adaptive State Sharding for horizontal scalability</span>
-                                </li>
-                                <li class="flex items-center gap-2">
-                                    <i class="fas fa-check text-green-400"></i>
-                                    <span>Sub-second finality with Proof-of-Synchrony consensus</span>
-                                </li>
-                                <li class="flex items-center gap-2">
-                                    <i class="fas fa-check text-green-400"></i>
-                                    <span>Quantum-resistant cryptography implementation</span>
-                                </li>
-                                <li class="flex items-center gap-2">
-                                    <i class="fas fa-check text-green-400"></i>
-                                    <span>Modular architecture for easy protocol upgrades</span>
-                                </li>
-                            </ul>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-white mb-4">Participation Benefits</h4>
-                            <ul class="text-gray-400 space-y-2 text-sm">
-                                <li class="flex items-center gap-2">
-                                    <i class="fas fa-gem text-green-400"></i>
-                                    <span>Early access to mainnet token allocation</span>
-                                </li>
-                                <li class="flex items-center gap-2">
-                                    <i class="fas fa-gem text-green-400"></i>
-                                    <span>Governance voting rights for early participants</span>
-                                </li>
-                                <li class="flex items-center gap-2">
-                                    <i class="fas fa-gem text-green-400"></i>
-                                    <span>Testnet rewards in KAR tokens</span>
-                                </li>
-                                <li class="flex items-center gap-2">
-                                    <i class="fas fa-gem text-green-400"></i>
-                                    <span>Exclusive access to developer tools and APIs</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Сторінка 2: Vision -->
-        <div id="page-vision" class="page container mx-auto px-4 py-12">
-            <div class="text-center mb-16">
-                <h2 class="text-4xl md:text-6xl font-bold text-white mb-6">THE <span class="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-600">MANIFESTO</span></h2>
-                <p class="text-gray-400 max-w-3xl mx-auto">
-                    Re-engineering the fundamental substrate of human coordination for the 22nd century using modular consensus architectures. KarChain represents a paradigm shift in blockchain technology, focusing on scalability, security, and sustainability.
-                </p>
-            </div>
-
-            <div class="grid lg:grid-cols-2 gap-12 items-center mb-16">
-                <div class="space-y-12">
-                    <div class="border-l-2 border-green-500 pl-6 relative">
-                        <div class="absolute -left-2 top-0 w-4 h-4 bg-green-500 rounded-full shadow-[0_0_15px_#4ade80]"></div>
-                        <h3 class="text-xl font-bold text-white mb-4">Asynchronous Finality</h3>
-                        <p class="text-gray-400">
-                            KarChain introduces Hyper-Graph Sharding with Proof-of-Synchrony consensus, achieving mathematical finality in sub-second timeframes. Unlike traditional blockchains that rely on probabilistic confirmation, our architecture guarantees transaction finality through cryptographic proofs, eliminating the risk of chain reorganizations.
-                        </p>
-                        <div class="water-content mt-6 pt-6 border-t border-white/5">
-                            <p class="text-gray-400 text-sm">
-                                The asynchronous finality mechanism allows for parallel transaction processing across multiple shards while maintaining a unified security model. This approach enables the network to scale linearly with the number of shards, providing unprecedented throughput without compromising decentralization or security.
-                            </p>
-                        </div>
-                    </div>
-                    <div class="border-l-2 border-white/10 pl-6 relative">
-                        <div class="absolute -left-2 top-0 w-4 h-4 bg-gray-700 rounded-full"></div>
-                        <h3 class="text-xl font-bold text-green-400 mb-4">Post-Quantum Security</h3>
-                        <p class="text-gray-400">
-                            Built as a Quantum Fortress using Lattice-based signatures (Kyber/Dilithium) to secure assets against future quantum decryption threats. Our cryptographic stack is designed to withstand attacks from both classical and quantum computers, ensuring long-term security for all network participants.
-                        </p>
-                        <div class="water-content mt-6 pt-6 border-t border-white/5">
-                            <p class="text-gray-400 text-sm">
-                                The transition to post-quantum cryptography is implemented through a gradual migration path, allowing existing signatures to remain valid while new transactions use quantum-resistant algorithms. This forward-looking approach ensures that KarChain remains secure even as quantum computing capabilities advance.
-                            </p>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Гіроскоп анімація -->
-                <div class="flex justify-center">
-                    <div class="relative w-64 h-64">
-                        <div class="absolute inset-0 border border-green-500/30 rounded-full animate-spin" style="animation-duration: 20s"></div>
-                        <div class="absolute inset-8 border border-green-500/20 rounded-full animate-spin" style="animation-duration: 15s; animation-direction: reverse"></div>
-                        <div class="absolute inset-16 border border-green-500/10 rounded-full animate-spin" style="animation-duration: 10s"></div>
-                        <div class="absolute inset-0 flex items-center justify-center">
-                            <div class="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center">
-                                <div class="w-4 h-4 bg-green-500 rounded-full pulse-slow"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Roadmap -->
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mt-20">
-                <div class="glass-card p-8 border-t-4 border-green-500 hover:scale-105 transition-transform">
-                    <div class="text-xs font-bold text-green-400 mb-2">Phase 1 (Current)</div>
-                    <h4 class="text-lg font-bold text-white mb-4">Genesis</h4>
-                    <ul class="text-sm text-gray-400 space-y-2">
-                        <li>Validator Onboarding</li>
-                        <li>Faucet Activation</li>
-                        <li>Stress Testing</li>
-                    </ul>
-                    <div class="water-content mt-6 pt-6 border-t border-white/5">
-                        <p class="text-gray-400 text-xs">
-                            Initial network deployment with core consensus layer and basic transaction processing capabilities.
-                        </p>
-                    </div>
-                </div>
-                
-                <div class="glass-card p-8 border-t-4 border-gray-700 opacity-80 hover:opacity-100 hover:scale-105 transition-all">
-                    <div class="text-xs font-bold text-gray-500 mb-2">Phase 2</div>
-                    <h4 class="text-lg font-bold text-white mb-4">Mesh</h4>
-                    <ul class="text-sm text-gray-400 space-y-2">
-                        <li>Public Staking</li>
-                        <li>DEX Launch</li>
-                        <li>Bridge Beta</li>
-                    </ul>
-                    <div class="water-content mt-6 pt-6 border-t border-white/5">
-                        <p class="text-gray-400 text-xs">
-                            Expansion of network functionality with decentralized finance applications and cross-chain interoperability.
-                        </p>
-                    </div>
-                </div>
-                
-                <div class="glass-card p-8 border-t-4 border-gray-700 opacity-60 hover:opacity-100 hover:scale-105 transition-all">
-                    <div class="text-xs font-bold text-gray-500 mb-2">Phase 3</div>
-                    <h4 class="text-lg font-bold text-white mb-4">Ignition</h4>
-                    <ul class="text-sm text-gray-400 space-y-2">
-                        <li>Mainnet TGE</li>
-                        <li>Governance DAO</li>
-                        <li>Global Settlement</li>
-                    </ul>
-                    <div class="water-content mt-6 pt-6 border-t border-white/5">
-                        <p class="text-gray-400 text-xs">
-                            Full network deployment with token generation event and community governance mechanisms.
-                        </p>
-                    </div>
-                </div>
-                
-                <div class="glass-card p-8 border-t-4 border-gray-700 opacity-40 hover:opacity-100 hover:scale-105 transition-all">
-                    <div class="text-xs font-bold text-gray-500 mb-2">Phase 4</div>
-                    <h4 class="text-lg font-bold text-white mb-4">Singularity</h4>
-                    <ul class="text-sm text-gray-400 space-y-2">
-                        <li>IPFS Storage</li>
-                        <li>AI Agents</li>
-                        <li>Layer-0 Bridge</li>
-                    </ul>
-                    <div class="water-content mt-6 pt-6 border-t border-white/5">
-                        <p class="text-gray-400 text-xs">
-                            Advanced network features including decentralized storage and artificial intelligence integration.
-                        </p>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Додатковий контент -->
-            <div class="water-content mt-16 pt-16 border-t border-white/5">
-                <div class="glass-card p-8">
-                    <h3 class="text-xl font-bold text-white mb-6">Technical Architecture</h3>
-                    <div class="grid md:grid-cols-2 gap-8">
-                        <div>
-                            <h4 class="font-bold text-white mb-4">Consensus Layer</h4>
-                            <p class="text-gray-400 text-sm">
-                                The KarChain consensus layer implements a novel Proof-of-Synchrony algorithm that combines the security of Proof-of-Stake with the efficiency of Practical Byzantine Fault Tolerance. Validators are selected based on their stake and reputation score, ensuring network security while maintaining decentralization.
-                            </p>
-                            <div class="water-content mt-4 pt-4 border-t border-white/5">
-                                <p class="text-gray-400 text-xs">
-                                    The consensus mechanism includes automatic slashing for malicious behavior and reward distribution for honest participation, creating strong economic incentives for network security.
-                                </p>
-                            </div>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-white mb-4">Execution Environment</h4>
-                            <p class="text-gray-400 text-sm">
-                                Our execution environment supports multiple virtual machines, including EVM compatibility for easy migration of existing smart contracts. The modular design allows developers to choose the execution environment that best suits their application requirements.
-                            </p>
-                            <div class="water-content mt-4 pt-4 border-t border-white/5">
-                                <p class="text-gray-400 text-xs">
-                                    Advanced features include parallel transaction execution, optimized gas metering, and built-in debugging tools for enhanced developer experience.
-                                </p>
+                        <div class="mt-8 pt-6 border-t border-white/10 flex justify-between items-center">
+                            <p class="text-xs text-gray-500">Progress: <span id="progress-text" class="text-white font-bold">0/3 Tasks</span></p>
+                            <div class="w-32 h-2 bg-white/10 rounded-full overflow-hidden">
+                                <div id="progress-bar" class="h-full bg-green-500 w-0 transition-all duration-500"></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Сторінка 3: Ecosystem -->
-        <div id="page-ecosystem" class="page container mx-auto px-4 py-12">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-white mb-4">DAPP ECOSYSTEM</h2>
-                <p class="text-gray-400">Protocols building on the KarChain settlement layer. Our ecosystem is designed to support a wide range of decentralized applications, from DeFi protocols to NFT marketplaces and beyond.</p>
-            </div>
-            
-            <div class="grid md:grid-cols-3 gap-6">
-                <div class="glass-card p-8 hover:border-purple-500/30 transition-colors hover:scale-105">
-                    <div class="w-12 h-12 bg-purple-500/10 rounded-lg flex items-center justify-center mb-6 float">
-                        <i class="fas fa-exchange-alt text-purple-400 text-xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-white mb-3">KarSwap</h3>
-                    <p class="text-gray-400 mb-4">Concentrated liquidity AMM with zero-slippage execution for stablecoin pairs and advanced trading features.</p>
-                    <span class="inline-block px-3 py-1 bg-green-500/10 text-green-400 text-xs font-bold rounded">LIVE</span>
-                    
-                    <div class="water-content mt-6 pt-6 border-t border-white/5">
-                        <p class="text-gray-400 text-xs">
-                            KarSwap implements concentrated liquidity pools that allow liquidity providers to specify price ranges for their capital, maximizing capital efficiency while providing better pricing for traders.
-                        </p>
+
+    <!-- 2. VISION PAGE -->
+    <div id="page-vision" class="page-content pt-32 pb-20 px-4 max-w-7xl mx-auto">
+        <div class="text-center mb-24 fade-in-up">
+            <h2 class="text-5xl md:text-7xl font-bold text-white mb-6">THE <span class="text-green-500">MANIFESTO</span></h2>
+            <p class="text-xl text-gray-400 font-light max-w-3xl mx-auto">Re-engineering the fundamental substrate of human coordination for the 22nd century.</p>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-20 items-center mb-32 fade-in-up delay-100">
+            <div class="space-y-12">
+                <div class="border-l-4 border-green-500 pl-8">
+                    <h3 class="text-3xl text-white font-bold mb-4 font-mono">01 // Asynchronous Finality</h3>
+                    <div class="vision-text">
+                        <p>KarChain introduces a paradigm shift with <strong>Hyper-Graph Sharding</strong>. Unlike linear blockchains, our state is partitioned into thousands of concurrent execution threads.</p>
+                        <p>Using <strong>Proof-of-Synchrony</strong>, we achieve mathematical finality in sub-second timeframes, eliminating the need for probabilistic confirmations found in Nakamoto Consensus.</p>
                     </div>
                 </div>
-                
-                <div class="glass-card p-8 hover:border-blue-500/30 transition-colors hover:scale-105">
-                    <div class="w-12 h-12 bg-blue-500/10 rounded-lg flex items-center justify-center mb-6 float" style="animation-delay: 1s">
-                        <i class="fas fa-layer-group text-blue-400 text-xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-white mb-3">Nexus Bridge</h3>
-                    <p class="text-gray-400 mb-4">Trustless asset bridging between Ethereum, Solana, and KarChain with minimal fees and fast confirmation times.</p>
-                    <span class="inline-block px-3 py-1 bg-gray-800 text-gray-500 text-xs font-bold rounded">DEV</span>
-                    
-                    <div class="water-content mt-6 pt-6 border-t border-white/5">
-                        <p class="text-gray-400 text-xs">
-                            The bridge utilizes optimistic verification with fraud proofs, ensuring security while maintaining low transaction costs. Cross-chain messages are validated by a decentralized network of relayers.
-                        </p>
-                    </div>
-                </div>
-                
-                <div class="glass-card p-8 hover:border-yellow-500/30 transition-colors hover:scale-105">
-                    <div class="w-12 h-12 bg-yellow-500/10 rounded-lg flex items-center justify-center mb-6 float" style="animation-delay: 2s">
-                        <i class="fas fa-lock text-yellow-400 text-xl"></i>
-                    </div>
-                    <h3 class="text-xl font-bold text-white mb-3">KarSafe</h3>
-                    <p class="text-gray-400 mb-4">Institutional-grade multi-signature wallet for DAO treasury management with advanced security features.</p>
-                    <span class="inline-block px-3 py-1 bg-gray-800 text-gray-500 text-xs font-bold rounded">SOON</span>
-                    
-                    <div class="water-content mt-6 pt-6 border-t border-white/5">
-                        <p class="text-gray-400 text-xs">
-                            Features include time-locked transactions, spending limits, role-based access control, and integration with hardware security modules for institutional-grade security.
-                        </p>
+                <div class="border-l-4 border-white/10 pl-8">
+                    <h3 class="text-3xl text-green-400 font-bold mb-4 font-mono">02 // Post-Quantum Security</h3>
+                    <div class="vision-text">
+                        <p>The era of elliptic curve cryptography is ending. KarChain is built as a <strong>Quantum Fortress</strong>, utilizing Lattice-based signatures (Kyber/Dilithium) to secure assets against future quantum decryption threats.</p>
                     </div>
                 </div>
             </div>
             
-            <!-- Додатковий контент -->
-            <div class="water-content mt-16 pt-16 border-t border-white/5">
-                <div class="glass-card p-8">
-                    <h3 class="text-xl font-bold text-white mb-6">Developer Resources</h3>
-                    <div class="grid md:grid-cols-3 gap-6">
-                        <div>
-                            <h4 class="font-bold text-white mb-4">Documentation</h4>
-                            <p class="text-gray-400 text-sm">
-                                Comprehensive guides, API references, and tutorials for building on KarChain. Includes smart contract development, frontend integration, and testing strategies.
-                            </p>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-white mb-4">SDK & Tools</h4>
-                            <p class="text-gray-400 text-sm">
-                                Official SDKs for multiple programming languages, development tools, and testing frameworks to streamline the dApp development process.
-                            </p>
-                        </div>
-                        <div>
-                            <h4 class="font-bold text-white mb-4">Grants Program</h4>
-                            <p class="text-gray-400 text-sm">
-                                Funding and technical support for promising projects building on KarChain. Includes mentorship, marketing support, and community building resources.
-                            </p>
-                        </div>
+            <!-- Gyro Animation -->
+            <div class="flex justify-center relative h-[500px] items-center">
+                <div class="absolute inset-0 bg-green-500/10 blur-[100px] rounded-full"></div>
+                <div class="gyro-wrapper">
+                    <div class="gyro">
+                        <div class="gyro-ring gr-1"></div>
+                        <div class="gyro-ring gr-2"></div>
+                        <div class="gyro-ring gr-3"></div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Сторінка 4: Support -->
-        <div id="page-support" class="page container mx-auto px-4 py-12">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl font-bold text-white mb-4">COMMUNITY HUB</h2>
-                <p class="text-gray-400">Get real-time assistance from our engineering team and connect with other participants in the KarChain ecosystem.</p>
-            </div>
-            
-            <div class="max-w-2xl mx-auto">
-                <!-- Telegram -->
-                <a href="https://t.me/tgkarim1" target="_blank" class="glass-card p-8 mb-8 block hover:bg-white/5 transition-colors group">
-                    <div class="flex items-center gap-6">
-                        <div class="w-16 h-16 bg-blue-500 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i class="fab fa-telegram text-white text-2xl"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-xl font-bold text-white mb-2">Official Telegram</h3>
-                            <p class="text-gray-400">Join 50,000+ members for news, announcements, and community discussions. Get real-time support from moderators and connect with other ecosystem participants.</p>
-                        </div>
-                    </div>
-                </a>
+        <!-- Roadmap -->
+        <div class="glass-panel p-12 rounded-3xl border-t-4 border-green-500 fade-in-up delay-200">
+            <h3 class="text-3xl text-white font-bold mb-12 text-center font-display">Strategic Roadmap</h3>
+            <div class="grid md:grid-cols-4 gap-8 relative">
+                <!-- Connecting Line -->
+                <div class="hidden md:block absolute top-12 left-0 w-full h-[2px] bg-white/10 -z-1"></div>
                 
-                <!-- FAQ -->
-                <div class="space-y-4">
-                    <div class="glass-card p-6 hover:bg-white/5 transition-colors faq-item">
-                        <button onclick="toggleFAQ(this)" class="w-full flex justify-between items-center text-left">
-                            <span class="font-bold text-white">How to add KarChain to MetaMask?</span>
-                            <i class="fas fa-chevron-down text-gray-500 faq-icon transition-transform"></i>
-                        </button>
-                        <div class="faq-answer mt-4 text-gray-400">
-                            The easiest way is to click "Connect Wallet" on our dashboard. The site will automatically prompt MetaMask to add the KarChain Testnet (Chain ID: 1337). Alternatively, you can add it manually using the following network details:
-                            <ul class="mt-2 space-y-1 text-sm">
-                                <li>Network Name: KarChain Testnet</li>
-                                <li>RPC URL: http://127.0.0.1:8545</li>
-                                <li>Chain ID: 1337</li>
-                                <li>Currency Symbol: KAR</li>
-                                <li>Block Explorer URL: https://explorer-testnet.karchain.com</li>
-                            </ul>
-                        </div>
-                    </div>
-                    
-                    <div class="glass-card p-6 hover:bg-white/5 transition-colors faq-item">
-                        <button onclick="toggleFAQ(this)" class="w-full flex justify-between items-center text-left">
-                            <span class="font-bold text-white">How to get Testnet Tokens (KAR)?</span>
-                            <i class="fas fa-chevron-down text-gray-500 faq-icon transition-transform"></i>
-                        </button>
-                        <div class="faq-answer mt-4 text-gray-400">
-                            Once you connect your wallet and complete the "Social Identity" task on the dashboard, our automated faucet will drop initial KAR tokens to your address for gas fees. The faucet distributes tokens every 24 hours per address, with additional allocations available for completing network tasks and participating in stress tests. If you need more tokens for development or testing purposes, you can request additional allocations through our developer portal after verifying your participation in the testnet.
-                        </div>
-                    </div>
-                    
-                    <div class="glass-card p-6 hover:bg-white/5 transition-colors faq-item">
-                        <button onclick="toggleFAQ(this)" class="w-full flex justify-between items-center text-left">
-                            <span class="font-bold text-white">What are the validator requirements?</span>
-                            <i class="fas fa-chevron-down text-gray-500 faq-icon transition-transform"></i>
-                        </button>
-                        <div class="faq-answer mt-4 text-gray-400">
-                            Running a Besu node requires minimum specifications of 4GB RAM, 2 CPU Cores, and 50GB SSD storage. Docker is recommended for easy setup and maintenance. Validators must stake a minimum of 10,000 KAR tokens and maintain 99% uptime to receive staking rewards. The network uses a slashing mechanism that penalizes validators for malicious behavior or extended downtime. Detailed setup guides and monitoring tools are available in our documentation for both experienced node operators and newcomers to blockchain infrastructure.
-                        </div>
-                    </div>
+                <div class="relative">
+                    <div class="w-6 h-6 bg-green-500 rounded-full border-4 border-black mb-4 mx-auto relative z-10"></div>
+                    <h4 class="text-green-400 font-bold text-center mb-2">PHASE 1</h4>
+                    <p class="text-white font-bold text-center text-lg mb-2">Genesis</p>
+                    <p class="text-gray-500 text-center text-xs">Testnet launch, Faucet activation, Initial Validator onboarding.</p>
                 </div>
-                
-                <!-- Додатковий контент -->
-                <div class="water-content mt-16 pt-16 border-t border-white/5">
-                    <div class="glass-card p-8">
-                        <h3 class="text-xl font-bold text-white mb-6">Support Channels</h3>
-                        <div class="grid md:grid-cols-2 gap-8">
-                            <div>
-                                <h4 class="font-bold text-white mb-4">Technical Support</h4>
-                                <ul class="text-gray-400 space-y-2 text-sm">
-                                    <li>Documentation & Guides</li>
-                                    <li>Developer Forum</li>
-                                    <li>GitHub Issues</li>
-                                    <li>API Reference</li>
-                                </ul>
-                            </div>
-                            <div>
-                                <h4 class="font-bold text-white mb-4">Community Support</h4>
-                                <ul class="text-gray-400 space-y-2 text-sm">
-                                    <li>Telegram Community</li>
-                                    <li>Discord Server</li>
-                                    <li>Community Forum</li>
-                                    <li>Social Media Channels</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
+                <div class="relative opacity-70">
+                    <div class="w-6 h-6 bg-gray-700 rounded-full border-4 border-black mb-4 mx-auto relative z-10"></div>
+                    <h4 class="text-gray-400 font-bold text-center mb-2">PHASE 2</h4>
+                    <p class="text-white font-bold text-center text-lg mb-2">Incentivized</p>
+                    <p class="text-gray-500 text-center text-xs">Public stress testing, Bug bounties, Cross-chain bridge beta.</p>
+                </div>
+                <div class="relative opacity-50">
+                    <div class="w-6 h-6 bg-gray-700 rounded-full border-4 border-black mb-4 mx-auto relative z-10"></div>
+                    <h4 class="text-gray-400 font-bold text-center mb-2">PHASE 3</h4>
+                    <p class="text-white font-bold text-center text-lg mb-2">Ignition</p>
+                    <p class="text-gray-500 text-center text-xs">Mainnet launch, TGE, Governance DAO activation.</p>
+                </div>
+                <div class="relative opacity-30">
+                    <div class="w-6 h-6 bg-gray-700 rounded-full border-4 border-black mb-4 mx-auto relative z-10"></div>
+                    <h4 class="text-gray-400 font-bold text-center mb-2">PHASE 4</h4>
+                    <p class="text-white font-bold text-center text-lg mb-2">Singularity</p>
+                    <p class="text-gray-500 text-center text-xs">Global settlement layer, Interplanetary file system integration.</p>
                 </div>
             </div>
         </div>
-    </main>
+    </div>
 
-    <!-- Футер -->
-    <footer class="border-t border-white/5 py-12">
-        <div class="container mx-auto px-4">
-            <div class="grid md:grid-cols-4 gap-8">
-                <div class="md:col-span-2">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-8 h-8 glass-card flex items-center justify-center">
-                            <svg class="w-5 h-5 k-logo" viewBox="0 0 100 100">
-                                <path d="M30 20 L30 80" stroke="currentColor" stroke-width="8" stroke-linecap="round" fill="none"/>
-                                <path d="M30 50 L70 20" stroke="currentColor" stroke-width="8" stroke-linecap="round" fill="none"/>
-                                <path d="M30 50 L70 80" stroke="currentColor" stroke-width="8" stroke-linecap="round" fill="none"/>
-                                <circle cx="50" cy="50" r="8" fill="#4ade80" class="dot"/>
-                            </svg>
-                        </div>
-                        <div class="text-lg font-bold text-white">KARCHAIN</div>
-                    </div>
-                    <p class="text-gray-500 text-sm">
-                        The sovereign consensus layer for the decentralized future. Built for speed, security, and sustainability. KarChain represents the next evolution in blockchain technology, combining cutting-edge research with practical implementation to create a foundation for the decentralized applications of tomorrow.
-                    </p>
+
+    <!-- 3. ECOSYSTEM PAGE -->
+    <div id="page-ecosystem" class="page-content pt-32 pb-20 px-4 max-w-7xl mx-auto">
+        <div class="text-center mb-16 fade-in-up">
+            <h2 class="text-5xl font-bold text-white mb-6">ECOSYSTEM</h2>
+            <p class="text-gray-400">Applications building on KarChain.</p>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-8 fade-in-up delay-100">
+            <div class="glass-card p-8 rounded-xl group cursor-pointer">
+                <div class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center mb-6 text-2xl text-purple-400 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-right-left"></i>
                 </div>
-                
-                <div>
-                    <div class="text-sm font-bold text-white mb-4">Ecosystem</div>
-                    <div class="space-y-2">
-                        <a href="#" class="block text-sm text-gray-500 hover:text-white">Block Explorer</a>
-                        <a href="#" class="block text-sm text-gray-500 hover:text-white">Governance</a>
-                        <a href="#" class="block text-sm text-gray-500 hover:text-white">Bridge</a>
-                        <a href="#" class="block text-sm text-gray500 hover:text-white">Faucet</a>
-                    </div>
-                </div>
-                
-                <div>
-                    <div class="text-sm font-bold text-white mb-4">Developers</div>
-                    <div class="space-y-2">
-                        <a href="#" class="block text-sm text-gray-500 hover:text-white">Documentation</a>
-                        <a href="#" class="block text-sm text-gray-500 hover:text-white">GitHub</a>
-                        <a href="#" class="block text-sm text-gray-500 hover:text-white">Audits</a>
-                        <a href="#" class="block text-sm text-gray-500 hover:text-white">Bug Bounty</a>
-                    </div>
-                </div>
+                <h3 class="text-xl font-bold text-white mb-2">KarSwap DEX</h3>
+                <p class="text-sm text-gray-400 mb-4">The native AMM with concentrated liquidity and zero slippage.</p>
+                <span class="text-[10px] bg-green-900 text-green-400 px-2 py-1 rounded uppercase">Live on Testnet</span>
             </div>
             
-            <div class="border-t border-white/5 mt-8 pt-8 text-center text-gray-500 text-sm">
-                © 2025 KarChain Foundation. All rights reserved. The KarChain protocol is open-source software built by a global community of developers and researchers.
+            <div class="glass-card p-8 rounded-xl group cursor-pointer">
+                <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mb-6 text-2xl text-blue-400 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-image"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">PixelMarket</h3>
+                <p class="text-sm text-gray-400 mb-4">Next-gen NFT marketplace with fractional ownership support.</p>
+                <span class="text-[10px] bg-gray-800 text-gray-400 px-2 py-1 rounded uppercase">Coming Soon</span>
+            </div>
+
+            <div class="glass-card p-8 rounded-xl group cursor-pointer">
+                <div class="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center mb-6 text-2xl text-yellow-400 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">KarSafe</h3>
+                <p class="text-sm text-gray-400 mb-4">Multi-sig institutional wallet for DAO treasury management.</p>
+                <span class="text-[10px] bg-gray-800 text-gray-400 px-2 py-1 rounded uppercase">Coming Soon</span>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 4. SUPPORT PAGE -->
+    <div id="page-support" class="page-content pt-32 pb-20 px-4 max-w-5xl mx-auto">
+        <div class="text-center mb-20 fade-in-up">
+            <h2 class="text-5xl font-bold text-white mb-6">COMMUNITY HUB</h2>
+            <p class="text-gray-400 text-lg">Get support, report bugs, and connect with developers.</p>
+        </div>
+
+        <!-- Telegram CTA -->
+        <a href="https://t.me/tgkarim1" target="_blank" class="glass-panel p-12 rounded-3xl mb-20 block group border-t border-blue-500/20 hover:bg-blue-900/10 fade-in-up delay-100">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+                <div class="flex items-center gap-6">
+                    <div class="w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center text-4xl text-white shadow-[0_0_30px_#3b82f6] group-hover:scale-110 transition-transform">
+                        <i class="fa-brands fa-telegram"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-3xl font-bold text-white mb-2">Official Telegram</h3>
+                        <p class="text-gray-400">Join 50,000+ members. Direct access to core team.</p>
+                    </div>
+                </div>
+                <div class="px-8 py-3 bg-white/10 rounded-full text-white font-bold text-sm group-hover:bg-white/20 transition-colors">JOIN NOW</div>
+            </div>
+        </a>
+
+        <!-- FAQ -->
+        <div class="space-y-4 fade-in-up delay-200">
+            <h3 class="text-2xl font-bold text-white mb-6 pl-4 border-l-4 border-green-500">Frequently Asked Questions</h3>
+            
+            <div class="glass-panel rounded-xl overflow-hidden">
+                <button class="w-full p-6 text-left flex justify-between items-center text-white font-bold hover:bg-white/5 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('i').classList.toggle('rotate-180')">
+                    How to add KarChain to MetaMask?
+                    <i class="fa-solid fa-chevron-down transition-transform"></i>
+                </button>
+                <div class="hidden px-6 pb-6 text-gray-400 text-sm leading-relaxed border-t border-white/5 pt-4">
+                    The easiest way is to click "Connect Wallet" on our dashboard. The site will automatically prompt you to add the network (Chain ID: 1337). Alternatively, you can add it manually: RPC URL: https://relationless-improperly-nettie.ngrok-free.dev
+                </div>
+            </div>
+
+            <div class="glass-panel rounded-xl overflow-hidden">
+                <button class="w-full p-6 text-left flex justify-between items-center text-white font-bold hover:bg-white/5 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('i').classList.toggle('rotate-180')">
+                    How to get Testnet Tokens (KAR)?
+                    <i class="fa-solid fa-chevron-down transition-transform"></i>
+                </button>
+                <div class="hidden px-6 pb-6 text-gray-400 text-sm leading-relaxed border-t border-white/5 pt-4">
+                    Once you connect your wallet and complete the "Social Identity" task on the dashboard, our automated faucet will drop initial KAR tokens to your address for gas fees.
+                </div>
+            </div>
+
+            <div class="glass-panel rounded-xl overflow-hidden">
+                <button class="w-full p-6 text-left flex justify-between items-center text-white font-bold hover:bg-white/5 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('i').classList.toggle('rotate-180')">
+                    What are the node requirements?
+                    <i class="fa-solid fa-chevron-down transition-transform"></i>
+                </button>
+                <div class="hidden px-6 pb-6 text-gray-400 text-sm leading-relaxed border-t border-white/5 pt-4">
+                    Due to our lightweight Besu client, you can run a node on minimal hardware: 2 CPU Cores, 4GB RAM, and 100GB SSD storage.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/5 bg-black py-16 mt-20">
+        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-12">
+            <div class="col-span-1 md:col-span-2">
+                <span class="text-2xl font-bold tracking-[0.2em] text-white font-display">KARCHAIN</span>
+                <p class="text-gray-500 text-sm mt-4 max-w-xs">The sovereign consensus layer for the decentralized future. Built for speed, security, and sustainability.</p>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-6 uppercase tracking-widest text-xs">Ecosystem</h4>
+                <ul class="space-y-3 text-sm">
+                    <li><a href="#" class="footer-link">Block Explorer</a></li>
+                    <li><a href="#" class="footer-link">Governance</a></li>
+                    <li><a href="#" class="footer-link">Bridge</a></li>
+                    <li><a href="#" class="footer-link">Faucet</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-6 uppercase tracking-widest text-xs">Developers</h4>
+                <ul class="space-y-3 text-sm">
+                    <li><a href="#" class="footer-link">Documentation</a></li>
+                    <li><a href="#" class="footer-link">Github</a></li>
+                    <li><a href="#" class="footer-link">Audits</a></li>
+                    <li><a href="#" class="footer-link">Bug Bounty</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center">
+            <p class="text-[10px] text-gray-700 font-mono uppercase tracking-widest">© 2025 KarChain Foundation. All rights reserved.</p>
+            <div class="flex gap-4 mt-4 md:mt-0">
+                <a href="#" class="text-gray-600 hover:text-white transition-colors"><i class="fa-brands fa-x-twitter"></i></a>
+                <a href="#" class="text-gray-600 hover:text-white transition-colors"><i class="fa-brands fa-discord"></i></a>
+                <a href="#" class="text-gray-600 hover:text-white transition-colors"><i class="fa-brands fa-github"></i></a>
             </div>
         </div>
     </footer>
 
-    <!-- JavaScript -->
+    <!-- --- APPLICATION LOGIC --- -->
     <script>
-        // Конфігурація
-        const CONFIG = {
-            chainId: 1337,
-            chainHex: '0x539',
-            chainName: 'KarChain Testnet',
-            rpcUrl: 'http://127.0.0.1:8545',
-            symbol: 'KAR'
-        };
-
-        // Стан додатку
-        const state = {
-            walletConnected: false,
-            walletAddress: null,
-            provider: null,
-            signer: null,
-            currentPage: 'home',
-            tasks: {
-                1: { completed: false },
-                2: { completed: false },
-                3: { completed: false }
+        // --- 1. CONFIGURATION ---
+        const Config = {
+            chain: {
+                id: 1337,
+                hex: '0x539',
+                name: 'KarChain Testnet',
+                rpc: 'https://relationless-improperly-nettie.ngrok-free.dev',
+                symbol: 'KAR'
             }
         };
 
-        // ========== PARTICLE SYSTEM ==========
-        class ParticleSystem {
-            constructor() {
-                this.canvas = document.getElementById('particle-canvas');
-                if (!this.canvas) return;
+        // --- 2. UI CONTROLLER ---
+        const UI = {
+            init: () => {
+                // Init Particles
+                UI.initParticles();
+                // Show Home
+                UI.showPage('home');
+            },
+
+            initParticles: () => {
+                const cvs = document.getElementById('webgl-canvas');
+                const ctx = cvs.getContext('2d');
+                let particles = [];
                 
-                this.ctx = this.canvas.getContext('2d');
-                this.particles = [];
-                this.animationId = null;
-                
-                this.init();
-            }
-            
-            init() {
-                this.resize();
-                window.addEventListener('resize', () => this.resize());
-                
-                // Створюємо частинки
-                const particleCount = window.innerWidth < 768 ? 30 : 60;
-                for (let i = 0; i < particleCount; i++) {
-                    this.particles.push(this.createParticle());
+                const resize = () => { cvs.width = window.innerWidth; cvs.height = window.innerHeight; };
+                window.addEventListener('resize', resize); resize();
+
+                class P {
+                    constructor() { this.reset(); }
+                    reset() { 
+                        this.x = Math.random() * cvs.width; 
+                        this.y = Math.random() * cvs.height; 
+                        this.size = Math.random() * 2; 
+                        this.speed = Math.random() * 0.5 + 0.1;
+                        this.alpha = Math.random() * 0.5 + 0.1;
+                    }
+                    update() { 
+                        this.y -= this.speed; 
+                        if(this.y < 0) this.reset(); 
+                    }
+                    draw() { 
+                        ctx.fillStyle = `rgba(74, 222, 128, ${this.alpha})`;
+                        ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+                    }
                 }
-                
-                this.animate();
-            }
-            
-            createParticle() {
-                return {
-                    x: Math.random() * this.canvas.width,
-                    y: Math.random() * this.canvas.height,
-                    size: Math.random() * 2 + 0.5,
-                    speed: Math.random() * 0.3 + 0.1,
-                    alpha: Math.random() * 0.3 + 0.1,
-                    color: Math.random() > 0.5 ? '#4ade80' : '#22c55e'
+
+                for(let i=0; i<50; i++) particles.push(new P());
+
+                const animate = () => {
+                    ctx.clearRect(0,0,cvs.width,cvs.height);
+                    particles.forEach(p => { p.update(); p.draw(); });
+                    requestAnimationFrame(animate);
                 };
-            }
-            
-            resize() {
-                this.canvas.width = window.innerWidth;
-                this.canvas.height = window.innerHeight;
-            }
-            
-            animate() {
-                this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-                
-                this.particles.forEach(particle => {
-                    particle.y -= particle.speed;
-                    
-                    if (particle.y < 0) {
-                        particle.y = this.canvas.height;
-                        particle.x = Math.random() * this.canvas.width;
-                    }
-                    
-                    this.ctx.beginPath();
-                    this.ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-                    this.ctx.fillStyle = particle.color + Math.floor(particle.alpha * 255).toString(16).padStart(2, '0');
-                    this.ctx.fill();
+                animate();
+            },
+
+            showPage: (id) => {
+                // Hide all pages
+                document.querySelectorAll('.page-content').forEach(el => {
+                    el.classList.remove('active');
+                    el.style.display = 'none';
                 });
                 
-                this.animationId = requestAnimationFrame(() => this.animate());
-            }
-        }
+                // Show target
+                const target = document.getElementById('page-'+id);
+                if(target) {
+                    target.style.display = 'block';
+                    // Small delay for fade in
+                    setTimeout(() => target.classList.add('active'), 10);
+                }
 
-        // ========== UI ФУНКЦІЇ ==========
-        
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobileMenu');
-            menu.classList.toggle('open');
-            document.body.style.overflow = menu.classList.contains('open') ? 'hidden' : '';
-        }
-
-        function showPage(pageId) {
-            // Приховуємо всі сторінки
-            document.querySelectorAll('.page').forEach(page => {
-                page.classList.remove('active');
-            });
-            
-            // Показуємо вибрану сторінку
-            const page = document.getElementById(`page-${pageId}`);
-            if (page) {
-                page.classList.add('active');
-                
-                // Оновлюємо активне посилання в навігації
-                document.querySelectorAll('.nav-link').forEach(link => {
-                    link.classList.remove('active');
-                    if (link.dataset.page === pageId) {
-                        link.classList.add('active');
-                    }
+                // Update Nav
+                document.querySelectorAll('.nav-link').forEach(el => {
+                    el.classList.remove('active', 'text-white', 'border-green-500');
+                    el.classList.add('text-gray-400', 'border-transparent');
                 });
-                
-                // Зберігаємо поточну сторінку
-                state.currentPage = pageId;
-                
-                // Прокручуємо нагору
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        }
-
-        function openWalletModal() {
-            document.getElementById('walletModal').classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeWalletModal() {
-            document.getElementById('walletModal').classList.add('hidden');
-            document.body.style.overflow = '';
-        }
-
-        function toggleFAQ(button) {
-            const faqItem = button.closest('.faq-item');
-            faqItem.classList.toggle('open');
-        }
-
-        // ========== WALLET ФУНКЦІЇ ==========
-        
-        async function connectWallet(walletType) {
-            try {
-                let provider;
-                
-                switch(walletType) {
-                    case 'metamask':
-                        if (!window.ethereum) {
-                            alert('Please install MetaMask!');
-                            return;
-                        }
-                        provider = window.ethereum;
-                        break;
-                        
-                    case 'trust':
-                        if (window.ethereum?.isTrust) {
-                            provider = window.ethereum;
-                        } else if (window.trustwallet) {
-                            provider = window.trustwallet;
-                        } else {
-                            alert('Trust Wallet not found!');
-                            return;
-                        }
-                        break;
-                        
-                    case 'walletconnect':
-                        alert('WalletConnect coming soon!');
-                        return;
-                        
-                    default:
-                        return;
+                const activeLink = document.getElementById('nav-'+id);
+                if(activeLink) {
+                    activeLink.classList.add('active', 'text-white', 'border-green-500');
+                    activeLink.classList.remove('text-gray-400', 'border-transparent');
                 }
-                
-                const web3Provider = new ethers.providers.Web3Provider(provider);
-                const accounts = await web3Provider.send("eth_requestAccounts", []);
-                
-                if (accounts.length === 0) {
-                    throw new Error('No accounts found');
-                }
-                
-                const address = accounts[0];
-                state.walletAddress = address;
-                state.provider = web3Provider;
-                state.signer = web3Provider.getSigner();
-                state.walletConnected = true;
-                
-                // Оновлюємо UI
-                updateWalletUI(address);
-                await switchToKarChain(provider);
-                await updateBalance();
-                
-                // Зберігаємо в localStorage
-                localStorage.setItem('karchain_wallet', address);
-                
-                closeWalletModal();
-                
-            } catch (error) {
-                console.error('Wallet connection error:', error);
-                alert(`Connection failed: ${error.message}`);
-            }
-        }
 
-        function updateWalletUI(address) {
-            const shortAddress = `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
-            
-            // Оновлюємо кнопку
-            const connectBtn = document.getElementById('connectBtn');
-            connectBtn.innerHTML = `
-                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-2"></div>
-                <span class="hidden sm:inline">${shortAddress}</span>
-            `;
-            connectBtn.onclick = () => {}; // Вимикаємо модальне вікно
-            
-            // Показуємо дашборд
-            document.getElementById('dashboardLocked').classList.add('hidden');
-            document.getElementById('dashboardActive').classList.remove('hidden');
-            
-            // Оновлюємо адресу
-            document.getElementById('walletAddress').textContent = address;
-        }
+                // Scroll top
+                window.scrollTo(0,0);
 
-        async function switchToKarChain(provider) {
-            try {
-                await provider.request({
-                    method: 'wallet_switchEthereumChain',
-                    params: [{ chainId: CONFIG.chainHex }]
-                });
-            } catch (switchError) {
-                if (switchError.code === 4902) {
-                    try {
-                        await provider.request({
-                            method: 'wallet_addEthereumChain',
-                            params: [{
-                                chainId: CONFIG.chainHex,
-                                chainName: CONFIG.chainName,
-                                rpcUrls: [CONFIG.rpcUrl],
-                                nativeCurrency: {
-                                    name: CONFIG.symbol,
-                                    symbol: CONFIG.symbol,
-                                    decimals: 18
-                                }
-                            }]
-                        });
-                    } catch (addError) {
-                        console.error('Failed to add network:', addError);
-                    }
-                }
-            }
-        }
+                // Toggle 3D Orb only on Home
+                document.getElementById('orb-bg').style.display = (id === 'home') ? 'block' : 'none';
+            },
 
-        async function updateBalance() {
-            if (!state.provider || !state.walletAddress) return;
-            
-            try {
-                const balance = await state.provider.getBalance(state.walletAddress);
-                const formatted = ethers.utils.formatEther(balance);
-                document.getElementById('balance').textContent = parseFloat(formatted).toFixed(2);
-            } catch (error) {
-                console.error('Failed to update balance:', error);
-            }
-        }
+            toggleMobile: () => {
+                const menu = document.getElementById('mobile-menu');
+                const isOpen = menu.style.transform === 'translateX(0%)';
+                menu.style.transform = isOpen ? 'translateX(100%)' : 'translateX(0%)';
+            },
 
-        function disconnectWallet() {
-            state.walletConnected = false;
-            state.walletAddress = null;
-            state.provider = null;
-            state.signer = null;
-            
-            // Оновлюємо UI
-            document.getElementById('dashboardLocked').classList.remove('hidden');
-            document.getElementById('dashboardActive').classList.add('hidden');
-            
-            const connectBtn = document.getElementById('connectBtn');
-            connectBtn.innerHTML = `
-                <i class="fas fa-wallet text-green-400 mr-2"></i>
-                <span class="hidden sm:inline">Connect Wallet</span>
-            `;
-            connectBtn.onclick = openWalletModal;
-            
-            // Видаляємо з localStorage
-            localStorage.removeItem('karchain_wallet');
-        }
-
-        // ========== TASK ФУНКЦІЇ ==========
-        
-        function startTask(taskId) {
-            if (taskId === 1) {
-                const button = document.getElementById('verifyTask1');
-                button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Checking...';
-                button.disabled = true;
-                
+            openModal: () => {
+                const modal = document.getElementById('connect-modal');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                // Animate in
                 setTimeout(() => {
-                    button.disabled = false;
-                    button.innerHTML = 'Verify Now';
-                }, 1500);
-            }
-        }
-        
-        function verifyTask(taskId) {
-            const button = document.getElementById(`verifyTask${taskId}`);
-            button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Verifying...';
-            button.disabled = true;
-            
-            setTimeout(() => {
-                state.tasks[taskId].completed = true;
-                button.innerHTML = '<i class="fas fa-check"></i> Verified';
-                button.classList.remove('bg-green-600', 'hover:bg-green-500');
-                button.classList.add('bg-green-500/20', 'text-green-400');
+                    document.getElementById('modal-content').classList.remove('scale-95', 'opacity-0');
+                    document.getElementById('modal-content').classList.add('scale-100', 'opacity-100');
+                }, 10);
+            },
+
+            closeModal: () => {
+                const content = document.getElementById('modal-content');
+                content.classList.remove('scale-100', 'opacity-100');
+                content.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    const modal = document.getElementById('connect-modal');
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }, 300);
+            },
+
+            setConnectedState: (address, balance) => {
+                // Update Header
+                const btn = document.getElementById('connectBtn');
+                const short = `${address.substring(0,6)}...${address.substring(address.length-4)}`;
+                btn.innerHTML = `<div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div> ${short}`;
+                btn.onclick = () => document.getElementById('userDropdown').classList.toggle('hidden');
                 
-                // Розблоковуємо наступну задачу
-                if (taskId === 1) {
-                    document.getElementById('task2').classList.remove('task-locked');
-                    alert('Task 1 verified! Task 2 unlocked.');
-                } else if (taskId === 2) {
-                    document.getElementById('task3').classList.remove('task-locked');
-                    const whitelistBtn = document.getElementById('whitelistBtn');
-                    whitelistBtn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    whitelistBtn.onclick = openWhitelistForm;
-                    alert('Task 2 verified! Task 3 unlocked.');
-                }
+                document.getElementById('dropdownAddress').innerText = short;
+
+                // Update Dashboard
+                document.getElementById('view-locked').classList.add('hidden');
+                document.getElementById('view-active').classList.remove('hidden');
                 
-                // Зберігаємо прогрес
-                localStorage.setItem('karchain_tasks', JSON.stringify(state.tasks));
+                document.getElementById('walletAddrDisp').innerText = address;
+                document.getElementById('balanceVal').innerText = balance || '0.00';
+            },
+
+            resetState: () => {
+                const btn = document.getElementById('connectBtn');
+                btn.innerHTML = '<i class="fa-solid fa-wallet"></i> <span>Connect Wallet</span>';
+                btn.onclick = UI.openModal;
                 
-            }, 1500);
-        }
-
-        function checkVolume() {
-            alert('Checking trading volume... (Simulated)');
-        }
-
-        function openWhitelistForm() {
-            window.open('https://docs.google.com/forms', '_blank');
-        }
-
-        function requestTokens() {
-            if (!state.walletConnected) {
-                alert('Please connect wallet first!');
-                return;
+                document.getElementById('userDropdown').classList.add('hidden');
+                
+                document.getElementById('view-locked').classList.remove('hidden');
+                document.getElementById('view-active').classList.add('hidden');
             }
-            
-            alert('Test tokens requested! (Simulated)');
-            // Симулюємо отримання токенів
-            const currentBalance = parseFloat(document.getElementById('balance').textContent);
-            document.getElementById('balance').textContent = (currentBalance + 10).toFixed(2);
-        }
+        };
 
-        // ========== ІНІЦІАЛІЗАЦІЯ ==========
-        
-        function init() {
-            // Ініціалізуємо систему частинок
-            new ParticleSystem();
-            
-            // Перевіряємо збережений гаманець
-            const savedWallet = localStorage.getItem('karchain_wallet');
-            const savedTasks = localStorage.getItem('karchain_tasks');
-            
-            if (savedWallet && window.ethereum) {
-                // Автоматично підключаємо
-                connectWallet('metamask');
-            }
-            
-            if (savedTasks) {
-                state.tasks = JSON.parse(savedTasks);
-                updateTaskUI();
-            }
-            
-            // Додаємо обробники подій
-            document.addEventListener('click', (e) => {
-                // Закриваємо дропдаун при кліку поза ним
-                if (e.target.closest('#walletModal')) return;
-                if (document.getElementById('walletModal').classList.contains('hidden')) return;
-                closeWalletModal();
-            });
-            
-            // Запускаємо анімації лічильників
-            animateCounters();
-            
-            console.log('KarChain initialized');
-        }
+        // --- 3. APP CORE (Wallet & Tasks) ---
+        const App = {
+            ui: UI,
+            router: { navigate: UI.showPage },
+            state: { address: null, provider: null },
 
-        function updateTaskUI() {
-            Object.keys(state.tasks).forEach(taskId => {
-                if (state.tasks[taskId].completed) {
-                    const button = document.getElementById(`verifyTask${taskId}`);
-                    if (button) {
-                        button.innerHTML = '<i class="fas fa-check"></i> Verified';
-                        button.classList.remove('bg-green-600', 'hover:bg-green-500');
-                        button.classList.add('bg-green-500/20', 'text-green-400');
-                        button.disabled = true;
-                    }
+            wallet: {
+                connect: async (type) => {
+                    if(!window.ethereum) return alert("MetaMask not installed!");
                     
-                    // Розблоковуємо наступну задачу
-                    if (taskId === '1') {
-                        document.getElementById('task2')?.classList.remove('task-locked');
-                    } else if (taskId === '2') {
-                        document.getElementById('task3')?.classList.remove('task-locked');
-                        const whitelistBtn = document.getElementById('whitelistBtn');
-                        whitelistBtn?.classList.remove('opacity-50', 'cursor-not-allowed');
-                        whitelistBtn.onclick = openWhitelistForm;
+                    try {
+                        const provider = new ethers.providers.Web3Provider(window.ethereum);
+                        const accounts = await provider.send("eth_requestAccounts", []);
+                        App.state.address = accounts[0];
+                        App.state.provider = provider;
+
+                        UI.closeModal();
+                        await App.wallet.switchNetwork();
+                        const bal = await App.wallet.getBalance();
+                        
+                        UI.setConnectedState(App.state.address, bal);
+
+                    } catch (e) {
+                        console.error(e);
+                        alert("Connection Failed: " + e.message);
                     }
+                },
+
+                disconnect: () => {
+                    App.state.address = null;
+                    UI.resetState();
+                },
+
+                switchNetwork: async () => {
+                    try {
+                        await window.ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: Config.chain.hex }],
+                        });
+                    } catch (switchError) {
+                        if (switchError.code === 4902) {
+                            try {
+                                await window.ethereum.request({
+                                    method: 'wallet_addEthereumChain',
+                                    params: [{
+                                        chainId: Config.chain.hex,
+                                        chainName: Config.chain.name,
+                                        rpcUrls: [Config.chain.rpc],
+                                        nativeCurrency: { name: 'KarChain', symbol: Config.chain.symbol, decimals: 18 }
+                                    }],
+                                });
+                            } catch (addError) { console.error(addError); }
+                        }
+                    }
+                },
+
+                getBalance: async () => {
+                    try {
+                        const bal = await App.state.provider.getBalance(App.state.address);
+                        return parseFloat(ethers.utils.formatEther(bal)).toFixed(2);
+                    } catch { return '0.00'; }
                 }
-            });
-        }
+            },
 
-        function animateCounters() {
-            const counters = document.querySelectorAll('.counter');
-            
-            counters.forEach(counter => {
-                const target = parseInt(counter.dataset.target);
-                let current = 0;
-                const increment = target / 50;
-                const timer = setInterval(() => {
-                    current += increment;
-                    if (current >= target) {
-                        current = target;
-                        clearInterval(timer);
-                    }
-                    counter.textContent = Math.floor(current).toLocaleString();
-                }, 30);
-            });
-        }
+            tasks: {
+                start: (id) => {
+                    const btn = document.querySelector(`#task-${id} a`);
+                    // Simulate opening
+                    setTimeout(() => {
+                        document.getElementById(`verify-${id}`).disabled = false;
+                        document.getElementById(`verify-${id}`).classList.remove('cursor-not-allowed', 'border-white/20', 'text-gray-500');
+                        document.getElementById(`verify-${id}`).classList.add('bg-green-600', 'text-white', 'hover:bg-green-500', 'border-transparent');
+                    }, 2000);
+                },
+                verify: (id) => {
+                    const btn = document.getElementById(`verify-${id}`) || document.querySelector(`#task-${id} button`);
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                    
+                    setTimeout(() => {
+                        btn.innerHTML = 'COMPLETED';
+                        btn.classList.replace('bg-green-600', 'bg-green-900/50');
+                        btn.classList.add('text-green-400');
+                        btn.disabled = true;
+                        
+                        // Logic for unlocking next steps
+                        if(id === 1) {
+                            document.getElementById('card-task-2').classList.remove('task-locked');
+                            document.getElementById('progress-bar').style.width = '33%';
+                            document.getElementById('progress-text').innerText = '1/3 Tasks';
+                        }
+                        if(id === 2) {
+                            document.getElementById('card-task-3').classList.remove('task-locked');
+                            document.getElementById('btn-form').classList.remove('pointer-events-none', 'opacity-50');
+                            document.getElementById('progress-bar').style.width = '66%';
+                            document.getElementById('progress-text').innerText = '2/3 Tasks';
+                        }
+                    }, 1500);
+                }
+            }
+        };
 
-        // Запускаємо додаток при завантаженні
-        window.addEventListener('load', init);
+        // Init Application
+        window.onload = () => App.ui.init();
+        window.App = App; // Expose to global scope for onclick handlers
     </script>
 </body>
 </html>
+
