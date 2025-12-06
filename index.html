@@ -98,7 +98,7 @@
             background: #4ade80; box-shadow: 0 0 10px #4ade80;
         }
 
-        /* Wallet Option Styling */
+        /* Wallet Option Styling (Gray to Color) */
         .wallet-icon { filter: grayscale(100%); transition: all 0.3s ease; }
         .wallet-option:hover .wallet-icon { filter: grayscale(0%); transform: scale(1.1); }
         .wallet-option {
@@ -192,10 +192,10 @@
 
             <!-- Desktop Menu -->
             <div class="hidden lg:flex items-center gap-12">
-                <button onclick="App.router.navigate('home')" id="nav-home" class="nav-link text-xs font-bold uppercase tracking-widest active">Testnet</button>
-                <button onclick="App.router.navigate('vision')" id="nav-vision" class="nav-link text-xs font-bold uppercase tracking-widest">Vision</button>
-                <button onclick="App.router.navigate('ecosystem')" id="nav-ecosystem" class="nav-link text-xs font-bold uppercase tracking-widest">Ecosystem</button>
-                <button onclick="App.router.navigate('support')" id="nav-support" class="nav-link text-xs font-bold uppercase tracking-widest">Support</button>
+                <div onclick="App.router.navigate('home')" id="nav-home" class="nav-link text-xs font-bold uppercase tracking-widest active">Testnet</div>
+                <div onclick="App.router.navigate('vision')" id="nav-vision" class="nav-link text-xs font-bold uppercase tracking-widest">Vision</div>
+                <div onclick="App.router.navigate('ecosystem')" id="nav-ecosystem" class="nav-link text-xs font-bold uppercase tracking-widest">Ecosystem</div>
+                <div onclick="App.router.navigate('support')" id="nav-support" class="nav-link text-xs font-bold uppercase tracking-widest">Support</div>
             </div>
 
             <!-- Connect & Mobile -->
@@ -229,9 +229,9 @@
     <!-- Mobile Menu -->
     <div id="mobile-menu" class="fixed inset-0 z-[60] bg-black/95 backdrop-blur-xl transform translate-x-full transition-transform duration-300 flex flex-col items-center justify-center space-y-8">
         <button onclick="App.ui.toggleMobile()" class="absolute top-6 right-6 text-gray-400 hover:text-white text-3xl"><i class="fa-solid fa-xmark"></i></button>
-        <a onclick="App.router.navigate('home'); App.ui.toggleMobile()" class="text-2xl font-bold text-white uppercase tracking-widest">Testnet</a>
-        <a onclick="App.router.navigate('vision'); App.ui.toggleMobile()" class="text-2xl font-bold text-white uppercase tracking-widest">Vision</a>
-        <a onclick="App.router.navigate('support'); App.ui.toggleMobile()" class="text-2xl font-bold text-white uppercase tracking-widest">Support</a>
+        <a onclick="App.router.navigate('home'); App.ui.toggleMobile()" class="text-2xl font-bold text-white uppercase tracking-widest cursor-pointer">Testnet</a>
+        <a onclick="App.router.navigate('vision'); App.ui.toggleMobile()" class="text-2xl font-bold text-white uppercase tracking-widest cursor-pointer">Vision</a>
+        <a onclick="App.router.navigate('support'); App.ui.toggleMobile()" class="text-2xl font-bold text-white uppercase tracking-widest cursor-pointer">Support</a>
         <button onclick="App.ui.openModal(); App.ui.toggleMobile()" class="px-8 py-3 bg-green-600 text-black font-bold rounded-full uppercase">Connect Wallet</button>
     </div>
 
