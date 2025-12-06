@@ -91,14 +91,14 @@
             transition: all 0.4s ease;
         }
 
-        .nav-link { position: relative; opacity: 0.6; transition: 0.3s; }
+        .nav-link { position: relative; opacity: 0.6; transition: 0.3s; cursor: pointer; }
         .nav-link:hover, .nav-link.active { opacity: 1; color: #fff; text-shadow: 0 0 10px rgba(74, 222, 128, 0.4); }
         .nav-link.active::after {
             content: ''; position: absolute; width: 100%; height: 2px; bottom: -4px; left: 0;
             background: #4ade80; box-shadow: 0 0 10px #4ade80;
         }
 
-        /* Wallet Option Styling (Gray to Color) */
+        /* Wallet Option Styling */
         .wallet-icon { filter: grayscale(100%); transition: all 0.3s ease; }
         .wallet-option:hover .wallet-icon { filter: grayscale(0%); transform: scale(1.1); }
         .wallet-option {
