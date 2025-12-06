@@ -1,628 +1,904 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#020402">
-    
-    <!-- SEO & Metadata -->
-    <title>KarChain | The Modular Consensus Layer & Testnet</title>
-    <meta name="description" content="KarChain is a hyper-scalable Layer-1 blockchain featuring Adaptive State Sharding and Proof-of-Synchrony. Join the Incentivized Testnet to earn KRM rewards.">
-    <meta name="keywords" content="Karchain, KRM token, Blockchain, Testnet, Airdrop, Layer 1, Crypto, Modular Consensus, Web3, Trust Wallet, MetaMask">
-    <meta name="author" content="Karchain Foundation">
-    <meta property="og:title" content="KarChain Testnet Live">
-    <meta property="og:description" content="Join the future of decentralized consensus. Earn KRM rewards today.">
+    <meta name="description" content="KarChain is the first hyper-scalable Layer-1 blockchain featuring Adaptive State Sharding and Proof-of-Synchrony consensus mechanism. Join the Incentivized Testnet today.">
+    <meta name="keywords" content="KarChain, Blockchain, Layer 1, Crypto, Web3, Sharding, Consensus, Testnet, Airdrop, KRM Token">
+    <meta name="author" content="KarChain Foundation">
+    <meta property="og:title" content="KarChain | The Sovereign Consensus Layer">
+    <meta property="og:description" content="The final settlement layer for the decentralized web. Built on Besu. Secured by Proof-of-Synchrony.">
     <meta property="og:image" content="https://cdn-icons-png.flaticon.com/512/12409/12409608.png">
-    
+    <meta property="og:url" content="https://karchain.network">
+    <meta name="twitter:card" content="summary_large_image">
+
+    <title>KarChain | The Sovereign Consensus Layer</title>
     <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/512/12409/12409608.png">
-    
-    <!-- External Libraries -->
+
+    <!-- Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script> <!-- GSAP for advanced animations -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'k-black': '#020402',
+                        'k-dark': '#050a05',
+                        'k-green': '#4ade80',
+                        'k-green-dark': '#15803d',
+                        'k-gray': '#a3a3a3',
+                        'k-border': 'rgba(255, 255, 255, 0.08)',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                        display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    animation: {
+                        'spin-slow': 'spin 20s linear infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        /* --- GLOBAL STYLES --- */
+        /* --- GLOBAL RESET & TYPOGRAPHY --- */
         :root {
-            --color-bg: #020402;
-            --color-text: #e5e5e5;
-            --color-primary: #4ade80;
-            --color-primary-dark: #15803d;
             --glass-bg: rgba(10, 10, 10, 0.6);
             --glass-border: rgba(255, 255, 255, 0.08);
+            --neon-glow: 0 0 20px rgba(74, 222, 128, 0.3);
         }
 
         body {
-            background-color: var(--color-bg);
-            color: var(--color-text);
-            font-family: 'Inter', sans-serif;
+            background-color: #020402;
+            color: #e5e5e5;
             overflow-x: hidden;
-            position: relative;
-            scroll-behavior: smooth;
-        }
-
-        h1, h2, h3, h4, .brand-font {
-            font-family: 'Space Grotesk', sans-serif;
-            letter-spacing: -0.02em;
-        }
-
-        /* --- BACKGROUND FX --- */
-        #bg-canvas {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; opacity: 0.2;
-            pointer-events: none;
-        }
-        
-        .bg-grid {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: 
-                linear-gradient(rgba(74, 222, 128, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(74, 222, 128, 0.03) 1px, transparent 1px);
-            background-size: 40px 40px;
-            z-index: -3;
-            pointer-events: none;
-            mask-image: radial-gradient(circle at center, black 40%, transparent 100%);
-        }
-
-        /* --- 3D ANIMATIONS --- */
-        .gyro-container {
-            position: relative;
-            width: 260px;
-            height: 260px;
-            margin: 0 auto;
-            perspective: 1000px;
-            transform-style: preserve-3d;
-        }
-
-        .gyro-ring {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            border-radius: 50%;
-            box-shadow: 0 0 15px rgba(74, 222, 128, 0.15);
-            transform-style: preserve-3d;
-        }
-
-        .g-ring1 { width: 100%; height: 100%; border: 1px solid rgba(74, 222, 128, 0.8); border-left-color: transparent; border-right-color: transparent; animation: rotate-x 8s linear infinite; }
-        .g-ring2 { width: 80%; height: 80%; border: 2px solid rgba(34, 197, 94, 0.6); border-top-color: transparent; border-bottom-color: transparent; animation: rotate-y 6s linear infinite; }
-        .g-ring3 { width: 60%; height: 60%; border: 1px dashed rgba(74, 222, 128, 0.4); animation: rotate-z 12s linear infinite; }
-
-        .gyro-core {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 80px; height: 80px;
-            background: radial-gradient(circle, rgba(74,222,128,0.3) 0%, rgba(0,0,0,0) 70%);
-            border-radius: 50%;
-            box-shadow: 0 0 50px rgba(74,222,128,0.4);
-            animation: pulse-core 3s ease-in-out infinite;
-            z-index: 10;
-            display: flex; align-items: center; justify-content: center;
-        }
-
-        .gyro-logo {
-            width: 60%; height: 60%;
-            filter: drop-shadow(0 0 10px #4ade80);
-            animation: float-logo 4s ease-in-out infinite;
-        }
-
-        @keyframes rotate-x { 0% { transform: translate(-50%, -50%) rotateX(0deg); } 100% { transform: translate(-50%, -50%) rotateX(360deg); } }
-        @keyframes rotate-y { 0% { transform: translate(-50%, -50%) rotateY(0deg); } 100% { transform: translate(-50%, -50%) rotateY(360deg); } }
-        @keyframes rotate-z { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
-        @keyframes pulse-core { 0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.8; } 50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.4; } }
-        @keyframes float-logo { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-
-        /* --- UI COMPONENTS --- */
-        .glass-panel {
-            background: var(--glass-bg);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .glass-panel:hover {
-            border-color: rgba(74, 222, 128, 0.3);
-            transform: translateY(-2px);
-            box-shadow: 0 12px 40px rgba(74, 222, 128, 0.1);
-        }
-
-        .nav-btn {
-            position: relative;
-            overflow: hidden;
-        }
-        .nav-btn::before {
-            content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            transition: 0.5s;
-        }
-        .nav-btn:hover::before { left: 100%; }
-
-        .text-gradient {
-            background: linear-gradient(135deg, #fff 0%, #4ade80 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        /* --- SECTION TRANSITIONS --- */
-        .page-section {
-            display: none;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.5s ease-out, transform 0.5s ease-out;
-        }
-        .page-section.active {
-            display: block;
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* --- UTILS --- */
-        .task-locked {
-            opacity: 0.5; pointer-events: none; filter: grayscale(1); position: relative;
-        }
-        .task-locked::after {
-            content: '\f023'; font-family: "Font Awesome 6 Free"; font-weight: 900;
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 24px; color: rgba(255,255,255,0.5);
-            background: rgba(0,0,0,0.8); padding: 12px; border-radius: 50%;
+            cursor: default;
         }
 
         /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #0a0a0a; }
-        ::-webkit-scrollbar-thumb { background: #15803d; border-radius: 3px; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #020402; }
+        ::-webkit-scrollbar-thumb { background: #15803d; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #4ade80; }
+
+        ::selection { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
+
+        /* --- BACKGROUND FX --- */
+        #webgl-canvas {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -10; opacity: 0.4; pointer-events: none;
+        }
         
-        #userDropdown { transform-origin: top right; transition: all 0.2s ease; }
+        .grid-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -9; pointer-events: none;
+            background-image: 
+                linear-gradient(rgba(74, 222, 128, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(74, 222, 128, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(circle at center, black 30%, transparent 80%);
+        }
+
+        /* --- COMPONENTS --- */
+        .glass-panel {
+            background: rgba(15, 15, 15, 0.6);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .glass-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+            border: 1px solid rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .glass-card:hover {
+            border-color: rgba(74, 222, 128, 0.2);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 40px -10px rgba(74, 222, 128, 0.1);
+        }
+
+        .btn-primary {
+            background: #15803d;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            border: 1px solid #16a34a;
+        }
+        
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
+        }
+        
+        .btn-primary:hover::before { left: 100%; }
+        .btn-primary:hover { box-shadow: 0 0 20px rgba(34, 197, 94, 0.4); border-color: #4ade80; }
+
+        .text-gradient {
+            background: linear-gradient(to right, #ffffff, #4ade80);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* --- ANIMATIONS --- */
+        .fade-in-up { animation: fadeInUp 0.8s ease-out forwards; opacity: 0; transform: translateY(30px); }
+        .delay-100 { animation-delay: 0.1s; }
+        .delay-200 { animation-delay: 0.2s; }
+        .delay-300 { animation-delay: 0.3s; }
+
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Gyro Animation (Vision Page) */
+        .gyro-wrapper { perspective: 1000px; width: 300px; height: 300px; position: relative; }
+        .gyro { position: absolute; top: 50%; left: 50%; transform-style: preserve-3d; }
+        .gyro-ring {
+            position: absolute; top: 50%; left: 50%; border-radius: 50%;
+            border: 1px solid rgba(74, 222, 128, 0.6);
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.2);
+        }
+        .gr-1 { width: 200px; height: 200px; margin: -100px; animation: rotate1 10s linear infinite; border-left-color: transparent; }
+        .gr-2 { width: 160px; height: 160px; margin: -80px; animation: rotate2 8s linear infinite; border-top-color: transparent; border-width: 2px; }
+        .gr-3 { width: 120px; height: 120px; margin: -60px; animation: rotate3 6s linear infinite; border-right-color: transparent; }
+        
+        @keyframes rotate1 { 0% { transform: rotateX(0) rotateY(0); } 100% { transform: rotateX(360deg) rotateY(360deg); } }
+        @keyframes rotate2 { 0% { transform: rotateX(0) rotateY(0); } 100% { transform: rotateX(-360deg) rotateY(180deg); } }
+        @keyframes rotate3 { 0% { transform: rotateX(0) rotateY(0); } 100% { transform: rotateX(180deg) rotateY(-360deg); } }
+
+        /* Wallet Option Hover Effect */
+        .wallet-option img { filter: grayscale(100%); transition: 0.3s; }
+        .wallet-option:hover img { filter: grayscale(0%); transform: scale(1.1); }
+        .wallet-option:hover { border-color: #4ade80; background: rgba(74, 222, 128, 0.05); }
+
+        /* Page Switching Logic */
+        .page-content { display: none; opacity: 0; transition: opacity 0.5s ease; }
+        .page-content.active { display: block; opacity: 1; }
+
+        /* Stats Counter */
+        .stat-value { font-variant-numeric: tabular-nums; }
+
+        /* Footer Links */
+        .footer-link { color: #737373; transition: 0.3s; text-decoration: none; position: relative; }
+        .footer-link:hover { color: #4ade80; }
+        .footer-link::after { content: ''; position: absolute; width: 0; height: 1px; bottom: -2px; left: 0; background: #4ade80; transition: 0.3s; }
+        .footer-link:hover::after { width: 100%; }
+
+        /* Task Locked State */
+        .task-locked {
+            pointer-events: none;
+            opacity: 0.6;
+            filter: grayscale(0.8);
+            position: relative;
+        }
+        .task-locked::after {
+            content: '\f023'; /* Lock Icon */
+            font-family: "Font Awesome 6 Free";
+            font-weight: 900;
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 32px;
+            color: rgba(255,255,255,0.8);
+            background: rgba(0,0,0,0.7);
+            padding: 20px;
+            border-radius: 50%;
+            backdrop-filter: blur(5px);
+        }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="antialiased selection:bg-green-500 selection:text-white">
 
-    <!-- Background -->
-    <div class="bg-grid"></div>
-    <canvas id="bg-canvas"></canvas>
+    <!-- --- BACKGROUND LAYERS --- -->
+    <div class="grid-overlay"></div>
+    <canvas id="webgl-canvas"></canvas>
+    
+    <!-- Glow Orb (Fixed center) -->
+    <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-green-500/5 rounded-full blur-[120px] -z-5 pointer-events-none animate-pulse-slow"></div>
 
-    <!-- Navigation -->
-    <nav class="fixed w-full z-50 glass-panel border-b-0 border-white/5 rounded-b-2xl mx-auto max-w-[1600px] left-0 right-0 top-0">
-        <div class="px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-20">
-                
-                <!-- Logo -->
-                <div class="flex items-center gap-3 cursor-pointer z-50 group" onclick="App.router.navigate('home')">
-                    <div class="w-10 h-10 flex items-center justify-center filter drop-shadow-[0_0_8px_rgba(74,222,128,0.5)] transition-transform group-hover:scale-110">
-                        <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" class="w-full h-full">
-                            <path d="M25 10 V90" stroke="#4ade80" stroke-width="8" stroke-linecap="round"/>
-                            <path d="M85 10 L25 50 L85 90" stroke="#4ade80" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-                            <circle cx="25" cy="50" r="8" fill="#22c55e"/>
-                        </svg>
-                    </div>
-                    <span class="text-white font-bold text-xl tracking-[0.15em] brand-font group-hover:text-green-400 transition-colors hidden sm:block">KARCHAIN</span>
+    <!-- --- NAVIGATION --- -->
+    <nav class="fixed top-0 w-full z-50 border-b border-white/5 bg-black/40 backdrop-blur-xl transition-all duration-300" id="navbar">
+        <div class="max-w-[1600px] mx-auto px-6 h-24 flex items-center justify-between">
+            
+            <!-- LOGO -->
+            <div class="flex items-center gap-4 cursor-pointer group" onclick="App.router.navigate('home')">
+                <div class="relative w-10 h-10 flex items-center justify-center">
+                    <!-- SVG Logo -->
+                    <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_15px_rgba(74,222,128,0.6)] transition-transform duration-500 group-hover:rotate-180">
+                        <path d="M20 10 V90" stroke="#4ade80" stroke-width="8" stroke-linecap="round"/>
+                        <path d="M80 10 L20 50 L80 90" stroke="#4ade80" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="20" cy="50" r="10" fill="#22c55e"/>
+                        <circle cx="80" cy="10" r="8" fill="#22c55e"/>
+                        <circle cx="80" cy="90" r="8" fill="#22c55e"/>
+                    </svg>
+                </div>
+                <div class="flex flex-col">
+                    <span class="text-xl font-bold tracking-[0.2em] text-white group-hover:text-green-400 transition-colors font-display">KARCHAIN</span>
+                    <span class="text-[10px] text-gray-500 uppercase tracking-widest font-mono group-hover:text-gray-300">Testnet Phase 1</span>
+                </div>
+            </div>
+
+            <!-- MENU (Desktop) -->
+            <div class="hidden lg:flex items-center gap-12">
+                <button onclick="App.router.navigate('home')" id="nav-home" class="nav-link text-sm font-bold uppercase tracking-widest text-white border-b-2 border-green-500 pb-1">Testnet</button>
+                <button onclick="App.router.navigate('vision')" id="nav-vision" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white transition-colors pb-1 border-b-2 border-transparent hover:border-green-500/50">Vision</button>
+                <button onclick="App.router.navigate('ecosystem')" id="nav-ecosystem" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white transition-colors pb-1 border-b-2 border-transparent hover:border-green-500/50">Ecosystem</button>
+                <button onclick="App.router.navigate('support')" id="nav-support" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white transition-colors pb-1 border-b-2 border-transparent hover:border-green-500/50">Support</button>
+            </div>
+
+            <!-- CONNECT BUTTON -->
+            <div class="flex items-center gap-4 relative">
+                <div id="network-status" class="hidden md:flex items-center gap-2 px-3 py-1.5 bg-green-900/20 border border-green-500/30 rounded-full">
+                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    <span class="text-[10px] font-mono text-green-400 uppercase">Besu Active</span>
                 </div>
 
-                <!-- Desktop Menu -->
-                <div class="hidden md:flex space-x-8">
-                    <button onclick="App.router.navigate('home')" id="nav-home" class="text-gray-400 hover:text-white text-sm font-bold uppercase tracking-widest transition-colors py-2 border-b-2 border-transparent hover:border-green-500 active-nav">Testnet</button>
-                    <button onclick="App.router.navigate('about')" id="nav-about" class="text-gray-400 hover:text-white text-sm font-bold uppercase tracking-widest transition-colors py-2 border-b-2 border-transparent hover:border-green-500">Vision</button>
-                    <button onclick="App.router.navigate('support')" id="nav-support" class="text-gray-400 hover:text-white text-sm font-bold uppercase tracking-widest transition-colors py-2 border-b-2 border-transparent hover:border-green-500">Support</button>
-                </div>
+                <button id="connectBtn" onclick="App.ui.openModal()" class="btn-primary px-8 py-3 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 shadow-lg">
+                    <i class="fa-solid fa-wallet"></i> <span>Connect Wallet</span>
+                </button>
 
-                <!-- User Actions -->
-                <div class="flex items-center gap-3 relative">
-                    <button id="connectBtn" onclick="App.ui.toggleWalletModal()" class="nav-btn bg-white/5 hover:bg-white/10 border border-white/10 text-white px-5 py-2.5 rounded-full text-xs font-bold transition-all uppercase tracking-wide flex items-center gap-2">
-                        <i class="fa-solid fa-wallet"></i> <span>Connect Wallet</span>
-                    </button>
-                    
-                    <!-- User Dropdown -->
-                    <div id="userDropdown" class="hidden absolute top-14 right-0 w-56 glass-panel border border-white/10 rounded-xl p-2 z-50 shadow-2xl">
-                        <div class="px-4 py-3 border-b border-white/10 mb-2">
-                            <p class="text-[10px] text-gray-500 uppercase">Connected Network</p>
-                            <div class="flex items-center gap-2 mt-1 text-green-400 text-xs font-mono">
-                                <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div> KarChain Testnet
-                            </div>
+                <!-- User Dropdown (Hidden by default) -->
+                <div id="userDropdown" class="hidden absolute top-16 right-0 w-64 glass-panel rounded-xl p-4 z-50 transform origin-top-right transition-all duration-200 scale-95 opacity-0">
+                    <div class="flex items-center gap-3 mb-4 pb-4 border-b border-white/10">
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-blue-600"></div>
+                        <div>
+                            <p class="text-white font-bold text-sm">My Wallet</p>
+                            <p class="text-gray-500 text-xs font-mono" id="dropdownAddress">0x00...0000</p>
                         </div>
-                        <button onclick="App.wallet.disconnect()" class="w-full text-left px-4 py-2.5 text-xs font-bold text-red-400 hover:bg-red-500/10 rounded-lg transition-colors flex items-center gap-2 uppercase">
-                            <i class="fa-solid fa-power-off"></i> Disconnect
-                        </button>
                     </div>
-
-                    <button onclick="App.ui.toggleMobileMenu()" class="md:hidden text-gray-300 hover:text-white p-2">
-                        <i class="fa-solid fa-bars text-xl"></i>
-                    </button>
+                    <div class="space-y-1">
+                        <button class="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/5 rounded hover:text-white transition-colors"><i class="fa-solid fa-clock-rotate-left mr-2"></i> History</button>
+                        <button class="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/5 rounded hover:text-white transition-colors"><i class="fa-solid fa-gear mr-2"></i> Settings</button>
+                        <button onclick="App.wallet.disconnect()" class="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded transition-colors mt-2"><i class="fa-solid fa-right-from-bracket mr-2"></i> Disconnect</button>
+                    </div>
                 </div>
+
+                <button onclick="App.ui.toggleMobile()" class="lg:hidden text-white text-2xl p-2">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
             </div>
         </div>
     </nav>
 
-    <!-- Mobile Menu Overlay -->
-    <div id="mobile-menu" class="fixed inset-0 bg-black/90 z-40 hidden flex flex-col items-center justify-center space-y-8 backdrop-blur-lg transition-opacity duration-300">
-        <button onclick="App.ui.toggleMobileMenu()" class="absolute top-6 right-6 text-gray-400 hover:text-white">
-            <i class="fa-solid fa-xmark text-3xl"></i>
+    <!-- MOBILE MENU OVERLAY -->
+    <div id="mobile-menu" class="fixed inset-0 z-[60] bg-black/95 backdrop-blur-xl transform translate-x-full transition-transform duration-300 flex flex-col items-center justify-center space-y-8">
+        <button onclick="App.ui.toggleMobile()" class="absolute top-8 right-8 text-gray-400 hover:text-white text-4xl">
+            <i class="fa-solid fa-xmark"></i>
         </button>
-        <a onclick="App.router.navigate('home'); App.ui.toggleMobileMenu()" class="text-2xl font-bold text-white uppercase tracking-widest">Testnet</a>
-        <a onclick="App.router.navigate('about'); App.ui.toggleMobileMenu()" class="text-2xl font-bold text-white uppercase tracking-widest">Vision</a>
-        <a onclick="App.router.navigate('support'); App.ui.toggleMobileMenu()" class="text-2xl font-bold text-white uppercase tracking-widest">Support</a>
-    </div>
-
-    <!-- Wallet Modal -->
-    <div id="walletModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-black/80 backdrop-blur-sm">
-        <div class="glass-panel p-8 rounded-2xl w-full max-w-sm mx-4 relative border border-green-500/20 shadow-[0_0_50px_rgba(74,222,128,0.1)]">
-            <button onclick="App.ui.toggleWalletModal()" class="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors">
-                <i class="fa-solid fa-xmark text-xl"></i>
-            </button>
-            
-            <h3 class="text-lg font-bold text-white mb-6 text-center uppercase tracking-widest">Select Wallet</h3>
-            
-            <div class="space-y-3">
-                <!-- MetaMask -->
-                <button onclick="App.wallet.connect('MetaMask')" class="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-orange-500/10 border border-white/10 hover:border-orange-500/50 transition-all group">
-                    <div class="flex items-center gap-4">
-                        <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" class="w-8 h-8" alt="MetaMask">
-                        <span class="font-bold text-white group-hover:text-orange-400">MetaMask</span>
-                    </div>
-                    <i class="fa-solid fa-chevron-right text-gray-600 group-hover:text-orange-500"></i>
-                </button>
-                
-                <!-- Trust Wallet -->
-                <button onclick="App.wallet.connect('Trust')" class="w-full flex items-center justify-between p-4 rounded-xl bg-white/5 hover:bg-blue-500/10 border border-white/10 hover:border-blue-500/50 transition-all group">
-                    <div class="flex items-center gap-4">
-                        <img src="https://trustwallet.com/assets/images/media/assets/trust_platform.svg" class="w-8 h-8" alt="Trust">
-                        <span class="font-bold text-white group-hover:text-blue-400">Trust Wallet</span>
-                    </div>
-                    <i class="fa-solid fa-chevron-right text-gray-600 group-hover:text-blue-500"></i>
-                </button>
-            </div>
-            
-            <p class="text-center text-gray-500 text-[10px] mt-6 uppercase tracking-wider">Secure Enclave Connection</p>
+        <div class="flex flex-col items-center gap-8">
+            <a onclick="App.router.navigate('home'); App.ui.toggleMobile()" class="text-3xl font-bold text-white uppercase tracking-widest hover:text-green-400 transition-colors">Testnet</a>
+            <a onclick="App.router.navigate('vision'); App.ui.toggleMobile()" class="text-3xl font-bold text-white uppercase tracking-widest hover:text-green-400 transition-colors">Vision</a>
+            <a onclick="App.router.navigate('ecosystem'); App.ui.toggleMobile()" class="text-3xl font-bold text-white uppercase tracking-widest hover:text-green-400 transition-colors">Ecosystem</a>
+            <a onclick="App.router.navigate('support'); App.ui.toggleMobile()" class="text-3xl font-bold text-white uppercase tracking-widest hover:text-green-400 transition-colors">Support</a>
         </div>
     </div>
 
-    <!-- Main Content -->
-    <main class="flex-grow pt-32 pb-12 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full relative z-10">
+    <!-- WALLET CONNECT MODAL -->
+    <div id="connect-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="App.ui.closeModal()"></div>
+        <div class="relative glass-panel w-full max-w-md rounded-2xl p-8 transform scale-95 opacity-0 transition-all duration-300" id="modal-content">
+            <div class="flex justify-between items-center mb-8">
+                <h3 class="text-2xl font-bold text-white font-display">Connect Wallet</h3>
+                <button onclick="App.ui.closeModal()" class="text-gray-400 hover:text-white transition-colors"><i class="fa-solid fa-xmark text-xl"></i></button>
+            </div>
+            
+            <p class="text-gray-400 text-sm mb-6">Select your wallet to authenticate with the KarChain Network.</p>
 
-        <!-- === SECTION 1: TESTNET === -->
-        <section id="home" class="page-section active">
-            <div class="text-center py-12 lg:py-20 relative">
-                <!-- Glow Effect -->
-                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-green-500/10 blur-[100px] -z-10 rounded-full"></div>
-                
-                <h1 class="text-4xl md:text-7xl font-bold mb-6 text-white tracking-tight leading-none">
-                    THE ARCHITECTURE OF <br> <span class="text-gradient">DIGITAL TRUST</span>
-                </h1>
-                <p class="text-gray-400 max-w-2xl mx-auto mb-10 text-sm md:text-lg font-light leading-relaxed">
-                    Participate in the Genesis Epoch of KarChain. Validate the modular consensus layer and secure your allocation of the genesis block.
-                </p>
-                
-                <div class="flex justify-center gap-4">
-                    <button onclick="App.ui.scrollTo('dashboard-panel')" class="px-8 py-3 bg-green-600 hover:bg-green-500 text-black font-bold rounded-full transition-all shadow-[0_0_30px_rgba(34,197,94,0.3)] hover:scale-105">
-                        Start Testing
-                    </button>
+            <div class="space-y-3">
+                <!-- MetaMask -->
+                <div onclick="App.wallet.connect('MetaMask')" class="wallet-option group border border-white/10 hover:border-green-500 p-4 rounded-xl bg-white/5 cursor-pointer transition-all flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" class="w-8 h-8" alt="MetaMask">
+                        </div>
+                        <div>
+                            <div class="font-bold text-white text-lg group-hover:text-green-400 transition-colors">MetaMask</div>
+                            <div class="text-xs text-gray-500 uppercase font-mono">Browser Extension</div>
+                        </div>
+                    </div>
+                    <div class="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_10px_#4ade80]"></div>
+                </div>
+
+                <!-- Trust Wallet -->
+                <div onclick="App.wallet.connect('Trust')" class="wallet-option group border border-white/10 hover:border-blue-500 p-4 rounded-xl bg-white/5 cursor-pointer transition-all flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                            <img src="https://trustwallet.com/assets/images/media/assets/trust_platform.svg" class="w-8 h-8" alt="Trust">
+                        </div>
+                        <div>
+                            <div class="font-bold text-white text-lg group-hover:text-blue-400 transition-colors">Trust Wallet</div>
+                            <div class="text-xs text-gray-500 uppercase font-mono">Mobile / Desktop</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- WalletConnect -->
+                <div onclick="App.wallet.connect('WC')" class="wallet-option group border border-white/10 hover:border-blue-400 p-4 rounded-xl bg-white/5 cursor-pointer transition-all flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-white/10 transition-colors">
+                            <i class="fa-solid fa-qrcode text-2xl text-gray-400 group-hover:text-blue-400 transition-colors"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-white text-lg group-hover:text-blue-300 transition-colors">WalletConnect</div>
+                            <div class="text-xs text-gray-500 uppercase font-mono">Scan QR Code</div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Dashboard Panel -->
-            <div id="dashboard-panel" class="max-w-4xl mx-auto glass-panel rounded-3xl p-1 overflow-hidden border-t border-white/10 relative">
-                <div class="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-green-500 to-transparent opacity-50"></div>
-                
-                <div class="bg-black/60 backdrop-blur-xl p-6 md:p-10 rounded-[22px]">
-                    <!-- Not Connected State -->
-                    <div id="state-disconnected" class="text-center py-10">
-                        <div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center mx-auto mb-6 border border-white/10">
-                            <i class="fa-solid fa-plug text-2xl text-gray-400"></i>
+            <div class="mt-8 pt-6 border-t border-white/10 text-center">
+                <p class="text-[10px] text-gray-600 uppercase tracking-widest">By connecting, you agree to our <a href="#" class="text-green-500 hover:underline">Terms</a> & <a href="#" class="text-green-500 hover:underline">Privacy Policy</a></p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- === PAGES === -->
+    
+    <!-- 1. HOME / DASHBOARD -->
+    <div id="page-home" class="page-content active pt-32 pb-20 px-4">
+        
+        <!-- Hero -->
+        <div class="max-w-7xl mx-auto text-center mb-24 relative z-10 fade-in-up">
+            <h1 class="text-4xl md:text-7xl font-bold text-white mb-6 leading-tight">
+                THE ARCHITECTURE OF <br> <span class="text-gradient">DIGITAL TRUST</span>
+            </h1>
+            <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto font-light leading-relaxed mb-10">
+                KarChain is the modular consensus layer designed for the next billion users. 
+                <br>Join the Incentivized Testnet and secure your place in the genesis block.
+            </p>
+            
+            <div class="flex flex-wrap justify-center gap-6">
+                <button onclick="App.ui.scrollTo('dashboard-ui')" class="btn-primary px-10 py-4 rounded-full text-sm font-bold uppercase tracking-widest">
+                    Launch App
+                </button>
+                <button onclick="App.router.navigate('vision')" class="px-10 py-4 border border-white/10 hover:bg-white/5 text-white rounded-full text-sm font-bold uppercase tracking-widest transition-all">
+                    Read Manifesto
+                </button>
+            </div>
+
+            <!-- Network Stats -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mt-16 border-t border-white/10 pt-8">
+                <div>
+                    <p class="text-3xl font-bold text-white stat-value">12,492</p>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest">Blocks Minted</p>
+                </div>
+                <div>
+                    <p class="text-3xl font-bold text-white stat-value">0.4s</p>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest">Block Time</p>
+                </div>
+                <div>
+                    <p class="text-3xl font-bold text-white stat-value">15,000+</p>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest">Transactions</p>
+                </div>
+                <div>
+                    <p class="text-3xl font-bold text-white stat-value">138</p>
+                    <p class="text-[10px] text-gray-500 uppercase tracking-widest">Active Validators</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dashboard UI -->
+        <div id="dashboard-ui" class="max-w-6xl mx-auto fade-in-up delay-200">
+            <div class="glass-panel rounded-3xl p-1 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent opacity-50"></div>
+                <div class="bg-black/80 backdrop-blur-xl rounded-[20px] p-8 md:p-12">
+                    
+                    <!-- State: Locked -->
+                    <div id="view-locked" class="text-center py-20">
+                        <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/10 shadow-lg">
+                            <i class="fa-solid fa-lock text-3xl text-gray-600"></i>
                         </div>
-                        <h3 class="text-xl font-bold text-white mb-2">Connect to Dashboard</h3>
-                        <p class="text-gray-500 text-sm mb-8 max-w-md mx-auto">Connect your wallet to view your balance, complete tasks, and register for the mainnet whitelist.</p>
-                        <button onclick="App.ui.toggleWalletModal()" class="px-8 py-3 border border-green-500/30 hover:bg-green-500/10 text-green-400 rounded-xl font-bold text-sm transition-all uppercase tracking-wider">
+                        <h2 class="text-3xl font-bold text-white mb-3 font-display">Dashboard Locked</h2>
+                        <p class="text-gray-400 mb-8 max-w-md mx-auto">Connect your wallet to authenticate your session and view your testnet allocation.</p>
+                        <button onclick="App.ui.openModal()" class="btn-primary px-12 py-4 rounded-xl text-sm font-bold uppercase tracking-widest shadow-xl hover:scale-105 transition-transform">
                             Connect Wallet
                         </button>
                     </div>
 
-                    <!-- Connected State -->
-                    <div id="state-connected" class="hidden">
-                        <div class="flex flex-col md:flex-row justify-between items-end mb-10 border-b border-white/5 pb-6">
+                    <!-- State: Active -->
+                    <div id="view-active" class="hidden">
+                        <div class="flex flex-col md:flex-row justify-between items-end border-b border-white/10 pb-8 mb-8">
                             <div>
-                                <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">Total Balance</p>
-                                <div class="flex items-baseline gap-2">
-                                    <span id="displayBalance" class="text-5xl font-bold text-white font-mono">0.00</span>
-                                    <span class="text-green-500 font-bold">KAR</span>
+                                <p class="text-xs text-gray-500 uppercase tracking-widest mb-2">Available Balance</p>
+                                <div class="flex items-baseline gap-3">
+                                    <span id="balanceVal" class="text-7xl font-bold text-white font-mono tracking-tighter">0.00</span>
+                                    <span class="text-xl font-bold text-green-500 bg-green-500/10 px-3 py-1 rounded-lg">KAR</span>
                                 </div>
                             </div>
-                            <div class="mt-4 md:mt-0 text-right">
-                                <p class="text-xs text-gray-500 uppercase tracking-widest mb-1">Wallet</p>
-                                <p id="displayAddress" class="font-mono text-white bg-white/5 px-3 py-1 rounded text-sm">0x00...0000</p>
+                            <div class="mt-6 md:mt-0 text-right">
+                                <div class="flex items-center justify-end gap-2 text-green-400 mb-1">
+                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                                    <span class="text-xs font-bold uppercase">Connected to Besu</span>
+                                </div>
+                                <p class="text-sm text-gray-400 font-mono bg-white/5 px-3 py-1 rounded" id="walletAddrDisp">0x0000...0000</p>
                             </div>
                         </div>
 
-                        <!-- Tasks Grid -->
+                        <h3 class="text-xl font-bold text-white mb-6">Incentivized Tasks</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            
                             <!-- Task 1 -->
-                            <div id="task-1" class="bg-white/5 rounded-xl p-6 border border-white/5 hover:border-white/10 transition-all">
-                                <div class="flex justify-between mb-4">
-                                    <i class="fa-brands fa-x-twitter text-2xl text-white"></i>
-                                    <span class="text-[10px] bg-green-500/20 text-green-400 px-2 py-0.5 rounded uppercase font-bold">Required</span>
+                            <div class="glass-card p-8 rounded-2xl border border-white/10 relative overflow-hidden group">
+                                <div class="absolute top-0 right-0 bg-green-500/20 text-green-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Step 1</div>
+                                <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-6 text-2xl text-white group-hover:text-green-400 transition-colors">
+                                    <i class="fa-brands fa-x-twitter"></i>
                                 </div>
-                                <h4 class="font-bold text-lg text-white mb-1">Social Identity</h4>
-                                <p class="text-xs text-gray-400 mb-4 h-8">Follow official channels to verify humanity.</p>
-                                <div class="flex gap-2">
-                                    <a href="https://x.com/karim7652117665" target="_blank" onclick="App.tasks.start(1)" class="flex-1 py-2 bg-white/10 hover:bg-white/20 text-center rounded text-xs font-bold text-white transition-colors">OPEN</a>
-                                    <button id="btn-verify-1" onclick="App.tasks.verify(1)" class="flex-1 py-2 border border-white/20 text-gray-400 rounded text-xs font-bold cursor-not-allowed" disabled>VERIFY</button>
+                                <h4 class="text-xl font-bold text-white mb-2">Social Identity</h4>
+                                <p class="text-sm text-gray-400 mb-6">Verify your humanity by following our official X account.</p>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <a href="https://x.com/karim7652117665" target="_blank" onclick="App.tasks.start(1)" class="py-3 bg-white/10 hover:bg-white/20 text-center rounded-lg text-xs font-bold text-white transition-colors">OPEN X</a>
+                                    <button id="verify-1" onclick="App.tasks.verify(1)" class="py-3 border border-white/20 text-gray-500 rounded-lg text-xs font-bold cursor-not-allowed transition-colors" disabled>VERIFY</button>
                                 </div>
                             </div>
 
                             <!-- Task 2 -->
-                            <div id="task-2" class="bg-white/5 rounded-xl p-6 border border-white/5 hover:border-white/10 transition-all task-locked relative">
-                                <div class="flex justify-between mb-4">
-                                    <i class="fa-solid fa-chart-simple text-2xl text-blue-400"></i>
-                                    <span class="text-[10px] bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded uppercase font-bold">Step 2</span>
+                            <div id="card-task-2" class="glass-card p-8 rounded-2xl border border-white/10 task-locked transition-all duration-500">
+                                <div class="absolute top-0 right-0 bg-blue-500/20 text-blue-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Step 2</div>
+                                <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-6 text-2xl text-white group-hover:text-blue-400 transition-colors">
+                                    <i class="fa-solid fa-chart-simple"></i>
                                 </div>
-                                <h4 class="font-bold text-lg text-white mb-1">Volume Gen</h4>
-                                <p class="text-xs text-gray-400 mb-4 h-8">Execute $100+ volume on Testnet DEX.</p>
-                                <button onclick="App.tasks.verify(2)" class="w-full py-2 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded text-xs font-bold hover:bg-blue-600 hover:text-white transition-colors">CHECK STATUS</button>
+                                <h4 class="text-xl font-bold text-white mb-2">Volume Gen</h4>
+                                <p class="text-sm text-gray-400 mb-6">Generate $100+ trading volume on the testnet DEX.</p>
+                                <button onclick="App.tasks.verify(2)" class="w-full py-3 bg-blue-600/20 border border-blue-500/30 hover:bg-blue-600 text-blue-400 hover:text-white rounded-lg text-xs font-bold transition-colors">CHECK STATUS</button>
                             </div>
 
                             <!-- Task 3 -->
-                            <div id="task-3" class="bg-white/5 rounded-xl p-6 border border-white/5 hover:border-white/10 transition-all task-locked relative">
-                                <div class="flex justify-between mb-4">
-                                    <i class="fa-solid fa-file-signature text-2xl text-purple-400"></i>
-                                    <span class="text-[10px] bg-purple-500/20 text-purple-400 px-2 py-0.5 rounded uppercase font-bold">Final</span>
+                            <div id="card-task-3" class="glass-card p-8 rounded-2xl border border-white/10 task-locked transition-all duration-500">
+                                <div class="absolute top-0 right-0 bg-purple-500/20 text-purple-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Final</div>
+                                <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-6 text-2xl text-white group-hover:text-purple-400 transition-colors">
+                                    <i class="fa-solid fa-file-signature"></i>
                                 </div>
-                                <h4 class="font-bold text-lg text-white mb-1">Whitelist</h4>
-                                <p class="text-xs text-gray-400 mb-4 h-8">Submit wallet for Genesis Block allocation.</p>
-                                <a id="btn-form" href="https://docs.google.com/forms" target="_blank" class="block w-full py-2 bg-purple-600 text-white text-center rounded text-xs font-bold opacity-50 pointer-events-none">OPEN FORM</a>
+                                <h4 class="text-xl font-bold text-white mb-2">Whitelist</h4>
+                                <p class="text-sm text-gray-400 mb-6">Submit your wallet address to the Genesis Registry.</p>
+                                <a id="btn-form" href="https://docs.google.com/forms" target="_blank" class="block w-full py-3 bg-purple-600 hover:bg-purple-500 text-white text-center rounded-lg text-xs font-bold transition-colors pointer-events-none opacity-50">OPEN FORM</a>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-8 pt-6 border-t border-white/10 flex justify-between items-center">
+                            <p class="text-xs text-gray-500">Progress: <span id="progress-text" class="text-white font-bold">0/3 Tasks</span></p>
+                            <div class="w-32 h-2 bg-white/10 rounded-full overflow-hidden">
+                                <div id="progress-bar" class="h-full bg-green-500 w-0 transition-all duration-500"></div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </section>
+        </div>
+    </div>
 
-        <!-- === SECTION 2: VISION === -->
-        <section id="about" class="page-section">
-            <div class="max-w-6xl mx-auto text-center py-12">
-                <h2 class="text-4xl md:text-6xl font-bold mb-16 text-white">MODULAR <span class="text-gradient">ENGINE</span></h2>
+
+    <!-- 2. VISION PAGE -->
+    <div id="page-vision" class="page-content pt-32 pb-20 px-4 max-w-7xl mx-auto">
+        <div class="text-center mb-24 fade-in-up">
+            <h2 class="text-5xl md:text-7xl font-bold text-white mb-6">THE <span class="text-green-500">MANIFESTO</span></h2>
+            <p class="text-xl text-gray-400 font-light max-w-3xl mx-auto">Re-engineering the fundamental substrate of human coordination for the 22nd century.</p>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-20 items-center mb-32 fade-in-up delay-100">
+            <div class="space-y-12">
+                <div class="border-l-4 border-green-500 pl-8">
+                    <h3 class="text-3xl text-white font-bold mb-4 font-mono">01 // Asynchronous Finality</h3>
+                    <div class="vision-text">
+                        <p>KarChain introduces a paradigm shift with <strong>Hyper-Graph Sharding</strong>. Unlike linear blockchains, our state is partitioned into thousands of concurrent execution threads.</p>
+                        <p>Using <strong>Proof-of-Synchrony</strong>, we achieve mathematical finality in sub-second timeframes, eliminating the need for probabilistic confirmations found in Nakamoto Consensus.</p>
+                    </div>
+                </div>
+                <div class="border-l-4 border-white/10 pl-8">
+                    <h3 class="text-3xl text-green-400 font-bold mb-4 font-mono">02 // Post-Quantum Security</h3>
+                    <div class="vision-text">
+                        <p>The era of elliptic curve cryptography is ending. KarChain is built as a <strong>Quantum Fortress</strong>, utilizing Lattice-based signatures (Kyber/Dilithium) to secure assets against future quantum decryption threats.</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Gyro Animation -->
+            <div class="flex justify-center relative h-[500px] items-center">
+                <div class="absolute inset-0 bg-green-500/10 blur-[100px] rounded-full"></div>
+                <div class="gyro-wrapper">
+                    <div class="gyro">
+                        <div class="gyro-ring gr-1"></div>
+                        <div class="gyro-ring gr-2"></div>
+                        <div class="gyro-ring gr-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Roadmap -->
+        <div class="glass-panel p-12 rounded-3xl border-t-4 border-green-500 fade-in-up delay-200">
+            <h3 class="text-3xl text-white font-bold mb-12 text-center font-display">Strategic Roadmap</h3>
+            <div class="grid md:grid-cols-4 gap-8 relative">
+                <!-- Connecting Line -->
+                <div class="hidden md:block absolute top-12 left-0 w-full h-[2px] bg-white/10 -z-1"></div>
                 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-                    <div class="text-left space-y-12">
-                        <div class="pl-6 border-l-4 border-green-500">
-                            <h3 class="text-2xl font-bold text-white mb-3 font-mono">Hyper-Graph Sharding</h3>
-                            <p class="text-gray-400 leading-relaxed">Traditional blockchains are linear. KarChain utilizes a Directed Acyclic Graph (DAG) structure within each shard, allowing for parallel transaction processing. This enables the network to scale horizontally: adding more nodes actually increases throughput rather than slowing it down.</p>
-                        </div>
-                        <div class="pl-6 border-l-4 border-white/10">
-                            <h3 class="text-2xl font-bold text-white mb-3 font-mono">Proof-of-Synchrony</h3>
-                            <p class="text-gray-400 leading-relaxed">A next-generation consensus algorithm that eliminates the energy waste of PoW and the centralization risks of DPoS. Validators are selected based on cryptographic verifiable delay functions (VDFs), ensuring fair and unpredictable leader election.</p>
-                        </div>
-                    </div>
-                    
-                    <!-- Gyro Animation -->
-                    <div class="flex justify-center items-center h-[400px] relative">
-                        <div class="absolute inset-0 bg-green-500/5 blur-[80px] rounded-full"></div>
-                        <div class="gyro-container">
-                            <div class="gyro-ring g-ring1"></div>
-                            <div class="gyro-ring g-ring2"></div>
-                            <div class="gyro-ring g-ring3"></div>
-                            <div class="gyro-core">
-                                <svg viewBox="0 0 100 100" fill="none" class="w-12 h-12 text-black fill-current">
-                                    <path d="M25 10 V90 M85 10 L25 50 L85 90" stroke="black" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                            </div>
-                        </div>
-                    </div>
+                <div class="relative">
+                    <div class="w-6 h-6 bg-green-500 rounded-full border-4 border-black mb-4 mx-auto relative z-10"></div>
+                    <h4 class="text-green-400 font-bold text-center mb-2">PHASE 1</h4>
+                    <p class="text-white font-bold text-center text-lg mb-2">Genesis</p>
+                    <p class="text-gray-500 text-center text-xs">Testnet launch, Faucet activation, Initial Validator onboarding.</p>
+                </div>
+                <div class="relative opacity-70">
+                    <div class="w-6 h-6 bg-gray-700 rounded-full border-4 border-black mb-4 mx-auto relative z-10"></div>
+                    <h4 class="text-gray-400 font-bold text-center mb-2">PHASE 2</h4>
+                    <p class="text-white font-bold text-center text-lg mb-2">Incentivized</p>
+                    <p class="text-gray-500 text-center text-xs">Public stress testing, Bug bounties, Cross-chain bridge beta.</p>
+                </div>
+                <div class="relative opacity-50">
+                    <div class="w-6 h-6 bg-gray-700 rounded-full border-4 border-black mb-4 mx-auto relative z-10"></div>
+                    <h4 class="text-gray-400 font-bold text-center mb-2">PHASE 3</h4>
+                    <p class="text-white font-bold text-center text-lg mb-2">Ignition</p>
+                    <p class="text-gray-500 text-center text-xs">Mainnet launch, TGE, Governance DAO activation.</p>
+                </div>
+                <div class="relative opacity-30">
+                    <div class="w-6 h-6 bg-gray-700 rounded-full border-4 border-black mb-4 mx-auto relative z-10"></div>
+                    <h4 class="text-gray-400 font-bold text-center mb-2">PHASE 4</h4>
+                    <p class="text-white font-bold text-center text-lg mb-2">Singularity</p>
+                    <p class="text-gray-500 text-center text-xs">Global settlement layer, Interplanetary file system integration.</p>
                 </div>
             </div>
-        </section>
+        </div>
+    </div>
 
-        <!-- === SECTION 3: SUPPORT === -->
-        <section id="support" class="page-section">
-            <div class="max-w-4xl mx-auto py-12">
-                <h2 class="text-4xl font-bold text-white text-center mb-12">DEVELOPER RESOURCES</h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <a href="https://t.me/tgkarim1" target="_blank" class="glass-panel p-8 rounded-xl group hover:bg-white/5">
-                        <div class="flex items-center justify-between mb-4">
-                            <i class="fa-solid fa-bug text-2xl text-red-400"></i>
-                            <i class="fa-solid fa-arrow-right text-white opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-white mb-2">Report an Issue</h3>
-                        <p class="text-sm text-gray-400">Found a bug in the consensus layer? Submit a report and earn bounties.</p>
-                    </a>
-                    <a href="https://t.me/tgkarim1" target="_blank" class="glass-panel p-8 rounded-xl group hover:bg-white/5">
-                        <div class="flex items-center justify-between mb-4">
-                            <i class="fa-brands fa-telegram text-2xl text-blue-400"></i>
-                            <i class="fa-solid fa-arrow-right text-white opacity-0 group-hover:opacity-100 transition-opacity"></i>
-                        </div>
-                        <h3 class="text-xl font-bold text-white mb-2">Validator Chat</h3>
-                        <p class="text-sm text-gray-400">Join the private channel for node operators and validators.</p>
-                    </a>
+
+    <!-- 3. ECOSYSTEM PAGE -->
+    <div id="page-ecosystem" class="page-content pt-32 pb-20 px-4 max-w-7xl mx-auto">
+        <div class="text-center mb-16 fade-in-up">
+            <h2 class="text-5xl font-bold text-white mb-6">ECOSYSTEM</h2>
+            <p class="text-gray-400">Applications building on KarChain.</p>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-8 fade-in-up delay-100">
+            <div class="glass-card p-8 rounded-xl group cursor-pointer">
+                <div class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center mb-6 text-2xl text-purple-400 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-right-left"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">KarSwap DEX</h3>
+                <p class="text-sm text-gray-400 mb-4">The native AMM with concentrated liquidity and zero slippage.</p>
+                <span class="text-[10px] bg-green-900 text-green-400 px-2 py-1 rounded uppercase">Live on Testnet</span>
+            </div>
+            
+            <div class="glass-card p-8 rounded-xl group cursor-pointer">
+                <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mb-6 text-2xl text-blue-400 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-image"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">PixelMarket</h3>
+                <p class="text-sm text-gray-400 mb-4">Next-gen NFT marketplace with fractional ownership support.</p>
+                <span class="text-[10px] bg-gray-800 text-gray-400 px-2 py-1 rounded uppercase">Coming Soon</span>
+            </div>
+
+            <div class="glass-card p-8 rounded-xl group cursor-pointer">
+                <div class="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center mb-6 text-2xl text-yellow-400 group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">KarSafe</h3>
+                <p class="text-sm text-gray-400 mb-4">Multi-sig institutional wallet for DAO treasury management.</p>
+                <span class="text-[10px] bg-gray-800 text-gray-400 px-2 py-1 rounded uppercase">Coming Soon</span>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 4. SUPPORT PAGE -->
+    <div id="page-support" class="page-content pt-32 pb-20 px-4 max-w-5xl mx-auto">
+        <div class="text-center mb-20 fade-in-up">
+            <h2 class="text-5xl font-bold text-white mb-6">COMMUNITY HUB</h2>
+            <p class="text-gray-400 text-lg">Get support, report bugs, and connect with developers.</p>
+        </div>
+
+        <!-- Telegram CTA -->
+        <a href="https://t.me/tgkarim1" target="_blank" class="glass-panel p-12 rounded-3xl mb-20 block group border-t border-blue-500/20 hover:bg-blue-900/10 fade-in-up delay-100">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+                <div class="flex items-center gap-6">
+                    <div class="w-20 h-20 bg-blue-500 rounded-full flex items-center justify-center text-4xl text-white shadow-[0_0_30px_#3b82f6] group-hover:scale-110 transition-transform">
+                        <i class="fa-brands fa-telegram"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-3xl font-bold text-white mb-2">Official Telegram</h3>
+                        <p class="text-gray-400">Join 50,000+ members. Direct access to core team.</p>
+                    </div>
+                </div>
+                <div class="px-8 py-3 bg-white/10 rounded-full text-white font-bold text-sm group-hover:bg-white/20 transition-colors">JOIN NOW</div>
+            </div>
+        </a>
+
+        <!-- FAQ -->
+        <div class="space-y-4 fade-in-up delay-200">
+            <h3 class="text-2xl font-bold text-white mb-6 pl-4 border-l-4 border-green-500">Frequently Asked Questions</h3>
+            
+            <div class="glass-panel rounded-xl overflow-hidden">
+                <button class="w-full p-6 text-left flex justify-between items-center text-white font-bold hover:bg-white/5 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('i').classList.toggle('rotate-180')">
+                    How to add KarChain to MetaMask?
+                    <i class="fa-solid fa-chevron-down transition-transform"></i>
+                </button>
+                <div class="hidden px-6 pb-6 text-gray-400 text-sm leading-relaxed border-t border-white/5 pt-4">
+                    The easiest way is to click "Connect Wallet" on our dashboard. The site will automatically prompt you to add the network (Chain ID: 1337). Alternatively, you can add it manually: RPC URL: https://relationless-improperly-nettie.ngrok-free.dev
                 </div>
             </div>
-        </section>
 
-    </main>
+            <div class="glass-panel rounded-xl overflow-hidden">
+                <button class="w-full p-6 text-left flex justify-between items-center text-white font-bold hover:bg-white/5 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('i').classList.toggle('rotate-180')">
+                    How to get Testnet Tokens (KAR)?
+                    <i class="fa-solid fa-chevron-down transition-transform"></i>
+                </button>
+                <div class="hidden px-6 pb-6 text-gray-400 text-sm leading-relaxed border-t border-white/5 pt-4">
+                    Once you connect your wallet and complete the "Social Identity" task on the dashboard, our automated faucet will drop initial KAR tokens to your address for gas fees.
+                </div>
+            </div>
 
-    <footer class="border-t border-white/5 py-8 text-center">
-        <p class="text-[10px] text-gray-600 font-mono uppercase tracking-widest">KarChain Foundation © 2025 • Running on Besu v23.4.4</p>
+            <div class="glass-panel rounded-xl overflow-hidden">
+                <button class="w-full p-6 text-left flex justify-between items-center text-white font-bold hover:bg-white/5 transition-colors" onclick="this.nextElementSibling.classList.toggle('hidden'); this.querySelector('i').classList.toggle('rotate-180')">
+                    What are the node requirements?
+                    <i class="fa-solid fa-chevron-down transition-transform"></i>
+                </button>
+                <div class="hidden px-6 pb-6 text-gray-400 text-sm leading-relaxed border-t border-white/5 pt-4">
+                    Due to our lightweight Besu client, you can run a node on minimal hardware: 2 CPU Cores, 4GB RAM, and 100GB SSD storage.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/5 bg-black py-16 mt-20">
+        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-12">
+            <div class="col-span-1 md:col-span-2">
+                <span class="text-2xl font-bold tracking-[0.2em] text-white font-display">KARCHAIN</span>
+                <p class="text-gray-500 text-sm mt-4 max-w-xs">The sovereign consensus layer for the decentralized future. Built for speed, security, and sustainability.</p>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-6 uppercase tracking-widest text-xs">Ecosystem</h4>
+                <ul class="space-y-3 text-sm">
+                    <li><a href="#" class="footer-link">Block Explorer</a></li>
+                    <li><a href="#" class="footer-link">Governance</a></li>
+                    <li><a href="#" class="footer-link">Bridge</a></li>
+                    <li><a href="#" class="footer-link">Faucet</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-6 uppercase tracking-widest text-xs">Developers</h4>
+                <ul class="space-y-3 text-sm">
+                    <li><a href="#" class="footer-link">Documentation</a></li>
+                    <li><a href="#" class="footer-link">Github</a></li>
+                    <li><a href="#" class="footer-link">Audits</a></li>
+                    <li><a href="#" class="footer-link">Bug Bounty</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center">
+            <p class="text-[10px] text-gray-700 font-mono uppercase tracking-widest">© 2025 KarChain Foundation. All rights reserved.</p>
+            <div class="flex gap-4 mt-4 md:mt-0">
+                <a href="#" class="text-gray-600 hover:text-white transition-colors"><i class="fa-brands fa-x-twitter"></i></a>
+                <a href="#" class="text-gray-600 hover:text-white transition-colors"><i class="fa-brands fa-discord"></i></a>
+                <a href="#" class="text-gray-600 hover:text-white transition-colors"><i class="fa-brands fa-github"></i></a>
+            </div>
+        </div>
     </footer>
 
     <!-- --- APPLICATION LOGIC --- -->
     <script>
-        // --- ANIMATIONS ---
-        const canvas = document.getElementById('bg-canvas');
-        const ctx = canvas.getContext('2d');
-        function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resizeCanvas); resizeCanvas();
-        const particles = Array.from({length: 50}, () => ({
-            x: Math.random() * canvas.width, y: Math.random() * canvas.height,
-            vx: (Math.random() - 0.5) * 0.5, vy: (Math.random() - 0.5) * 0.5,
-            size: Math.random() * 2
-        }));
-        function animateParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = 'rgba(74, 222, 128, 0.3)';
-            particles.forEach(p => {
-                p.x += p.vx; p.y += p.vy;
-                if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-                if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-                ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
-            });
-            requestAnimationFrame(animateParticles);
-        }
-        animateParticles();
-
-        // --- CORE APP LOGIC ---
-        const App = {
-            config: {
-                chainId: 1337, // 0x539
-                chainIdHex: '0x539',
-                name: 'KarChain',
+        // --- 1. CONFIGURATION ---
+        const Config = {
+            chain: {
+                id: 1337,
+                hex: '0x539',
+                name: 'KarChain Testnet',
                 rpc: 'https://relationless-improperly-nettie.ngrok-free.dev',
                 symbol: 'KAR'
-            },
-            state: {
-                account: null,
-                provider: null
-            },
-            
-            // --- UI METHODS ---
-            ui: {
-                toggleMobileMenu: () => {
-                    const menu = document.getElementById('mobile-menu');
-                    menu.classList.toggle('hidden');
-                    menu.classList.toggle('flex');
-                },
-                toggleWalletModal: () => {
-                    const modal = document.getElementById('walletModal');
-                    modal.classList.toggle('hidden');
-                    modal.classList.toggle('flex');
-                },
-                toggleDropdown: () => {
-                    document.getElementById('userDropdown').classList.toggle('hidden');
-                },
-                scrollTo: (id) => {
-                    document.getElementById(id).scrollIntoView({behavior: 'smooth'});
-                },
-                updateState: (isConnected) => {
-                    const disc = document.getElementById('state-disconnected');
-                    const conn = document.getElementById('state-connected');
-                    const btn = document.getElementById('connectBtn');
-                    
-                    if (isConnected) {
-                        disc.classList.add('hidden');
-                        conn.classList.remove('hidden');
-                        // Format address: 0x1234...5678
-                        const addr = App.state.account;
-                        const fmtAddr = `${addr.substring(0,6)}...${addr.substring(addr.length-4)}`;
-                        
-                        document.getElementById('displayAddress').innerText = fmtAddr;
-                        
-                        // Update Header Button
-                        btn.innerHTML = `<div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div> ${fmtAddr}`;
-                        btn.classList.add('border-green-500/50', 'bg-green-500/10');
-                        btn.onclick = App.ui.toggleDropdown; // Change click action to dropdown
-                    } else {
-                        disc.classList.remove('hidden');
-                        conn.classList.add('hidden');
-                        btn.innerHTML = '<i class="fa-solid fa-wallet"></i> <span>Connect Wallet</span>';
-                        btn.classList.remove('border-green-500/50', 'bg-green-500/10');
-                        btn.onclick = App.ui.toggleWalletModal;
-                        document.getElementById('userDropdown').classList.add('hidden');
-                    }
-                }
+            }
+        };
+
+        // --- 2. UI CONTROLLER ---
+        const UI = {
+            init: () => {
+                // Init Particles
+                UI.initParticles();
+                // Show Home
+                UI.showPage('home');
             },
 
-            // --- ROUTER ---
-            router: {
-                navigate: (pageId) => {
-                    document.querySelectorAll('.page-section').forEach(el => {
-                        el.style.opacity = '0';
-                        el.style.transform = 'translateY(20px)';
-                        setTimeout(() => {
-                            el.classList.remove('active');
-                            if (el.id === pageId) {
-                                el.classList.add('active');
-                                setTimeout(() => {
-                                    el.style.opacity = '1';
-                                    el.style.transform = 'translateY(0)';
-                                }, 50);
-                            }
-                        }, 300);
-                    });
-                    
-                    // Update Nav Active State
-                    document.querySelectorAll('nav button').forEach(btn => {
-                        btn.classList.remove('text-white', 'border-green-500');
-                        btn.classList.add('text-gray-400', 'border-transparent');
-                    });
-                    const activeBtn = document.getElementById('nav-' + pageId);
-                    if(activeBtn) {
-                        activeBtn.classList.remove('text-gray-400', 'border-transparent');
-                        activeBtn.classList.add('text-white', 'border-green-500');
+            initParticles: () => {
+                const cvs = document.getElementById('webgl-canvas');
+                const ctx = cvs.getContext('2d');
+                let particles = [];
+                
+                const resize = () => { cvs.width = window.innerWidth; cvs.height = window.innerHeight; };
+                window.addEventListener('resize', resize); resize();
+
+                class P {
+                    constructor() { this.reset(); }
+                    reset() { 
+                        this.x = Math.random() * cvs.width; 
+                        this.y = Math.random() * cvs.height; 
+                        this.size = Math.random() * 2; 
+                        this.speed = Math.random() * 0.5 + 0.1;
+                        this.alpha = Math.random() * 0.5 + 0.1;
                     }
-                    window.scrollTo(0,0);
+                    update() { 
+                        this.y -= this.speed; 
+                        if(this.y < 0) this.reset(); 
+                    }
+                    draw() { 
+                        ctx.fillStyle = `rgba(74, 222, 128, ${this.alpha})`;
+                        ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); ctx.fill();
+                    }
                 }
+
+                for(let i=0; i<50; i++) particles.push(new P());
+
+                const animate = () => {
+                    ctx.clearRect(0,0,cvs.width,cvs.height);
+                    particles.forEach(p => { p.update(); p.draw(); });
+                    requestAnimationFrame(animate);
+                };
+                animate();
             },
 
-            // --- WALLET METHODS ---
+            showPage: (id) => {
+                // Hide all pages
+                document.querySelectorAll('.page-content').forEach(el => {
+                    el.classList.remove('active');
+                    el.style.display = 'none';
+                });
+                
+                // Show target
+                const target = document.getElementById('page-'+id);
+                if(target) {
+                    target.style.display = 'block';
+                    // Small delay for fade in
+                    setTimeout(() => target.classList.add('active'), 10);
+                }
+
+                // Update Nav
+                document.querySelectorAll('.nav-link').forEach(el => {
+                    el.classList.remove('active', 'text-white', 'border-green-500');
+                    el.classList.add('text-gray-400', 'border-transparent');
+                });
+                const activeLink = document.getElementById('nav-'+id);
+                if(activeLink) {
+                    activeLink.classList.add('active', 'text-white', 'border-green-500');
+                    activeLink.classList.remove('text-gray-400', 'border-transparent');
+                }
+
+                // Scroll top
+                window.scrollTo(0,0);
+
+                // Toggle 3D Orb only on Home
+                document.getElementById('orb-bg').style.display = (id === 'home') ? 'block' : 'none';
+            },
+
+            toggleMobile: () => {
+                const menu = document.getElementById('mobile-menu');
+                const isOpen = menu.style.transform === 'translateX(0%)';
+                menu.style.transform = isOpen ? 'translateX(100%)' : 'translateX(0%)';
+            },
+
+            openModal: () => {
+                const modal = document.getElementById('connect-modal');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                // Animate in
+                setTimeout(() => {
+                    document.getElementById('modal-content').classList.remove('scale-95', 'opacity-0');
+                    document.getElementById('modal-content').classList.add('scale-100', 'opacity-100');
+                }, 10);
+            },
+
+            closeModal: () => {
+                const content = document.getElementById('modal-content');
+                content.classList.remove('scale-100', 'opacity-100');
+                content.classList.add('scale-95', 'opacity-0');
+                setTimeout(() => {
+                    const modal = document.getElementById('connect-modal');
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }, 300);
+            },
+
+            setConnectedState: (address, balance) => {
+                // Update Header
+                const btn = document.getElementById('connectBtn');
+                const short = `${address.substring(0,6)}...${address.substring(address.length-4)}`;
+                btn.innerHTML = `<div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div> ${short}`;
+                btn.onclick = () => document.getElementById('userDropdown').classList.toggle('hidden');
+                
+                document.getElementById('dropdownAddress').innerText = short;
+
+                // Update Dashboard
+                document.getElementById('view-locked').classList.add('hidden');
+                document.getElementById('view-active').classList.remove('hidden');
+                
+                document.getElementById('walletAddrDisp').innerText = address;
+                document.getElementById('balanceVal').innerText = balance || '0.00';
+            },
+
+            resetState: () => {
+                const btn = document.getElementById('connectBtn');
+                btn.innerHTML = '<i class="fa-solid fa-wallet"></i> <span>Connect Wallet</span>';
+                btn.onclick = UI.openModal;
+                
+                document.getElementById('userDropdown').classList.add('hidden');
+                
+                document.getElementById('view-locked').classList.remove('hidden');
+                document.getElementById('view-active').classList.add('hidden');
+            }
+        };
+
+        // --- 3. APP CORE (Wallet & Tasks) ---
+        const App = {
+            ui: UI,
+            router: { navigate: UI.showPage },
+            state: { address: null, provider: null },
+
             wallet: {
                 connect: async (type) => {
-                    App.ui.toggleWalletModal(); // Close modal
+                    if(!window.ethereum) return alert("MetaMask not installed!");
                     
-                    if (type === 'MetaMask') {
-                        if (!window.ethereum) return alert("MetaMask not found!");
-                        try {
-                            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                            App.state.account = accounts[0];
-                            App.state.provider = new ethers.providers.Web3Provider(window.ethereum);
-                            
-                            await App.wallet.switchNetwork();
-                            await App.wallet.getBalance();
-                            App.ui.updateState(true);
-                        } catch (e) { console.error(e); alert(e.message); }
-                    } 
-                    else if (type === 'Trust') {
-                        // Logic for Trust Wallet (similar interface)
-                        const provider = window.trustwallet || window.ethereum;
-                        if (!provider) return alert("Trust Wallet not found!");
-                        try {
-                            const accounts = await provider.request({ method: 'eth_requestAccounts' });
-                            App.state.account = accounts[0];
-                            App.state.provider = new ethers.providers.Web3Provider(provider);
-                            await App.wallet.getBalance(); // Trust might auto-handle network
-                            App.ui.updateState(true);
-                        } catch (e) { console.error(e); }
+                    try {
+                        const provider = new ethers.providers.Web3Provider(window.ethereum);
+                        const accounts = await provider.send("eth_requestAccounts", []);
+                        App.state.address = accounts[0];
+                        App.state.provider = provider;
+
+                        UI.closeModal();
+                        await App.wallet.switchNetwork();
+                        const bal = await App.wallet.getBalance();
+                        
+                        UI.setConnectedState(App.state.address, bal);
+
+                    } catch (e) {
+                        console.error(e);
+                        alert("Connection Failed: " + e.message);
                     }
                 },
 
                 disconnect: () => {
-                    App.state.account = null;
-                    App.state.provider = null;
-                    App.ui.updateState(false);
-                    alert("Disconnected.");
+                    App.state.address = null;
+                    UI.resetState();
                 },
 
                 switchNetwork: async () => {
                     try {
                         await window.ethereum.request({
                             method: 'wallet_switchEthereumChain',
-                            params: [{ chainId: App.config.chainIdHex }],
+                            params: [{ chainId: Config.chain.hex }],
                         });
-                    } catch (error) {
-                        if (error.code === 4902) {
+                    } catch (switchError) {
+                        if (switchError.code === 4902) {
                             try {
                                 await window.ethereum.request({
                                     method: 'wallet_addEthereumChain',
                                     params: [{
-                                        chainId: App.config.chainIdHex,
-                                        chainName: App.config.name,
-                                        nativeCurrency: {
-                                            name: 'KarChain Token',
-                                            symbol: App.config.symbol,
-                                            decimals: 18
-                                        },
-                                        rpcUrls: [App.config.rpc],
-                                        blockExplorerUrls: []
+                                        chainId: Config.chain.hex,
+                                        chainName: Config.chain.name,
+                                        rpcUrls: [Config.chain.rpc],
+                                        nativeCurrency: { name: 'KarChain', symbol: Config.chain.symbol, decimals: 18 }
                                     }],
                                 });
                             } catch (addError) { console.error(addError); }
@@ -631,54 +907,53 @@
                 },
 
                 getBalance: async () => {
-                    if (!App.state.account || !App.state.provider) return;
                     try {
-                        const balance = await App.state.provider.getBalance(App.state.account);
-                        const fmt = ethers.utils.formatEther(balance);
-                        document.getElementById('displayBalance').innerText = parseFloat(fmt).toFixed(2);
-                    } catch (e) {
-                        console.log("Network fetch error, showing 0.00");
-                        document.getElementById('displayBalance').innerText = "0.00";
-                    }
+                        const bal = await App.state.provider.getBalance(App.state.address);
+                        return parseFloat(ethers.utils.formatEther(bal)).toFixed(2);
+                    } catch { return '0.00'; }
                 }
             },
 
-            // --- TASKS LOGIC ---
             tasks: {
                 start: (id) => {
-                    const verifyBtn = document.getElementById(`btn-verify-${id}`);
-                    verifyBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                    const btn = document.querySelector(`#task-${id} a`);
+                    // Simulate opening
                     setTimeout(() => {
-                        verifyBtn.innerText = 'VERIFY NOW';
-                        verifyBtn.disabled = false;
-                        verifyBtn.classList.remove('cursor-not-allowed', 'text-gray-400', 'border-white/20');
-                        verifyBtn.classList.add('bg-green-600', 'text-white', 'border-transparent', 'hover:bg-green-500');
-                    }, 3000); // Simulate reading time
+                        document.getElementById(`verify-${id}`).disabled = false;
+                        document.getElementById(`verify-${id}`).classList.remove('cursor-not-allowed', 'border-white/20', 'text-gray-500');
+                        document.getElementById(`verify-${id}`).classList.add('bg-green-600', 'text-white', 'hover:bg-green-500', 'border-transparent');
+                    }, 2000);
                 },
-                
                 verify: (id) => {
-                    if (id === 1) {
-                        // Unlock task 2
-                        const btn = document.getElementById(`btn-verify-1`);
-                        btn.innerHTML = '<i class="fa-solid fa-check"></i>';
-                        btn.classList.replace('bg-green-600', 'bg-green-900');
+                    const btn = document.getElementById(`verify-${id}`) || document.querySelector(`#task-${id} button`);
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                    
+                    setTimeout(() => {
+                        btn.innerHTML = 'COMPLETED';
+                        btn.classList.replace('bg-green-600', 'bg-green-900/50');
+                        btn.classList.add('text-green-400');
                         btn.disabled = true;
                         
-                        document.getElementById('task-2').classList.remove('task-locked');
-                        alert("Identity Verified. Step 2 Unlocked.");
-                    } else if (id === 2) {
-                        // Unlock task 3 (Form)
-                        document.getElementById('task-3').classList.remove('task-locked');
-                        const formBtn = document.getElementById('btn-form');
-                        formBtn.classList.remove('opacity-50', 'pointer-events-none');
-                        alert("Volume Verified. Whitelist Application Unlocked.");
-                    }
+                        // Logic for unlocking next steps
+                        if(id === 1) {
+                            document.getElementById('card-task-2').classList.remove('task-locked');
+                            document.getElementById('progress-bar').style.width = '33%';
+                            document.getElementById('progress-text').innerText = '1/3 Tasks';
+                        }
+                        if(id === 2) {
+                            document.getElementById('card-task-3').classList.remove('task-locked');
+                            document.getElementById('btn-form').classList.remove('pointer-events-none', 'opacity-50');
+                            document.getElementById('progress-bar').style.width = '66%';
+                            document.getElementById('progress-text').innerText = '2/3 Tasks';
+                        }
+                    }, 1500);
                 }
             }
         };
 
-        // Init
-        window.App = App;
+        // Init Application
+        window.onload = () => App.ui.init();
+        window.App = App; // Expose to global scope for onclick handlers
     </script>
 </body>
 </html>
