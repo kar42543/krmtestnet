@@ -850,17 +850,19 @@
                 if (type === 'Trust' && window.ethereum && window.ethereum.isTrust) {
                     eth = window.ethereum; 
                 } else if (type === 'MetaMask' && window.ethereum) {
-                    // MetaMask preferred (works for most providers if only one is installed)
-                    eth = window.ethereum;
+                    // MetaMask priority
+                    if (window.ethereum && window.ethereum.providers) {
+                         eth = window.ethereum.providers.find(p => p.isMetaMask) || window.ethereum;
+                    }
                 }
 
-                if (!eth) return alert("Wallet not found. Please install MetaMask.");
+                if (!eth) return alert("Wallet not found. Please install MetaMask or Trust Wallet.");
                 
                 try {
                     const provider = new ethers.providers.Web3Provider(eth);
-                    const accounts = await provider.send("eth_requestAccounts", []);
+                    await provider.send("eth_requestAccounts", []);
                     const signer = provider.getSigner();
-                    const address = accounts[0];
+                    const address = await signer.getAddress();
                     
                     Wallet.provider = provider;
                     Wallet.signer = signer;
