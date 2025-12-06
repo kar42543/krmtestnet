@@ -51,7 +51,7 @@
         /* --- GLOBAL --- */
         :root {
             --bg-color: #020402;
-            --glass-bg: rgba(10, 10, 10, 0.7);
+            --glass-bg: rgba(15, 15, 15, 0.6);
             --glass-border: rgba(255, 255, 255, 0.08);
             --neon: #4ade80;
         }
@@ -98,7 +98,7 @@
             background: #4ade80; box-shadow: 0 0 10px #4ade80;
         }
 
-        /* Wallet Option Styling (Gray to Color) */
+        /* Wallet Option Styling */
         .wallet-icon { filter: grayscale(100%); transition: all 0.3s ease; }
         .wallet-option:hover .wallet-icon { filter: grayscale(0%); transform: scale(1.1); }
         .wallet-option {
@@ -130,9 +130,9 @@
         .gr-2 { width: 160px; height: 160px; margin: -80px; animation: rotate2 8s linear infinite; border-top-color: transparent; border-width: 2px; }
         .gr-3 { width: 120px; height: 120px; margin: -60px; animation: rotate3 6s linear infinite; border-right-color: transparent; }
         
-        @keyframes rotate1 { 0% { transform: rotateX(0) rotateY(0); } 100% { transform: rotateX(360deg) rotateY(360deg); } }
-        @keyframes rotate2 { 0% { transform: rotateX(0) rotateY(0); } 100% { transform: rotateX(-360deg) rotateY(180deg); } }
-        @keyframes rotate3 { 0% { transform: rotateX(0) rotateY(0); } 100% { transform: rotateX(180deg) rotateY(-360deg); } }
+        @keyframes rotate1 { 0% { transform: translate(-50%, -50%) rotateX(0deg) rotateY(0deg); } 100% { transform: translate(-50%, -50%) rotateX(360deg) rotateY(360deg); } }
+        @keyframes rotate2 { 0% { transform: translate(-50%, -50%) rotateX(0deg) rotateY(0deg); } 100% { transform: translate(-50%, -50%) rotateX(-360deg) rotateY(180deg); } }
+        @keyframes rotate3 { 0% { transform: translate(-50%, -50%) rotate(0deg); } 100% { transform: translate(-50%, -50%) rotate(360deg); } }
 
         /* Task Locked State */
         .task-locked { pointer-events: none; opacity: 0.5; filter: grayscale(0.8); position: relative; }
@@ -192,10 +192,10 @@
 
             <!-- Desktop Menu -->
             <div class="hidden lg:flex items-center gap-12">
-                <div onclick="App.router.navigate('home')" id="nav-home" class="nav-link text-xs font-bold uppercase tracking-widest active">Testnet</div>
-                <div onclick="App.router.navigate('vision')" id="nav-vision" class="nav-link text-xs font-bold uppercase tracking-widest">Vision</div>
-                <div onclick="App.router.navigate('ecosystem')" id="nav-ecosystem" class="nav-link text-xs font-bold uppercase tracking-widest">Ecosystem</div>
-                <div onclick="App.router.navigate('support')" id="nav-support" class="nav-link text-xs font-bold uppercase tracking-widest">Support</div>
+                <button onclick="App.router.navigate('home')" id="nav-home" class="nav-link text-xs font-bold uppercase tracking-widest active">Testnet</button>
+                <button onclick="App.router.navigate('vision')" id="nav-vision" class="nav-link text-xs font-bold uppercase tracking-widest">Vision</button>
+                <button onclick="App.router.navigate('ecosystem')" id="nav-ecosystem" class="nav-link text-xs font-bold uppercase tracking-widest">Ecosystem</button>
+                <button onclick="App.router.navigate('support')" id="nav-support" class="nav-link text-xs font-bold uppercase tracking-widest">Support</button>
             </div>
 
             <!-- Connect & Mobile -->
@@ -689,8 +689,8 @@
         // --- 2. CONFIGURATION ---
         const Config = {
             chain: {
-                id: 1515,
-                hex: '0x5EB', // 1515 in hex
+                id: 1337,
+                hex: '0x539', // 1337 in hex
                 name: 'KarChain Testnet',
                 rpc: 'http://127.0.0.1:8545',
                 symbol: 'KAR'
@@ -752,12 +752,12 @@
 
                 // Update Nav
                 document.querySelectorAll('.nav-link').forEach(el => {
-                    el.classList.remove('text-white', 'border-green-500');
+                    el.classList.remove('active', 'text-white', 'border-green-500');
                     el.classList.add('text-gray-400', 'border-transparent');
                 });
                 const activeLink = document.getElementById('nav-'+id);
                 if(activeLink) {
-                    activeLink.classList.add('text-white', 'border-green-500');
+                    activeLink.classList.add('active', 'text-white', 'border-green-500');
                     activeLink.classList.remove('text-gray-400', 'border-transparent');
                 }
 
@@ -810,39 +810,57 @@
             init: async () => {
                 // Check if previously connected
                 const saved = localStorage.getItem('karchain_connected');
-                if(saved === 'true') {
-                    // Try eager connect
+                const savedAddress = localStorage.getItem('karchain_address');
+                
+                if(saved === 'true' && savedAddress) {
+                    // Try eager connect only if window.ethereum is available
                     if(window.ethereum) {
                          const provider = new ethers.providers.Web3Provider(window.ethereum);
                          const accounts = await provider.listAccounts();
-                         if(accounts.length > 0) {
-                             Wallet.connect('MetaMask'); // Reconnect
+                         if(accounts.length > 0 && accounts[0].toLowerCase() === savedAddress.toLowerCase()) {
+                             Wallet.reconnect(savedAddress); 
+                         } else if (accounts.length > 0) {
+                             // Fallback to first available account if saved is gone
+                             Wallet.reconnect(accounts[0]);
                          }
                     }
                 }
+            },
+            
+            reconnect: async (address) => {
+                 // Try to re-establish state without modal
+                 try {
+                     const provider = new ethers.providers.Web3Provider(window.ethereum);
+                     Wallet.provider = provider;
+                     Wallet.address = address;
+                     
+                     await Wallet.checkNetwork(window.ethereum);
+                     await Wallet.updateBalance();
+                     UI.setConnected(address);
+                 } catch(e) {
+                     console.warn("Failed to reconnect, resetting state.");
+                     Wallet.disconnect();
+                 }
             },
 
             connect: async (type) => {
                 let eth = window.ethereum;
                 
-                if (type === 'Trust') {
-                    // Trust Wallet priority
-                    if (window.trustwallet) eth = window.trustwallet;
-                    else if (window.ethereum && window.ethereum.isTrust) eth = window.ethereum;
-                } else if (type === 'MetaMask') {
-                    // MetaMask priority
-                    if (window.ethereum && window.ethereum.providers) {
-                         eth = window.ethereum.providers.find(p => p.isMetaMask) || window.ethereum;
-                    }
+                // Trust Wallet specific check
+                if (type === 'Trust' && window.ethereum && window.ethereum.isTrust) {
+                    eth = window.ethereum; 
+                } else if (type === 'MetaMask' && window.ethereum) {
+                    // MetaMask preferred (works for most providers if only one is installed)
+                    eth = window.ethereum;
                 }
 
-                if (!eth) return alert("Wallet not found. Please install MetaMask or Trust Wallet.");
+                if (!eth) return alert("Wallet not found. Please install MetaMask.");
                 
                 try {
                     const provider = new ethers.providers.Web3Provider(eth);
-                    await provider.send("eth_requestAccounts", []);
+                    const accounts = await provider.send("eth_requestAccounts", []);
                     const signer = provider.getSigner();
-                    const address = await signer.getAddress();
+                    const address = accounts[0];
                     
                     Wallet.provider = provider;
                     Wallet.signer = signer;
@@ -856,6 +874,7 @@
                     
                     UI.setConnected(address);
                     localStorage.setItem('karchain_connected', 'true');
+                    localStorage.setItem('karchain_address', address);
                     
                 } catch (e) {
                     console.error(e);
@@ -867,11 +886,11 @@
                 Wallet.address = null;
                 Wallet.provider = null;
                 localStorage.removeItem('karchain_connected');
+                localStorage.removeItem('karchain_address');
                 UI.setDisconnected();
             },
 
             checkNetwork: async (providerObj) => {
-                // Use raw provider for wallet methods
                 const rawProvider = providerObj || window.ethereum;
                 try {
                     await rawProvider.request({
@@ -887,7 +906,7 @@
                                     chainId: Config.chain.hex,
                                     chainName: Config.chain.name,
                                     rpcUrls: [Config.chain.rpc],
-                                    nativeCurrency: { name: 'KarChain', symbol: Config.chain.symbol, decimals: 18 }
+                                    nativeCurrency: { name: Config.chain.symbol, symbol: Config.chain.symbol, decimals: 18 }
                                 }],
                             });
                         } catch (addError) { console.error(addError); }
