@@ -428,6 +428,55 @@
                 background: rgba(255, 255, 255, 0.05);
                 border-radius: 12px;
             }
+            
+            /* Зменшуємо розмір логотипу на мобільних */
+            nav .flex.items-center.gap-4 .flex.flex-col span:first-child {
+                font-size: 16px !important;
+            }
+            
+            nav .flex.items-center.gap-4 .flex.flex-col span:last-child {
+                font-size: 8px !important;
+            }
+            
+            /* Робимо Connect Wallet компактним на мобільних */
+            #connectBtn {
+                padding: 8px 12px !important;
+                font-size: 10px !important;
+                width: auto;
+                min-width: 120px;
+            }
+            
+            #connectBtn span {
+                display: inline;
+            }
+            
+            /* Гаманець показуємо завжди на мобільних */
+            #connectBtn {
+                display: flex !important;
+            }
+            
+            /* Зменшуємо відступи в навігації */
+            nav .max-w-\[1600px\] {
+                padding-left: 16px !important;
+                padding-right: 16px !important;
+            }
+            
+            /* Відступ для контенту на мобільних */
+            .page-content {
+                padding-left: 16px !important;
+                padding-right: 16px !important;
+            }
+            
+            /* Фіксуємо розташування елементів в навігації */
+            nav .flex.items-center.justify-between {
+                width: 100%;
+            }
+            
+            /* Правий край - тільки гамбургер */
+            nav .flex.items-center.gap-4.relative {
+                margin-left: auto;
+                gap: 12px !important;
+            }
         }
 
         @media (max-width: 768px) {
@@ -442,6 +491,73 @@
             
             .stat-value {
                 font-size: 24px;
+            }
+            
+            /* Ще більше зменшуємо Connect Wallet на маленьких екранах */
+            #connectBtn {
+                padding: 6px 10px !important;
+                font-size: 9px !important;
+                min-width: 110px;
+            }
+            
+            #connectBtn i {
+                font-size: 10px !important;
+            }
+            
+            /* Зменшуємо іконку логотипу */
+            nav .relative.w-10.h-10 {
+                width: 32px !important;
+                height: 32px !important;
+            }
+            
+            /* Зменшуємо відступи в хедері */
+            nav .h-24 {
+                height: 70px !important;
+            }
+            
+            .page-content.pt-32 {
+                padding-top: 90px !important;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            /* На дуже маленьких екранах показуємо тільки іконку гаманця */
+            #connectBtn span {
+                display: none;
+            }
+            
+            #connectBtn {
+                width: 40px;
+                height: 40px;
+                padding: 0 !important;
+                border-radius: 50% !important;
+                display: flex !important;
+                align-items: center;
+                justify-content: center;
+                min-width: auto;
+            }
+            
+            #connectBtn i {
+                margin: 0 !important;
+                font-size: 16px !important;
+            }
+            
+            /* Зменшуємо гамбургер */
+            .hamburger {
+                width: 24px;
+                height: 18px;
+            }
+            
+            .hamburger span {
+                height: 2px;
+            }
+            
+            .hamburger.active span:nth-child(1) {
+                transform: rotate(45deg) translate(4px, 4px);
+            }
+            
+            .hamburger.active span:nth-child(3) {
+                transform: rotate(-45deg) translate(5px, -5px);
             }
         }
 
@@ -517,7 +633,7 @@
     <nav class="fixed top-0 w-full z-50 border-b border-white/5 bg-black/40 backdrop-blur-xl transition-all duration-300" id="navbar">
         <div class="max-w-[1600px] mx-auto px-6 h-24 flex items-center justify-between">
             
-            <div class="flex items-center gap-4 cursor-pointer group" onclick="App.router.navigate('home')">
+            <div class="flex items-center gap-3 cursor-pointer group" onclick="App.router.navigate('home')">
                 <div class="relative w-10 h-10 flex items-center justify-center">
                     <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_15px_rgba(74,222,128,0.6)] transition-transform duration-500 group-hover:rotate-180">
                         <path d="M20 10 V90" stroke="#4ade80" stroke-width="8" stroke-linecap="round"/>
@@ -528,8 +644,8 @@
                     </svg>
                 </div>
                 <div class="flex flex-col">
-                    <span class="text-xl font-bold tracking-[0.2em] text-white group-hover:text-green-400 transition-colors font-display">KARCHAIN</span>
-                    <span class="text-[10px] text-gray-500 uppercase tracking-widest font-mono group-hover:text-gray-300">Testnet Phase 1</span>
+                    <span class="text-lg font-bold tracking-[0.2em] text-white group-hover:text-green-400 transition-colors font-display">KARCHAIN</span>
+                    <span class="text-[9px] text-gray-500 uppercase tracking-widest font-mono group-hover:text-gray-300">Testnet Phase 1</span>
                 </div>
             </div>
 
@@ -542,19 +658,15 @@
             </div>
 
             <div class="flex items-center gap-4 relative">
+                <button id="connectBtn" class="btn-primary px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 shadow-lg">
+                    <i class="fa-solid fa-wallet"></i> <span>Connect Wallet</span>
+                </button>
+
                 <!-- Гамбургер меню для мобільних -->
                 <button class="hamburger" id="hamburgerBtn">
                     <span></span>
                     <span></span>
                     <span></span>
-                </button>
-
-                <a href="https://x.com/karim7652117665" target="_blank" class="hidden md:block text-gray-400 hover:text-white transition-colors">
-                    <i class="fa-brands fa-x-twitter text-xl"></i>
-                </a>
-
-                <button id="connectBtn" class="btn-primary px-8 py-3 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 shadow-lg">
-                    <i class="fa-solid fa-wallet"></i> <span>Connect Wallet</span>
                 </button>
 
                 <div id="userDropdown" class="hidden absolute top-16 right-0 w-64 glass-panel rounded-xl p-4 z-50">
