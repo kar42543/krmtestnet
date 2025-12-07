@@ -184,12 +184,13 @@
         .btn-primary:hover { box-shadow: 0 0 20px rgba(34, 197, 94, 0.4); border-color: #4ade80; }
 
         .btn-logout {
-            background: rgba(239, 68, 68, 0.1);
-            color: #ef4444;
-            border: 1px solid rgba(239, 68, 68, 0.3);
+            background: rgba(239, 68, 68, 0.8);
+            color: white;
+            border: 1px solid rgba(239, 68, 68, 0.9);
             position: relative;
             overflow: hidden;
             transition: all 0.3s ease;
+            font-weight: bold;
         }
         
         .btn-logout::before {
@@ -197,15 +198,16 @@
             position: absolute;
             top: 0; left: -100%;
             width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
             transition: 0.5s;
         }
         
         .btn-logout:hover::before { left: 100%; }
         .btn-logout:hover { 
-            background: rgba(239, 68, 68, 0.2); 
-            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4); 
+            background: rgba(239, 68, 68, 0.9); 
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.6); 
             border-color: #ef4444;
+            transform: translateY(-2px);
         }
 
         .text-gradient {
@@ -315,13 +317,27 @@
             transition: all 0.3s ease;
         }
         
-        /* Logout button container */
-        .logout-container {
-            position: absolute;
-            top: 6rem;
-            right: 1.5rem;
-            z-index: 50;
-            display: none;
+        /* User dropdown animation */
+        .user-dropdown-enter {
+            opacity: 0;
+            transform: scale(0.95) translateY(-10px);
+        }
+        
+        .user-dropdown-enter-active {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+            transition: opacity 200ms, transform 200ms;
+        }
+        
+        .user-dropdown-exit {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+        
+        .user-dropdown-exit-active {
+            opacity: 0;
+            transform: scale(0.95) translateY(-10px);
+            transition: opacity 200ms, transform 200ms;
         }
     </style>
 </head>
@@ -384,16 +400,25 @@
                 <!-- User Dropdown (Hidden by default) -->
                 <div id="userDropdown" class="hidden absolute top-16 right-0 w-64 glass-panel rounded-xl p-4 z-50 transform origin-top-right transition-all duration-200 scale-95 opacity-0">
                     <div class="flex items-center gap-3 mb-4 pb-4 border-b border-white/10">
-                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-blue-600"></div>
+                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center">
+                            <i class="fa-solid fa-wallet text-white"></i>
+                        </div>
                         <div>
                             <p class="text-white font-bold text-sm">My Wallet</p>
                             <p class="text-gray-500 text-xs font-mono" id="dropdownAddress">0x00...0000</p>
                         </div>
                     </div>
                     <div class="space-y-1">
-                        <button class="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/5 rounded hover:text-white transition-colors"><i class="fa-solid fa-clock-rotate-left mr-2"></i> History</button>
-                        <button class="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/5 rounded hover:text-white transition-colors"><i class="fa-solid fa-gear mr-2"></i> Settings</button>
-                        <button onclick="App.wallet.disconnect()" class="w-full text-left px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded transition-colors mt-2">
+                        <button class="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/5 rounded hover:text-white transition-colors">
+                            <i class="fa-solid fa-coins mr-2"></i> Balance: <span id="dropdownBalance" class="font-bold">0 KAR</span>
+                        </button>
+                        <button class="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/5 rounded hover:text-white transition-colors">
+                            <i class="fa-solid fa-clock-rotate-left mr-2"></i> History
+                        </button>
+                        <button class="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/5 rounded hover:text-white transition-colors">
+                            <i class="fa-solid fa-gear mr-2"></i> Settings
+                        </button>
+                        <button onclick="App.wallet.disconnect()" class="w-full text-left px-3 py-2 btn-logout rounded transition-colors mt-2">
                             <i class="fa-solid fa-right-from-bracket mr-2"></i> Disconnect Wallet
                         </button>
                     </div>
@@ -403,13 +428,6 @@
                     <i class="fa-solid fa-bars"></i>
                 </button>
             </div>
-        </div>
-
-        <!-- Logout Button (Top Right, Appears when connected) -->
-        <div id="logoutContainer" class="logout-container">
-            <button onclick="App.wallet.disconnect()" class="btn-logout px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-widest flex items-center gap-2 shadow-lg">
-                <i class="fa-solid fa-right-from-bracket"></i> <span>Logout</span>
-            </button>
         </div>
     </nav>
 
@@ -558,6 +576,10 @@
                                     <span id="balanceVal" class="text-7xl font-bold text-white font-mono tracking-tighter">0.00</span>
                                     <span class="text-xl font-bold text-green-500 bg-green-500/10 px-3 py-1 rounded-lg">KAR</span>
                                 </div>
+                                <p class="text-xs text-gray-400 mt-2">
+                                    <i class="fa-solid fa-circle-info mr-1"></i> 
+                                    <span id="balanceInfo">Real-time balance from your wallet</span>
+                                </p>
                             </div>
                             <div class="mt-6 md:mt-0 text-right">
                                 <div class="flex items-center justify-end gap-2 text-green-400 mb-1">
@@ -565,6 +587,9 @@
                                     <span class="text-xs font-bold uppercase">Connected</span>
                                 </div>
                                 <p class="text-sm text-gray-400 font-mono bg-white/5 px-3 py-1 rounded" id="walletAddrDisp">0x0000...0000</p>
+                                <button onclick="App.wallet.refreshBalance()" class="mt-2 text-xs text-gray-500 hover:text-green-400 transition-colors">
+                                    <i class="fa-solid fa-rotate mr-1"></i> Refresh Balance
+                                </button>
                             </div>
                         </div>
 
@@ -844,15 +869,20 @@
                 hex: '0x539',
                 name: 'KarChain Testnet',
                 rpc: 'https://relationless-improperly-nettie.ngrok-free.dev',
-                symbol: 'KAR'
-            }
+                symbol: 'KAR',
+                decimals: 18
+            },
+            // KAR Token Contract Address (Testnet)
+            // Заміни на реальну адресу контракту KAR токена, коли вона буде
+            tokenAddress: '0x0000000000000000000000000000000000000000' // Заміни на реальну адресу
         };
 
         // Storage keys
         const STORAGE_KEYS = {
             WALLET_CONNECTED: 'karchain_wallet_connected',
             WALLET_ADDRESS: 'karchain_wallet_address',
-            LAST_CONNECTED: 'karchain_last_connected'
+            LAST_CONNECTED: 'karchain_last_connected',
+            WALLET_BALANCE: 'karchain_wallet_balance'
         };
 
         // --- 2. UI CONTROLLER ---
@@ -868,6 +898,8 @@
                 UI.checkSavedConnection();
                 // Show Home
                 UI.showPage('home');
+                // Setup dropdown toggle
+                UI.setupDropdownToggle();
             },
 
             initParticles: () => {
@@ -942,6 +974,41 @@
                 });
             },
 
+            setupDropdownToggle: () => {
+                const connectBtn = document.getElementById('connectBtn');
+                const dropdown = document.getElementById('userDropdown');
+                
+                connectBtn.addEventListener('click', function(e) {
+                    // Only toggle dropdown if wallet is connected
+                    if (App.state.address) {
+                        e.stopPropagation();
+                        const isVisible = dropdown.classList.contains('hidden');
+                        
+                        if (isVisible) {
+                            dropdown.classList.remove('hidden', 'scale-95', 'opacity-0');
+                            dropdown.classList.add('scale-100', 'opacity-100');
+                        } else {
+                            dropdown.classList.remove('scale-100', 'opacity-100');
+                            dropdown.classList.add('scale-95', 'opacity-0');
+                            setTimeout(() => {
+                                dropdown.classList.add('hidden');
+                            }, 200);
+                        }
+                    }
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', function(e) {
+                    if (!dropdown.contains(e.target) && !connectBtn.contains(e.target)) {
+                        dropdown.classList.remove('scale-100', 'opacity-100');
+                        dropdown.classList.add('scale-95', 'opacity-0');
+                        setTimeout(() => {
+                            dropdown.classList.add('hidden');
+                        }, 200);
+                    }
+                });
+            },
+
             checkSavedConnection: () => {
                 const isConnected = localStorage.getItem(STORAGE_KEYS.WALLET_CONNECTED);
                 const savedAddress = localStorage.getItem(STORAGE_KEYS.WALLET_ADDRESS);
@@ -965,6 +1032,7 @@
                 localStorage.removeItem(STORAGE_KEYS.WALLET_CONNECTED);
                 localStorage.removeItem(STORAGE_KEYS.WALLET_ADDRESS);
                 localStorage.removeItem(STORAGE_KEYS.LAST_CONNECTED);
+                localStorage.removeItem(STORAGE_KEYS.WALLET_BALANCE);
             },
 
             showPage: (id) => {
@@ -1029,16 +1097,13 @@
             },
 
             setConnectedState: (address, balance) => {
-                // Show logout button
-                document.getElementById('logoutContainer').style.display = 'block';
-                
                 // Update Header
                 const btn = document.getElementById('connectBtn');
                 const short = `${address.substring(0,6)}...${address.substring(address.length-4)}`;
                 btn.innerHTML = `<div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div> ${short}`;
-                btn.onclick = () => document.getElementById('userDropdown').classList.toggle('hidden');
                 
                 document.getElementById('dropdownAddress').innerText = short;
+                document.getElementById('dropdownBalance').innerText = balance ? `${balance} KAR` : '0 KAR';
 
                 // Update Dashboard
                 document.getElementById('view-locked').classList.add('hidden');
@@ -1048,10 +1113,16 @@
                 document.getElementById('balanceVal').innerText = balance || '0.00';
             },
 
-            resetState: () => {
-                // Hide logout button
-                document.getElementById('logoutContainer').style.display = 'none';
+            updateBalance: (balance) => {
+                const formattedBalance = parseFloat(balance).toFixed(4);
+                document.getElementById('balanceVal').innerText = formattedBalance;
+                document.getElementById('dropdownBalance').innerText = `${formattedBalance} KAR`;
                 
+                // Save to localStorage
+                localStorage.setItem(STORAGE_KEYS.WALLET_BALANCE, formattedBalance);
+            },
+
+            resetState: () => {
                 const btn = document.getElementById('connectBtn');
                 btn.innerHTML = '<i class="fa-solid fa-wallet"></i> <span>Connect Wallet</span>';
                 btn.onclick = UI.openModal;
@@ -1060,6 +1131,37 @@
                 
                 document.getElementById('view-locked').classList.remove('hidden');
                 document.getElementById('view-active').classList.add('hidden');
+            },
+
+            showNotification: (message, type = 'info') => {
+                // Create notification element
+                const notification = document.createElement('div');
+                notification.className = `fixed top-4 right-4 glass-panel px-6 py-4 rounded-xl z-[1000] transform transition-all duration-300 ${
+                    type === 'success' ? 'border-green-500/30 bg-green-900/20' :
+                    type === 'error' ? 'border-red-500/30 bg-red-900/20' :
+                    'border-blue-500/30 bg-blue-900/20'
+                }`;
+                notification.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <i class="fas ${
+                            type === 'success' ? 'fa-check-circle text-green-400' :
+                            type === 'error' ? 'fa-exclamation-circle text-red-400' :
+                            'fa-info-circle text-blue-400'
+                        }"></i>
+                        <span class="text-white">${message}</span>
+                    </div>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                // Remove after 3 seconds
+                setTimeout(() => {
+                    notification.style.opacity = '0';
+                    notification.style.transform = 'translateX(100%)';
+                    setTimeout(() => {
+                        document.body.removeChild(notification);
+                    }, 300);
+                }, 3000);
             }
         };
 
@@ -1067,7 +1169,12 @@
         const App = {
             ui: UI,
             router: { navigate: UI.showPage },
-            state: { address: null, provider: null },
+            state: { 
+                address: null, 
+                provider: null,
+                tokenContract: null,
+                karBalance: '0.00'
+            },
 
             wallet: {
                 connect: async (type) => {
@@ -1081,12 +1188,17 @@
 
                         UI.closeModal();
                         await App.wallet.switchNetwork();
-                        const bal = await App.wallet.getBalance();
+                        
+                        // Load token balance
+                        await App.wallet.loadTokenBalance();
                         
                         // Save connection to localStorage
                         UI.saveConnection(App.state.address);
                         
-                        UI.setConnectedState(App.state.address, bal);
+                        UI.setConnectedState(App.state.address, App.state.karBalance);
+                        
+                        // Setup event listeners for balance changes
+                        App.wallet.setupEventListeners();
 
                     } catch (e) {
                         console.error(e);
@@ -1097,6 +1209,8 @@
                 disconnect: () => {
                     App.state.address = null;
                     App.state.provider = null;
+                    App.state.tokenContract = null;
+                    App.state.karBalance = '0.00';
                     
                     // Clear from localStorage
                     UI.clearConnection();
@@ -1104,39 +1218,11 @@
                     // Reset UI
                     UI.resetState();
                     
+                    // Close dropdown
+                    document.getElementById('userDropdown').classList.add('hidden');
+                    
                     // Show disconnect notification
-                    App.ui.showNotification('Wallet disconnected', 'success');
-                },
-
-                showNotification: (message, type = 'info') => {
-                    // Create notification element
-                    const notification = document.createElement('div');
-                    notification.className = `fixed top-4 right-4 glass-panel px-6 py-4 rounded-xl z-[1000] transform transition-all duration-300 ${
-                        type === 'success' ? 'border-green-500/30 bg-green-900/20' :
-                        type === 'error' ? 'border-red-500/30 bg-red-900/20' :
-                        'border-blue-500/30 bg-blue-900/20'
-                    }`;
-                    notification.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            <i class="fas ${
-                                type === 'success' ? 'fa-check-circle text-green-400' :
-                                type === 'error' ? 'fa-exclamation-circle text-red-400' :
-                                'fa-info-circle text-blue-400'
-                            }"></i>
-                            <span class="text-white">${message}</span>
-                        </div>
-                    `;
-                    
-                    document.body.appendChild(notification);
-                    
-                    // Remove after 3 seconds
-                    setTimeout(() => {
-                        notification.style.opacity = '0';
-                        notification.style.transform = 'translateX(100%)';
-                        setTimeout(() => {
-                            document.body.removeChild(notification);
-                        }, 300);
-                    }, 3000);
+                    UI.showNotification('Wallet disconnected', 'success');
                 },
 
                 switchNetwork: async () => {
@@ -1154,19 +1240,129 @@
                                         chainId: Config.chain.hex,
                                         chainName: Config.chain.name,
                                         rpcUrls: [Config.chain.rpc],
-                                        nativeCurrency: { name: 'KarChain', symbol: Config.chain.symbol, decimals: 18 }
+                                        nativeCurrency: { 
+                                            name: 'KarChain', 
+                                            symbol: Config.chain.symbol, 
+                                            decimals: Config.chain.decimals 
+                                        }
                                     }],
                                 });
-                            } catch (addError) { console.error(addError); }
+                            } catch (addError) { 
+                                console.error(addError); 
+                                UI.showNotification('Failed to add network', 'error');
+                            }
                         }
                     }
                 },
 
-                getBalance: async () => {
+                loadTokenBalance: async () => {
                     try {
-                        const bal = await App.state.provider.getBalance(App.state.address);
-                        return parseFloat(ethers.utils.formatEther(bal)).toFixed(2);
-                    } catch { return '0.00'; }
+                        if (!App.state.provider || !App.state.address) return;
+                        
+                        // Get native ETH balance first (for gas)
+                        const ethBalance = await App.state.provider.getBalance(App.state.address);
+                        const ethBalanceFormatted = ethers.utils.formatEther(ethBalance);
+                        
+                        console.log('ETH Balance:', ethBalanceFormatted);
+                        
+                        // Check if we have a token contract address
+                        if (Config.tokenAddress && Config.tokenAddress !== '0x0000000000000000000000000000000000000000') {
+                            // ABI for ERC20 token (minimum functions for balance)
+                            const tokenAbi = [
+                                "function balanceOf(address owner) view returns (uint256)",
+                                "function decimals() view returns (uint8)",
+                                "function symbol() view returns (string)"
+                            ];
+                            
+                            try {
+                                const tokenContract = new ethers.Contract(
+                                    Config.tokenAddress, 
+                                    tokenAbi, 
+                                    App.state.provider
+                                );
+                                
+                                App.state.tokenContract = tokenContract;
+                                
+                                // Get token balance
+                                const balance = await tokenContract.balanceOf(App.state.address);
+                                const decimals = await tokenContract.decimals();
+                                
+                                // Format balance
+                                const formattedBalance = ethers.utils.formatUnits(balance, decimals);
+                                App.state.karBalance = parseFloat(formattedBalance).toFixed(4);
+                                
+                                // Get token symbol
+                                const symbol = await tokenContract.symbol();
+                                console.log(`${symbol} Balance:`, App.state.karBalance);
+                                
+                                // Update UI
+                                UI.updateBalance(App.state.karBalance);
+                                UI.showNotification(`Balance loaded: ${App.state.karBalance} ${symbol}`, 'success');
+                                
+                            } catch (tokenError) {
+                                console.log('Token contract not available, using native balance');
+                                // If token contract fails, use native ETH balance
+                                App.state.karBalance = parseFloat(ethBalanceFormatted).toFixed(4);
+                                UI.updateBalance(App.state.karBalance);
+                                UI.showNotification(`Balance: ${App.state.karBalance} ETH`, 'info');
+                            }
+                        } else {
+                            // No token contract, use native ETH
+                            App.state.karBalance = parseFloat(ethBalanceFormatted).toFixed(4);
+                            UI.updateBalance(App.state.karBalance);
+                            UI.showNotification(`Balance: ${App.state.karBalance} ETH`, 'info');
+                        }
+                        
+                    } catch (error) {
+                        console.error('Error loading balance:', error);
+                        UI.showNotification('Failed to load balance', 'error');
+                        App.state.karBalance = '0.00';
+                        UI.updateBalance(App.state.karBalance);
+                    }
+                },
+
+                refreshBalance: async () => {
+                    if (!App.state.address) {
+                        UI.showNotification('Please connect wallet first', 'error');
+                        return;
+                    }
+                    
+                    try {
+                        UI.showNotification('Refreshing balance...', 'info');
+                        await App.wallet.loadTokenBalance();
+                    } catch (error) {
+                        console.error('Error refreshing balance:', error);
+                        UI.showNotification('Failed to refresh balance', 'error');
+                    }
+                },
+
+                setupEventListeners: () => {
+                    // Listen for account changes
+                    if (window.ethereum) {
+                        window.ethereum.on('accountsChanged', async (accounts) => {
+                            if (accounts.length === 0) {
+                                // User disconnected wallet
+                                App.wallet.disconnect();
+                            } else if (accounts[0] !== App.state.address) {
+                                // User switched accounts
+                                App.state.address = accounts[0];
+                                UI.saveConnection(App.state.address);
+                                await App.wallet.loadTokenBalance();
+                                UI.setConnectedState(App.state.address, App.state.karBalance);
+                                UI.showNotification('Account changed', 'info');
+                            }
+                        });
+
+                        // Listen for chain changes
+                        window.ethereum.on('chainChanged', async (chainId) => {
+                            if (parseInt(chainId) !== Config.chain.id) {
+                                UI.showNotification('Please switch to KarChain network', 'error');
+                                await App.wallet.switchNetwork();
+                            } else {
+                                await App.wallet.loadTokenBalance();
+                            }
+                        });
+                    }
                 },
 
                 // Auto-reconnect on page refresh if wallet was previously connected
@@ -1184,8 +1380,13 @@
                                 App.state.address = accounts[0];
                                 App.state.provider = provider;
                                 
-                                const bal = await App.wallet.getBalance();
-                                UI.setConnectedState(App.state.address, bal);
+                                await App.wallet.loadTokenBalance();
+                                UI.setConnectedState(App.state.address, App.state.karBalance);
+                                
+                                // Setup event listeners
+                                App.wallet.setupEventListeners();
+                                
+                                UI.showNotification('Wallet reconnected', 'success');
                                 return true;
                             }
                         } catch (e) {
