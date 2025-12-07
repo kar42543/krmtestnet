@@ -318,26 +318,19 @@
         }
         
         /* User dropdown animation */
-        .user-dropdown-enter {
-            opacity: 0;
-            transform: scale(0.95) translateY(-10px);
+        #userDropdown {
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-origin: top right;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(74, 222, 128, 0.1);
         }
         
-        .user-dropdown-enter-active {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-            transition: opacity 200ms, transform 200ms;
-        }
-        
-        .user-dropdown-exit {
-            opacity: 1;
-            transform: scale(1) translateY(0);
-        }
-        
-        .user-dropdown-exit-active {
-            opacity: 0;
-            transform: scale(0.95) translateY(-10px);
-            transition: opacity 200ms, transform 200ms;
+        /* Прибираємо стандартні класи Tailwind, які заважають */
+        #userDropdown.scale-95,
+        #userDropdown.scale-100,
+        #userDropdown.opacity-0,
+        #userDropdown.opacity-100 {
+            all: unset;
         }
         
         /* Mobile menu button fix */
@@ -421,7 +414,7 @@
                 </button>
 
                 <!-- User Dropdown (Hidden by default) -->
-                <div id="userDropdown" class="hidden absolute top-16 right-0 w-64 glass-panel rounded-xl p-4 z-50 transform origin-top-right transition-all duration-200 scale-95 opacity-0">
+                <div id="userDropdown" class="hidden absolute top-16 right-0 w-64 glass-panel rounded-xl p-4 z-50">
                     <div class="flex items-center gap-3 mb-4 pb-4 border-b border-white/10">
                         <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center">
                             <i class="fa-solid fa-wallet text-white"></i>
@@ -441,7 +434,7 @@
                         <button class="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/5 rounded hover:text-white transition-colors">
                             <i class="fa-solid fa-gear mr-2"></i> Settings
                         </button>
-                        <button onclick="App.wallet.disconnect()" class="w-full text-left px-3 py-2 btn-logout rounded transition-colors mt-2">
+                        <button onclick="App.wallet.disconnect()" id="disconnectBtn" class="w-full text-left px-3 py-2 btn-logout rounded transition-colors mt-2">
                             <i class="fa-solid fa-right-from-bracket mr-2"></i> Disconnect Wallet
                         </button>
                     </div>
@@ -1017,10 +1010,14 @@
                 const connectBtn = document.getElementById('connectBtn');
                 const dropdown = document.getElementById('userDropdown');
                 
-                // Ця функція буде викликатися при кліку на кнопку гаманця
-                connectBtn.addEventListener('click', function(e) {
-                    // Тільки перемикати dropdown якщо гаманець підключений
-                    if (App.state.address && !connectBtn.classList.contains('connecting')) {
+                // ПОВНИЙ РЕСЕТ: видаляємо всі старі обробники
+                connectBtn.replaceWith(connectBtn.cloneNode(true));
+                const newConnectBtn = document.getElementById('connectBtn');
+                
+                // Додаємо новий обробник для кнопки
+                newConnectBtn.addEventListener('click', function(e) {
+                    // Якщо гаманець вже підключений - показуємо dropdown
+                    if (App.state.address) {
                         e.preventDefault();
                         e.stopPropagation();
                         
@@ -1028,26 +1025,37 @@
                         
                         if (!isVisible) {
                             // Показуємо dropdown
-                            dropdown.classList.remove('hidden', 'scale-95', 'opacity-0');
+                            dropdown.classList.remove('hidden');
+                            dropdown.style.opacity = '0';
+                            dropdown.style.transform = 'translateY(-10px) scale(0.95)';
+                            
                             setTimeout(() => {
-                                dropdown.classList.add('scale-100', 'opacity-100');
+                                dropdown.style.opacity = '1';
+                                dropdown.style.transform = 'translateY(0) scale(1)';
                             }, 10);
                         } else {
                             // Ховаємо dropdown
-                            dropdown.classList.remove('scale-100', 'opacity-100');
-                            dropdown.classList.add('scale-95', 'opacity-0');
+                            dropdown.style.opacity = '0';
+                            dropdown.style.transform = 'translateY(-10px) scale(0.95)';
                             setTimeout(() => {
                                 dropdown.classList.add('hidden');
                             }, 200);
                         }
+                    } else {
+                        // Якщо гаманець не підключений - відкриваємо модалку
+                        UI.openModal();
                     }
                 });
                 
                 // Закриваємо dropdown при кліку поза ним
                 document.addEventListener('click', function(e) {
-                    if (!dropdown.contains(e.target) && !connectBtn.contains(e.target) && !dropdown.classList.contains('hidden')) {
-                        dropdown.classList.remove('scale-100', 'opacity-100');
-                        dropdown.classList.add('scale-95', 'opacity-0');
+                    if (App.state.address && 
+                        !dropdown.contains(e.target) && 
+                        !newConnectBtn.contains(e.target) && 
+                        !dropdown.classList.contains('hidden')) {
+                        
+                        dropdown.style.opacity = '0';
+                        dropdown.style.transform = 'translateY(-10px) scale(0.95)';
                         setTimeout(() => {
                             dropdown.classList.add('hidden');
                         }, 200);
@@ -1153,24 +1161,32 @@
             },
 
             setConnectedState: (address, balance) => {
-                // Update Header button
+                // Оновлюємо текст кнопки
                 const btn = document.getElementById('connectBtn');
                 const short = `${address.substring(0,6)}...${address.substring(address.length-4)}`;
-                btn.innerHTML = `<div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div> ${short}`;
+                btn.innerHTML = `<div class="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-2"></div> ${short}`;
                 
-                // Remove old click handlers and add dropdown toggle
-                btn.onclick = null;
-                UI.setupDropdownToggle();
-                
+                // Оновлюємо dropdown дані
                 document.getElementById('dropdownAddress').innerText = short;
                 document.getElementById('dropdownBalance').innerText = balance ? `${balance} KRM` : '0 KRM';
 
-                // Update Dashboard
+                // Оновлюємо Dashboard
                 document.getElementById('view-locked').classList.add('hidden');
                 document.getElementById('view-active').classList.remove('hidden');
                 
                 document.getElementById('walletAddrDisp').innerText = address;
                 document.getElementById('balanceVal').innerText = balance || '0.00';
+                
+                // Приховуємо dropdown якщо він відкритий
+                const dropdown = document.getElementById('userDropdown');
+                dropdown.classList.add('hidden');
+                dropdown.style.opacity = '1';
+                dropdown.style.transform = 'translateY(0) scale(1)';
+                
+                // Перевстановлюємо обробники
+                setTimeout(() => {
+                    UI.setupDropdownToggle();
+                }, 100);
             },
 
             updateBalance: (balance) => {
@@ -1185,15 +1201,20 @@
             resetState: () => {
                 const btn = document.getElementById('connectBtn');
                 btn.innerHTML = '<i class="fa-solid fa-wallet"></i> <span>Connect Wallet</span>';
-                // Reset click handler to open modal
-                btn.onclick = UI.openModal;
                 
-                // Close dropdown if open
+                // Приховуємо dropdown
                 const dropdown = document.getElementById('userDropdown');
                 dropdown.classList.add('hidden');
+                dropdown.style.opacity = '1';
+                dropdown.style.transform = 'translateY(0) scale(1)';
                 
                 document.getElementById('view-locked').classList.remove('hidden');
                 document.getElementById('view-active').classList.add('hidden');
+                
+                // Перевстановлюємо обробники
+                setTimeout(() => {
+                    UI.setupDropdownToggle();
+                }, 100);
             },
 
             showNotification: (message, type = 'info') => {
@@ -1294,11 +1315,12 @@
                     // Reset UI
                     UI.resetState();
                     
-                    // Close dropdown
-                    document.getElementById('userDropdown').classList.add('hidden');
-                    
                     // Show disconnect notification
-                    UI.showNotification('Wallet disconnected', 'success');
+                    UI.showNotification('Wallet disconnected successfully', 'success');
+                    
+                    // Закриваємо dropdown
+                    const dropdown = document.getElementById('userDropdown');
+                    dropdown.classList.add('hidden');
                 },
 
                 switchNetwork: async () => {
