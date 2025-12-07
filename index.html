@@ -405,11 +405,20 @@
         /* Адаптивність */
         @media (max-width: 1024px) {
             .desktop-nav {
-                display: none;
+                display: none !important;
+            }
+            
+            .mobile-nav {
+                display: none !important;
             }
             
             .hamburger {
                 display: flex;
+            }
+            
+            /* Приховати соціальні іконки на мобільних */
+            nav .hidden.md\\:block {
+                display: none !important;
             }
             
             .mobile-wallet-info {
@@ -524,7 +533,7 @@
                 </div>
             </div>
 
-            <!-- Десктопна навігація -->
+            <!-- Десктопна навігація - буде прихована на мобільних -->
             <div class="desktop-nav flex items-center gap-12">
                 <button onclick="App.router.navigate('home')" id="nav-home" class="nav-link text-sm font-bold uppercase tracking-widest text-white border-b-2 border-green-500 pb-1">Testnet</button>
                 <button onclick="App.router.navigate('vision')" id="nav-vision" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white transition-colors pb-1 border-b-2 border-transparent hover:border-green-500/50">Vision</button>
