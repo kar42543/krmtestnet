@@ -79,7 +79,6 @@
     </script>
 
     <style>
-        /* --- GLOBAL RESET & TYPOGRAPHY --- */
         :root {
             --glass-bg: rgba(10, 10, 10, 0.6);
             --glass-border: rgba(255, 255, 255, 0.08);
@@ -93,7 +92,6 @@
             cursor: default;
         }
 
-        /* Custom Scrollbar */
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: #020402; }
         ::-webkit-scrollbar-thumb { background: #15803d; border-radius: 4px; }
@@ -101,7 +99,6 @@
 
         ::selection { background: rgba(74, 222, 128, 0.2); color: #4ade80; }
 
-        /* --- BACKGROUND FX --- */
         #webgl-canvas {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -10; opacity: 0.4; pointer-events: none;
         }
@@ -115,7 +112,6 @@
             mask-image: radial-gradient(circle at center, black 30%, transparent 80%);
         }
 
-        /* Water drops animation */
         .water-drop {
             position: absolute;
             width: 2px;
@@ -125,7 +121,6 @@
             pointer-events: none;
         }
 
-        /* Water wave effect */
         .water-wave {
             position: fixed;
             bottom: 0;
@@ -142,7 +137,6 @@
             pointer-events: none;
         }
 
-        /* --- COMPONENTS --- */
         .glass-panel {
             background: rgba(15, 15, 15, 0.6);
             backdrop-filter: blur(16px);
@@ -220,7 +214,6 @@
             background-clip: text;
         }
 
-        /* --- ANIMATIONS --- */
         .fade-in-up { animation: fadeInUp 0.8s ease-out forwards; opacity: 0; transform: translateY(30px); }
         .delay-100 { animation-delay: 0.1s; }
         .delay-200 { animation-delay: 0.2s; }
@@ -230,7 +223,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Gyro Animation (Vision Page) */
         .gyro-wrapper { perspective: 1000px; width: 300px; height: 300px; position: relative; }
         .gyro { position: absolute; top: 50%; left: 50%; transform-style: preserve-3d; }
         .gyro-ring {
@@ -246,36 +238,28 @@
         @keyframes rotate2 { 0% { transform: rotateX(0) rotateY(0); } 100% { transform: rotateX(-360deg) rotateY(180deg); } }
         @keyframes rotate3 { 0% { transform: rotateX(0) rotateY(0); } 100% { transform: rotateX(180deg) rotateY(-360deg); } }
 
-        /* Wallet Option Hover Effect - Custom colors */
         .wallet-option img { filter: grayscale(100%); transition: 0.3s; }
         .wallet-option:hover img { filter: grayscale(0%); transform: scale(1.1); }
         
-        /* MetaMask - Orange */
         .wallet-option.metamask:hover { border-color: #F6851B; background: rgba(246, 133, 27, 0.05); }
         .wallet-option.metamask:hover .wallet-title { color: #F6851B; }
         
-        /* Trust Wallet - Green */
         .wallet-option.trust:hover { border-color: #3375BB; background: rgba(51, 117, 187, 0.05); }
         .wallet-option.trust:hover .wallet-title { color: #3375BB; }
         
-        /* WalletConnect - Purple */
         .wallet-option.walletconnect:hover { border-color: #3B99FC; background: rgba(59, 153, 252, 0.05); }
         .wallet-option.walletconnect:hover .wallet-title { color: #3B99FC; }
 
-        /* Page Switching Logic */
         .page-content { display: none; opacity: 0; transition: opacity 0.5s ease; }
         .page-content.active { display: block; opacity: 1; }
 
-        /* Stats Counter */
         .stat-value { font-variant-numeric: tabular-nums; }
 
-        /* Footer Links */
         .footer-link { color: #737373; transition: 0.3s; text-decoration: none; position: relative; }
         .footer-link:hover { color: #4ade80; }
         .footer-link::after { content: ''; position: absolute; width: 0; height: 1px; bottom: -2px; left: 0; background: #4ade80; transition: 0.3s; }
         .footer-link:hover::after { width: 100%; }
 
-        /* Task Locked State */
         .task-locked {
             pointer-events: none;
             opacity: 0.6;
@@ -283,7 +267,7 @@
             position: relative;
         }
         .task-locked::after {
-            content: '\f023'; /* Lock Icon */
+            content: '\f023';
             font-family: "Font Awesome 6 Free";
             font-weight: 900;
             position: absolute;
@@ -297,7 +281,6 @@
             backdrop-filter: blur(5px);
         }
 
-        /* FAQ Animation */
         .faq-content {
             max-height: 0;
             opacity: 0;
@@ -312,7 +295,6 @@
             padding-bottom: 1rem;
         }
         
-        /* Wallet status indicators */
         .wallet-status {
             width: 8px;
             height: 8px;
@@ -320,7 +302,6 @@
             transition: all 0.3s ease;
         }
         
-        /* User dropdown animation */
         #userDropdown {
             transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             transform-origin: top right;
@@ -328,7 +309,6 @@
             border: 1px solid rgba(74, 222, 128, 0.1);
         }
         
-        /* Прибираємо стандартні класи Tailwind, які заважають */
         #userDropdown.scale-95,
         #userDropdown.scale-100,
         #userDropdown.opacity-0,
@@ -336,21 +316,6 @@
             all: unset;
         }
         
-        /* Mobile menu button fix */
-        .mobile-menu-btn {
-            display: block !important;
-            color: white;
-            font-size: 1.5rem;
-            padding: 0.5rem;
-            z-index: 100;
-        }
-        
-        /* Ensure mobile menu is visible */
-        #mobile-menu {
-            z-index: 9999;
-        }
-        
-        /* Mobile menu backdrop */
         .mobile-menu-backdrop {
             position: fixed;
             inset: 0;
@@ -362,27 +327,20 @@
 </head>
 <body class="antialiased selection:bg-green-500 selection:text-white">
 
-    <!-- --- BACKGROUND LAYERS --- -->
     <div class="grid-overlay"></div>
     <canvas id="webgl-canvas"></canvas>
     
-    <!-- Water drops -->
     <div id="water-drops"></div>
     
-    <!-- Water wave -->
     <div class="water-wave animate-wave"></div>
     
-    <!-- Glow Orb (Fixed center) -->
     <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-green-500/5 rounded-full blur-[120px] -z-5 pointer-events-none animate-pulse-slow"></div>
 
-    <!-- --- NAVIGATION --- -->
     <nav class="fixed top-0 w-full z-50 border-b border-white/5 bg-black/40 backdrop-blur-xl transition-all duration-300" id="navbar">
         <div class="max-w-[1600px] mx-auto px-6 h-24 flex items-center justify-between">
             
-            <!-- LOGO -->
             <div class="flex items-center gap-4 cursor-pointer group" onclick="App.router.navigate('home')">
                 <div class="relative w-10 h-10 flex items-center justify-center">
-                    <!-- SVG Logo -->
                     <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_15px_rgba(74,222,128,0.6)] transition-transform duration-500 group-hover:rotate-180">
                         <path d="M20 10 V90" stroke="#4ade80" stroke-width="8" stroke-linecap="round"/>
                         <path d="M80 10 L20 50 L80 90" stroke="#4ade80" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
@@ -397,18 +355,15 @@
                 </div>
             </div>
 
-            <!-- MENU (Desktop) -->
-            <div class="hidden lg:flex items-center gap-12">
+            <div class="flex items-center gap-12">
                 <button onclick="App.router.navigate('home')" id="nav-home" class="nav-link text-sm font-bold uppercase tracking-widest text-white border-b-2 border-green-500 pb-1">Testnet</button>
                 <button onclick="App.router.navigate('vision')" id="nav-vision" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white transition-colors pb-1 border-b-2 border-transparent hover:border-green-500/50">Vision</button>
                 <button onclick="App.router.navigate('ecosystem')" id="nav-ecosystem" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white transition-colors pb-1 border-b-2 border-transparent hover:border-green-500/50">Ecosystem</button>
                 <button onclick="App.router.navigate('support')" id="nav-support" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white transition-colors pb-1 border-b-2 border-transparent hover:border-green-500/50">Support</button>
             </div>
 
-            <!-- CONNECT BUTTON -->
             <div class="flex items-center gap-4 relative">
-                <!-- Twitter/X Logo -->
-                <a href="https://x.com/karim7652117665" target="_blank" class="text-gray-400 hover:text-white transition-colors hidden lg:block">
+                <a href="https://x.com/karim7652117665" target="_blank" class="text-gray-400 hover:text-white transition-colors">
                     <i class="fa-brands fa-x-twitter text-xl"></i>
                 </a>
 
@@ -416,7 +371,6 @@
                     <i class="fa-solid fa-wallet"></i> <span>Connect Wallet</span>
                 </button>
 
-                <!-- User Dropdown (Hidden by default) -->
                 <div id="userDropdown" class="hidden absolute top-16 right-0 w-64 glass-panel rounded-xl p-4 z-50">
                     <div class="flex items-center gap-3 mb-4 pb-4 border-b border-white/10">
                         <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center">
@@ -442,35 +396,10 @@
                         </button>
                     </div>
                 </div>
-
-                <!-- Mobile menu button - ЗАВЖДИ ВИДИМИЙ НА МОБІЛЬНИХ -->
-                <button onclick="App.ui.toggleMobile()" class="mobile-menu-btn lg:hidden">
-                    <i class="fa-solid fa-bars"></i>
-                </button>
             </div>
         </div>
     </nav>
 
-    <!-- MOBILE MENU OVERLAY -->
-    <div id="mobile-menu" class="mobile-menu-backdrop hidden">
-        <div class="fixed inset-0 z-[60] bg-black/95 backdrop-blur-xl transform translate-x-full transition-transform duration-300 flex flex-col items-center justify-center space-y-8">
-            <button onclick="App.ui.toggleMobile()" class="absolute top-8 right-8 text-gray-400 hover:text-white text-4xl">
-                <i class="fa-solid fa-xmark"></i>
-            </button>
-            <div class="flex flex-col items-center gap-8">
-                <a onclick="App.router.navigate('home'); App.ui.toggleMobile()" class="text-3xl font-bold text-white uppercase tracking-widest hover:text-green-400 transition-colors">Testnet</a>
-                <a onclick="App.router.navigate('vision'); App.ui.toggleMobile()" class="text-3xl font-bold text-white uppercase tracking-widest hover:text-green-400 transition-colors">Vision</a>
-                <a onclick="App.router.navigate('ecosystem'); App.ui.toggleMobile()" class="text-3xl font-bold text-white uppercase tracking-widest hover:text-green-400 transition-colors">Ecosystem</a>
-                <a onclick="App.router.navigate('support'); App.ui.toggleMobile()" class="text-3xl font-bold text-white uppercase tracking-widest hover:text-green-400 transition-colors">Support</a>
-                <!-- Додаємо кнопку Connect Wallet для мобільної версії -->
-                <button onclick="App.ui.openModal(); App.ui.toggleMobile()" class="btn-primary px-8 py-3 rounded-xl text-sm font-bold uppercase tracking-widest flex items-center gap-2 shadow-lg mt-8">
-                    <i class="fa-solid fa-wallet"></i> <span>Connect Wallet</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- WALLET CONNECT MODAL -->
     <div id="connect-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="App.ui.closeModal()"></div>
         <div class="relative glass-panel w-full max-w-md rounded-2xl p-8 transform scale-95 opacity-0 transition-all duration-300" id="modal-content">
@@ -482,7 +411,6 @@
             <p class="text-gray-400 text-sm mb-6">Select your wallet to authenticate with the KarChain Network.</p>
 
             <div class="space-y-3">
-                <!-- MetaMask -->
                 <div onclick="App.wallet.connect('MetaMask')" class="wallet-option metamask group border border-white/10 p-4 rounded-xl bg-white/5 cursor-pointer transition-all flex items-center justify-between">
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-[#F6851B]/10 transition-colors">
@@ -496,11 +424,9 @@
                     <div class="wallet-status bg-green-500 shadow-[0_0_10px_#4ade80] group-hover:bg-[#F6851B] group-hover:shadow-[0_0_10px_#F6851B]"></div>
                 </div>
 
-                <!-- Trust Wallet -->
                 <div onclick="App.wallet.connect('Trust')" class="wallet-option trust group border border-white/10 p-4 rounded-xl bg-white/5 cursor-pointer transition-all flex items-center justify-between">
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-[#3375BB]/10 transition-colors">
-                            <!-- Shield icon for Trust Wallet -->
                             <i class="fa-solid fa-shield text-2xl text-gray-400 group-hover:text-[#3375BB] transition-colors"></i>
                         </div>
                         <div>
@@ -511,7 +437,6 @@
                     <div class="wallet-status bg-gray-500 group-hover:bg-[#3375BB] group-hover:shadow-[0_0_10px_#3375BB]"></div>
                 </div>
 
-                <!-- WalletConnect -->
                 <div onclick="App.wallet.connect('WC')" class="wallet-option walletconnect group border border-white/10 p-4 rounded-xl bg-white/5 cursor-pointer transition-all flex items-center justify-between">
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-[#3B99FC]/10 transition-colors">
@@ -527,18 +452,13 @@
             </div>
 
             <div class="mt-8 pt-6 border-t border-white/10 text-center">
-                <p class="text-[10px] text-gray-600 uppercase tracking-widest">By connecting, you agree to our <a href="#" class="text-green-500 hover:underline">Terms</a> & <a href="#" class="text-green-500 hover:underline">Privacy Policy</a></p>
+                <p class="text-[10px] text-gray-600 uppercase tracking-widest">By connecting, you agree to our <a href="#" class="text-green-500 hover:underline">Terms</a> & <a href="#" class="text-green500 hover:underline">Privacy Policy</a></p>
             </div>
         </div>
     </div>
 
-
-    <!-- === PAGES === -->
-    
-    <!-- 1. HOME / DASHBOARD -->
     <div id="page-home" class="page-content active pt-32 pb-20 px-4">
         
-        <!-- Hero -->
         <div class="max-w-7xl mx-auto text-center mb-24 relative z-10 fade-in-up">
             <h1 class="text-4xl md:text-7xl font-bold text-white mb-6 leading-tight">
                 THE ARCHITECTURE OF <br> <span class="text-gradient">DIGITAL TRUST</span>
@@ -554,7 +474,6 @@
                 </button>
             </div>
 
-            <!-- Network Stats -->
             <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mt-16 border-t border-white/10 pt-8">
                 <div>
                     <p class="text-3xl font-bold text-white stat-value">12,492</p>
@@ -575,13 +494,11 @@
             </div>
         </div>
 
-        <!-- Dashboard UI -->
         <div id="dashboard-ui" class="max-w-6xl mx-auto fade-in-up delay-200">
             <div class="glass-panel rounded-3xl p-1 relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent opacity-50"></div>
                 <div class="bg-black/80 backdrop-blur-xl rounded-[20px] p-8 md:p-12">
                     
-                    <!-- State: Locked -->
                     <div id="view-locked" class="text-center py-20">
                         <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/10 shadow-lg">
                             <i class="fa-solid fa-lock text-3xl text-gray-600"></i>
@@ -593,7 +510,6 @@
                         </button>
                     </div>
 
-                    <!-- State: Active -->
                     <div id="view-active" class="hidden">
                         <div class="flex flex-col md:flex-row justify-between items-end border-b border-white/10 pb-8 mb-8">
                             <div>
@@ -622,7 +538,6 @@
                         <h3 class="text-xl font-bold text-white mb-6">Incentivized Tasks</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             
-                            <!-- Task 1 -->
                             <div class="glass-card p-8 rounded-2xl border border-white/10 relative overflow-hidden group">
                                 <div class="absolute top-0 right-0 bg-green-500/20 text-green-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Step 1</div>
                                 <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-6 text-2xl text-white group-hover:text-green-400 transition-colors">
@@ -636,7 +551,6 @@
                                 </div>
                             </div>
 
-                            <!-- Task 2 -->
                             <div id="card-task-2" class="glass-card p-8 rounded-2xl border border-white/10 task-locked transition-all duration-500">
                                 <div class="absolute top-0 right-0 bg-blue-500/20 text-blue-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Step 2</div>
                                 <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-6 text-2xl text-white group-hover:text-blue-400 transition-colors">
@@ -647,7 +561,6 @@
                                 <button onclick="App.tasks.verify(2)" class="w-full py-3 bg-blue-600/20 border border-blue-500/30 hover:bg-blue-600 text-blue-400 hover:text-white rounded-lg text-xs font-bold transition-colors">CHECK STATUS</button>
                             </div>
 
-                            <!-- Task 3 -->
                             <div id="card-task-3" class="glass-card p-8 rounded-2xl border border-white/10 task-locked transition-all duration-500">
                                 <div class="absolute top-0 right-0 bg-purple-500/20 text-purple-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Final</div>
                                 <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-6 text-2xl text-white group-hover:text-purple-400 transition-colors">
@@ -671,8 +584,6 @@
         </div>
     </div>
 
-
-    <!-- 2. VISION PAGE -->
     <div id="page-vision" class="page-content pt-32 pb-20 px-4 max-w-7xl mx-auto">
         <div class="text-center mb-24 fade-in-up">
             <h2 class="text-5xl md:text-7xl font-bold text-white mb-6">THE <span class="text-green-500">MANIFESTO</span></h2>
@@ -702,7 +613,6 @@
                 </div>
             </div>
             
-            <!-- Gyro Animation -->
             <div class="flex justify-center relative h-[500px] items-center">
                 <div class="absolute inset-0 bg-green-500/10 blur-[100px] rounded-full"></div>
                 <div class="gyro-wrapper">
@@ -715,11 +625,9 @@
             </div>
         </div>
 
-        <!-- Roadmap -->
         <div class="glass-panel p-12 rounded-3xl border-t-4 border-green-500 fade-in-up delay-200">
             <h3 class="text-3xl text-white font-bold mb-12 text-center font-display">Strategic Roadmap</h3>
             <div class="grid md:grid-cols-4 gap-8 relative">
-                <!-- Connecting Line -->
                 <div class="hidden md:block absolute top-12 left-0 w-full h-[2px] bg-white/10 -z-1"></div>
                 
                 <div class="relative">
@@ -754,8 +662,6 @@
         </div>
     </div>
 
-
-    <!-- 3. ECOSYSTEM PAGE -->
     <div id="page-ecosystem" class="page-content pt-32 pb-20 px-4 max-w-7xl mx-auto">
         <div class="text-center mb-16 fade-in-up">
             <h2 class="text-5xl font-bold text-white mb-6">ECOSYSTEM</h2>
@@ -790,7 +696,6 @@
                 <a href="https://docs.karchain.network/ecosystem/karsafe" target="_blank" class="text-[10px] bg-gray-800 text-gray-400 px-2 py-1 rounded uppercase hover:bg-gray-700 transition-colors inline-block">Coming Soon ↗</a>
             </div>
 
-            <!-- Додаємо ще три картки для повноти -->
             <div class="glass-card p-8 rounded-xl group cursor-pointer">
                 <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mb-6 text-2xl text-blue-400 group-hover:scale-110 transition-transform">
                     <i class="fa-solid fa-bridge"></i>
@@ -819,7 +724,6 @@
             </div>
         </div>
 
-        <!-- Додаємо секцію з партнерами -->
         <div class="mt-24 fade-in-up delay-200">
             <h3 class="text-2xl font-bold text-white mb-8 text-center">Strategic Partners</h3>
             <div class="glass-panel p-8 rounded-2xl">
@@ -857,17 +761,13 @@
         </div>
     </div>
 
-
-    <!-- 4. SUPPORT PAGE -->
     <div id="page-support" class="page-content pt-32 pb-20 px-4 max-w-5xl mx-auto">
         <div class="text-center mb-20 fade-in-up">
             <h2 class="text-5xl font-bold text-white mb-6">COMMUNITY HUB</h2>
             <p class="text-gray-400 text-lg">Get support, report bugs, and connect with developers.</p>
         </div>
 
-        <!-- Support Options -->
         <div class="grid md:grid-cols-2 gap-8 mb-16 fade-in-up delay-100">
-            <!-- Telegram CTA -->
             <a href="https://t.me/tgkarim1" target="_blank" class="glass-panel p-8 rounded-3xl block group border-t border-blue-500/20 hover:bg-blue-900/10 transition-all duration-300">
                 <div class="flex items-center gap-6 mb-4">
                     <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-3xl text-white shadow-[0_0_20px_#3b82f6] group-hover:scale-110 transition-transform">
@@ -884,7 +784,6 @@
                 </div>
             </a>
 
-            <!-- Email Support -->
             <a href="mailto:support@karchai.io" class="glass-panel p-8 rounded-3xl block group border-t border-green-500/20 hover:bg-green-900/10 transition-all duration-300">
                 <div class="flex items-center gap-6 mb-4">
                     <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-3xl text-white shadow-[0_0_20px_#22c55e] group-hover:scale-110 transition-transform">
@@ -902,7 +801,6 @@
             </a>
         </div>
 
-        <!-- FAQ -->
         <div class="space-y-4 fade-in-up delay-200">
             <h3 class="text-2xl font-bold text-white mb-6 pl-4 border-l-4 border-green-500">Frequently Asked Questions</h3>
             
@@ -1000,7 +898,6 @@
         </div>
     </div>
 
-    <!-- Footer -->
     <footer class="border-t border-white/5 bg-black py-16 mt-20">
         <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-12">
             <div class="col-span-1 md:col-span-2">
@@ -1043,9 +940,7 @@
         </div>
     </footer>
 
-    <!-- --- APPLICATION LOGIC --- -->
     <script>
-        // --- 1. CONFIGURATION & STORAGE ---
         const Config = {
             chain: {
                 id: 1337,
@@ -1062,11 +957,9 @@
                     1337: 'https://relationless-improperly-nettie.ngrok-free.dev'
                 }
             },
-            // Test KRM Token Contract (заміни на реальну адресу)
             tokenAddress: '0x0000000000000000000000000000000000000000'
         };
 
-        // Storage keys
         const STORAGE_KEYS = {
             WALLET_CONNECTED: 'karchain_wallet_connected',
             WALLET_ADDRESS: 'karchain_wallet_address',
@@ -1075,7 +968,6 @@
             WALLET_TYPE: 'karchain_wallet_type'
         };
 
-        // --- 2. WALLET DETECTION ---
         const WalletDetection = {
             detectWallet: () => {
                 const ethereum = window.ethereum;
@@ -1084,32 +976,25 @@
                     return null;
                 }
                 
-                // Спробуємо визначити тип гаманця
                 if (ethereum.isMetaMask) {
-                    // MetaMask має унікальні властивості
                     if (ethereum.isMetaMask && !ethereum.isBraveWallet && !ethereum.isTrust) {
                         return 'MetaMask';
                     }
                 }
                 
-                // Trust Wallet використовує window.ethereum, але має унікальні властивості
                 if (ethereum.isTrust) {
                     return 'Trust';
                 }
                 
-                // Brave Wallet
                 if (ethereum.isBraveWallet) {
                     return 'Brave';
                 }
                 
-                // Coinbase Wallet
                 if (ethereum.isCoinbaseWallet) {
                     return 'Coinbase';
                 }
                 
-                // За замовчуванням, якщо це ethereum, але не визначили тип
                 if (ethereum && ethereum.isMetaMask === undefined) {
-                    // Можливо Trust Wallet або інший
                     return 'UnknownEthereum';
                 }
                 
@@ -1139,30 +1024,21 @@
                         }
                         break;
                     case 'WC':
-                        return null; // WalletConnect має свій провайдер
+                        return null;
                 }
                 return null;
             }
         };
 
-        // --- 3. UI CONTROLLER ---
         const UI = {
             init: () => {
-                // Init Particles
                 UI.initParticles();
-                // Init Water Drops
                 UI.initWaterDrops();
-                // Init FAQ
                 UI.initFAQ();
-                // Check for saved wallet connection
                 UI.checkSavedConnection();
-                // Setup wallet button handlers
                 UI.setupWalletButton();
-                // Show Home
                 UI.showPage('home');
-                // Setup dropdown toggle
                 UI.setupDropdownToggle();
-                // Setup task buttons
                 UI.setupTaskButtons();
             },
 
@@ -1291,7 +1167,6 @@
             },
 
             setupTaskButtons: () => {
-                // Task 1 verification button
                 const verifyBtn1 = document.getElementById('verify-1');
                 if (verifyBtn1) {
                     verifyBtn1.addEventListener('click', () => {
@@ -1299,7 +1174,6 @@
                     });
                 }
 
-                // Task 2 button
                 const task2Card = document.getElementById('card-task-2');
                 if (task2Card) {
                     task2Card.addEventListener('click', () => {
@@ -1309,12 +1183,10 @@
                     });
                 }
 
-                // Task 3 form button
                 const formBtn = document.getElementById('btn-form');
                 if (formBtn) {
                     formBtn.addEventListener('click', () => {
                         if (!formBtn.classList.contains('pointer-events-none')) {
-                            // Form already has link
                         }
                     });
                 }
@@ -1370,21 +1242,6 @@
 
                 window.scrollTo(0,0);
                 document.getElementById('orb-bg').style.display = (id === 'home') ? 'block' : 'none';
-            },
-
-            toggleMobile: () => {
-                const menu = document.getElementById('mobile-menu');
-                const isOpen = menu.style.transform === 'translateX(0%)' || !menu.classList.contains('hidden');
-                
-                if (isOpen) {
-                    menu.classList.add('hidden');
-                    menu.style.transform = 'translateX(100%)';
-                } else {
-                    menu.classList.remove('hidden');
-                    setTimeout(() => {
-                        menu.style.transform = 'translateX(0%)';
-                    }, 10);
-                }
             },
 
             openModal: () => {
@@ -1494,7 +1351,6 @@
                 progressBar.style.width = `${percentage}%`;
                 progressText.innerText = `${completedTasks}/3 Tasks`;
                 
-                // Unlock next tasks
                 if (completedTasks >= 1) {
                     document.getElementById('card-task-2').classList.remove('task-locked');
                 }
@@ -1505,7 +1361,6 @@
             }
         };
 
-        // --- 4. APP CORE (Wallet & Tasks) ---
         const App = {
             ui: UI,
             router: { navigate: UI.showPage },
@@ -1543,13 +1398,11 @@
                                     throw new Error('Trust Wallet not detected! Please install Trust Wallet or enable it.');
                                 }
                                 
-                                // Trust Wallet використовує window.ethereum
                                 provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
                                 accounts = await provider.send("eth_requestAccounts", []);
                                 break;
                                 
                             case 'WC':
-                                // WalletConnect
                                 try {
                                     const WalletConnectProvider = window.WalletConnectProvider.default;
                                     const wcProvider = new WalletConnectProvider({
@@ -1584,17 +1437,13 @@
 
                         UI.closeModal();
                         
-                        // Switch to KarChain network
                         await App.wallet.switchNetwork();
                         
-                        // Load token balance
                         await App.wallet.loadTokenBalance();
                         
-                        // Save connection
                         UI.saveConnection(App.state.address, type);
                         UI.setConnectedState(App.state.address, App.state.krmBalance);
                         
-                        // Setup event listeners
                         App.wallet.setupEventListeners();
                         
                         connectBtn.classList.remove('connecting');
@@ -1631,7 +1480,7 @@
                 },
 
                 switchNetwork: async () => {
-                    if (App.state.walletType === 'WC') return; // WalletConnect handles network automatically
+                    if (App.state.walletType === 'WC') return;
                     
                     try {
                         await window.ethereum.request({
@@ -1667,11 +1516,9 @@
                     try {
                         if (!App.state.provider || !App.state.address) return;
                         
-                        // Get native balance
                         const ethBalance = await App.state.provider.getBalance(App.state.address);
                         const ethBalanceFormatted = ethers.utils.formatEther(ethBalance);
                         
-                        // For testnet, use ETH balance as KRM balance
                         App.state.krmBalance = parseFloat(ethBalanceFormatted).toFixed(4);
                         UI.updateBalance(App.state.krmBalance);
                         
@@ -1735,7 +1582,6 @@
                             let provider;
                             
                             if (walletType === 'MetaMask' || walletType === 'Trust') {
-                                // Перевіримо чи встановлений відповідний гаманець
                                 if (walletType === 'MetaMask' && !WalletDetection.isMetaMaskInstalled()) {
                                     return false;
                                 }
@@ -1783,13 +1629,11 @@
                         btn.classList.replace('bg-green-600', 'bg-green-900/50');
                         btn.classList.add('text-green-400');
                         
-                        // Simulate task completion
-                        const completedTasks = taskId; // In real app, get from localStorage
+                        const completedTasks = taskId;
                         UI.updateTaskProgress(completedTasks);
                         
                         UI.showNotification(`Task ${taskId} completed!`, 'success');
                         
-                        // For task 1, simulate receiving tokens
                         if (taskId === 1) {
                             setTimeout(() => {
                                 App.state.krmBalance = '100.00';
@@ -1810,11 +1654,9 @@
                 },
                 
                 start: (id) => {
-                    // Open X in new tab
                     window.open('https://x.com/karim7652117665', '_blank');
                     UI.showNotification('Opening X (Twitter)... Follow our account!', 'info');
                     
-                    // Enable verify button after delay
                     setTimeout(() => {
                         const verifyBtn = document.getElementById(`verify-${id}`);
                         if (verifyBtn) {
@@ -1829,10 +1671,8 @@
             }
         };
 
-        // Expose to global scope
         window.App = App;
 
-        // Initialize on load
         window.addEventListener('load', async () => {
             await App.ui.init();
             
