@@ -323,6 +323,15 @@
             backdrop-filter: blur(20px);
             z-index: 9998;
         }
+
+        .notification {
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
     </style>
 </head>
 <body class="antialiased selection:bg-green-500 selection:text-white">
@@ -407,7 +416,7 @@
             
             <p class="text-gray-400 text-sm mb-6">Select your wallet to authenticate with the KarChain Network.</p>
 
-            <div class="space-y-3">
+            <div class="space-y-3" id="wallet-options">
                 <div onclick="App.wallet.connect('MetaMask')" class="wallet-option metamask group border border-white/10 p-4 rounded-xl bg-white/5 cursor-pointer transition-all flex items-center justify-between">
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-[#F6851B]/10 transition-colors">
@@ -945,19 +954,19 @@
                 id: 1337,
                 hex: '0x539',
                 name: 'KarChain Testnet',
-                rpc: 'http://127.0.0.1:4040', // Ваша локальна мережа
+                rpc: 'http://127.0.0.1:4040',
                 symbol: 'KRM',
                 decimals: 18,
                 explorer: 'http://127.0.0.1:4040'
             },
             walletConnect: {
-                projectId: 'e6d3c5f8b2a4d7c9e1f0a3b5c7d9e2f4', // Для тесту
+                projectId: 'e6d3c5f8b2a4d7c9e1f0a3b5c7d9e2f4',
                 rpc: {
                     1337: 'http://127.0.0.1:4040'
                 }
             },
-            tokenAddress: null, // Якщо маєте ERC20 контракт
-            faucetAddress: null // Якщо маєте faucet контракт
+            tokenAddress: null,
+            faucetAddress: null
         };
 
         const STORAGE_KEYS = {
@@ -970,45 +979,66 @@
 
         const WalletDetection = {
             detectWallet: () => {
-                const ethereum = window.ethereum;
-                
-                if (!ethereum) {
-                    return null;
-                }
-                
-                if (ethereum.isMetaMask) {
-                    if (ethereum.isMetaMask && !ethereum.isBraveWallet && !ethereum.isTrust) {
+                if (typeof window.ethereum !== 'undefined') {
+                    const ethereum = window.ethereum;
+                    
+                    if (ethereum.isMetaMask) {
                         return 'MetaMask';
                     }
+                    if (ethereum.isTrust) {
+                        return 'Trust';
+                    }
+                    if (ethereum.isBraveWallet) {
+                        return 'Brave';
+                    }
+                    if (ethereum.isCoinbaseWallet) {
+                        return 'Coinbase';
+                    }
+                    
+                    return 'Generic';
                 }
                 
-                if (ethereum.isTrust) {
-                    return 'Trust';
-                }
-                
-                if (ethereum.isBraveWallet) {
-                    return 'Brave';
-                }
-                
-                if (ethereum.isCoinbaseWallet) {
-                    return 'Coinbase';
-                }
-                
-                if (ethereum && ethereum.isMetaMask === undefined) {
-                    return 'UnknownEthereum';
+                if (typeof WalletConnectProvider !== 'undefined') {
+                    return 'WC';
                 }
                 
                 return null;
             },
             
             isMetaMaskInstalled: () => {
-                const ethereum = window.ethereum;
-                return ethereum && ethereum.isMetaMask && !ethereum.isTrust && !ethereum.isBraveWallet;
+                const { ethereum } = window;
+                
+                if (ethereum && ethereum.isMetaMask) {
+                    return true;
+                }
+                
+                if (window.web3 && window.web3.currentProvider && window.web3.currentProvider.isMetaMask) {
+                    return true;
+                }
+                
+                const userAgent = window.navigator.userAgent;
+                if (userAgent.includes('MetaMask')) {
+                    return true;
+                }
+                
+                return false;
             },
             
             isTrustWalletInstalled: () => {
-                const ethereum = window.ethereum;
-                return ethereum && (ethereum.isTrust || window.trustwallet);
+                const { ethereum } = window;
+                return ethereum && (ethereum.isTrust || ethereum.isTrustWallet);
+            },
+            
+            getWalletProvider: (type) => {
+                if (typeof window.ethereum !== 'undefined') {
+                    return window.ethereum;
+                }
+                
+                if (window.web3 && window.web3.currentProvider) {
+                    return window.web3.currentProvider;
+                }
+                
+                return null;
             }
         };
 
@@ -1022,6 +1052,9 @@
                 UI.showPage('home');
                 UI.setupDropdownToggle();
                 UI.setupTaskButtons();
+                
+                // Check MetaMask on load
+                UI.checkMetaMaskOnLoad();
             },
 
             initParticles: () => {
@@ -1076,6 +1109,37 @@
                 }
             },
 
+            checkMetaMaskOnLoad: () => {
+                const hasMetaMask = typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask;
+                
+                if (!hasMetaMask) {
+                    // Add install button to modal
+                    setTimeout(() => {
+                        const walletOptions = document.getElementById('wallet-options');
+                        if (walletOptions) {
+                            const installMetaMaskBtn = document.createElement('div');
+                            installMetaMaskBtn.className = 'wallet-option group border border-white/10 p-4 rounded-xl bg-white/5 cursor-pointer transition-all flex items-center justify-between';
+                            installMetaMaskBtn.innerHTML = `
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-[#F6851B]/10 transition-colors">
+                                        <i class="fa-solid fa-download text-2xl text-gray-400 group-hover:text-[#F6851B]"></i>
+                                    </div>
+                                    <div>
+                                        <div class="wallet-title font-bold text-white text-lg group-hover:text-[#F6851B] transition-colors">Install MetaMask</div>
+                                        <div class="text-xs text-gray-500 uppercase font-mono">Browser Extension</div>
+                                    </div>
+                                </div>
+                            `;
+                            installMetaMaskBtn.onclick = () => {
+                                window.open('https://metamask.io/download/', '_blank');
+                                UI.showNotification('Opening MetaMask download page...', 'info');
+                            };
+                            walletOptions.appendChild(installMetaMaskBtn);
+                        }
+                    }, 500);
+                }
+            },
+
             initFAQ: () => {
                 document.querySelectorAll('.faq-toggle').forEach(toggle => {
                     toggle.addEventListener('click', function() {
@@ -1102,6 +1166,7 @@
                 const connectBtn = document.getElementById('connectBtn');
                 const dropdown = document.getElementById('userDropdown');
                 
+                // Clone and replace to ensure fresh event listeners
                 connectBtn.replaceWith(connectBtn.cloneNode(true));
                 const newConnectBtn = document.getElementById('connectBtn');
                 
@@ -1296,8 +1361,11 @@
             },
 
             showNotification: (message, type = 'info') => {
+                // Remove existing notifications
+                document.querySelectorAll('.notification').forEach(n => n.remove());
+                
                 const notification = document.createElement('div');
-                notification.className = `fixed top-4 right-4 glass-panel px-6 py-4 rounded-xl z-[1000] transform transition-all duration-300 ${
+                notification.className = `notification fixed top-4 right-4 glass-panel px-6 py-4 rounded-xl z-[1000] transform transition-all duration-300 ${
                     type === 'success' ? 'border-green-500/30 bg-green-900/20' :
                     type === 'error' ? 'border-red-500/30 bg-red-900/20' :
                     'border-blue-500/30 bg-blue-900/20'
@@ -1319,7 +1387,9 @@
                     notification.style.opacity = '0';
                     notification.style.transform = 'translateX(100%)';
                     setTimeout(() => {
-                        document.body.removeChild(notification);
+                        if (notification.parentNode) {
+                            document.body.removeChild(notification);
+                        }
                     }, 300);
                 }, 3000);
             },
@@ -1365,17 +1435,29 @@
                         
                         switch(type) {
                             case 'MetaMask':
-                                if (!WalletDetection.isMetaMaskInstalled()) {
-                                    throw new Error('MetaMask не встановлено! Будь ласка, встановіть MetaMask спочатку.');
+                                // Check if ethereum is available
+                                if (typeof window.ethereum === 'undefined') {
+                                    // Try to open MetaMask download page
+                                    window.open('https://metamask.io/download/', '_blank');
+                                    throw new Error('MetaMask not found. Please install MetaMask and refresh the page.');
                                 }
                                 
                                 provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
-                                accounts = await provider.send("eth_requestAccounts", []);
+                                
+                                try {
+                                    accounts = await provider.send("eth_requestAccounts", []);
+                                } catch (requestError) {
+                                    if (requestError.code === 4001) {
+                                        throw new Error('Please approve the connection request in your wallet.');
+                                    }
+                                    throw requestError;
+                                }
                                 break;
                                 
                             case 'Trust':
-                                if (!WalletDetection.isTrustWalletInstalled()) {
-                                    throw new Error('Trust Wallet не знайдено! Будь ласка, встановіть Trust Wallet або увімкніть його.');
+                                if (typeof window.ethereum === 'undefined') {
+                                    window.open('https://trustwallet.com/', '_blank');
+                                    throw new Error('Trust Wallet not found.');
                                 }
                                 
                                 provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
@@ -1384,17 +1466,18 @@
                                 
                             case 'WC':
                                 try {
-                                    const WalletConnectProvider = window.WalletConnectProvider.default;
+                                    if (typeof WalletConnectProvider === 'undefined') {
+                                        throw new Error('WalletConnect not loaded.');
+                                    }
+                                    
                                     const wcProvider = new WalletConnectProvider({
-                                        rpc: Config.walletConnect.rpc,
+                                        rpc: {
+                                            1337: Config.chain.rpc
+                                        },
                                         chainId: Config.chain.id,
+                                        qrcode: true,
                                         qrcodeModalOptions: {
-                                            mobileLinks: [
-                                                'metamask',
-                                                'trust',
-                                                'rainbow',
-                                                'argent'
-                                            ]
+                                            mobileLinks: ['metamask', 'trust', 'rainbow', 'argent']
                                         }
                                     });
                                     
@@ -1403,12 +1486,17 @@
                                     accounts = await provider.listAccounts();
                                     App.state.walletConnect = wcProvider;
                                 } catch (wcError) {
-                                    throw new Error('WalletConnect не вдалося: ' + wcError.message);
+                                    console.error('WalletConnect error:', wcError);
+                                    throw new Error('Failed to connect via WalletConnect');
                                 }
                                 break;
                                 
                             default:
-                                throw new Error('Невідомий тип гаманця');
+                                throw new Error('Unknown wallet type');
+                        }
+                        
+                        if (!accounts || accounts.length === 0) {
+                            throw new Error('Could not get account from wallet');
                         }
                         
                         App.state.address = accounts[0];
@@ -1417,21 +1505,31 @@
 
                         UI.closeModal();
                         
+                        // Try to switch network
                         await App.wallet.switchNetwork();
                         
+                        // Load balance
                         await App.wallet.loadTokenBalance();
                         
+                        // Save state
                         UI.saveConnection(App.state.address, type);
                         UI.setConnectedState(App.state.address, App.state.krmBalance);
                         
+                        // Setup event listeners
                         App.wallet.setupEventListeners();
                         
                         connectBtn.classList.remove('connecting');
-                        UI.showNotification(`${type} успішно підключено!`, 'success');
+                        UI.showNotification(`${type} connected successfully!`, 'success');
                         
                     } catch (e) {
-                        console.error('Помилка підключення гаманця:', e);
-                        UI.showNotification(`Помилка підключення: ${e.message}`, 'error');
+                        console.error('Wallet connection error:', e);
+                        
+                        let errorMessage = e.message;
+                        if (e.code === -32002) {
+                            errorMessage = 'MetaMask is already processing a request. Please check your MetaMask.';
+                        }
+                        
+                        UI.showNotification(`Error: ${errorMessage}`, 'error');
                         
                         const connectBtn = document.getElementById('connectBtn');
                         connectBtn.classList.remove('connecting');
@@ -1452,7 +1550,7 @@
                     
                     UI.clearConnection();
                     UI.resetState();
-                    UI.showNotification('Гаманець відключено', 'success');
+                    UI.showNotification('Wallet disconnected', 'success');
                     
                     const dropdown = document.getElementById('userDropdown');
                     dropdown.classList.add('hidden');
@@ -1485,7 +1583,7 @@
                                 });
                             } catch (addError) { 
                                 console.error(addError); 
-                                UI.showNotification('Не вдалося додати мережу. Додайте вручну.', 'error');
+                                UI.showNotification('Failed to add network. Please add manually.', 'error');
                             }
                         }
                     }
@@ -1495,20 +1593,18 @@
                     try {
                         if (!App.state.provider || !App.state.address) return;
                         
-                        // Отримуємо баланс ETH (KRM у вашій мережі)
+                        // Get ETH balance (KRM in your network)
                         const ethBalance = await App.state.provider.getBalance(App.state.address);
                         const ethBalanceFormatted = ethers.utils.formatEther(ethBalance);
                         
                         App.state.krmBalance = parseFloat(ethBalanceFormatted).toFixed(4);
                         UI.updateBalance(App.state.krmBalance);
                         
-                        // Якщо є ERC20 токен, додайте тут логіку для його балансу
-                        
-                        UI.showNotification(`Баланс оновлено: ${App.state.krmBalance} KRM`, 'success');
+                        UI.showNotification(`Balance updated: ${App.state.krmBalance} KRM`, 'success');
                         
                     } catch (error) {
-                        console.error('Помилка завантаження балансу:', error);
-                        UI.showNotification('Не вдалося завантажити баланс', 'error');
+                        console.error('Error loading balance:', error);
+                        UI.showNotification('Failed to load balance', 'error');
                         App.state.krmBalance = '0.00';
                         UI.updateBalance(App.state.krmBalance);
                     }
@@ -1516,16 +1612,16 @@
 
                 refreshBalance: async () => {
                     if (!App.state.address) {
-                        UI.showNotification('Спочатку підключіть гаманець', 'error');
+                        UI.showNotification('Please connect wallet first', 'error');
                         return;
                     }
                     
                     try {
-                        UI.showNotification('Оновлення балансу...', 'info');
+                        UI.showNotification('Refreshing balance...', 'info');
                         await App.wallet.loadTokenBalance();
                     } catch (error) {
-                        console.error('Помилка оновлення балансу:', error);
-                        UI.showNotification('Не вдалося оновити баланс', 'error');
+                        console.error('Error refreshing balance:', error);
+                        UI.showNotification('Failed to refresh balance', 'error');
                     }
                 },
 
@@ -1539,13 +1635,13 @@
                                 UI.saveConnection(App.state.address, App.state.walletType);
                                 await App.wallet.loadTokenBalance();
                                 UI.setConnectedState(App.state.address, App.state.krmBalance);
-                                UI.showNotification('Акаунт змінено', 'info');
+                                UI.showNotification('Account changed', 'info');
                             }
                         });
 
                         window.ethereum.on('chainChanged', async (chainId) => {
                             if (parseInt(chainId) !== Config.chain.id) {
-                                UI.showNotification('Будь ласка, переключіться на мережу KarChain', 'error');
+                                UI.showNotification('Please switch to KarChain network', 'error');
                                 await App.wallet.switchNetwork();
                             } else {
                                 await App.wallet.loadTokenBalance();
@@ -1564,14 +1660,6 @@
                             let provider;
                             
                             if (walletType === 'MetaMask' || walletType === 'Trust') {
-                                if (walletType === 'MetaMask' && !WalletDetection.isMetaMaskInstalled()) {
-                                    return false;
-                                }
-                                
-                                if (walletType === 'Trust' && !WalletDetection.isTrustWalletInstalled()) {
-                                    return false;
-                                }
-                                
                                 if (!window.ethereum) return false;
                                 
                                 provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -1586,12 +1674,12 @@
                                     UI.setConnectedState(App.state.address, App.state.krmBalance);
                                     App.wallet.setupEventListeners();
                                     
-                                    UI.showNotification('Гаманець перепідключено', 'success');
+                                    UI.showNotification('Wallet reconnected', 'success');
                                     return true;
                                 }
                             }
                         } catch (e) {
-                            console.log("Авто-перепідключення не вдалося:", e);
+                            console.log("Auto-reconnect failed:", e);
                         }
                     }
                     return false;
@@ -1602,41 +1690,38 @@
                 claimTokens: async () => {
                     try {
                         if (!App.state.address) {
-                            UI.showNotification('Спочатку підключіть гаманець', 'error');
+                            UI.showNotification('Please connect wallet first', 'error');
                             return;
                         }
                         
-                        UI.showNotification('Запит тестових токенів...', 'info');
+                        UI.showNotification('Requesting test tokens...', 'info');
                         
-                        // Спрощений спосіб: відправка транзакції з тестових коштів
                         if (App.state.provider) {
                             const signer = App.state.provider.getSigner();
                             
-                            // Перевіряємо, чи є у нас ETH для gas
+                            // Check if we have ETH for gas
                             const balance = await signer.getBalance();
                             if (balance.eq(0)) {
-                                // Якщо у вас є тестовий акаунт з ETH, ви можете відправити транзакцію
-                                UI.showNotification('Ваш баланс ETH (gas) дорівнює 0', 'error');
+                                UI.showNotification('Your ETH (gas) balance is 0', 'error');
                                 return;
                             }
                             
-                            // Тут ви можете додати логіку для вашого faucet контракту
-                            // Наприклад, виклик методу контракту
-                            
-                            // Для тесту просто оновлюємо баланс
+                            // For testing, simulate token receipt
                             setTimeout(() => {
-                                App.state.krmBalance = '100.00';
+                                // Add 100 test tokens
+                                const currentBalance = parseFloat(App.state.krmBalance);
+                                App.state.krmBalance = (currentBalance + 100).toFixed(4);
                                 UI.updateBalance(App.state.krmBalance);
-                                UI.showNotification('Отримано 100 тестових KRM токенів!', 'success');
+                                UI.showNotification('Received 100 test KRM tokens!', 'success');
                             }, 2000);
                             
                         } else {
-                            throw new Error('Провайдер не доступний');
+                            throw new Error('Provider not available');
                         }
                         
                     } catch (error) {
-                        console.error('Помилка faucet:', error);
-                        UI.showNotification('Не вдалося отримати тестові токени', 'error');
+                        console.error('Faucet error:', error);
+                        UI.showNotification('Failed to get test tokens', 'error');
                     }
                 }
             },
@@ -1657,11 +1742,11 @@
                         const completedTasks = taskId;
                         UI.updateTaskProgress(completedTasks);
                         
-                        UI.showNotification(`Завдання ${taskId} виконано!`, 'success');
+                        UI.showNotification(`Task ${taskId} completed!`, 'success');
                         
                         if (taskId === 1) {
                             setTimeout(() => {
-                                // Автоматично видаємо токени за перше завдання
+                                // Automatically give tokens for first task
                                 App.faucet.claimTokens();
                             }, 1000);
                         }
@@ -1671,7 +1756,7 @@
                 verify: (id) => {
                     if (id === 2) {
                         window.open('https://swap.karchain.network', '_blank');
-                        UI.showNotification('Відкриваємо KarSwap DEX...', 'info');
+                        UI.showNotification('Opening KarSwap DEX...', 'info');
                     } else {
                         App.tasks.completeTask(id);
                     }
@@ -1679,7 +1764,7 @@
                 
                 start: (id) => {
                     window.open('https://x.com/karim7652117665', '_blank');
-                    UI.showNotification('Відкриваємо X (Twitter)... Підпишіться на наш акаунт!', 'info');
+                    UI.showNotification('Opening X (Twitter)... Follow our account!', 'info');
                     
                     setTimeout(() => {
                         const verifyBtn = document.getElementById(`verify-${id}`);
@@ -1688,7 +1773,7 @@
                             verifyBtn.classList.remove('cursor-not-allowed', 'border-white/20', 'text-gray-500');
                             verifyBtn.classList.add('bg-green-600', 'text-white', 'hover:bg-green-500', 'border-transparent');
                             verifyBtn.innerHTML = 'VERIFY';
-                            UI.showNotification('Тепер ви можете перевірити Завдання 1', 'info');
+                            UI.showNotification('You can now verify Task 1', 'info');
                         }
                     }, 2000);
                 }
