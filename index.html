@@ -128,6 +128,13 @@
             overflow-x: hidden;
         }
 
+        /* Custom smooth scroll */
+        @media (prefers-reduced-motion: no-preference) {
+            html {
+                scroll-behavior: smooth;
+            }
+        }
+
         /* Alchemy-style smooth transitions */
         .smooth-transition {
             transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -156,12 +163,6 @@
             .smooth-transition {
                 transform: translateZ(0);
                 backface-visibility: hidden;
-            }
-        }
-
-        @media (prefers-reduced-motion: no-preference) {
-            .smooth-transition {
-                transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
             }
         }
 
@@ -217,6 +218,13 @@
             box-shadow: 
                 0 20px 60px -10px rgba(74, 222, 128, 0.15),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        /* Навігація з розмиттям */
+        nav#navbar {
+            background: rgba(2, 4, 2, 0.85) !important;
+            backdrop-filter: blur(20px) saturate(180%) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(180%) !important;
         }
 
         /* Button animations */
@@ -282,6 +290,21 @@
         ::selection {
             background: rgba(74, 222, 128, 0.3);
             color: #ffffff;
+        }
+
+        /* Кнопка скролу вгору */
+        #scrollToTopBtn {
+            box-shadow: 0 4px 20px rgba(74, 222, 128, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        #scrollToTopBtn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(74, 222, 128, 0.5);
+        }
+
+        #scrollToTopBtn:active {
+            transform: translateY(0);
         }
 
         /* Background effects */
@@ -836,31 +859,6 @@
             background-size: 200% 100%;
             animation: shimmer 2s infinite;
         }
-
-        /* Gradient border - ВИДАЛЕНО */
-        /* .gradient-border {
-            position: relative;
-            border-radius: 16px;
-            background: rgba(2, 4, 2, 0.8);
-        }
-
-        .gradient-border::before {
-            content: '';
-            position: absolute;
-            top: -1px;
-            left: -1px;
-            right: -1px;
-            bottom: -1px;
-            background: linear-gradient(45deg, #4ade80, #22c55e, #15803d, #4ade80);
-            border-radius: 17px;
-            z-index: -1;
-            opacity: 0.3;
-            transition: opacity 0.4s ease;
-        }
-
-        .gradient-border:hover::before {
-            opacity: 0.6;
-        } */
     </style>
 </head>
 <body class="antialiased selection:bg-green-500 selection:text-white">
@@ -924,7 +922,7 @@
     <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-green-500/5 rounded-full blur-[120px] -z-5 pointer-events-none animate-pulse-slow"></div>
 
     <!-- Navigation -->
-    <nav class="fixed top-0 w-full z-50 border-b border-white/5 bg-black/90 backdrop-blur-2xl backdrop-filter transition-all duration-300 smooth-transition" id="navbar">
+    <nav class="fixed top-0 w-full z-50 border-b border-white/5 transition-all duration-300 smooth-transition" id="navbar">
         <div class="max-w-[1600px] mx-auto px-6 h-24 flex items-center justify-between">
             
             <div class="flex items-center gap-3 cursor-pointer group" onclick="App.router.navigate('home')">
@@ -1030,7 +1028,7 @@
                 <div onclick="App.wallet.connect('WC')" class="wallet-option walletconnect group border border-white/10 p-4 rounded-xl bg-white/5 cursor-pointer transition-all flex items-center justify-between hover-lift">
                     <div class="flex items-center gap-4">
                         <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center group-hover:bg-[#3B99FC]/10 transition-colors smooth-transition">
-                            <img src="https://avatars.githubusercontent.com/u/37784886?s=280&v=4" class="w-8 h-8 rounded-full" alt="WalletConnect">
+                            <i class="fa-solid fa-qrcode text-2xl"></i>
                         </div>
                         <div>
                             <div class="wallet-title font-bold text-white text-lg group-hover:text-[#3B99FC] transition-colors smooth-transition">WalletConnect</div>
@@ -1136,8 +1134,8 @@
                                 <div class="absolute top-0 right-0 bg-green-500/20 text-green-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Step 1</div>
                                 <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-6 text-2xl text-white group-hover:text-green-400 transition-colors smooth-transition">
                                     <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 24 24">
-  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
-</svg>
+                                        <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                                    </svg>
                                 </div>
                                 <h4 class="text-xl font-bold text-white mb-2">Social Identity</h4>
                                 <p class="text-sm text-gray-400 mb-6">Verify your humanity by following our official X account.</p>
@@ -1286,7 +1284,7 @@
 
             <div class="glass-card p-8 rounded-xl group cursor-pointer fade-in-up delay-400 hover-lift">
                 <div class="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center mb-6 text-2xl text-yellow-400 group-hover:scale-110 transition-transform smooth-transition">
-                    <img src="https://cdn-icons-png.flaticon.com/512/1384/1384031.png" class="w-8 h-8" alt="Security">
+                    <i class="fa-solid fa-vault text-2xl"></i>
                 </div>
                 <h3 class="text-xl font-bold text-white mb-2">KarSafe</h3>
                 <p class="text-sm text-gray-400 mb-4">Multi-sig institutional wallet with MPC technology for DAO treasury management.</p>
@@ -1334,7 +1332,7 @@
                     </div>
                     <div class="text-center fade-in-up delay-700">
                         <div class="w-16 h-16 mx-auto bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mb-4 smooth-transition hover-lift">
-                            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" class="w-8 h-8" alt="Audit">
+                            <i class="fa-solid fa-file-shield text-2xl"></i>
                         </div>
                         <p class="text-sm font-bold text-white">Security Audits</p>
                         <p class="text-xs text-gray-500">Smart contract verification</p>
@@ -1579,9 +1577,60 @@
                 UI.setupTaskButtons();
                 UI.setupMobileMenu();
                 UI.initAnimations();
+                UI.initSmoothScroll();
                 
                 // Перевірка MetaMask на завантаженні
                 UI.checkMetaMaskOnLoad();
+            },
+
+            initSmoothScroll: () => {
+                // Додаємо кнопку "вгору"
+                const scrollToTopBtn = document.createElement('button');
+                scrollToTopBtn.innerHTML = '<i class="fa-solid fa-chevron-up"></i>';
+                scrollToTopBtn.className = 'fixed bottom-8 right-8 w-12 h-12 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center text-white z-40 transition-all duration-300 opacity-0 translate-y-10';
+                scrollToTopBtn.id = 'scrollToTopBtn';
+                scrollToTopBtn.style.boxShadow = '0 4px 20px rgba(74, 222, 128, 0.3)';
+                document.body.appendChild(scrollToTopBtn);
+
+                // Плавний скрол при кліку на кнопку
+                scrollToTopBtn.addEventListener('click', () => {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                });
+
+                // Показуємо/ховаємо кнопку при скролі
+                window.addEventListener('scroll', () => {
+                    const btn = document.getElementById('scrollToTopBtn');
+                    if (window.scrollY > 300) {
+                        btn.classList.remove('opacity-0', 'translate-y-10');
+                        btn.classList.add('opacity-100', 'translate-y-0');
+                    } else {
+                        btn.classList.remove('opacity-100', 'translate-y-0');
+                        btn.classList.add('opacity-0', 'translate-y-10');
+                    }
+                });
+
+                // Плавний скрол для всіх якорних посилань
+                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', function(e) {
+                        const href = this.getAttribute('href');
+                        if (href === '#' || href === '') return;
+                        
+                        const targetElement = document.querySelector(href);
+                        if (targetElement) {
+                            e.preventDefault();
+                            const offset = 80; // Відступ для навігації
+                            const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+                            
+                            window.scrollTo({
+                                top: targetPosition - offset,
+                                behavior: 'smooth'
+                            });
+                        }
+                    });
+                });
             },
 
             initAnimations: () => {
@@ -1998,7 +2047,7 @@
                     activeLink.classList.remove('text-gray-400', 'border-transparent');
                 }
 
-                // Плавний скролл наверх
+                // Плавний скрол наверх
                 window.scrollTo({
                     top: 0,
                     behavior: 'smooth'
@@ -2613,9 +2662,3 @@
     </script>
 </body>
 </html>
-
-
-
-
-
-
