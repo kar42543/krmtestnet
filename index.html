@@ -113,6 +113,7 @@
             font-feature-settings: "ss01", "ss02", "cv01", "cv02";
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
             opacity: 0;
             animation: fadeInBody 1s ease-out forwards;
         }
@@ -129,15 +130,39 @@
 
         /* Alchemy-style smooth transitions */
         .smooth-transition {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform: translateZ(0);
+            backface-visibility: hidden;
         }
 
         .smooth-transform {
-            transition: transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+            transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform: translateZ(0);
         }
 
         .smooth-opacity {
-            transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: opacity 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        /* Покращена продуктивність на ПК */
+        @media (min-width: 1024px) {
+            .hover-lift {
+                will-change: transform;
+                transform: translate3d(0, 0, 0);
+                backface-visibility: hidden;
+                -webkit-transform: translate3d(0, 0, 0);
+            }
+            
+            .smooth-transition {
+                transform: translateZ(0);
+                backface-visibility: hidden;
+            }
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+            .smooth-transition {
+                transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            }
         }
 
         /* Parallax effect */
@@ -164,7 +189,8 @@
             box-shadow: 
                 0 4px 30px rgba(0, 0, 0, 0.3),
                 0 0 0 1px rgba(74, 222, 128, 0.05);
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform: translateZ(0);
         }
 
         .glass-panel:hover {
@@ -173,7 +199,7 @@
                 0 8px 40px rgba(0, 0, 0, 0.4),
                 0 0 0 1px rgba(74, 222, 128, 0.1),
                 0 0 40px rgba(74, 222, 128, 0.1);
-            transform: translateY(-4px);
+            transform: translateY(-4px) translateZ(0);
         }
 
         .glass-card {
@@ -181,12 +207,13 @@
             border: 1px solid rgba(255,255,255,0.05);
             backdrop-filter: blur(10px) saturate(180%);
             -webkit-backdrop-filter: blur(10px) saturate(180%);
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform: translateZ(0);
         }
 
         .glass-card:hover {
             border-color: rgba(74, 222, 128, 0.2);
-            transform: translateY(-8px) scale(1.02);
+            transform: translateY(-8px) scale(1.02) translateZ(0);
             box-shadow: 
                 0 20px 60px -10px rgba(74, 222, 128, 0.15),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -198,9 +225,10 @@
             color: white;
             position: relative;
             overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
             border: 1px solid rgba(34, 197, 94, 0.3);
             box-shadow: 0 4px 20px rgba(34, 197, 94, 0.2);
+            transform: translateZ(0);
         }
         
         .btn-primary::before {
@@ -219,7 +247,7 @@
         }
         
         .btn-primary:hover {
-            transform: translateY(-2px);
+            transform: translateY(-2px) translateZ(0);
             box-shadow: 
                 0 8px 30px rgba(34, 197, 94, 0.4),
                 0 0 0 1px rgba(34, 197, 94, 0.2);
@@ -227,7 +255,7 @@
         }
 
         .btn-primary:active {
-            transform: translateY(0);
+            transform: translateY(0) translateZ(0);
         }
 
         /* Scrollbar styling */
@@ -306,25 +334,25 @@
         /* Fade in animations */
         .fade-in {
             opacity: 0;
-            animation: fadeIn 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: fadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
 
         .fade-in-up {
             opacity: 0;
             transform: translateY(40px);
-            animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
 
         .fade-in-left {
             opacity: 0;
             transform: translateX(-40px);
-            animation: fadeInLeft 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: fadeInLeft 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
 
         .fade-in-right {
             opacity: 0;
             transform: translateX(40px);
-            animation: fadeInRight 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: fadeInRight 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
 
         .delay-100 { animation-delay: 0.1s; }
@@ -371,8 +399,8 @@
             display: none;
             opacity: 0;
             transform: translateY(20px);
-            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
-                        transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: opacity 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), 
+                        transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         .page-content.active {
@@ -383,15 +411,16 @@
 
         /* Hover effects */
         .hover-lift {
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform: translate3d(0, 0, 0);
         }
 
         .hover-lift:hover {
-            transform: translateY(-8px);
+            transform: translateY(-8px) translate3d(0, 0, 0);
         }
 
         .hover-glow {
-            transition: box-shadow 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: box-shadow 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         .hover-glow:hover {
@@ -520,7 +549,7 @@
             backdrop-filter: blur(20px) saturate(180%);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
             z-index: 10000;
-            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: right 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
             padding-top: 100px;
             overflow-y: auto;
             border-left: 1px solid rgba(74, 222, 128, 0.1);
@@ -541,7 +570,7 @@
             z-index: 9999;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: opacity 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         .mobile-menu-backdrop.active {
@@ -561,7 +590,7 @@
             cursor: pointer;
             padding: 0;
             z-index: 10001;
-            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         .hamburger:hover {
@@ -573,7 +602,7 @@
             height: 3px;
             background: #4ade80;
             border-radius: 2px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
             transform-origin: center;
         }
 
@@ -738,7 +767,7 @@
 
         /* Notification animations */
         .notification {
-            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            animation: slideIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
 
         @keyframes slideIn {
@@ -757,7 +786,7 @@
             max-height: 0;
             opacity: 0;
             overflow: hidden;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
         
         .faq-content.open {
@@ -773,7 +802,7 @@
             opacity: 0.6;
             filter: grayscale(0.8);
             position: relative;
-            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         .task-locked::after {
@@ -808,8 +837,8 @@
             animation: shimmer 2s infinite;
         }
 
-        /* Gradient border */
-        .gradient-border {
+        /* Gradient border - ВИДАЛЕНО */
+        /* .gradient-border {
             position: relative;
             border-radius: 16px;
             background: rgba(2, 4, 2, 0.8);
@@ -831,7 +860,7 @@
 
         .gradient-border:hover::before {
             opacity: 0.6;
-        }
+        } */
     </style>
 </head>
 <body class="antialiased selection:bg-green-500 selection:text-white">
@@ -1057,7 +1086,7 @@
         </div>
 
         <div id="dashboard-ui" class="max-w-6xl mx-auto fade-in-up delay-400">
-            <div class="glass-panel rounded-3xl p-1 relative overflow-hidden gradient-border">
+            <div class="glass-panel rounded-3xl p-1 relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent opacity-50 shimmer"></div>
                 <div class="bg-black/80 backdrop-blur-xl rounded-[20px] p-8 md:p-12">
                     
@@ -1191,10 +1220,9 @@
             </div>
         </div>
 
-        <div class="glass-panel p-12 rounded-3xl border-t-4 border-green-500 fade-in-up delay-300 gradient-border">
+        <div class="glass-panel p-12 rounded-3xl border-t border-white/10 fade-in-up delay-300">
             <h3 class="text-3xl text-white font-bold mb-12 text-center font-display">Strategic Roadmap</h3>
             <div class="grid md:grid-cols-4 gap-8 relative">
-                <div class="hidden md:block absolute top-12 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-green-500 to-transparent -z-1 shimmer"></div>
                 
                 <div class="relative fade-in-up delay-400">
                     <div class="w-6 h-6 bg-green-500 rounded-full border-4 border-black mb-4 mx-auto relative z-10 animate-pulse"></div>
@@ -1293,7 +1321,7 @@
 
         <div class="mt-24 fade-in-up delay-500">
             <h3 class="text-2xl font-bold text-white mb-8 text-center">Strategic Partners</h3>
-            <div class="glass-panel p-8 rounded-2xl gradient-border">
+            <div class="glass-panel p-8 rounded-2xl">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-center">
                     <div class="text-center fade-in-up delay-600">
                         <div class="w-16 h-16 mx-auto bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-4 smooth-transition hover-lift">
