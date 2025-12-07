@@ -1075,7 +1075,77 @@
             WALLET_TYPE: 'karchain_wallet_type'
         };
 
-        // --- 2. UI CONTROLLER ---
+        // --- 2. WALLET DETECTION ---
+        const WalletDetection = {
+            detectWallet: () => {
+                const ethereum = window.ethereum;
+                
+                if (!ethereum) {
+                    return null;
+                }
+                
+                // Спробуємо визначити тип гаманця
+                if (ethereum.isMetaMask) {
+                    // MetaMask має унікальні властивості
+                    if (ethereum.isMetaMask && !ethereum.isBraveWallet && !ethereum.isTrust) {
+                        return 'MetaMask';
+                    }
+                }
+                
+                // Trust Wallet використовує window.ethereum, але має унікальні властивості
+                if (ethereum.isTrust) {
+                    return 'Trust';
+                }
+                
+                // Brave Wallet
+                if (ethereum.isBraveWallet) {
+                    return 'Brave';
+                }
+                
+                // Coinbase Wallet
+                if (ethereum.isCoinbaseWallet) {
+                    return 'Coinbase';
+                }
+                
+                // За замовчуванням, якщо це ethereum, але не визначили тип
+                if (ethereum && ethereum.isMetaMask === undefined) {
+                    // Можливо Trust Wallet або інший
+                    return 'UnknownEthereum';
+                }
+                
+                return null;
+            },
+            
+            isMetaMaskInstalled: () => {
+                const ethereum = window.ethereum;
+                return ethereum && ethereum.isMetaMask && !ethereum.isTrust && !ethereum.isBraveWallet;
+            },
+            
+            isTrustWalletInstalled: () => {
+                const ethereum = window.ethereum;
+                return ethereum && (ethereum.isTrust || window.trustwallet);
+            },
+            
+            getWalletProvider: (type) => {
+                switch(type) {
+                    case 'MetaMask':
+                        if (WalletDetection.isMetaMaskInstalled()) {
+                            return window.ethereum;
+                        }
+                        break;
+                    case 'Trust':
+                        if (WalletDetection.isTrustWalletInstalled()) {
+                            return window.ethereum || window.trustwallet;
+                        }
+                        break;
+                    case 'WC':
+                        return null; // WalletConnect має свій провайдер
+                }
+                return null;
+            }
+        };
+
+        // --- 3. UI CONTROLLER ---
         const UI = {
             init: () => {
                 // Init Particles
@@ -1135,15 +1205,15 @@
 
             initWaterDrops: () => {
                 const container = document.getElementById('water-drops');
-                const dropsCount = 30; // Збільшив кількість крапель
+                const dropsCount = 30;
                 
                 for(let i = 0; i < dropsCount; i++) {
                     const drop = document.createElement('div');
                     drop.className = 'water-drop';
                     drop.style.left = `${Math.random() * 100}%`;
-                    drop.style.animationDelay = `${Math.random() * 8}s`; // Різні затримки
-                    drop.style.height = `${20 + Math.random() * 80}px`; // Різні висоти
-                    drop.style.animationDuration = `${5 + Math.random() * 10}s`; // Різні швидкості
+                    drop.style.animationDelay = `${Math.random() * 8}s`;
+                    drop.style.height = `${20 + Math.random() * 80}px`;
+                    drop.style.animationDuration = `${5 + Math.random() * 10}s`;
                     container.appendChild(drop);
                 }
             },
@@ -1435,7 +1505,7 @@
             }
         };
 
-        // --- 3. APP CORE (Wallet & Tasks) ---
+        // --- 4. APP CORE (Wallet & Tasks) ---
         const App = {
             ui: UI,
             router: { navigate: UI.showPage },
@@ -1460,18 +1530,21 @@
                         
                         switch(type) {
                             case 'MetaMask':
-                                if(!window.ethereum) {
+                                if (!WalletDetection.isMetaMaskInstalled()) {
                                     throw new Error('MetaMask not installed! Please install MetaMask first.');
                                 }
-                                provider = new ethers.providers.Web3Provider(window.ethereum);
+                                
+                                provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
                                 accounts = await provider.send("eth_requestAccounts", []);
                                 break;
                                 
                             case 'Trust':
-                                if(!window.ethereum && !window.trustwallet) {
-                                    throw new Error('Trust Wallet not detected!');
+                                if (!WalletDetection.isTrustWalletInstalled()) {
+                                    throw new Error('Trust Wallet not detected! Please install Trust Wallet or enable it.');
                                 }
-                                provider = new ethers.providers.Web3Provider(window.ethereum || window.trustwallet);
+                                
+                                // Trust Wallet використовує window.ethereum
+                                provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
                                 accounts = await provider.send("eth_requestAccounts", []);
                                 break;
                                 
@@ -1662,6 +1735,15 @@
                             let provider;
                             
                             if (walletType === 'MetaMask' || walletType === 'Trust') {
+                                // Перевіримо чи встановлений відповідний гаманець
+                                if (walletType === 'MetaMask' && !WalletDetection.isMetaMaskInstalled()) {
+                                    return false;
+                                }
+                                
+                                if (walletType === 'Trust' && !WalletDetection.isTrustWalletInstalled()) {
+                                    return false;
+                                }
+                                
                                 if (!window.ethereum) return false;
                                 
                                 provider = new ethers.providers.Web3Provider(window.ethereum);
