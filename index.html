@@ -339,6 +339,29 @@
             transform: scale(0.95) translateY(-10px);
             transition: opacity 200ms, transform 200ms;
         }
+        
+        /* Mobile menu button fix */
+        .mobile-menu-btn {
+            display: block !important;
+            color: white;
+            font-size: 1.5rem;
+            padding: 0.5rem;
+            z-index: 100;
+        }
+        
+        /* Ensure mobile menu is visible */
+        #mobile-menu {
+            z-index: 9999;
+        }
+        
+        /* Mobile menu backdrop */
+        .mobile-menu-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            z-index: 9998;
+        }
     </style>
 </head>
 <body class="antialiased selection:bg-green-500 selection:text-white">
@@ -389,11 +412,11 @@
             <!-- CONNECT BUTTON -->
             <div class="flex items-center gap-4 relative">
                 <!-- Twitter/X Logo -->
-                <a href="https://x.com/karim7652117665" target="_blank" class="text-gray-400 hover:text-white transition-colors">
+                <a href="https://x.com/karim7652117665" target="_blank" class="text-gray-400 hover:text-white transition-colors hidden lg:block">
                     <i class="fa-brands fa-x-twitter text-xl"></i>
                 </a>
 
-                <button id="connectBtn" onclick="App.ui.openModal()" class="btn-primary px-8 py-3 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 shadow-lg">
+                <button id="connectBtn" class="btn-primary px-8 py-3 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 shadow-lg">
                     <i class="fa-solid fa-wallet"></i> <span>Connect Wallet</span>
                 </button>
 
@@ -410,7 +433,7 @@
                     </div>
                     <div class="space-y-1">
                         <button class="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/5 rounded hover:text-white transition-colors">
-                            <i class="fa-solid fa-coins mr-2"></i> Balance: <span id="dropdownBalance" class="font-bold">0 KAR</span>
+                            <i class="fa-solid fa-coins mr-2"></i> Balance: <span id="dropdownBalance" class="font-bold">0 KRM</span>
                         </button>
                         <button class="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/5 rounded hover:text-white transition-colors">
                             <i class="fa-solid fa-clock-rotate-left mr-2"></i> History
@@ -424,7 +447,8 @@
                     </div>
                 </div>
 
-                <button onclick="App.ui.toggleMobile()" class="lg:hidden text-white text-2xl p-2">
+                <!-- Mobile menu button - ЗАВЖДИ ВИДИМИЙ НА МОБІЛЬНИХ -->
+                <button onclick="App.ui.toggleMobile()" class="mobile-menu-btn lg:hidden">
                     <i class="fa-solid fa-bars"></i>
                 </button>
             </div>
@@ -432,15 +456,21 @@
     </nav>
 
     <!-- MOBILE MENU OVERLAY -->
-    <div id="mobile-menu" class="fixed inset-0 z-[60] bg-black/95 backdrop-blur-xl transform translate-x-full transition-transform duration-300 flex flex-col items-center justify-center space-y-8">
-        <button onclick="App.ui.toggleMobile()" class="absolute top-8 right-8 text-gray-400 hover:text-white text-4xl">
-            <i class="fa-solid fa-xmark"></i>
-        </button>
-        <div class="flex flex-col items-center gap-8">
-            <a onclick="App.router.navigate('home'); App.ui.toggleMobile()" class="text-3xl font-bold text-white uppercase tracking-widest hover:text-green-400 transition-colors">Testnet</a>
-            <a onclick="App.router.navigate('vision'); App.ui.toggleMobile()" class="text-3xl font-bold text-white uppercase tracking-widest hover:text-green-400 transition-colors">Vision</a>
-            <a onclick="App.router.navigate('ecosystem'); App.ui.toggleMobile()" class="text-3xl font-bold text-white uppercase tracking-widest hover:text-green-400 transition-colors">Ecosystem</a>
-            <a onclick="App.router.navigate('support'); App.ui.toggleMobile()" class="text-3xl font-bold text-white uppercase tracking-widest hover:text-green-400 transition-colors">Support</a>
+    <div id="mobile-menu" class="mobile-menu-backdrop hidden">
+        <div class="fixed inset-0 z-[60] bg-black/95 backdrop-blur-xl transform translate-x-full transition-transform duration-300 flex flex-col items-center justify-center space-y-8">
+            <button onclick="App.ui.toggleMobile()" class="absolute top-8 right-8 text-gray-400 hover:text-white text-4xl">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="flex flex-col items-center gap-8">
+                <a onclick="App.router.navigate('home'); App.ui.toggleMobile()" class="text-3xl font-bold text-white uppercase tracking-widest hover:text-green-400 transition-colors">Testnet</a>
+                <a onclick="App.router.navigate('vision'); App.ui.toggleMobile()" class="text-3xl font-bold text-white uppercase tracking-widest hover:text-green-400 transition-colors">Vision</a>
+                <a onclick="App.router.navigate('ecosystem'); App.ui.toggleMobile()" class="text-3xl font-bold text-white uppercase tracking-widest hover:text-green-400 transition-colors">Ecosystem</a>
+                <a onclick="App.router.navigate('support'); App.ui.toggleMobile()" class="text-3xl font-bold text-white uppercase tracking-widest hover:text-green-400 transition-colors">Support</a>
+                <!-- Додаємо кнопку Connect Wallet для мобільної версії -->
+                <button onclick="App.ui.openModal(); App.ui.toggleMobile()" class="btn-primary px-8 py-3 rounded-xl text-sm font-bold uppercase tracking-widest flex items-center gap-2 shadow-lg mt-8">
+                    <i class="fa-solid fa-wallet"></i> <span>Connect Wallet</span>
+                </button>
+            </div>
         </div>
     </div>
 
@@ -574,7 +604,7 @@
                                 <p class="text-xs text-gray-500 uppercase tracking-widest mb-2">Available Balance</p>
                                 <div class="flex items-baseline gap-3">
                                     <span id="balanceVal" class="text-7xl font-bold text-white font-mono tracking-tighter">0.00</span>
-                                    <span class="text-xl font-bold text-green-500 bg-green-500/10 px-3 py-1 rounded-lg">KAR</span>
+                                    <span class="text-xl font-bold text-green-500 bg-green-500/10 px-3 py-1 rounded-lg">KRM</span>
                                 </div>
                                 <p class="text-xs text-gray-400 mt-2">
                                     <i class="fa-solid fa-circle-info mr-1"></i> 
@@ -798,12 +828,12 @@
 
             <div class="glass-panel rounded-xl overflow-hidden">
                 <button class="w-full p-6 text-left flex justify-between items-center text-white font-bold hover:bg-white/5 transition-colors faq-toggle">
-                    How to get Testnet Tokens (KAR)?
+                    How to get Testnet Tokens (KRM)?
                     <i class="fa-solid fa-chevron-down transition-transform duration-300"></i>
                 </button>
                 <div class="faq-content border-t border-white/5">
                     <div class="px-6 pb-6 text-gray-400 text-sm leading-relaxed">
-                        Once you connect your wallet and complete the "Social Identity" task on the dashboard, our automated faucet will drop initial KAR tokens to your address for gas fees.
+                        Once you connect your wallet and complete the "Social Identity" task on the dashboard, our automated faucet will drop initial KRM tokens to your address for gas fees.
                     </div>
                 </div>
             </div>
@@ -869,11 +899,11 @@
                 hex: '0x539',
                 name: 'KarChain Testnet',
                 rpc: 'https://relationless-improperly-nettie.ngrok-free.dev',
-                symbol: 'KAR',
+                symbol: 'KRM', // ЗМІНЕНО З KAR НА KRM
                 decimals: 18
             },
-            // KAR Token Contract Address (Testnet)
-            // Заміни на реальну адресу контракту KAR токена, коли вона буде
+            // KRM Token Contract Address (Testnet)
+            // Заміни на реальну адресу контракту KRM токена, коли вона буде
             tokenAddress: '0x0000000000000000000000000000000000000000' // Заміни на реальну адресу
         };
 
@@ -896,6 +926,8 @@
                 UI.initFAQ();
                 // Check for saved wallet connection
                 UI.checkSavedConnection();
+                // Setup wallet button handlers
+                UI.setupWalletButton();
                 // Show Home
                 UI.showPage('home');
                 // Setup dropdown toggle
@@ -974,20 +1006,34 @@
                 });
             },
 
+            setupWalletButton: () => {
+                const connectBtn = document.getElementById('connectBtn');
+                
+                // Спочатку встановлюємо обробник для відкриття модалки
+                connectBtn.onclick = UI.openModal;
+            },
+
             setupDropdownToggle: () => {
                 const connectBtn = document.getElementById('connectBtn');
                 const dropdown = document.getElementById('userDropdown');
                 
+                // Ця функція буде викликатися при кліку на кнопку гаманця
                 connectBtn.addEventListener('click', function(e) {
-                    // Only toggle dropdown if wallet is connected
-                    if (App.state.address) {
+                    // Тільки перемикати dropdown якщо гаманець підключений
+                    if (App.state.address && !connectBtn.classList.contains('connecting')) {
+                        e.preventDefault();
                         e.stopPropagation();
-                        const isVisible = dropdown.classList.contains('hidden');
                         
-                        if (isVisible) {
+                        const isVisible = !dropdown.classList.contains('hidden');
+                        
+                        if (!isVisible) {
+                            // Показуємо dropdown
                             dropdown.classList.remove('hidden', 'scale-95', 'opacity-0');
-                            dropdown.classList.add('scale-100', 'opacity-100');
+                            setTimeout(() => {
+                                dropdown.classList.add('scale-100', 'opacity-100');
+                            }, 10);
                         } else {
+                            // Ховаємо dropdown
                             dropdown.classList.remove('scale-100', 'opacity-100');
                             dropdown.classList.add('scale-95', 'opacity-0');
                             setTimeout(() => {
@@ -997,9 +1043,9 @@
                     }
                 });
                 
-                // Close dropdown when clicking outside
+                // Закриваємо dropdown при кліку поза ним
                 document.addEventListener('click', function(e) {
-                    if (!dropdown.contains(e.target) && !connectBtn.contains(e.target)) {
+                    if (!dropdown.contains(e.target) && !connectBtn.contains(e.target) && !dropdown.classList.contains('hidden')) {
                         dropdown.classList.remove('scale-100', 'opacity-100');
                         dropdown.classList.add('scale-95', 'opacity-0');
                         setTimeout(() => {
@@ -1070,8 +1116,18 @@
 
             toggleMobile: () => {
                 const menu = document.getElementById('mobile-menu');
-                const isOpen = menu.style.transform === 'translateX(0%)';
-                menu.style.transform = isOpen ? 'translateX(100%)' : 'translateX(0%)';
+                const isOpen = menu.style.transform === 'translateX(0%)' || !menu.classList.contains('hidden');
+                
+                if (isOpen) {
+                    menu.classList.add('hidden');
+                    menu.style.transform = 'translateX(100%)';
+                } else {
+                    menu.classList.remove('hidden');
+                    // Маленька затримка для анімації
+                    setTimeout(() => {
+                        menu.style.transform = 'translateX(0%)';
+                    }, 10);
+                }
             },
 
             openModal: () => {
@@ -1097,13 +1153,17 @@
             },
 
             setConnectedState: (address, balance) => {
-                // Update Header
+                // Update Header button
                 const btn = document.getElementById('connectBtn');
                 const short = `${address.substring(0,6)}...${address.substring(address.length-4)}`;
                 btn.innerHTML = `<div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div> ${short}`;
                 
+                // Remove old click handlers and add dropdown toggle
+                btn.onclick = null;
+                UI.setupDropdownToggle();
+                
                 document.getElementById('dropdownAddress').innerText = short;
-                document.getElementById('dropdownBalance').innerText = balance ? `${balance} KAR` : '0 KAR';
+                document.getElementById('dropdownBalance').innerText = balance ? `${balance} KRM` : '0 KRM';
 
                 // Update Dashboard
                 document.getElementById('view-locked').classList.add('hidden');
@@ -1116,7 +1176,7 @@
             updateBalance: (balance) => {
                 const formattedBalance = parseFloat(balance).toFixed(4);
                 document.getElementById('balanceVal').innerText = formattedBalance;
-                document.getElementById('dropdownBalance').innerText = `${formattedBalance} KAR`;
+                document.getElementById('dropdownBalance').innerText = `${formattedBalance} KRM`;
                 
                 // Save to localStorage
                 localStorage.setItem(STORAGE_KEYS.WALLET_BALANCE, formattedBalance);
@@ -1125,9 +1185,12 @@
             resetState: () => {
                 const btn = document.getElementById('connectBtn');
                 btn.innerHTML = '<i class="fa-solid fa-wallet"></i> <span>Connect Wallet</span>';
+                // Reset click handler to open modal
                 btn.onclick = UI.openModal;
                 
-                document.getElementById('userDropdown').classList.add('hidden');
+                // Close dropdown if open
+                const dropdown = document.getElementById('userDropdown');
+                dropdown.classList.add('hidden');
                 
                 document.getElementById('view-locked').classList.remove('hidden');
                 document.getElementById('view-active').classList.add('hidden');
@@ -1173,7 +1236,7 @@
                 address: null, 
                 provider: null,
                 tokenContract: null,
-                karBalance: '0.00'
+                krmBalance: '0.00' // ЗМІНЕНО З karBalance НА krmBalance
             },
 
             wallet: {
@@ -1181,6 +1244,11 @@
                     if(!window.ethereum) return alert("MetaMask not installed!");
                     
                     try {
+                        // Показуємо індикатор завантаження
+                        const connectBtn = document.getElementById('connectBtn');
+                        connectBtn.classList.add('connecting');
+                        connectBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Connecting...</span>';
+                        
                         const provider = new ethers.providers.Web3Provider(window.ethereum);
                         const accounts = await provider.send("eth_requestAccounts", []);
                         App.state.address = accounts[0];
@@ -1195,14 +1263,22 @@
                         // Save connection to localStorage
                         UI.saveConnection(App.state.address);
                         
-                        UI.setConnectedState(App.state.address, App.state.karBalance);
+                        UI.setConnectedState(App.state.address, App.state.krmBalance);
                         
                         // Setup event listeners for balance changes
                         App.wallet.setupEventListeners();
+                        
+                        // Прибираємо індикатор завантаження
+                        connectBtn.classList.remove('connecting');
 
                     } catch (e) {
                         console.error(e);
                         alert("Connection Failed: " + e.message);
+                        
+                        // Відновлюємо кнопку при помилці
+                        const connectBtn = document.getElementById('connectBtn');
+                        connectBtn.classList.remove('connecting');
+                        connectBtn.innerHTML = '<i class="fa-solid fa-wallet"></i> <span>Connect Wallet</span>';
                     }
                 },
 
@@ -1210,7 +1286,7 @@
                     App.state.address = null;
                     App.state.provider = null;
                     App.state.tokenContract = null;
-                    App.state.karBalance = '0.00';
+                    App.state.krmBalance = '0.00';
                     
                     // Clear from localStorage
                     UI.clearConnection();
@@ -1289,35 +1365,35 @@
                                 
                                 // Format balance
                                 const formattedBalance = ethers.utils.formatUnits(balance, decimals);
-                                App.state.karBalance = parseFloat(formattedBalance).toFixed(4);
+                                App.state.krmBalance = parseFloat(formattedBalance).toFixed(4);
                                 
                                 // Get token symbol
                                 const symbol = await tokenContract.symbol();
-                                console.log(`${symbol} Balance:`, App.state.karBalance);
+                                console.log(`${symbol} Balance:`, App.state.krmBalance);
                                 
                                 // Update UI
-                                UI.updateBalance(App.state.karBalance);
-                                UI.showNotification(`Balance loaded: ${App.state.karBalance} ${symbol}`, 'success');
+                                UI.updateBalance(App.state.krmBalance);
+                                UI.showNotification(`Balance loaded: ${App.state.krmBalance} ${symbol}`, 'success');
                                 
                             } catch (tokenError) {
                                 console.log('Token contract not available, using native balance');
                                 // If token contract fails, use native ETH balance
-                                App.state.karBalance = parseFloat(ethBalanceFormatted).toFixed(4);
-                                UI.updateBalance(App.state.karBalance);
-                                UI.showNotification(`Balance: ${App.state.karBalance} ETH`, 'info');
+                                App.state.krmBalance = parseFloat(ethBalanceFormatted).toFixed(4);
+                                UI.updateBalance(App.state.krmBalance);
+                                UI.showNotification(`Balance: ${App.state.krmBalance} ETH`, 'info');
                             }
                         } else {
                             // No token contract, use native ETH
-                            App.state.karBalance = parseFloat(ethBalanceFormatted).toFixed(4);
-                            UI.updateBalance(App.state.karBalance);
-                            UI.showNotification(`Balance: ${App.state.karBalance} ETH`, 'info');
+                            App.state.krmBalance = parseFloat(ethBalanceFormatted).toFixed(4);
+                            UI.updateBalance(App.state.krmBalance);
+                            UI.showNotification(`Balance: ${App.state.krmBalance} ETH`, 'info');
                         }
                         
                     } catch (error) {
                         console.error('Error loading balance:', error);
                         UI.showNotification('Failed to load balance', 'error');
-                        App.state.karBalance = '0.00';
-                        UI.updateBalance(App.state.karBalance);
+                        App.state.krmBalance = '0.00';
+                        UI.updateBalance(App.state.krmBalance);
                     }
                 },
 
@@ -1348,7 +1424,7 @@
                                 App.state.address = accounts[0];
                                 UI.saveConnection(App.state.address);
                                 await App.wallet.loadTokenBalance();
-                                UI.setConnectedState(App.state.address, App.state.karBalance);
+                                UI.setConnectedState(App.state.address, App.state.krmBalance);
                                 UI.showNotification('Account changed', 'info');
                             }
                         });
@@ -1381,7 +1457,7 @@
                                 App.state.provider = provider;
                                 
                                 await App.wallet.loadTokenBalance();
-                                UI.setConnectedState(App.state.address, App.state.karBalance);
+                                UI.setConnectedState(App.state.address, App.state.krmBalance);
                                 
                                 // Setup event listeners
                                 App.wallet.setupEventListeners();
