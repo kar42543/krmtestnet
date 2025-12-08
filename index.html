@@ -832,6 +832,11 @@
             background-size: 200% 100%;
             animation: shimmer 2s infinite;
         }
+        
+        /* X (Twitter) icon fix */
+        .fa-x-twitter:before {
+            content: "\f099";
+        }
     </style>
 </head>
 <body class="antialiased selection:bg-green-500 selection:text-white">
@@ -875,7 +880,7 @@
             
             <div class="flex justify-center space-x-6 mt-8">
                 <a href="https://x.com/karim7652117665" target="_blank" class="text-gray-400 hover:text-white transition-colors smooth-transition">
-                    <i class="fa-brands fa-x-twitter text-2xl"></i>
+                    <i class="fa-brands fa-twitter text-2xl"></i>
                 </a>
                 <a href="https://t.me/tgkarim1" target="_blank" class="text-gray-400 hover:text-white transition-colors smooth-transition">
                     <i class="fa-brands fa-telegram text-2xl"></i>
@@ -1101,54 +1106,49 @@
                         </div>
 
                         <h3 class="text-xl font-bold text-white mb-6">Incentivized Tasks</h3>
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             
-                            <!-- Task 1: Twitter Follow -->
+                            <!-- Task 1: Social Follow (Twitter + Telegram) -->
                             <div class="glass-card p-8 rounded-2xl border border-white/10 relative overflow-hidden group hover-lift">
                                 <div class="absolute top-0 right-0 bg-blue-500/20 text-blue-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Step 1</div>
                                 <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-6 text-2xl text-white group-hover:text-blue-400 transition-colors smooth-transition">
-                                    <i class="fab fa-x-twitter"></i>
+                                    <i class="fa-solid fa-users"></i>
                                 </div>
-                                <h4 class="text-xl font-bold text-white mb-2">Follow on X</h4>
-                                <p class="text-sm text-gray-400 mb-6">Follow our X account for updates.</p>
-                                <div class="grid grid-cols-2 gap-3">
-                                    <button onclick="App.tasks.openTwitter()" class="py-3 bg-blue-500 hover:bg-blue-600 text-center rounded-lg text-xs font-bold text-white transition-colors smooth-transition hover-lift">
-                                        OPEN X
+                                <h4 class="text-xl font-bold text-white mb-2">Social Follow</h4>
+                                <p class="text-sm text-gray-400 mb-6">Follow our X account and join Telegram channel.</p>
+                                <div class="space-y-3">
+                                    <button onclick="App.tasks.openTwitter()" class="w-full py-3 bg-blue-500 hover:bg-blue-600 text-center rounded-lg text-xs font-bold text-white transition-colors smooth-transition hover-lift flex items-center justify-center gap-2">
+                                        <i class="fab fa-twitter"></i> FOLLOW ON X
                                     </button>
-                                    <button onclick="App.tasks.completeTwitter()" id="verify-twitter" class="py-3 border border-white/20 text-gray-500 rounded-lg text-xs font-bold cursor-not-allowed" disabled>
-                                        VERIFY
+                                    <button onclick="App.tasks.openTelegram()" class="w-full py-3 bg-teal-500 hover:bg-teal-600 text-center rounded-lg text-xs font-bold text-white transition-colors smooth-transition hover-lift flex items-center justify-center gap-2">
+                                        <i class="fab fa-telegram"></i> JOIN TELEGRAM
+                                    </button>
+                                    <button onclick="App.tasks.completeSocialTask()" id="verify-social" class="w-full py-3 border border-white/20 text-gray-500 rounded-lg text-xs font-bold cursor-not-allowed" disabled>
+                                        VERIFY BOTH
                                     </button>
                                 </div>
                             </div>
 
-                            <!-- Task 2: Telegram Join -->
+                            <!-- Task 2: Make Transaction -->
                             <div id="card-task-2" class="glass-card p-8 rounded-2xl border border-white/10 task-locked relative overflow-hidden group hover-lift">
-                                <div class="absolute top-0 right-0 bg-teal-500/20 text-teal-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Step 2</div>
-                                <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-6 text-2xl text-white group-hover:text-teal-400 transition-colors smooth-transition">
-                                    <i class="fab fa-telegram"></i>
-                                </div>
-                                <h4 class="text-xl font-bold text-white mb-2">Join Telegram</h4>
-                                <p class="text-sm text-gray-400 mb-6">Join our official Telegram channel.</p>
-                                <button onclick="App.tasks.openTelegram()" class="w-full py-3 bg-teal-600/20 border border-teal-500/30 hover:bg-teal-600 text-teal-400 hover:text-white rounded-lg text-xs font-bold transition-colors smooth-transition hover-lift">
-                                    JOIN CHANNEL
-                                </button>
-                            </div>
-
-                            <!-- Task 3: Make Transaction -->
-                            <div id="card-task-3" class="glass-card p-8 rounded-2xl border border-white/10 task-locked relative overflow-hidden group hover-lift">
-                                <div class="absolute top-0 right-0 bg-purple-500/20 text-purple-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Step 3</div>
+                                <div class="absolute top-0 right-0 bg-purple-500/20 text-purple-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Step 2</div>
                                 <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-6 text-2xl text-white group-hover:text-purple-400 transition-colors smooth-transition">
                                     <i class="fa-solid fa-right-left"></i>
                                 </div>
                                 <h4 class="text-xl font-bold text-white mb-2">Make Transaction</h4>
-                                <p class="text-sm text-gray-400 mb-6">Send any transaction on KarChain.</p>
-                                <button onclick="App.tasks.checkTransaction()" id="verify-transaction" class="w-full py-3 border border-white/20 text-gray-500 rounded-lg text-xs font-bold cursor-not-allowed" disabled>
-                                    CHECK STATUS
-                                </button>
+                                <p class="text-sm text-gray-400 mb-6">Send any transaction on KarChain network.</p>
+                                <div class="space-y-3">
+                                    <button onclick="App.tasks.makeTestTransaction()" class="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white text-center rounded-lg text-xs font-bold transition-colors smooth-transition hover-lift">
+                                        MAKE TEST TX
+                                    </button>
+                                    <button onclick="App.tasks.checkTransaction()" id="verify-transaction" class="w-full py-3 border border-white/20 text-gray-500 rounded-lg text-xs font-bold cursor-not-allowed" disabled>
+                                        CHECK STATUS
+                                    </button>
+                                </div>
                             </div>
 
-                            <!-- Task 4: Google Form -->
-                            <div id="card-task-4" class="glass-card p-8 rounded-2xl border border-white/10 task-locked relative overflow-hidden group hover-lift">
+                            <!-- Task 3: Google Form -->
+                            <div id="card-task-3" class="glass-card p-8 rounded-2xl border border-white/10 task-locked relative overflow-hidden group hover-lift">
                                 <div class="absolute top-0 right-0 bg-orange-500/20 text-orange-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Final</div>
                                 <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-6 text-2xl text-white group-hover:text-orange-400 transition-colors smooth-transition">
                                     <i class="fa-solid fa-file-signature"></i>
@@ -1162,7 +1162,7 @@
                         </div>
                         
                         <div class="mt-8 pt-6 border-t border-white/10 flex justify-between items-center">
-                            <p class="text-xs text-gray-500">Progress: <span id="progress-text" class="text-white font-bold">0/4 Tasks</span></p>
+                            <p class="text-xs text-gray-500">Progress: <span id="progress-text" class="text-white font-bold">0/3 Tasks</span></p>
                             <div class="w-32 h-2 bg-white/10 rounded-full overflow-hidden">
                                 <div id="progress-bar" class="h-full bg-gradient-to-r from-green-500 to-emerald-500 w-0 transition-all duration-700 ease-out"></div>
                             </div>
@@ -1171,22 +1171,8 @@
                         <!-- Transaction History -->
                         <div id="transaction-history" class="mt-12 pt-8 border-t border-white/10 hidden">
                             <h4 class="text-lg font-bold text-white mb-4">Your Transactions</h4>
-                            <div class="space-y-2">
-                                <div class="flex justify-between items-center p-3 bg-white/5 rounded-lg">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center">
-                                            <i class="fa-solid fa-arrow-right text-green-400 text-xs"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-sm font-bold text-white">Transfer</p>
-                                            <p class="text-xs text-gray-500 font-mono">To: 0x1234...5678</p>
-                                        </div>
-                                    </div>
-                                    <div class="text-right">
-                                        <p class="text-sm font-bold text-white">0.1 KRM</p>
-                                        <p class="text-xs text-gray-500">2 min ago</p>
-                                    </div>
-                                </div>
+                            <div id="transactions-list" class="space-y-2">
+                                <!-- Transactions will be added here -->
                             </div>
                             <p id="no-transactions" class="text-center text-gray-500 text-sm py-4">No transactions yet. Make your first transaction!</p>
                         </div>
@@ -1196,24 +1182,362 @@
         </div>
     </div>
 
-    <!-- Vision Page (unchanged) -->
+    <!-- Vision Page -->
     <div id="page-vision" class="page-content pt-32 pb-20 px-4 max-w-7xl mx-auto">
-        <!-- ... keep existing vision page content ... -->
+        <div class="text-center mb-24 fade-in-up">
+            <h2 class="text-5xl md:text-7xl font-bold text-white mb-6">THE <span class="gradient-text">MANIFESTO</span></h2>
+            <p class="text-xl text-gray-400 font-light max-w-3xl mx-auto fade-in-up delay-100">Re-engineering the fundamental substrate of human coordination for the 22nd century.</p>
+        </div>
+
+        <div class="grid lg:grid-cols-2 gap-20 items-center mb-32">
+            <div class="space-y-12 fade-in-left">
+                <div class="border-l-4 border-green-500 pl-8 smooth-transition hover-lift">
+                    <h3 class="text-3xl text-white font-bold mb-4 font-mono">01 // Asynchronous Finality</h3>
+                    <div class="vision-text">
+                        <p>KarChain introduces a paradigm shift with <strong>Hyper-Graph Sharding</strong>. Unlike linear blockchains, our state is partitioned into thousands of concurrent execution threads.</p>
+                        <p>Using <strong>Proof-of-Synchrony</strong>, we achieve mathematical finality in sub-second timeframes, eliminating the need for probabilistic confirmations found in Nakamoto Consensus.</p>
+                        <a href="https://docs.karchain.network/technical/consensus" target="_blank" class="inline-block mt-4 text-green-400 hover:text-green-300 text-sm font-bold transition-colors smooth-transition">
+                            <i class="fa-solid fa-book mr-1"></i> Read Technical Documentation →
+                        </a>
+                    </div>
+                </div>
+                <div class="border-l-4 border-white/10 pl-8 smooth-transition hover-lift fade-in-left delay-200">
+                    <h3 class="text-3xl text-green-400 font-bold mb-4 font-mono">02 // Post-Quantum Security</h3>
+                    <div class="vision-text">
+                        <p>The era of elliptic curve cryptography is ending. KarChain is built as a <strong>Quantum Fortress</strong>, utilizing Lattice-based signatures (Kyber/Dilithium) to secure assets against future quantum decryption threats.</p>
+                        <a href="https://docs.karchain.network/security/quantum-resistance" target="_blank" class="inline-block mt-4 text-green-400 hover:text-green-300 text-sm font-bold transition-colors smooth-transition">
+                            <i class="fa-solid fa-shield-halved mr-1"></i> Security Whitepaper →
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-center relative h-[500px] items-center fade-in-right">
+                <div class="absolute inset-0 bg-green-500/10 blur-[100px] rounded-full animate-glow"></div>
+                <div class="gyro-wrapper">
+                    <div class="gyro">
+                        <div class="gyro-ring gr-1"></div>
+                        <div class="gyro-ring gr-2"></div>
+                        <div class="gyro-ring gr-3"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="glass-panel p-12 rounded-3xl border-t border-white/10 fade-in-up delay-300">
+            <h3 class="text-3xl text-white font-bold mb-12 text-center font-display">Strategic Roadmap</h3>
+            <div class="grid md:grid-cols-4 gap-8 relative">
+                
+                <div class="relative fade-in-up delay-400">
+                    <div class="w-6 h-6 bg-green-500 rounded-full border-4 border-black mb-4 mx-auto relative z-10 animate-pulse"></div>
+                    <h4 class="text-green-400 font-bold text-center mb-2">PHASE 1</h4>
+                    <p class="text-white font-bold text-center text-lg mb-2">Genesis</p>
+                    <p class="text-gray-500 text-center text-xs">Testnet launch, Faucet activation, Initial Validator onboarding.</p>
+                    <a href="https://docs.karchain.network/roadmap/phase-1" target="_blank" class="block mt-2 text-[10px] text-green-500 hover:text-green-400 font-bold uppercase smooth-transition">DETAILS</a>
+                </div>
+                <div class="relative opacity-70 fade-in-up delay-500">
+                    <div class="w-6 h-6 bg-gray-700 rounded-full border-4 border-black mb-4 mx-auto relative z-10"></div>
+                    <h4 class="text-gray-400 font-bold text-center mb-2">PHASE 2</h4>
+                    <p class="text-white font-bold text-center text-lg mb-2">Incentivized</p>
+                    <p class="text-gray-500 text-center text-xs">Public stress testing, Bug bounties, Cross-chain bridge beta.</p>
+                    <a href="https://docs.karchain.network/roadmap/phase-2" target="_blank" class="block mt-2 text-[10px] text-green-500 hover:text-green-400 font-bold uppercase smooth-transition">DETAILS</a>
+                </div>
+                <div class="relative opacity-50 fade-in-up delay-600">
+                    <div class="w-6 h-6 bg-gray-700 rounded-full border-4 border-black mb-4 mx-auto relative z-10"></div>
+                    <h4 class="text-gray-400 font-bold text-center mb-2">PHASE 3</h4>
+                    <p class="text-white font-bold text-center text-lg mb-2">Ignition</p>
+                    <p class="text-gray-500 text-center text-xs">Mainnet launch, TGE, Governance DAO activation.</p>
+                    <a href="https://docs.karchain.network/roadmap/phase-3" target="_blank" class="block mt-2 text-[10px] text-green-500 hover:text-green-400 font-bold uppercase smooth-transition">DETAILS</a>
+                </div>
+                <div class="relative opacity-30 fade-in-up delay-700">
+                    <div class="w-6 h-6 bg-gray-700 rounded-full border-4 border-black mb-4 mx-auto relative z-10"></div>
+                    <h4 class="text-gray-400 font-bold text-center mb-2">PHASE 4</h4>
+                    <p class="text-white font-bold text-center text-lg mb-2">Singularity</p>
+                    <p class="text-gray-500 text-center text-xs">Global settlement layer, Interplanetary file system integration.</p>
+                    <a href="https://docs.karchain.network/roadmap/phase-4" target="_blank" class="block mt-2 text-[10px] text-green-500 hover:text-green-400 font-bold uppercase smooth-transition">DETAILS</a>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Ecosystem Page (unchanged) -->
+    <!-- Ecosystem Page -->
     <div id="page-ecosystem" class="page-content pt-32 pb-20 px-4 max-w-7xl mx-auto">
-        <!-- ... keep existing ecosystem page content ... -->
+        <div class="text-center mb-16 fade-in-up">
+            <h2 class="text-5xl font-bold text-white mb-6">ECOSYSTEM</h2>
+            <p class="text-gray-400 fade-in-up delay-100">Building the next generation of decentralized applications on KarChain.</p>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-8">
+            <div class="glass-card p-8 rounded-xl group cursor-pointer fade-in-up delay-200 hover-lift">
+                <div class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center mb-6 text-2xl text-purple-400 group-hover:scale-110 transition-transform smooth-transition">
+                    <i class="fa-solid fa-right-left"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">KarSwap DEX</h3>
+                <p class="text-sm text-gray-400 mb-4">The native AMM with concentrated liquidity and zero slippage for high-frequency trading.</p>
+                <a href="https://swap.karchain.network" target="_blank" class="text-[10px] bg-green-900 text-green-400 px-2 py-1 rounded uppercase hover:bg-green-800 transition-colors inline-block smooth-transition">Live on Testnet ↗</a>
+            </div>
+            
+            <div class="glass-card p-8 rounded-xl group cursor-pointer fade-in-up delay-300 hover-lift">
+                <div class="w-12 h-12 bg-red-500/20 rounded-lg flex items-center justify-center mb-6 text-2xl text-red-400 group-hover:scale-110 transition-transform smooth-transition">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">KarVault Lending</h3>
+                <p class="text-sm text-gray-400 mb-4">Cross-chain lending protocol with undercollateralized loans powered by reputation scores.</p>
+                <a href="https://docs.karchain.network/ecosystem/karvault" target="_blank" class="text-[10px] bg-gray-800 text-gray-400 px-2 py-1 rounded uppercase hover:bg-gray-700 transition-colors inline-block smooth-transition">Coming Soon ↗</a>
+            </div>
+
+            <div class="glass-card p-8 rounded-xl group cursor-pointer fade-in-up delay-400 hover-lift">
+                <div class="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center mb-6 text-2xl text-yellow-400 group-hover:scale-110 transition-transform smooth-transition">
+                    <i class="fa-solid fa-vault text-2xl"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">KarSafe</h3>
+                <p class="text-sm text-gray-400 mb-4">Multi-sig institutional wallet with MPC technology for DAO treasury management.</p>
+                <a href="https://docs.karchain.network/ecosystem/karsafe" target="_blank" class="text-[10px] bg-gray-800 text-gray-400 px-2 py-1 rounded uppercase hover:bg-gray-700 transition-colors inline-block smooth-transition">Coming Soon ↗</a>
+            </div>
+
+            <div class="glass-card p-8 rounded-xl group cursor-pointer fade-in-up delay-200 hover-lift">
+                <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mb-6 text-2xl text-blue-400 group-hover:scale-110 transition-transform smooth-transition">
+                    <i class="fa-solid fa-bridge"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">KarBridge</h3>
+                <p class="text-sm text-gray-400 mb-4">Universal cross-chain bridge with ZK-proofs for secure asset transfers between networks.</p>
+                <a href="https://bridge.karchain.network" target="_blank" class="text-[10px] bg-gray-800 text-gray-400 px-2 py-1 rounded uppercase hover:bg-gray-700 transition-colors inline-block smooth-transition">In Development ↗</a>
+            </div>
+
+            <div class="glass-card p-8 rounded-xl group cursor-pointer fade-in-up delay-300 hover-lift">
+                <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center mb-6 text-2xl text-green-400 group-hover:scale-110 transition-transform smooth-transition">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">KarOracle</h3>
+                <p class="text-sm text-gray-400 mb-4">Decentralized oracle network providing tamper-proof data feeds for DeFi applications.</p>
+                <a href="https://docs.karchain.network/ecosystem/karoracle" target="_blank" class="text-[10px] bg-gray-800 text-gray-400 px-2 py-1 rounded uppercase hover:bg-gray-700 transition-colors inline-block smooth-transition">Planned Q2 2025 ↗</a>
+            </div>
+
+            <div class="glass-card p-8 rounded-xl group cursor-pointer fade-in-up delay-400 hover-lift">
+                <div class="w-12 h-12 bg-indigo-500/20 rounded-lg flex items-center justify-center mb-6 text-2xl text-indigo-400 group-hover:scale-110 transition-transform smooth-transition">
+                    <i class="fa-solid fa-cube"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">KarLaunch</h3>
+                <p class="text-sm text-gray-400 mb-4">Fair launch platform for new projects with anti-snipe protection and vesting schedules.</p>
+                <a href="https://launch.karchain.network" target="_blank" class="text-[10px] bg-gray-800 text-gray-400 px-2 py-1 rounded uppercase hover:bg-gray-700 transition-colors inline-block smooth-transition">Coming Soon ↗</a>
+            </div>
+        </div>
+
+        <div class="mt-24 fade-in-up delay-500">
+            <h3 class="text-2xl font-bold text-white mb-8 text-center">Strategic Partners</h3>
+            <div class="glass-panel p-8 rounded-2xl">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-center">
+                    <div class="text-center fade-in-up delay-600">
+                        <div class="w-16 h-16 mx-auto bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-4 smooth-transition hover-lift">
+                            <i class="fa-solid fa-server text-white text-2xl"></i>
+                        </div>
+                        <p class="text-sm font-bold text-white">Infrastructure</p>
+                        <p class="text-xs text-gray-500">Node providers & RPC services</p>
+                    </div>
+                    <div class="text-center fade-in-up delay-700">
+                        <div class="w-16 h-16 mx-auto bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mb-4 smooth-transition hover-lift">
+                            <i class="fa-solid fa-file-shield text-2xl"></i>
+                        </div>
+                        <p class="text-sm font-bold text-white">Security Audits</p>
+                        <p class="text-xs text-gray-500">Smart contract verification</p>
+                    </div>
+                    <div class="text-center fade-in-up delay-800">
+                        <div class="w-16 h-16 mx-auto bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center mb-4 smooth-transition hover-lift">
+                            <i class="fa-solid fa-users text-white text-2xl"></i>
+                        </div>
+                        <p class="text-sm font-bold text-white">Community</p>
+                        <p class="text-xs text-gray-500">Developer communities</p>
+                    </div>
+                    <div class="text-center fade-in-up delay-900">
+                        <div class="w-16 h-16 mx-auto bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mb-4 smooth-transition hover-lift">
+                            <i class="fa-solid fa-code text-white text-2xl"></i>
+                        </div>
+                        <p class="text-sm font-bold text-white">Tooling</p>
+                        <p class="text-xs text-gray-500">SDKs & Developer tools</p>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Support Page (unchanged) -->
+    <!-- Support Page -->
     <div id="page-support" class="page-content pt-32 pb-20 px-4 max-w-5xl mx-auto">
-        <!-- ... keep existing support page content ... -->
+        <div class="text-center mb-20 fade-in-up">
+            <h2 class="text-5xl font-bold text-white mb-6">COMMUNITY HUB</h2>
+            <p class="text-gray-400 text-lg fade-in-up delay-100">Get support, report bugs, and connect with developers.</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8 mb-16">
+            <a href="https://t.me/tgkarim1" target="_blank" class="glass-panel p-8 rounded-3xl block group border-t border-blue-500/20 hover:bg-blue-900/10 transition-all duration-300 smooth-transition hover-lift fade-in-left">
+                <div class="flex items-center gap-6 mb-4">
+                    <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-3xl text-white shadow-[0_0_20px_#3b82f6] group-hover:scale-110 transition-transform smooth-transition">
+                        <i class="fa-brands fa-telegram"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-white mb-1">Telegram Community</h3>
+                        <p class="text-gray-400">Join 50,000+ members. Direct access to core team.</p>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-blue-400 text-sm font-bold">@KarChainOfficial</span>
+                    <span class="px-4 py-2 bg-white/10 rounded-full text-white font-bold text-xs group-hover:bg-white/20 transition-colors smooth-transition">JOIN NOW</span>
+                </div>
+            </a>
+
+            <a href="mailto:support@karchain.io" class="glass-panel p-8 rounded-3xl block group border-t border-green-500/20 hover:bg-green-900/10 transition-all duration-300 smooth-transition hover-lift fade-in-right">
+                <div class="flex items-center gap-6 mb-4">
+                    <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-3xl text-white shadow-[0_0_20px_#22c55e] group-hover:scale-110 transition-transform smooth-transition">
+                        <i class="fa-solid fa-envelope"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-2xl font-bold text-white mb-1">Email Support</h3>
+                        <p class="text-gray-400">Direct technical support from our team. 24-48h response time.</p>
+                    </div>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-green-400 text-sm font-bold">support@karchain.io</span>
+                    <span class="px-4 py-2 bg-white/10 rounded-full text-white font-bold text-xs group-hover:bg-white/20 transition-colors smooth-transition">SEND EMAIL</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="space-y-4 fade-in-up delay-300">
+            <h3 class="text-2xl font-bold text-white mb-6 pl-4 border-l-4 border-green-500">Frequently Asked Questions</h3>
+            
+            <div class="glass-panel rounded-xl overflow-hidden hover-lift">
+                <button class="w-full p-6 text-left flex justify-between items-center text-white font-bold hover:bg-white/5 transition-colors smooth-transition faq-toggle">
+                    How to add KarChain to MetaMask?
+                    <i class="fa-solid fa-chevron-down transition-transform duration-300 smooth-transition"></i>
+                </button>
+                <div class="faq-content border-t border-white/5">
+                    <div class="px-6 pb-6 text-gray-400 text-sm leading-relaxed">
+                        The easiest way is to click "Connect Wallet" on our dashboard. The site will automatically prompt you to add the network (Chain ID: 1337). Alternatively, you can add it manually: 
+                        <br><br>
+                        <strong>Network Name:</strong> KarChain Testnet<br>
+                        <strong>RPC URL:</strong> https://relationless-improperly-nettie.ngrok-free.dev<br>
+                        <strong>Chain ID:</strong> 1337<br>
+                        <strong>Currency Symbol:</strong> KRM<br>
+                        <strong>Block Explorer:</strong> https://relationless-improperly-nettie.ngrok-free.dev
+                        <br><br>
+                        <a href="https://docs.karchain.network/getting-started/metamask-setup" target="_blank" class="text-green-400 hover:text-green-300 inline-flex items-center gap-1 smooth-transition">
+                            <i class="fa-solid fa-book"></i> Detailed Setup Guide →
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel rounded-xl overflow-hidden hover-lift">
+                <button class="w-full p-6 text-left flex justify-between items-center text-white font-bold hover:bg-white/5 transition-colors smooth-transition faq-toggle">
+                    How to get Testnet Tokens (KRM)?
+                    <i class="fa-solid fa-chevron-down transition-transform duration-300 smooth-transition"></i>
+                </button>
+                <div class="faq-content border-t border-white/5">
+                    <div class="px-6 pb-6 text-gray-400 text-sm leading-relaxed">
+                        Once you connect your wallet and complete the "Social Identity" task on the dashboard, our automated faucet will drop initial KRM tokens to your address for gas fees. You can also request tokens manually:
+                        <br><br>
+                        1. Connect your wallet<br>
+                        2. Click "Get Test Tokens" button in your wallet dropdown<br>
+                        3. Wait 1-2 minutes for confirmation
+                        <br><br>
+                        <strong>Note:</strong> Faucet has a 24-hour cooldown period per address.
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel rounded-xl overflow-hidden hover-lift">
+                <button class="w-full p-6 text-left flex justify-between items-center text-white font-bold hover:bg-white/5 transition-colors smooth-transition faq-toggle">
+                    What are the node requirements?
+                    <i class="fa-solid fa-chevron-down transition-transform duration-300 smooth-transition"></i>
+                </button>
+                <div class="faq-content border-t border-white/5">
+                    <div class="px-6 pb-6 text-gray-400 text-sm leading-relaxed">
+                        Due to our lightweight Besu client, you can run a node on minimal hardware:
+                        <br><br>
+                        <strong>Minimum Requirements:</strong><br>
+                        • 2 CPU Cores<br>
+                        • 4GB RAM<br>
+                        • 100GB SSD storage<br>
+                        • 10 MBit/s bandwidth
+                        <br><br>
+                        <strong>Recommended for Validators:</strong><br>
+                        • 4 CPU Cores<br>
+                        • 8GB RAM<br>
+                        • 200GB SSD storage<br>
+                        • 50 MBit/s bandwidth
+                        <br><br>
+                        <a href="https://docs.karchain.network/node/requirements" target="_blank" class="text-green-400 hover:text-green-300 inline-flex items-center gap-1 smooth-transition">
+                            <i class="fa-solid fa-server"></i> Node Setup Guide →
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel rounded-xl overflow-hidden hover-lift">
+                <button class="w-full p-6 text-left flex justify-between items-center text-white font-bold hover:bg-white/5 transition-colors smooth-transition faq-toggle">
+                    How to participate in the Incentivized Testnet?
+                    <i class="fa-solid fa-chevron-down transition-transform duration-300 smooth-transition"></i>
+                </button>
+                <div class="faq-content border-t border-white/5">
+                    <div class="px-6 pb-6 text-gray-400 text-sm leading-relaxed">
+                        To participate in the Incentivized Testnet and earn KRM tokens:
+                        <br><br>
+                        1. Connect your wallet on the Testnet dashboard<br>
+                        2. Complete Task 1: Follow our X account<br>
+                        3. Complete Task 2: Generate trading volume on KarSwap<br>
+                        4. Complete Task 3: Submit wallet to Genesis Registry<br>
+                        5. Wait for Phase 2 rewards distribution
+                        <br><br>
+                        Rewards are based on activity level and will be distributed after the testnet concludes.
+                        <a href="https://docs.karchain.network/testnet/rewards" target="_blank" class="text-green-400 hover:text-green-300 inline-flex items-center gap-1 smooth-transition">
+                            <i class="fa-solid fa-coins"></i> Rewards Structure →
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Footer (unchanged) -->
+    <!-- Footer -->
     <footer class="border-t border-white/5 bg-black py-16 mt-20">
-        <!-- ... keep existing footer content ... -->
+        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-12 fade-in-up">
+            <div class="col-span-1 md:col-span-2">
+                <span class="text-2xl font-bold tracking-[0.2em] text-white font-display">KARCHAIN</span>
+                <p class="text-gray-500 text-sm mt-4 max-w-xs">The sovereign consensus layer for the decentralized future. Built for speed, security, and sustainability.</p>
+                <div class="mt-6">
+                    <p class="text-sm text-gray-400 mb-2">Email Support:</p>
+                    <a href="mailto:support@karchain.io" class="text-green-400 hover:text-green-300 font-bold smooth-transition">support@karchain.io</a>
+                </div>
+            </div>
+            <div class="fade-in-up delay-100">
+                <h4 class="text-white font-bold mb-6 uppercase tracking-widest text-xs">Ecosystem</h4>
+                <ul class="space-y-3 text-sm">
+                    <li><a href="https://relationless-improperly-nettie.ngrok-free.dev" target="_blank" class="footer-link smooth-transition">Block Explorer</a></li>
+                    <li><a href="https://relationless-improperly-nettie.ngrok-free.dev" target="_blank" class="footer-link smooth-transition">Governance</a></li>
+                    <li><a href="https://relationless-improperly-nettie.ngrok-free.dev" target="_blank" class="footer-link smooth-transition">Bridge</a></li>
+                    <li><a href="#" onclick="App.faucet.claimTokens()" class="footer-link smooth-transition">Faucet</a></li>
+                </ul>
+            </div>
+            <div class="fade-in-up delay-200">
+                <h4 class="text-white font-bold mb-6 uppercase tracking-widest text-xs">Developers</h4>
+                <ul class="space-y-3 text-sm">
+                    <li><a href="https://docs.karchain.network" target="_blank" class="footer-link smooth-transition">Documentation</a></li>
+                    <li><a href="https://github.com/KarChain" target="_blank" class="footer-link smooth-transition">Github</a></li>
+                    <li><a href="https://docs.karchain.network/security/audits" target="_blank" class="footer-link smooth-transition">Audits</a></li>
+                    <li><a href="https://immunefi.com/bounty/karchain" target="_blank" class="footer-link smooth-transition">Bug Bounty</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center fade-in-up delay-300">
+            <p class="text-[10px] text-gray-700 font-mono uppercase tracking-widest">© 2025 KarChain Foundation. All rights reserved.</p>
+            <div class="flex gap-4 mt-4 md:mt-0">
+                <a href="https://x.com/karim7652117665" target="_blank" class="text-gray-600 hover:text-white transition-colors smooth-transition">
+                    <i class="fa-brands fa-twitter"></i>
+                </a>
+                <a href="https://discord.gg/karchain" target="_blank" class="text-gray-600 hover:text-white transition-colors smooth-transition"><i class="fa-brands fa-discord"></i></a>
+                <a href="https://github.com/KarChain" target="_blank" class="text-gray-600 hover:text-white transition-colors smooth-transition"><i class="fa-brands fa-github"></i></a>
+                <a href="https://t.me/tgkarim1" target="_blank" class="text-gray-600 hover:text-white transition-colors smooth-transition"><i class="fa-brands fa-telegram"></i></a>
+            </div>
+        </div>
     </footer>
 
     <script>
@@ -1249,7 +1573,8 @@
             WALLET_BALANCE: 'karchain_wallet_balance',
             WALLET_TYPE: 'karchain_wallet_type',
             TASKS_COMPLETED: 'karchain_tasks_completed',
-            TRANSACTIONS: 'karchain_transactions'
+            TRANSACTIONS: 'karchain_transactions',
+            SOCIAL_TASK_STARTED: 'karchain_social_started'
         };
 
         const UI = {
@@ -1268,7 +1593,7 @@
                 UI.fixNavbarOnPC();
                 UI.checkMetaMaskOnLoad();
                 
-                // Load completed tasks from localStorage
+                // Load completed tasks
                 UI.loadTaskProgress();
             },
 
@@ -1276,19 +1601,58 @@
                 const completedTasks = JSON.parse(localStorage.getItem(STORAGE_KEYS.TASKS_COMPLETED) || '[]');
                 UI.updateTaskProgress(completedTasks.length);
                 
-                // Enable buttons for completed tasks
-                completedTasks.forEach(taskId => {
-                    UI.enableTaskButton(taskId);
-                });
+                // Unlock next tasks based on progress
+                if (completedTasks.includes(1)) {
+                    UI.unlockTask(2);
+                }
+                if (completedTasks.includes(2)) {
+                    UI.unlockTask(3);
+                }
+                
+                // Check social task button
+                const socialStarted = localStorage.getItem(STORAGE_KEYS.SOCIAL_TASK_STARTED) === 'true';
+                if (socialStarted && !completedTasks.includes(1)) {
+                    const verifyBtn = document.getElementById('verify-social');
+                    if (verifyBtn) {
+                        verifyBtn.disabled = false;
+                        verifyBtn.classList.remove('cursor-not-allowed', 'border-white/20', 'text-gray-500');
+                        verifyBtn.classList.add('bg-green-600', 'text-white', 'hover:bg-green-500', 'border-transparent');
+                        verifyBtn.innerHTML = 'VERIFY BOTH';
+                    }
+                }
             },
 
-            enableTaskButton: (taskId) => {
-                const button = document.getElementById(`verify-task-${taskId}`);
-                if (button) {
-                    button.disabled = false;
-                    button.classList.remove('cursor-not-allowed', 'border-white/20', 'text-gray-500');
-                    button.classList.add('bg-green-600', 'text-white', 'hover:bg-green-500', 'border-transparent');
-                    button.innerHTML = 'COMPLETED';
+            unlockTask: (taskNumber) => {
+                if (taskNumber === 2) {
+                    const taskCard = document.getElementById('card-task-2');
+                    const verifyBtn = document.getElementById('verify-transaction');
+                    if (taskCard) {
+                        taskCard.classList.remove('task-locked');
+                        gsap.fromTo(taskCard,
+                            { scale: 0.95, opacity: 0.6 },
+                            { scale: 1, opacity: 1, duration: 0.5, ease: "power2.out" }
+                        );
+                    }
+                    if (verifyBtn) {
+                        verifyBtn.disabled = false;
+                        verifyBtn.classList.remove('cursor-not-allowed', 'border-white/20', 'text-gray-500');
+                        verifyBtn.classList.add('bg-purple-600', 'text-white', 'hover:bg-purple-500', 'border-transparent');
+                        verifyBtn.innerHTML = 'CHECK STATUS';
+                    }
+                }
+                if (taskNumber === 3) {
+                    const taskCard = document.getElementById('card-task-3');
+                    const formBtn = document.getElementById('btn-form');
+                    if (taskCard) {
+                        taskCard.classList.remove('task-locked');
+                        gsap.fromTo(taskCard,
+                            { scale: 0.95, opacity: 0.6 },
+                            { scale: 1, opacity: 1, duration: 0.5, ease: "power2.out", delay: 0.1 }
+                        );
+                    }
+                    if (formBtn) {
+                        formBtn.classList.remove('pointer-events-none', 'opacity-50');
+                    }
                 }
             },
 
@@ -1644,21 +2008,11 @@
             },
 
             setupTaskButtons: () => {
-                // Twitter task
-                const verifyTwitterBtn = document.getElementById('verify-twitter');
-                if (verifyTwitterBtn) {
-                    verifyTwitterBtn.addEventListener('click', () => {
-                        App.tasks.completeTask(1);
-                    });
-                }
-
-                // Telegram task
-                const task2Card = document.getElementById('card-task-2');
-                if (task2Card) {
-                    task2Card.addEventListener('click', () => {
-                        if (!task2Card.classList.contains('task-locked')) {
-                            App.tasks.openTelegram();
-                        }
+                // Social task verification
+                const verifySocialBtn = document.getElementById('verify-social');
+                if (verifySocialBtn) {
+                    verifySocialBtn.addEventListener('click', () => {
+                        App.tasks.completeSocialTask();
                     });
                 }
 
@@ -1754,6 +2108,7 @@
                     targetPage.classList.add('active');
                 }
 
+                // Update navigation active state
                 document.querySelectorAll('.nav-link').forEach(el => {
                     el.classList.remove('active', 'text-white', 'border-green-500');
                     el.classList.add('text-gray-400', 'border-transparent');
@@ -1836,7 +2191,7 @@
                     { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
                 );
 
-                // Show transaction history if wallet has transactions
+                // Show transaction history
                 UI.loadTransactionHistory();
             },
 
@@ -1923,7 +2278,7 @@
                 const progressBar = document.getElementById('progress-bar');
                 const progressText = document.getElementById('progress-text');
                 
-                const percentage = (completedTasks / 4) * 100;
+                const percentage = (completedTasks / 3) * 100;
                 
                 gsap.to(progressBar, {
                     width: `${percentage}%`,
@@ -1931,51 +2286,43 @@
                     ease: "power2.out"
                 });
                 
-                progressText.innerText = `${completedTasks}/4 Tasks`;
-                
-                // Unlock next tasks based on progress
-                if (completedTasks >= 1) {
-                    const task2Card = document.getElementById('card-task-2');
-                    task2Card.classList.remove('task-locked');
-                    gsap.fromTo(task2Card,
-                        { scale: 0.95, opacity: 0.6 },
-                        { scale: 1, opacity: 1, duration: 0.5, ease: "power2.out" }
-                    );
-                }
-                if (completedTasks >= 2) {
-                    const task3Card = document.getElementById('card-task-3');
-                    const verifyBtn = document.getElementById('verify-transaction');
-                    task3Card.classList.remove('task-locked');
-                    verifyBtn.disabled = false;
-                    verifyBtn.classList.remove('cursor-not-allowed', 'border-white/20', 'text-gray-500');
-                    verifyBtn.classList.add('bg-purple-600', 'text-white', 'hover:bg-purple-500', 'border-transparent');
-                    gsap.fromTo(task3Card,
-                        { scale: 0.95, opacity: 0.6 },
-                        { scale: 1, opacity: 1, duration: 0.5, ease: "power2.out", delay: 0.1 }
-                    );
-                }
-                if (completedTasks >= 3) {
-                    const task4Card = document.getElementById('card-task-4');
-                    const formBtn = document.getElementById('btn-form');
-                    task4Card.classList.remove('task-locked');
-                    formBtn.classList.remove('pointer-events-none', 'opacity-50');
-                    gsap.fromTo(task4Card,
-                        { scale: 0.95, opacity: 0.6 },
-                        { scale: 1, opacity: 1, duration: 0.5, ease: "power2.out", delay: 0.2 }
-                    );
-                }
+                progressText.innerText = `${completedTasks}/3 Tasks`;
             },
 
             loadTransactionHistory: () => {
                 const transactions = JSON.parse(localStorage.getItem(STORAGE_KEYS.TRANSACTIONS) || '[]');
                 const historySection = document.getElementById('transaction-history');
                 const noTransactions = document.getElementById('no-transactions');
+                const transactionsList = document.getElementById('transactions-list');
                 
                 if (transactions.length > 0) {
                     historySection.classList.remove('hidden');
                     noTransactions.style.display = 'none';
                     
-                    // TODO: Populate transaction list
+                    // Clear existing list
+                    transactionsList.innerHTML = '';
+                    
+                    // Add transactions to list
+                    transactions.forEach((tx, index) => {
+                        const txElement = document.createElement('div');
+                        txElement.className = 'flex justify-between items-center p-3 bg-white/5 rounded-lg';
+                        txElement.innerHTML = `
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center">
+                                    <i class="fa-solid fa-arrow-right text-green-400 text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-white">Transaction ${index + 1}</p>
+                                    <p class="text-xs text-gray-500 font-mono">${tx.hash.substring(0, 10)}...${tx.hash.substring(tx.hash.length - 8)}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-bold text-white">${tx.value} KRM</p>
+                                <p class="text-xs text-gray-500">${new Date(tx.timestamp).toLocaleTimeString()}</p>
+                            </div>
+                        `;
+                        transactionsList.appendChild(txElement);
+                    });
                 } else {
                     historySection.classList.add('hidden');
                     noTransactions.style.display = 'block';
@@ -1986,7 +2333,7 @@
                 const transactions = JSON.parse(localStorage.getItem(STORAGE_KEYS.TRANSACTIONS) || '[]');
                 transactions.push({
                     ...transaction,
-                    timestamp: Date.now()
+                    timestamp: new Date().toISOString()
                 });
                 localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(transactions));
                 
@@ -2324,31 +2671,74 @@
 
                 openTwitter: () => {
                     window.open(Config.tasks.twitterUrl, '_blank');
-                    UI.showNotification('Opening X (Twitter)... Follow our account!', 'info');
+                    localStorage.setItem(STORAGE_KEYS.SOCIAL_TASK_STARTED, 'true');
                     
                     setTimeout(() => {
-                        const verifyBtn = document.getElementById('verify-twitter');
+                        const verifyBtn = document.getElementById('verify-social');
                         if (verifyBtn) {
                             verifyBtn.disabled = false;
                             verifyBtn.classList.remove('cursor-not-allowed', 'border-white/20', 'text-gray-500');
-                            verifyBtn.classList.add('bg-blue-600', 'text-white', 'hover:bg-blue-500', 'border-transparent');
-                            verifyBtn.innerHTML = 'VERIFY';
-                            UI.showNotification('You can now verify Twitter task', 'info');
+                            verifyBtn.classList.add('bg-green-600', 'text-white', 'hover:bg-green-500', 'border-transparent');
+                            verifyBtn.innerHTML = 'VERIFY BOTH';
                         }
                     }, 2000);
-                },
-
-                completeTwitter: () => {
-                    App.tasks.completeTask(1, 'Twitter task completed!');
+                    
+                    UI.showNotification('Opening X (Twitter)... Follow our account!', 'info');
                 },
 
                 openTelegram: () => {
                     window.open(Config.tasks.telegramUrl, '_blank');
-                    UI.showNotification('Opening Telegram... Join our channel!', 'info');
+                    localStorage.setItem(STORAGE_KEYS.SOCIAL_TASK_STARTED, 'true');
                     
                     setTimeout(() => {
-                        App.tasks.completeTask(2, 'Telegram task completed!');
-                    }, 3000);
+                        const verifyBtn = document.getElementById('verify-social');
+                        if (verifyBtn) {
+                            verifyBtn.disabled = false;
+                            verifyBtn.classList.remove('cursor-not-allowed', 'border-white/20', 'text-gray-500');
+                            verifyBtn.classList.add('bg-green-600', 'text-white', 'hover:bg-green-500', 'border-transparent');
+                            verifyBtn.innerHTML = 'VERIFY BOTH';
+                        }
+                    }, 2000);
+                    
+                    UI.showNotification('Opening Telegram... Join our channel!', 'info');
+                },
+
+                completeSocialTask: () => {
+                    const verifyBtn = document.getElementById('verify-social');
+                    if (verifyBtn && verifyBtn.disabled === false) {
+                        verifyBtn.disabled = true;
+                        verifyBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                        
+                        gsap.to(verifyBtn, {
+                            rotation: 360,
+                            duration: 1.5,
+                            ease: "power2.out",
+                            repeat: -1
+                        });
+                        
+                        setTimeout(() => {
+                            gsap.killTweensOf(verifyBtn);
+                            verifyBtn.innerHTML = 'COMPLETED';
+                            verifyBtn.classList.replace('border-white/20', 'bg-green-900/50');
+                            verifyBtn.classList.add('text-green-400');
+                            
+                            if (!App.tasks.completedTasks.includes(1)) {
+                                App.tasks.completedTasks.push(1);
+                                localStorage.setItem(STORAGE_KEYS.TASKS_COMPLETED, JSON.stringify(App.tasks.completedTasks));
+                            }
+                            
+                            UI.updateTaskProgress(App.tasks.completedTasks.length);
+                            UI.unlockTask(2);
+                            UI.showNotification('Social task completed!', 'success');
+                            
+                            // Give faucet tokens
+                            setTimeout(() => {
+                                App.faucet.claimTokens();
+                            }, 1000);
+                        }, 1500);
+                    } else {
+                        UI.showNotification('Please open both Twitter and Telegram first', 'info');
+                    }
                 },
 
                 checkTransaction: () => {
@@ -2360,7 +2750,7 @@
                     const transactions = JSON.parse(localStorage.getItem(STORAGE_KEYS.TRANSACTIONS) || '[]');
                     
                     if (transactions.length > 0) {
-                        App.tasks.completeTask(3, 'Transaction verified!');
+                        App.tasks.completeTask(2, 'Transaction verified!');
                     } else {
                         UI.showNotification('No transactions found. Make a transaction first.', 'info');
                     }
@@ -2371,14 +2761,12 @@
                     window.open(formUrl, '_blank');
                     
                     setTimeout(() => {
-                        App.tasks.completeTask(4, 'Form submitted!');
+                        App.tasks.completeTask(3, 'Form submitted!');
                     }, 3000);
                 },
 
                 completeTask: (taskId, message) => {
-                    const btn = document.getElementById(`verify-task-${taskId}`) || 
-                               (taskId === 1 ? document.getElementById('verify-twitter') : 
-                                taskId === 3 ? document.getElementById('verify-transaction') : null);
+                    const btn = taskId === 2 ? document.getElementById('verify-transaction') : null;
                     
                     if (btn && btn.disabled === false) {
                         btn.disabled = true;
@@ -2403,13 +2791,12 @@
                             }
                             
                             UI.updateTaskProgress(App.tasks.completedTasks.length);
-                            UI.showNotification(message || `Task ${taskId} completed!`, 'success');
                             
-                            if (taskId === 1) {
-                                setTimeout(() => {
-                                    App.faucet.claimTokens();
-                                }, 1000);
+                            if (taskId === 2) {
+                                UI.unlockTask(3);
                             }
+                            
+                            UI.showNotification(message || `Task ${taskId} completed!`, 'success');
                         }, 1500);
                     }
                 },
@@ -2417,12 +2804,10 @@
                 startTransactionMonitoring: () => {
                     if (!App.state.address || App.tasks.transactionMonitoring) return;
                     
-                    // Check for existing transactions every 30 seconds
                     App.tasks.transactionMonitoring = setInterval(() => {
                         App.tasks.checkForTransactions();
                     }, 30000);
                     
-                    // Also check immediately
                     App.tasks.checkForTransactions();
                 },
 
@@ -2430,22 +2815,18 @@
                     if (!App.state.address || !App.state.provider) return;
                     
                     try {
-                        // Get latest block
                         const blockNumber = await App.state.provider.getBlockNumber();
                         
-                        // Get transactions from last 100 blocks
                         for (let i = Math.max(0, blockNumber - 100); i <= blockNumber; i++) {
                             const block = await App.state.provider.getBlockWithTransactions(i);
                             
                             if (block && block.transactions) {
                                 block.transactions.forEach(tx => {
                                     if (tx.from.toLowerCase() === App.state.address.toLowerCase()) {
-                                        // Check if we already have this transaction
                                         const existingTransactions = JSON.parse(localStorage.getItem(STORAGE_KEYS.TRANSACTIONS) || '[]');
                                         const txExists = existingTransactions.some(t => t.hash === tx.hash);
                                         
                                         if (!txExists) {
-                                            // Add new transaction
                                             UI.addTransaction({
                                                 hash: tx.hash,
                                                 from: tx.from,
@@ -2456,9 +2837,8 @@
                                             
                                             UI.showNotification('New transaction detected!', 'success');
                                             
-                                            // Auto-complete task 3 if not already completed
-                                            if (!App.tasks.completedTasks.includes(3)) {
-                                                App.tasks.completeTask(3, 'Transaction verified automatically!');
+                                            if (!App.tasks.completedTasks.includes(2)) {
+                                                App.tasks.completeTask(2, 'Transaction verified automatically!');
                                             }
                                         }
                                     }
@@ -2479,7 +2859,7 @@
                     try {
                         const signer = App.state.provider.getSigner();
                         
-                        // Send 0.001 KRM to yourself (test transaction)
+                        // Send 0.001 KRM to yourself
                         const tx = await signer.sendTransaction({
                             to: App.state.address,
                             value: ethers.utils.parseEther("0.001")
@@ -2501,9 +2881,9 @@
                             timestamp: new Date().toISOString()
                         });
                         
-                        // Auto-complete task 3
-                        if (!App.tasks.completedTasks.includes(3)) {
-                            App.tasks.completeTask(3, 'Transaction verified!');
+                        // Auto-complete task 2 if not already completed
+                        if (!App.tasks.completedTasks.includes(2)) {
+                            App.tasks.completeTask(2, 'Transaction verified!');
                         }
                         
                     } catch (error) {
