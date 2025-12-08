@@ -20,7 +20,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <!-- ScrollTrigger видалено -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/TextPlugin.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -123,13 +123,13 @@
         }
 
         html {
-            scroll-behavior: smooth;
+            scroll-behavior: smooth; /* Залишаємо нативний smooth scroll */
             overflow-x: hidden;
         }
 
-        @media (prefers-reduced-motion: no-preference) {
+        @media (prefers-reduced-motion: reduce) {
             html {
-                scroll-behavior: smooth;
+                scroll-behavior: auto;
             }
         }
 
@@ -320,7 +320,7 @@
                 linear-gradient(90deg, rgba(74, 222, 128, 0.03) 1px, transparent 1px);
             background-size: 60px 60px;
             mask-image: radial-gradient(circle at center, black 40%, transparent 70%);
-            animation: gridFlow 20s linear infinite;
+            /* Видалено animation: gridFlow */
         }
 
         @keyframes gridFlow {
@@ -1588,7 +1588,7 @@
             TASKS_COMPLETED: 'karchain_tasks_completed',
             TRANSACTIONS: 'karchain_transactions',
             SOCIAL_TASK_STARTED: 'karchain_social_started',
-            TOKEN_BALANCE_HISTORY: 'karchain_token_balance_history', // Новий ключ для історії балансу
+            TOKEN_BALANCE_HISTORY: 'karchain_token_balance_history',
             LAST_FAUCET_CLAIM: 'karchain_last_faucet_claim'
         };
 
@@ -1707,6 +1707,7 @@
                     }
                 });
 
+                // Проста навігація по якорям з нативним smooth scroll
                 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                     anchor.addEventListener('click', function(e) {
                         const href = this.getAttribute('href');
@@ -1716,10 +1717,10 @@
                         if (targetElement) {
                             e.preventDefault();
                             const offset = 80;
-                            const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+                            const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset - offset;
                             
                             window.scrollTo({
-                                top: targetPosition - offset,
+                                top: targetPosition,
                                 behavior: 'smooth'
                             });
                         }
@@ -1728,51 +1729,30 @@
             },
 
             initAnimations: () => {
-                gsap.registerPlugin(ScrollTrigger);
+                // Видалено ScrollTrigger
 
-                gsap.utils.toArray('.fade-in-up, .fade-in-left, .fade-in-right, .fade-in').forEach(el => {
-                    gsap.from(el, {
-                        scrollTrigger: {
-                            trigger: el,
-                            start: "top 80%",
-                            toggleActions: "play none none reverse"
-                        },
-                        y: 30,
-                        opacity: 0,
-                        duration: 0.8,
-                        ease: "power2.out"
-                    });
-                });
-
-                gsap.to('.grid-overlay', {
-                    scrollTrigger: {
-                        scrub: true
-                    },
-                    y: 100,
-                    ease: "none"
-                });
-
+                // Анімація лічильників
                 const counters = document.querySelectorAll('.counter');
                 counters.forEach(counter => {
                     const target = parseInt(counter.textContent.replace(/,/g, ''));
                     if (!isNaN(target)) {
-                        gsap.to(counter, {
-                            scrollTrigger: {
-                                trigger: counter,
-                                start: "top 80%",
-                                toggleActions: "play none none reverse"
-                            },
-                            innerHTML: target,
-                            duration: 2,
-                            snap: { innerHTML: 1 },
-                            onUpdate: function() {
-                                const value = Math.floor(this.targets()[0].innerHTML);
-                                this.targets()[0].innerHTML = value.toLocaleString();
-                            }
-                        });
+                        // Проста анімація без ScrollTrigger
+                        setTimeout(() => {
+                            gsap.to(counter, {
+                                innerHTML: target,
+                                duration: 2,
+                                ease: "power2.out",
+                                snap: { innerHTML: 1 },
+                                onUpdate: function() {
+                                    const value = Math.floor(this.targets()[0].innerHTML);
+                                    this.targets()[0].innerHTML = value.toLocaleString();
+                                }
+                            });
+                        }, 1000);
                     }
                 });
 
+                // Hover-анімації для карток
                 const cards = document.querySelectorAll('.glass-card, .glass-panel');
                 cards.forEach(card => {
                     card.addEventListener('mouseenter', () => {
@@ -1791,13 +1771,10 @@
                     });
                 });
 
+                // Ініціалізація прогресс-бара
                 const progressBar = document.getElementById('progress-bar');
                 if (progressBar) {
-                    gsap.to(progressBar, {
-                        width: "0%",
-                        duration: 0.5,
-                        ease: "power2.out"
-                    });
+                    progressBar.style.width = "0%";
                 }
             },
 
@@ -3017,15 +2994,7 @@
             }
         });
 
-        document.addEventListener('wheel', function(e) {
-            const modal = document.getElementById('connect-modal');
-            const mobileMenu = document.getElementById('mobileMenu');
-            
-            if ((modal && !modal.classList.contains('hidden')) || 
-                (mobileMenu && mobileMenu.classList.contains('active'))) {
-                e.preventDefault();
-            }
-        }, { passive: false });
+        // Видалено wheel event listener, який викликав конфлікт
 
         window.addEventListener('resize', function() {
             UI.fixNavbarOnPC();
