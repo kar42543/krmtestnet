@@ -124,13 +124,6 @@
 
         html {
             scroll-behavior: smooth;
-            overflow-x: hidden;
-        }
-
-        @media (prefers-reduced-motion: no-preference) {
-            html {
-                scroll-behavior: smooth;
-            }
         }
 
         .smooth-transition {
@@ -217,6 +210,8 @@
             background: rgba(2, 4, 2, 0.95) !important;
             backdrop-filter: blur(24px) saturate(200%) !important;
             -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
+            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform: translateY(0);
         }
 
         .btn-primary {
@@ -849,6 +844,19 @@
             padding: 2px;
             font-weight: 900;
             font-family: 'Inter', sans-serif;
+        }
+
+        /* Fix for smooth scrolling */
+        body.no-scroll {
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
+
+        .smooth-scroll {
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
         }
     </style>
 </head>
@@ -1588,7 +1596,7 @@
             TASKS_COMPLETED: 'karchain_tasks_completed',
             TRANSACTIONS: 'karchain_transactions',
             SOCIAL_TASK_STARTED: 'karchain_social_started',
-            TOKEN_BALANCE_HISTORY: 'karchain_token_balance_history', // Новий ключ для історії балансу
+            TOKEN_BALANCE_HISTORY: 'karchain_token_balance_history',
             LAST_FAUCET_CLAIM: 'karchain_last_faucet_claim'
         };
 
@@ -1610,6 +1618,71 @@
                 
                 // Load completed tasks
                 UI.loadTaskProgress();
+                
+                // Додаємо обробник для скролу
+                UI.setupScrollHandlers();
+            },
+
+            setupScrollHandlers: () => {
+                // Запобігаємо конфліктам скролу
+                let isScrolling = false;
+                let lastScrollTop = 0;
+                
+                window.addEventListener('scroll', () => {
+                    if (!isScrolling) {
+                        window.requestAnimationFrame(() => {
+                            // Оновлюємо кнопку "вгору"
+                            const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+                            if (scrollToTopBtn) {
+                                if (window.scrollY > 300) {
+                                    scrollToTopBtn.classList.remove('opacity-0', 'translate-y-10');
+                                    scrollToTopBtn.classList.add('opacity-100', 'translate-y-0');
+                                } else {
+                                    scrollToTopBtn.classList.remove('opacity-100', 'translate-y-0');
+                                    scrollToTopBtn.classList.add('opacity-0', 'translate-y-10');
+                                }
+                            }
+                            
+                            // Оновлюємо навігаційну панель
+                            const navbar = document.getElementById('navbar');
+                            if (navbar) {
+                                const currentScrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                                
+                                if (currentScrollTop > lastScrollTop && currentScrollTop > 100) {
+                                    // Скролимо вниз
+                                    navbar.style.transform = 'translateY(-100%)';
+                                } else {
+                                    // Скролимо вгору або на початку
+                                    navbar.style.transform = 'translateY(0)';
+                                }
+                                lastScrollTop = currentScrollTop;
+                            }
+                            
+                            isScrolling = false;
+                        });
+                        
+                        isScrolling = true;
+                    }
+                }, { passive: true });
+                
+                // Плавний скрол для внутрішніх посилань
+                document.addEventListener('click', function(e) {
+                    const target = e.target.closest('a[href^="#"]');
+                    if (target && target.getAttribute('href') !== '#') {
+                        e.preventDefault();
+                        const href = target.getAttribute('href');
+                        const targetElement = document.querySelector(href);
+                        if (targetElement) {
+                            const offset = 80;
+                            const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+                            
+                            window.scrollTo({
+                                top: targetPosition - offset,
+                                behavior: 'smooth'
+                            });
+                        }
+                    }
+                });
             },
 
             loadTaskProgress: () => {
@@ -1696,35 +1769,7 @@
                     });
                 });
 
-                window.addEventListener('scroll', () => {
-                    const btn = document.getElementById('scrollToTopBtn');
-                    if (window.scrollY > 300) {
-                        btn.classList.remove('opacity-0', 'translate-y-10');
-                        btn.classList.add('opacity-100', 'translate-y-0');
-                    } else {
-                        btn.classList.remove('opacity-100', 'translate-y-0');
-                        btn.classList.add('opacity-0', 'translate-y-10');
-                    }
-                });
-
-                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                    anchor.addEventListener('click', function(e) {
-                        const href = this.getAttribute('href');
-                        if (href === '#' || href === '') return;
-                        
-                        const targetElement = document.querySelector(href);
-                        if (targetElement) {
-                            e.preventDefault();
-                            const offset = 80;
-                            const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
-                            
-                            window.scrollTo({
-                                top: targetPosition - offset,
-                                behavior: 'smooth'
-                            });
-                        }
-                    });
-                });
+                // Управління відображенням кнопки перенесено в setupScrollHandlers
             },
 
             initAnimations: () => {
@@ -1872,6 +1917,7 @@
                         mobileBackdrop.classList.toggle('active');
                         hamburgerBtn.classList.toggle('active');
                         document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+                        document.body.classList.toggle('no-scroll');
                     });
                     
                     mobileBackdrop.addEventListener('click', function() {
@@ -1895,6 +1941,7 @@
                 if (mobileBackdrop) mobileBackdrop.classList.remove('active');
                 if (hamburgerBtn) hamburgerBtn.classList.remove('active');
                 document.body.style.overflow = '';
+                document.body.classList.remove('no-scroll');
             },
 
             checkMetaMaskOnLoad: () => {
@@ -2153,13 +2200,15 @@
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
                 
+                // Заборонити скрол тіла
+                document.body.classList.add('no-scroll');
+                
                 gsap.fromTo('#modal-content', 
                     { scale: 0.95, opacity: 0 },
                     { scale: 1, opacity: 1, duration: 0.4, ease: "power2.out" }
                 );
                 
                 UI.closeMobileMenu();
-                document.body.style.overflow = 'hidden';
             },
 
             closeModal: () => {
@@ -2172,7 +2221,8 @@
                         const modal = document.getElementById('connect-modal');
                         modal.classList.add('hidden');
                         modal.classList.remove('flex');
-                        document.body.style.overflow = '';
+                        // Дозволити скрол тіла
+                        document.body.classList.remove('no-scroll');
                     }
                 });
             },
@@ -3003,27 +3053,41 @@
                     await App.wallet.tryReconnect();
                 }, 1000);
             }
-        });
-
-        // Add transaction button to UI
-        document.addEventListener('DOMContentLoaded', () => {
-            const transactionSection = document.querySelector('#transaction-history');
-            if (transactionSection) {
-                const makeTxButton = document.createElement('button');
-                makeTxButton.className = 'mt-4 w-full py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-bold transition-colors smooth-transition hover-lift';
-                makeTxButton.innerHTML = '<i class="fa-solid fa-bolt mr-2"></i> Make Test Transaction';
-                makeTxButton.onclick = App.tasks.makeTestTransaction;
-                transactionSection.appendChild(makeTxButton);
+            
+            // Оптимізація для ПК
+            if (!App.state.isMobile) {
+                // Додаємо requestAnimationFrame для плавності
+                let ticking = false;
+                
+                window.addEventListener('scroll', () => {
+                    if (!ticking) {
+                        window.requestAnimationFrame(() => {
+                            // Тут можна додати код, що потребує плавної анімації
+                            ticking = false;
+                        });
+                        ticking = true;
+                    }
+                }, { passive: true });
             }
         });
 
+        // Запобігання конфліктам скролу при відкритих модалках
         document.addEventListener('wheel', function(e) {
             const modal = document.getElementById('connect-modal');
             const mobileMenu = document.getElementById('mobileMenu');
             
-            if ((modal && !modal.classList.contains('hidden')) || 
-                (mobileMenu && mobileMenu.classList.contains('active'))) {
-                e.preventDefault();
+            const isModalOpen = modal && !modal.classList.contains('hidden');
+            const isMobileMenuOpen = mobileMenu && mobileMenu.classList.contains('active');
+            
+            if (isModalOpen || isMobileMenuOpen) {
+                // Дозволити скрол всередині модалки/меню, але не тіла
+                const target = e.target;
+                const isInsideModal = modal && modal.contains(target);
+                const isInsideMenu = mobileMenu && mobileMenu.contains(target);
+                
+                if (!isInsideModal && !isInsideMenu) {
+                    e.preventDefault();
+                }
             }
         }, { passive: false });
 
@@ -3033,4 +3097,3 @@
     </script>
 </body>
 </html>
-
