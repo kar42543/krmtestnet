@@ -21,16 +21,27 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/TextPlugin.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/EasePack.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 
+    <!-- Smooth Scroll Polyfill for Safari -->
+    <script src="https://unpkg.com/smoothscroll-polyfill/dist/smoothscroll.min.js"></script>
+    <script src="https://unpkg.com/smoothscroll-anchor-polyfill"></script>
+
     <!-- WalletConnect -->
     <script src="https://unpkg.com/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
 
     <script>
+        // Apply smooth scroll polyfill
+        if (window.SmoothScroll) {
+            window.SmoothScroll.polyfill();
+        }
+
         tailwind.config = {
             theme: {
                 extend: {
@@ -59,11 +70,18 @@
                         'gradient': 'gradient 8s ease infinite',
                         'shimmer': 'shimmer 2s infinite',
                         'glow': 'glow 2s ease-in-out infinite',
+                        'smooth-appear': 'smoothAppear 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+                        'smooth-slide-up': 'smoothSlideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+                        'smooth-slide-left': 'smoothSlideLeft 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+                        'smooth-slide-right': 'smoothSlideRight 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+                        'smooth-fade-in': 'smoothFadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards',
+                        'blob': 'blob 7s infinite',
+                        'gentle-pulse': 'gentlePulse 2s ease-in-out infinite',
                     },
                     keyframes: {
                         float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-20px)' },
+                            '0%, 100%': { transform: 'translateY(0) scale(1)' },
+                            '50%': { transform: 'translateY(-20px) scale(1.02)' },
                         },
                         waterDrop: {
                             '0%': { transform: 'translateY(-100px)', opacity: '0' },
@@ -87,7 +105,80 @@
                         glow: {
                             '0%, 100%': { opacity: 1 },
                             '50%': { opacity: 0.5 },
+                        },
+                        smoothAppear: {
+                            '0%': { 
+                                opacity: '0',
+                                transform: 'scale(0.95)'
+                            },
+                            '100%': { 
+                                opacity: '1',
+                                transform: 'scale(1)'
+                            }
+                        },
+                        smoothSlideUp: {
+                            '0%': { 
+                                opacity: '0',
+                                transform: 'translateY(30px)'
+                            },
+                            '100%': { 
+                                opacity: '1',
+                                transform: 'translateY(0)'
+                            }
+                        },
+                        smoothSlideLeft: {
+                            '0%': { 
+                                opacity: '0',
+                                transform: 'translateX(-30px)'
+                            },
+                            '100%': { 
+                                opacity: '1',
+                                transform: 'translateX(0)'
+                            }
+                        },
+                        smoothSlideRight: {
+                            '0%': { 
+                                opacity: '0',
+                                transform: 'translateX(30px)'
+                            },
+                            '100%': { 
+                                opacity: '1',
+                                transform: 'translateX(0)'
+                            }
+                        },
+                        smoothFadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' }
+                        },
+                        blob: {
+                            '0%': {
+                                transform: 'translate(0px, 0px) scale(1)',
+                            },
+                            '33%': {
+                                transform: 'translate(30px, -50px) scale(1.1)',
+                            },
+                            '66%': {
+                                transform: 'translate(-20px, 20px) scale(0.9)',
+                            },
+                            '100%': {
+                                transform: 'translate(0px, 0px) scale(1)',
+                            },
+                        },
+                        gentlePulse: {
+                            '0%, 100%': { opacity: 1 },
+                            '50%': { opacity: 0.7 }
                         }
+                    },
+                    transitionTimingFunction: {
+                        'smooth': 'cubic-bezier(0.4, 0, 0.2, 1)',
+                        'smooth-in': 'cubic-bezier(0.4, 0, 1, 1)',
+                        'smooth-out': 'cubic-bezier(0, 0, 0.2, 1)',
+                        'bounce-out': 'cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                    },
+                    transitionDuration: {
+                        'smooth': '600ms',
+                        'slow': '800ms',
+                        'very-slow': '1200ms',
                     }
                 }
             }
@@ -95,16 +186,21 @@
     </script>
 
     <style>
+        /* CSS Reset for smooth scrolling */
         :root {
             --glass-bg: rgba(10, 10, 10, 0.6);
             --glass-border: rgba(255, 255, 255, 0.08);
             --neon-glow: 0 0 20px rgba(74, 222, 128, 0.3);
+            --scroll-behavior: smooth;
         }
 
-        * {
+        /* Force hardware acceleration */
+        *, *::before, *::after {
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
+        /* Body smooth scroll setup */
         body {
             background-color: #020402;
             color: #e5e5e5;
@@ -115,66 +211,70 @@
             -moz-osx-font-smoothing: grayscale;
             text-rendering: optimizeLegibility;
             opacity: 0;
-            animation: fadeInBody 1s ease-out forwards;
+            animation: smoothFadeIn 1s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+            will-change: transform, opacity;
+            /* Optimize for scrolling */
+            overscroll-behavior: none;
+            -webkit-overflow-scrolling: touch;
         }
 
-        @keyframes fadeInBody {
-            to { opacity: 1; }
-        }
-
+        /* HTML smooth scrolling */
         html {
             scroll-behavior: smooth;
             overflow-x: hidden;
+            scroll-padding-top: 80px;
+            /* Improved scroll performance */
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
-        @media (prefers-reduced-motion: no-preference) {
-            html {
-                scroll-behavior: smooth;
-            }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
 
+        ::-webkit-scrollbar-track {
+            background: rgba(2, 4, 2, 0.8);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, #15803d, #4ade80);
+            border-radius: 4px;
+            border: 2px solid rgba(2, 4, 2, 0.8);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(to bottom, #4ade80, #22c55e);
+            transform: scale(1.1);
+        }
+
+        /* Selection */
+        ::selection {
+            background: rgba(74, 222, 128, 0.3);
+            color: #ffffff;
+        }
+
+        /* Smooth transitions */
         .smooth-transition {
-            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             transform: translateZ(0);
             backface-visibility: hidden;
+            perspective: 1000px;
         }
 
         .smooth-transform {
-            transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             transform: translateZ(0);
         }
 
         .smooth-opacity {
-            transition: opacity 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        @media (min-width: 1024px) {
-            .hover-lift {
-                will-change: transform;
-                transform: translate3d(0, 0, 0);
-                backface-visibility: hidden;
-                -webkit-transform: translate3d(0, 0, 0);
-            }
-            
-            .smooth-transition {
-                transform: translateZ(0);
-                backface-visibility: hidden;
-            }
-        }
-
-        .parallax-layer {
-            will-change: transform;
-        }
-
-        .gradient-text {
-            background: linear-gradient(90deg, #ffffff, #4ade80, #22c55e, #4ade80, #ffffff);
-            background-size: 300% 300%;
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: gradient 8s ease infinite;
-        }
-
+        /* Glass effects */
         .glass-panel {
             background: rgba(15, 15, 15, 0.6);
             backdrop-filter: blur(16px) saturate(180%);
@@ -183,7 +283,7 @@
             box-shadow: 
                 0 4px 30px rgba(0, 0, 0, 0.3),
                 0 0 0 1px rgba(74, 222, 128, 0.05);
-            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             transform: translateZ(0);
         }
 
@@ -201,7 +301,7 @@
             border: 1px solid rgba(255,255,255,0.05);
             backdrop-filter: blur(10px) saturate(180%);
             -webkit-backdrop-filter: blur(10px) saturate(180%);
-            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             transform: translateZ(0);
         }
 
@@ -213,18 +313,22 @@
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
 
+        /* Navigation */
         nav#navbar {
             background: rgba(2, 4, 2, 0.95) !important;
             backdrop-filter: blur(24px) saturate(200%) !important;
             -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform, backdrop-filter;
         }
 
+        /* Buttons */
         .btn-primary {
             background: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
             color: white;
             position: relative;
             overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
             border: 1px solid rgba(34, 197, 94, 0.3);
             box-shadow: 0 4px 20px rgba(34, 197, 94, 0.2);
             transform: translateZ(0);
@@ -238,7 +342,7 @@
             width: 100%;
             height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: 0.6s;
+            transition: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
         .btn-primary:hover::before {
@@ -253,49 +357,44 @@
             border-color: #4ade80;
         }
 
-        .btn-primary:active {
-            transform: translateY(0) translateZ(0);
+        /* Page transitions */
+        .page-content {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), 
+                        transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: transform, opacity;
         }
 
-        ::-webkit-scrollbar {
-            width: 10px;
-            height: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(2, 4, 2, 0.8);
-            border-radius: 5px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(to bottom, #15803d, #4ade80);
-            border-radius: 5px;
-            border: 2px solid rgba(2, 4, 2, 0.8);
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: linear-gradient(to bottom, #4ade80, #22c55e);
-        }
-
-        ::selection {
-            background: rgba(74, 222, 128, 0.3);
-            color: #ffffff;
-        }
-
-        #scrollToTopBtn {
-            box-shadow: 0 4px 20px rgba(74, 222, 128, 0.3);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        #scrollToTopBtn:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 30px rgba(74, 222, 128, 0.5);
-        }
-
-        #scrollToTopBtn:active {
+        .page-content.active {
+            display: block;
+            opacity: 1;
             transform: translateY(0);
         }
 
+        /* Hover effects */
+        .hover-lift {
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translate3d(0, 0, 0);
+            will-change: transform;
+        }
+
+        .hover-lift:hover {
+            transform: translateY(-8px) translate3d(0, 0, 0);
+        }
+
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(90deg, #ffffff, #4ade80, #22c55e, #4ade80, #ffffff);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient 8s ease infinite;
+        }
+
+        /* Background effects */
         #webgl-canvas {
             position: fixed;
             top: 0;
@@ -332,107 +431,28 @@
             }
         }
 
-        .text-gradient {
-            background: linear-gradient(135deg, #ffffff 0%, #4ade80 50%, #22c55e 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            background-size: 200% 200%;
-            animation: gradient 6s ease infinite;
+        /* Animations */
+        .animate-smooth-appear {
+            animation: smoothAppear 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
-        .fade-in {
-            opacity: 0;
-            animation: fadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        .animate-smooth-slide-up {
+            animation: smoothSlideUp 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
-        .fade-in-up {
-            opacity: 0;
-            transform: translateY(40px);
-            animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        .animate-smooth-slide-left {
+            animation: smoothSlideLeft 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
-        .fade-in-left {
-            opacity: 0;
-            transform: translateX(-40px);
-            animation: fadeInLeft 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        .animate-smooth-slide-right {
+            animation: smoothSlideRight 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
-        .fade-in-right {
-            opacity: 0;
-            transform: translateX(40px);
-            animation: fadeInRight 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+        .animate-smooth-fade-in {
+            animation: smoothFadeIn 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
-        .delay-100 { animation-delay: 0.1s; }
-        .delay-200 { animation-delay: 0.2s; }
-        .delay-300 { animation-delay: 0.3s; }
-        .delay-400 { animation-delay: 0.4s; }
-        .delay-500 { animation-delay: 0.5s; }
-        .delay-600 { animation-delay: 0.6s; }
-        .delay-700 { animation-delay: 0.7s; }
-        .delay-800 { animation-delay: 0.8s; }
-
-        @keyframes fadeIn {
-            to { opacity: 1; }
-        }
-
-        @keyframes fadeInUp {
-            to { 
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        @keyframes fadeInLeft {
-            to { 
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        @keyframes fadeInRight {
-            to { 
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-
-        .stagger-item {
-            opacity: 0;
-        }
-
-        .page-content {
-            display: none;
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), 
-                        transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-
-        .page-content.active {
-            display: block;
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .hover-lift {
-            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-            transform: translate3d(0, 0, 0);
-        }
-
-        .hover-lift:hover {
-            transform: translateY(-8px) translate3d(0, 0, 0);
-        }
-
-        .hover-glow {
-            transition: box-shadow 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-
-        .hover-glow:hover {
-            box-shadow: 0 0 40px rgba(74, 222, 128, 0.2);
-        }
-
+        /* Water drops */
         .water-drop {
             position: absolute;
             width: 2px;
@@ -443,104 +463,7 @@
             animation: waterDrop 8s linear infinite;
         }
 
-        .water-wave {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 300%;
-            height: 150px;
-            background: linear-gradient(90deg, 
-                transparent, 
-                rgba(74, 222, 128, 0.1) 20%, 
-                rgba(74, 222, 128, 0.05) 40%, 
-                transparent 60%);
-            z-index: -7;
-            opacity: 0.3;
-            pointer-events: none;
-            animation: wave 20s linear infinite;
-        }
-
-        .gyro-wrapper {
-            perspective: 1000px;
-            width: 300px;
-            height: 300px;
-            position: relative;
-        }
-
-        .gyro {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform-style: preserve-3d;
-            animation: rotate3d 20s linear infinite;
-        }
-
-        @keyframes rotate3d {
-            0% { transform: rotateX(0) rotateY(0) rotateZ(0); }
-            100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(180deg); }
-        }
-
-        .gyro-ring {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            border-radius: 50%;
-            border: 1px solid rgba(74, 222, 128, 0.6);
-            box-shadow: 0 0 15px rgba(74, 222, 128, 0.2);
-            animation: pulseRing 4s ease-in-out infinite;
-        }
-
-        @keyframes pulseRing {
-            0%, 100% { 
-                border-color: rgba(74, 222, 128, 0.6);
-                box-shadow: 0 0 15px rgba(74, 222, 128, 0.2);
-            }
-            50% { 
-                border-color: rgba(74, 222, 128, 0.9);
-                box-shadow: 0 0 30px rgba(74, 222, 128, 0.4);
-            }
-        }
-
-        .gr-1 {
-            width: 200px;
-            height: 200px;
-            margin: -100px;
-            animation: rotate1 10s linear infinite;
-            border-left-color: transparent;
-        }
-
-        .gr-2 {
-            width: 160px;
-            height: 160px;
-            margin: -80px;
-            animation: rotate2 8s linear infinite;
-            border-top-color: transparent;
-            border-width: 2px;
-        }
-
-        .gr-3 {
-            width: 120px;
-            height: 120px;
-            margin: -60px;
-            animation: rotate3 6s linear infinite;
-            border-right-color: transparent;
-        }
-
-        @keyframes rotate1 {
-            0% { transform: rotateX(0) rotateY(0); }
-            100% { transform: rotateX(360deg) rotateY(360deg); }
-        }
-
-        @keyframes rotate2 {
-            0% { transform: rotateX(0) rotateY(0); }
-            100% { transform: rotateX(-360deg) rotateY(180deg); }
-        }
-
-        @keyframes rotate3 {
-            0% { transform: rotateX(0) rotateY(0); }
-            100% { transform: rotateX(180deg) rotateY(-360deg); }
-        }
-
+        /* Mobile menu */
         .mobile-menu {
             position: fixed;
             top: 0;
@@ -552,7 +475,7 @@
             backdrop-filter: blur(20px) saturate(180%);
             -webkit-backdrop-filter: blur(20px) saturate(180%);
             z-index: 10000;
-            transition: right 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: right 0.5s cubic-bezier(0.4, 0, 0.2, 1);
             padding-top: 100px;
             overflow-y: auto;
             border-left: 1px solid rgba(74, 222, 128, 0.1);
@@ -562,212 +485,51 @@
             right: 0;
         }
 
-        .mobile-menu-backdrop {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-            z-index: 9999;
+        /* FAQ */
+        .faq-content {
+            max-height: 0;
             opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-
-        .mobile-menu-backdrop.active {
-            opacity: 1;
-            pointer-events: all;
-        }
-
-        .hamburger {
-            display: none;
-            flex-direction: column;
-            justify-content: space-between;
-            width: 30px;
-            height: 21px;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            padding: 0;
-            z-index: 10001;
-            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-
-        .hamburger:hover {
-            transform: scale(1.1);
-        }
-
-        .hamburger span {
-            width: 100%;
-            height: 3px;
-            background: #4ade80;
-            border-radius: 2px;
-            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-            transform-origin: center;
-        }
-
-        .hamburger.active span:nth-child(1) {
-            transform: rotate(45deg) translate(6px, 6px);
-        }
-
-        .hamburger.active span:nth-child(2) {
-            opacity: 0;
-            transform: scaleX(0);
-        }
-
-        .hamburger.active span:nth-child(3) {
-            transform: rotate(-45deg) translate(7px, -7px);
-        }
-
-        @media (max-width: 1024px) {
-            .desktop-nav {
-                display: none !important;
-            }
-            
-            .mobile-nav {
-                display: none !important;
-            }
-            
-            .hamburger {
-                display: flex;
-            }
-            
-            nav .hidden.md\\:block {
-                display: none !important;
-            }
-            
-            .mobile-wallet-info {
-                display: block !important;
-                margin-top: 20px;
-                padding: 20px;
-                background: rgba(255, 255, 255, 0.05);
-                border-radius: 12px;
-            }
-            
-            nav .flex.items-center.gap-4 .flex.flex-col span:first-child {
-                font-size: 16px !important;
-            }
-            
-            nav .flex.items-center.gap-4 .flex.flex-col span:last-child {
-                font-size: 8px !important;
-            }
-            
-            #connectBtn {
-                padding: 8px 12px !important;
-                font-size: 10px !important;
-                width: auto;
-                min-width: 120px;
-            }
-            
-            #connectBtn span {
-                display: inline;
-            }
-            
-            #connectBtn {
-                display: flex !important;
-            }
-            
-            nav .max-w-\[1600px\] {
-                padding-left: 16px !important;
-                padding-right: 16px !important;
-            }
-            
-            .page-content {
-                padding-left: 16px !important;
-                padding-right: 16px !important;
-            }
-            
-            nav .flex.items-center.justify-between {
-                width: 100%;
-            }
-            
-            nav .flex.items-center.gap-4.relative {
-                margin-left: auto;
-                gap: 12px !important;
-            }
-        }
-
-        @media (max-width: 768px) {
-            #dashboard-ui .glass-panel {
-                padding: 0;
-            }
-            
-            #dashboard-ui .glass-panel > div {
-                border-radius: 16px;
-                padding: 20px;
-            }
-            
-            .stat-value {
-                font-size: 24px;
-            }
-            
-            #connectBtn {
-                padding: 6px 10px !important;
-                font-size: 9px !important;
-                min-width: 110px;
-            }
-            
-            #connectBtn i {
-                font-size: 10px !important;
-            }
-            
-            nav .relative.w-10.h-10 {
-                width: 32px !important;
-                height: 32px !important;
-            }
-            
-            nav .h-24 {
-                height: 70px !important;
-            }
-            
-            .page-content.pt-32 {
-                padding-top: 90px !important;
-            }
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        @media (max-width: 480px) {
-            #connectBtn span {
-                display: none;
-            }
-            
-            #connectBtn {
-                width: 40px;
-                height: 40px;
-                padding: 0 !important;
-                border-radius: 50% !important;
-                display: flex !important;
-                align-items: center;
-                justify-content: center;
-                min-width: auto;
-            }
-            
-            #connectBtn i {
-                margin: 0 !important;
-                font-size: 16px !important;
-            }
-            
-            .hamburger {
-                width: 24px;
-                height: 18px;
-            }
-            
-            .hamburger span {
-                height: 2px;
-            }
-            
-            .hamburger.active span:nth-child(1) {
-                transform: rotate(45deg) translate(4px, 4px);
-            }
-            
-            .hamburger.active span:nth-child(3) {
-                transform: rotate(-45deg) translate(5px, -5px);
-            }
+        .faq-content.open {
+            max-height: 500px;
+            opacity: 1;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
         }
 
+        /* Progress bar */
+        #progress-bar {
+            transition: width 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Blob animation */
+        .blob {
+            animation: blob 7s infinite;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Smooth scroll to top button */
+        #scrollToTopBtn {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            transform: translateZ(0);
+            box-shadow: 0 4px 20px rgba(74, 222, 128, 0.3);
+        }
+
+        #scrollToTopBtn:hover {
+            transform: translateY(-4px) scale(1.1);
+            box-shadow: 0 8px 30px rgba(74, 222, 128, 0.5);
+        }
+
+        #scrollToTopBtn:active {
+            transform: translateY(0) scale(0.95);
+        }
+
+        /* Notification */
         .notification {
-            animation: slideIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            animation: slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
         }
 
         @keyframes slideIn {
@@ -781,67 +543,67 @@
             }
         }
 
-        .faq-content {
-            max-height: 0;
-            opacity: 0;
-            overflow: hidden;
-            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-        
-        .faq-content.open {
-            max-height: 500px;
-            opacity: 1;
-            padding-top: 1rem;
-            padding-bottom: 1rem;
+        /* Performance optimizations */
+        .will-change-transform {
+            will-change: transform;
         }
 
-        .task-locked {
-            pointer-events: none;
-            opacity: 0.6;
-            filter: grayscale(0.8);
-            position: relative;
-            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        .will-change-opacity {
+            will-change: opacity;
         }
 
-        .task-locked::after {
-            content: '\f023';
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 32px;
-            color: rgba(255,255,255,0.8);
-            background: rgba(0,0,0,0.7);
-            padding: 20px;
-            border-radius: 50%;
-            backdrop-filter: blur(5px);
-            animation: pulse 2s ease-in-out infinite;
+        .will-change-scroll {
+            will-change: scroll-position;
         }
 
-        .counter {
-            font-variant-numeric: tabular-nums;
+        .force-gpu {
+            transform: translateZ(0);
+            -webkit-transform: translateZ(0);
+            -moz-transform: translateZ(0);
+            -ms-transform: translateZ(0);
+            -o-transform: translateZ(0);
         }
 
-        .shimmer {
-            background: linear-gradient(90deg, 
-                rgba(255, 255, 255, 0) 0%, 
-                rgba(255, 255, 255, 0.1) 50%, 
-                rgba(255, 255, 255, 0) 100%);
-            background-size: 200% 100%;
-            animation: shimmer 2s infinite;
+        /* Touch device optimizations */
+        @media (hover: none) and (pointer: coarse) {
+            .hover-lift:hover {
+                transform: none;
+            }
+            
+            .glass-card:hover {
+                transform: none;
+            }
+            
+            .btn-primary:hover {
+                transform: none;
+            }
         }
-        
-        /* X (Twitter) logo fix */
-        .fa-x-twitter {
-            font-family: "Font Awesome 6 Brands";
+
+        /* Reduce motion preference */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            
+            html {
+                scroll-behavior: auto;
+            }
         }
-        .fa-x-twitter:before {
-            content: "\f099";
+
+        /* Custom smooth scrolling container */
+        .smooth-scroll-container {
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+            scroll-snap-type: y proximity;
         }
-        
-        /* Custom X logo styling */
+
+        .smooth-scroll-container > * {
+            scroll-snap-align: start;
+        }
+
+        /* X logo */
         .x-logo {
             color: #000000;
             background: white;
@@ -850,9 +612,61 @@
             font-weight: 900;
             font-family: 'Inter', sans-serif;
         }
+
+        /* Floating elements */
+        .float-element {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        /* Gentle pulse for loading states */
+        .gentle-pulse {
+            animation: gentlePulse 2s ease-in-out infinite;
+        }
+
+        /* Smooth page loader */
+        .page-loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #020402;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .page-loader.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        /* Improved focus styles for accessibility */
+        :focus-visible {
+            outline: 2px solid #4ade80;
+            outline-offset: 2px;
+            border-radius: 4px;
+        }
+
+        /* Print styles */
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+        }
     </style>
 </head>
-<body class="antialiased selection:bg-green-500 selection:text-white">
+<body class="antialiased selection:bg-green-500 selection:text-white overflow-x-hidden">
+
+    <!-- Page Loader -->
+    <div class="page-loader" id="pageLoader">
+        <div class="text-center">
+            <div class="inline-block w-16 h-16 border-4 border-green-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p class="text-green-400 font-display">Loading KarChain...</p>
+        </div>
+    </div>
 
     <!-- Мобільне меню -->
     <div class="mobile-menu-backdrop" id="mobileBackdrop"></div>
@@ -910,7 +724,10 @@
     
     <div class="water-wave"></div>
     
-    <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-green-500/5 rounded-full blur-[120px] -z-5 pointer-events-none animate-pulse-slow"></div>
+    <!-- Animated blobs for background -->
+    <div class="fixed top-1/4 left-1/4 w-96 h-96 bg-green-500/5 rounded-full blur-[120px] -z-5 pointer-events-none blob"></div>
+    <div class="fixed bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/5 rounded-full blur-[120px] -z-5 pointer-events-none blob" style="animation-delay: -3.5s;"></div>
+    <div class="fixed top-3/4 left-3/4 w-64 h-64 bg-purple-500/5 rounded-full blur-[80px] -z-5 pointer-events-none blob" style="animation-delay: -7s;"></div>
 
     <!-- Navigation -->
     <nav class="fixed top-0 w-full z-50 border-b border-white/5 transition-all duration-300 smooth-transition" id="navbar" style="background: rgba(2, 4, 2, 0.95); backdrop-filter: blur(24px) saturate(200%); -webkit-backdrop-filter: blur(24px) saturate(200%);">
@@ -1039,22 +856,22 @@
     <!-- Home Page -->
     <div id="page-home" class="page-content active pt-32 pb-20 px-4">
         
-        <div class="max-w-7xl mx-auto text-center mb-24 relative z-10 fade-in-up">
+        <div class="max-w-7xl mx-auto text-center mb-24 relative z-10 animate-smooth-slide-up">
             <h1 class="text-4xl md:text-7xl font-bold text-white mb-6 leading-tight">
                 THE ARCHITECTURE OF <br> <span class="text-gradient">DIGITAL TRUST</span>
             </h1>
-            <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto font-light leading-relaxed mb-10 fade-in-up delay-100">
+            <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto font-light leading-relaxed mb-10 animate-smooth-slide-up delay-100">
                 KarChain is the modular consensus layer designed for the next billion users. 
                 <br>Join the Incentivized Testnet and secure your place in the genesis block.
             </p>
             
-            <div class="flex flex-wrap justify-center gap-6 fade-in-up delay-200">
+            <div class="flex flex-wrap justify-center gap-6 animate-smooth-slide-up delay-200">
                 <button onclick="App.router.navigate('vision')" class="px-10 py-4 border border-white/10 hover:bg-white/5 text-white rounded-full text-sm font-bold uppercase tracking-widest transition-all smooth-transition hover-lift">
                     Read Manifesto
                 </button>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mt-16 border-t border-white/10 pt-8 fade-in-up delay-300">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mt-16 border-t border-white/10 pt-8 animate-smooth-slide-up delay-300">
                 <div>
                     <p class="text-3xl font-bold text-white stat-value counter">12,492</p>
                     <p class="text-[10px] text-gray-500 uppercase tracking-widest">Blocks Minted</p>
@@ -1074,7 +891,7 @@
             </div>
         </div>
 
-        <div id="dashboard-ui" class="max-w-6xl mx-auto fade-in-up delay-400">
+        <div id="dashboard-ui" class="max-w-6xl mx-auto animate-smooth-slide-up delay-400">
             <div class="glass-panel rounded-3xl p-1 relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent opacity-50 shimmer"></div>
                 <div class="bg-black/80 backdrop-blur-xl rounded-[20px] p-8 md:p-12">
@@ -1177,7 +994,7 @@
                         <div class="mt-8 pt-6 border-t border-white/10 flex justify-between items-center">
                             <p class="text-xs text-gray-500">Progress: <span id="progress-text" class="text-white font-bold">0/3 Tasks</span></p>
                             <div class="w-32 h-2 bg-white/10 rounded-full overflow-hidden">
-                                <div id="progress-bar" class="h-full bg-gradient-to-r from-green-500 to-emerald-500 w-0 transition-all duration-700 ease-out"></div>
+                                <div id="progress-bar" class="h-full bg-gradient-to-r from-green-500 to-emerald-500 w-0 transition-all duration-700 smooth-transition"></div>
                             </div>
                         </div>
 
@@ -1197,13 +1014,13 @@
 
     <!-- Vision Page -->
     <div id="page-vision" class="page-content pt-32 pb-20 px-4 max-w-7xl mx-auto">
-        <div class="text-center mb-24 fade-in-up">
+        <div class="text-center mb-24 animate-smooth-slide-up">
             <h2 class="text-5xl md:text-7xl font-bold text-white mb-6">THE <span class="gradient-text">MANIFESTO</span></h2>
-            <p class="text-xl text-gray-400 font-light max-w-3xl mx-auto fade-in-up delay-100">Re-engineering the fundamental substrate of human coordination for the 22nd century.</p>
+            <p class="text-xl text-gray-400 font-light max-w-3xl mx-auto animate-smooth-slide-up delay-100">Re-engineering the fundamental substrate of human coordination for the 22nd century.</p>
         </div>
 
         <div class="grid lg:grid-cols-2 gap-20 items-center mb-32">
-            <div class="space-y-12 fade-in-left">
+            <div class="space-y-12 animate-smooth-slide-left">
                 <div class="border-l-4 border-green-500 pl-8 smooth-transition hover-lift">
                     <h3 class="text-3xl text-white font-bold mb-4 font-mono">01 // Asynchronous Finality</h3>
                     <div class="vision-text">
@@ -1214,7 +1031,7 @@
                         </a>
                     </div>
                 </div>
-                <div class="border-l-4 border-white/10 pl-8 smooth-transition hover-lift fade-in-left delay-200">
+                <div class="border-l-4 border-white/10 pl-8 smooth-transition hover-lift animate-smooth-slide-left delay-200">
                     <h3 class="text-3xl text-green-400 font-bold mb-4 font-mono">02 // Post-Quantum Security</h3>
                     <div class="vision-text">
                         <p>The era of elliptic curve cryptography is ending. KarChain is built as a <strong>Quantum Fortress</strong>, utilizing Lattice-based signatures (Kyber/Dilithium) to secure assets against future quantum decryption threats.</p>
@@ -1225,7 +1042,7 @@
                 </div>
             </div>
             
-            <div class="flex justify-center relative h-[500px] items-center fade-in-right">
+            <div class="flex justify-center relative h-[500px] items-center animate-smooth-slide-right">
                 <div class="absolute inset-0 bg-green-500/10 blur-[100px] rounded-full animate-glow"></div>
                 <div class="gyro-wrapper">
                     <div class="gyro">
@@ -1237,32 +1054,32 @@
             </div>
         </div>
 
-        <div class="glass-panel p-12 rounded-3xl border-t border-white/10 fade-in-up delay-300">
+        <div class="glass-panel p-12 rounded-3xl border-t border-white/10 animate-smooth-slide-up delay-300">
             <h3 class="text-3xl text-white font-bold mb-12 text-center font-display">Strategic Roadmap</h3>
             <div class="grid md:grid-cols-4 gap-8 relative">
                 
-                <div class="relative fade-in-up delay-400">
+                <div class="relative animate-smooth-slide-up delay-400">
                     <div class="w-6 h-6 bg-green-500 rounded-full border-4 border-black mb-4 mx-auto relative z-10 animate-pulse"></div>
                     <h4 class="text-green-400 font-bold text-center mb-2">PHASE 1</h4>
                     <p class="text-white font-bold text-center text-lg mb-2">Genesis</p>
                     <p class="text-gray-500 text-center text-xs">Testnet launch, Faucet activation, Initial Validator onboarding.</p>
                     <a href="https://docs.karchain.network/roadmap/phase-1" target="_blank" class="block mt-2 text-[10px] text-green-500 hover:text-green-400 font-bold uppercase smooth-transition">DETAILS</a>
                 </div>
-                <div class="relative opacity-70 fade-in-up delay-500">
+                <div class="relative opacity-70 animate-smooth-slide-up delay-500">
                     <div class="w-6 h-6 bg-gray-700 rounded-full border-4 border-black mb-4 mx-auto relative z-10"></div>
                     <h4 class="text-gray-400 font-bold text-center mb-2">PHASE 2</h4>
                     <p class="text-white font-bold text-center text-lg mb-2">Incentivized</p>
                     <p class="text-gray-500 text-center text-xs">Public stress testing, Bug bounties, Cross-chain bridge beta.</p>
                     <a href="https://docs.karchain.network/roadmap/phase-2" target="_blank" class="block mt-2 text-[10px] text-green-500 hover:text-green-400 font-bold uppercase smooth-transition">DETAILS</a>
                 </div>
-                <div class="relative opacity-50 fade-in-up delay-600">
+                <div class="relative opacity-50 animate-smooth-slide-up delay-600">
                     <div class="w-6 h-6 bg-gray-700 rounded-full border-4 border-black mb-4 mx-auto relative z-10"></div>
                     <h4 class="text-gray-400 font-bold text-center mb-2">PHASE 3</h4>
                     <p class="text-white font-bold text-center text-lg mb-2">Ignition</p>
                     <p class="text-gray-500 text-center text-xs">Mainnet launch, TGE, Governance DAO activation.</p>
                     <a href="https://docs.karchain.network/roadmap/phase-3" target="_blank" class="block mt-2 text-[10px] text-green-500 hover:text-green-400 font-bold uppercase smooth-transition">DETAILS</a>
                 </div>
-                <div class="relative opacity-30 fade-in-up delay-700">
+                <div class="relative opacity-30 animate-smooth-slide-up delay-700">
                     <div class="w-6 h-6 bg-gray-700 rounded-full border-4 border-black mb-4 mx-auto relative z-10"></div>
                     <h4 class="text-gray-400 font-bold text-center mb-2">PHASE 4</h4>
                     <p class="text-white font-bold text-center text-lg mb-2">Singularity</p>
@@ -1275,13 +1092,13 @@
 
     <!-- Ecosystem Page -->
     <div id="page-ecosystem" class="page-content pt-32 pb-20 px-4 max-w-7xl mx-auto">
-        <div class="text-center mb-16 fade-in-up">
+        <div class="text-center mb-16 animate-smooth-slide-up">
             <h2 class="text-5xl font-bold text-white mb-6">ECOSYSTEM</h2>
-            <p class="text-gray-400 fade-in-up delay-100">Building the next generation of decentralized applications on KarChain.</p>
+            <p class="text-gray-400 animate-smooth-slide-up delay-100">Building the next generation of decentralized applications on KarChain.</p>
         </div>
         
         <div class="grid md:grid-cols-3 gap-8">
-            <div class="glass-card p-8 rounded-xl group cursor-pointer fade-in-up delay-200 hover-lift">
+            <div class="glass-card p-8 rounded-xl group cursor-pointer animate-smooth-slide-up delay-200 hover-lift">
                 <div class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center mb-6 text-2xl text-purple-400 group-hover:scale-110 transition-transform smooth-transition">
                     <i class="fa-solid fa-right-left"></i>
                 </div>
@@ -1290,7 +1107,7 @@
                 <a href="https://swap.karchain.network" target="_blank" class="text-[10px] bg-green-900 text-green-400 px-2 py-1 rounded uppercase hover:bg-green-800 transition-colors inline-block smooth-transition">Live on Testnet ↗</a>
             </div>
             
-            <div class="glass-card p-8 rounded-xl group cursor-pointer fade-in-up delay-300 hover-lift">
+            <div class="glass-card p-8 rounded-xl group cursor-pointer animate-smooth-slide-up delay-300 hover-lift">
                 <div class="w-12 h-12 bg-red-500/20 rounded-lg flex items-center justify-center mb-6 text-2xl text-red-400 group-hover:scale-110 transition-transform smooth-transition">
                     <i class="fa-solid fa-bolt"></i>
                 </div>
@@ -1299,7 +1116,7 @@
                 <a href="https://docs.karchain.network/ecosystem/karvault" target="_blank" class="text-[10px] bg-gray-800 text-gray-400 px-2 py-1 rounded uppercase hover:bg-gray-700 transition-colors inline-block smooth-transition">Coming Soon ↗</a>
             </div>
 
-            <div class="glass-card p-8 rounded-xl group cursor-pointer fade-in-up delay-400 hover-lift">
+            <div class="glass-card p-8 rounded-xl group cursor-pointer animate-smooth-slide-up delay-400 hover-lift">
                 <div class="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center mb-6 text-2xl text-yellow-400 group-hover:scale-110 transition-transform smooth-transition">
                     <i class="fa-solid fa-vault text-2xl"></i>
                 </div>
@@ -1308,7 +1125,7 @@
                 <a href="https://docs.karchain.network/ecosystem/karsafe" target="_blank" class="text-[10px] bg-gray-800 text-gray-400 px-2 py-1 rounded uppercase hover:bg-gray-700 transition-colors inline-block smooth-transition">Coming Soon ↗</a>
             </div>
 
-            <div class="glass-card p-8 rounded-xl group cursor-pointer fade-in-up delay-200 hover-lift">
+            <div class="glass-card p-8 rounded-xl group cursor-pointer animate-smooth-slide-up delay-200 hover-lift">
                 <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mb-6 text-2xl text-blue-400 group-hover:scale-110 transition-transform smooth-transition">
                     <i class="fa-solid fa-bridge"></i>
                 </div>
@@ -1317,7 +1134,7 @@
                 <a href="https://bridge.karchain.network" target="_blank" class="text-[10px] bg-gray-800 text-gray-400 px-2 py-1 rounded uppercase hover:bg-gray-700 transition-colors inline-block smooth-transition">In Development ↗</a>
             </div>
 
-            <div class="glass-card p-8 rounded-xl group cursor-pointer fade-in-up delay-300 hover-lift">
+            <div class="glass-card p-8 rounded-xl group cursor-pointer animate-smooth-slide-up delay-300 hover-lift">
                 <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center mb-6 text-2xl text-green-400 group-hover:scale-110 transition-transform smooth-transition">
                     <i class="fa-solid fa-chart-line"></i>
                 </div>
@@ -1326,7 +1143,7 @@
                 <a href="https://docs.karchain.network/ecosystem/karoracle" target="_blank" class="text-[10px] bg-gray-800 text-gray-400 px-2 py-1 rounded uppercase hover:bg-gray-700 transition-colors inline-block smooth-transition">Planned Q2 2025 ↗</a>
             </div>
 
-            <div class="glass-card p-8 rounded-xl group cursor-pointer fade-in-up delay-400 hover-lift">
+            <div class="glass-card p-8 rounded-xl group cursor-pointer animate-smooth-slide-up delay-400 hover-lift">
                 <div class="w-12 h-12 bg-indigo-500/20 rounded-lg flex items-center justify-center mb-6 text-2xl text-indigo-400 group-hover:scale-110 transition-transform smooth-transition">
                     <i class="fa-solid fa-cube"></i>
                 </div>
@@ -1336,32 +1153,32 @@
             </div>
         </div>
 
-        <div class="mt-24 fade-in-up delay-500">
+        <div class="mt-24 animate-smooth-slide-up delay-500">
             <h3 class="text-2xl font-bold text-white mb-8 text-center">Strategic Partners</h3>
             <div class="glass-panel p-8 rounded-2xl">
                 <div class="grid grid-cols-2 md:grid-cols-4 gap-8 items-center justify-center">
-                    <div class="text-center fade-in-up delay-600">
+                    <div class="text-center animate-smooth-slide-up delay-600">
                         <div class="w-16 h-16 mx-auto bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mb-4 smooth-transition hover-lift">
                             <i class="fa-solid fa-server text-white text-2xl"></i>
                         </div>
                         <p class="text-sm font-bold text-white">Infrastructure</p>
                         <p class="text-xs text-gray-500">Node providers & RPC services</p>
                     </div>
-                    <div class="text-center fade-in-up delay-700">
+                    <div class="text-center animate-smooth-slide-up delay-700">
                         <div class="w-16 h-16 mx-auto bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center mb-4 smooth-transition hover-lift">
                             <i class="fa-solid fa-file-shield text-2xl"></i>
                         </div>
                         <p class="text-sm font-bold text-white">Security Audits</p>
                         <p class="text-xs text-gray-500">Smart contract verification</p>
                     </div>
-                    <div class="text-center fade-in-up delay-800">
+                    <div class="text-center animate-smooth-slide-up delay-800">
                         <div class="w-16 h-16 mx-auto bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center mb-4 smooth-transition hover-lift">
                             <i class="fa-solid fa-users text-white text-2xl"></i>
                         </div>
                         <p class="text-sm font-bold text-white">Community</p>
                         <p class="text-xs text-gray-500">Developer communities</p>
                     </div>
-                    <div class="text-center fade-in-up delay-900">
+                    <div class="text-center animate-smooth-slide-up delay-900">
                         <div class="w-16 h-16 mx-auto bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center mb-4 smooth-transition hover-lift">
                             <i class="fa-solid fa-code text-white text-2xl"></i>
                         </div>
@@ -1375,13 +1192,13 @@
 
     <!-- Support Page -->
     <div id="page-support" class="page-content pt-32 pb-20 px-4 max-w-5xl mx-auto">
-        <div class="text-center mb-20 fade-in-up">
+        <div class="text-center mb-20 animate-smooth-slide-up">
             <h2 class="text-5xl font-bold text-white mb-6">COMMUNITY HUB</h2>
-            <p class="text-gray-400 text-lg fade-in-up delay-100">Get support, report bugs, and connect with developers.</p>
+            <p class="text-gray-400 text-lg animate-smooth-slide-up delay-100">Get support, report bugs, and connect with developers.</p>
         </div>
 
         <div class="grid md:grid-cols-2 gap-8 mb-16">
-            <a href="https://t.me/tgkarim1" target="_blank" class="glass-panel p-8 rounded-3xl block group border-t border-blue-500/20 hover:bg-blue-900/10 transition-all duration-300 smooth-transition hover-lift fade-in-left">
+            <a href="https://t.me/tgkarim1" target="_blank" class="glass-panel p-8 rounded-3xl block group border-t border-blue-500/20 hover:bg-blue-900/10 transition-all duration-300 smooth-transition hover-lift animate-smooth-slide-left">
                 <div class="flex items-center gap-6 mb-4">
                     <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-3xl text-white shadow-[0_0_20px_#3b82f6] group-hover:scale-110 transition-transform smooth-transition">
                         <i class="fa-brands fa-telegram"></i>
@@ -1397,7 +1214,7 @@
                 </div>
             </a>
 
-            <a href="mailto:support@karchain.io" class="glass-panel p-8 rounded-3xl block group border-t border-green-500/20 hover:bg-green-900/10 transition-all duration-300 smooth-transition hover-lift fade-in-right">
+            <a href="mailto:support@karchain.io" class="glass-panel p-8 rounded-3xl block group border-t border-green-500/20 hover:bg-green-900/10 transition-all duration-300 smooth-transition hover-lift animate-smooth-slide-right">
                 <div class="flex items-center gap-6 mb-4">
                     <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-3xl text-white shadow-[0_0_20px_#22c55e] group-hover:scale-110 transition-transform smooth-transition">
                         <i class="fa-solid fa-envelope"></i>
@@ -1414,7 +1231,7 @@
             </a>
         </div>
 
-        <div class="space-y-4 fade-in-up delay-300">
+        <div class="space-y-4 animate-smooth-slide-up delay-300">
             <h3 class="text-2xl font-bold text-white mb-6 pl-4 border-l-4 border-green-500">Frequently Asked Questions</h3>
             
             <div class="glass-panel rounded-xl overflow-hidden hover-lift">
@@ -1511,8 +1328,8 @@
     </div>
 
     <!-- Footer -->
-    <footer class="border-t border-white/5 bg-black py-16 mt-20">
-        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-12 fade-in-up">
+    <footer class="border-t border-white/5 bg-black py-16 mt-20 animate-smooth-slide-up">
+        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-12">
             <div class="col-span-1 md:col-span-2">
                 <span class="text-2xl font-bold tracking-[0.2em] text-white font-display">KARCHAIN</span>
                 <p class="text-gray-500 text-sm mt-4 max-w-xs">The sovereign consensus layer for the decentralized future. Built for speed, security, and sustainability.</p>
@@ -1521,7 +1338,7 @@
                     <a href="mailto:support@karchain.io" class="text-green-400 hover:text-green-300 font-bold smooth-transition">support@karchain.io</a>
                 </div>
             </div>
-            <div class="fade-in-up delay-100">
+            <div class="animate-smooth-slide-up delay-100">
                 <h4 class="text-white font-bold mb-6 uppercase tracking-widest text-xs">Ecosystem</h4>
                 <ul class="space-y-3 text-sm">
                     <li><a href="https://relationless-improperly-nettie.ngrok-free.dev" target="_blank" class="footer-link smooth-transition">Block Explorer</a></li>
@@ -1530,7 +1347,7 @@
                     <li><a href="#" onclick="App.faucet.claimTokens()" class="footer-link smooth-transition">Faucet</a></li>
                 </ul>
             </div>
-            <div class="fade-in-up delay-200">
+            <div class="animate-smooth-slide-up delay-200">
                 <h4 class="text-white font-bold mb-6 uppercase tracking-widest text-xs">Developers</h4>
                 <ul class="space-y-3 text-sm">
                     <li><a href="https://docs.karchain.network" target="_blank" class="footer-link smooth-transition">Documentation</a></li>
@@ -1540,7 +1357,7 @@
                 </ul>
             </div>
         </div>
-        <div class="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center fade-in-up delay-300">
+        <div class="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center animate-smooth-slide-up delay-300">
             <p class="text-[10px] text-gray-700 font-mono uppercase tracking-widest">© 2025 KarChain Foundation. All rights reserved.</p>
             <div class="flex gap-4 mt-4 md:mt-0">
                 <a href="https://x.com/karim7652117665" target="_blank" class="text-gray-600 hover:text-white transition-colors smooth-transition">
@@ -1552,6 +1369,11 @@
             </div>
         </div>
     </footer>
+
+    <!-- Scroll to top button -->
+    <button id="scrollToTopBtn" class="fixed bottom-8 right-8 w-12 h-12 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center text-white z-40 opacity-0 translate-y-10">
+        <i class="fa-solid fa-chevron-up"></i>
+    </button>
 
     <script>
         const Config = {
@@ -1588,12 +1410,195 @@
             TASKS_COMPLETED: 'karchain_tasks_completed',
             TRANSACTIONS: 'karchain_transactions',
             SOCIAL_TASK_STARTED: 'karchain_social_started',
-            TOKEN_BALANCE_HISTORY: 'karchain_token_balance_history', // Новий ключ для історії балансу
+            TOKEN_BALANCE_HISTORY: 'karchain_token_balance_history',
             LAST_FAUCET_CLAIM: 'karchain_last_faucet_claim'
         };
 
+        class SmoothScrollManager {
+            constructor() {
+                this.isScrolling = false;
+                this.lastScrollTop = 0;
+                this.scrollTimeout = null;
+                this.init();
+            }
+
+            init() {
+                // Use GSAP for smooth scrolling
+                gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+
+                // Initialize scroll to top button
+                this.initScrollToTop();
+
+                // Setup smooth scroll for anchor links
+                this.setupAnchorLinks();
+
+                // Setup scroll events
+                this.setupScrollEvents();
+
+                // Initialize scroll animations
+                this.initScrollAnimations();
+            }
+
+            initScrollToTop() {
+                const btn = document.getElementById('scrollToTopBtn');
+                if (!btn) return;
+
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    this.scrollToTop();
+                });
+
+                window.addEventListener('scroll', () => {
+                    const scrollY = window.scrollY;
+                    if (scrollY > 300) {
+                        gsap.to(btn, {
+                            opacity: 1,
+                            y: 0,
+                            duration: 0.3,
+                            ease: "power2.out"
+                        });
+                    } else {
+                        gsap.to(btn, {
+                            opacity: 0,
+                            y: 10,
+                            duration: 0.3,
+                            ease: "power2.in"
+                        });
+                    }
+                });
+            }
+
+            setupAnchorLinks() {
+                document.addEventListener('click', (e) => {
+                    const link = e.target.closest('a[href^="#"]');
+                    if (!link) return;
+
+                    const href = link.getAttribute('href');
+                    if (href === '#' || href === '') return;
+
+                    e.preventDefault();
+                    const target = document.querySelector(href);
+                    if (target) {
+                        this.scrollToElement(target);
+                    }
+                });
+            }
+
+            setupScrollEvents() {
+                let ticking = false;
+                
+                window.addEventListener('scroll', () => {
+                    if (!ticking) {
+                        window.requestAnimationFrame(() => {
+                            this.handleScroll();
+                            ticking = false;
+                        });
+                        ticking = true;
+                    }
+                }, { passive: true });
+            }
+
+            initScrollAnimations() {
+                // Animate elements on scroll
+                gsap.utils.toArray('.animate-on-scroll').forEach((el, i) => {
+                    gsap.from(el, {
+                        scrollTrigger: {
+                            trigger: el,
+                            start: "top 80%",
+                            end: "bottom 20%",
+                            toggleActions: "play none none reverse",
+                            markers: false
+                        },
+                        y: 50,
+                        opacity: 0,
+                        duration: 0.8,
+                        ease: "power2.out",
+                        delay: i * 0.1
+                    });
+                });
+            }
+
+            scrollToTop() {
+                if (this.isScrolling) return;
+                
+                this.isScrolling = true;
+                
+                gsap.to(window, {
+                    scrollTo: {
+                        y: 0,
+                        autoKill: true
+                    },
+                    duration: 1,
+                    ease: "power2.inOut",
+                    onComplete: () => {
+                        this.isScrolling = false;
+                    }
+                });
+            }
+
+            scrollToElement(element, offset = 80) {
+                if (this.isScrolling || !element) return;
+                
+                this.isScrolling = true;
+                
+                const elementPosition = element.getBoundingClientRect().top + window.pageYOffset;
+                const targetPosition = elementPosition - offset;
+                
+                gsap.to(window, {
+                    scrollTo: {
+                        y: targetPosition,
+                        autoKill: true
+                    },
+                    duration: 1,
+                    ease: "power2.inOut",
+                    onComplete: () => {
+                        this.isScrolling = false;
+                        
+                        // Focus the element for accessibility
+                        if (element.tabIndex >= 0) {
+                            element.focus({ preventScroll: true });
+                        }
+                    }
+                });
+            }
+
+            handleScroll() {
+                const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                const navbar = document.getElementById('navbar');
+                
+                if (navbar) {
+                    if (scrollTop > this.lastScrollTop && scrollTop > 100) {
+                        // Scrolling down
+                        gsap.to(navbar, {
+                            y: -100,
+                            duration: 0.3,
+                            ease: "power2.out"
+                        });
+                    } else {
+                        // Scrolling up
+                        gsap.to(navbar, {
+                            y: 0,
+                            duration: 0.3,
+                            ease: "power2.out"
+                        });
+                    }
+                }
+                
+                this.lastScrollTop = scrollTop;
+            }
+        }
+
         const UI = {
+            smoothScroll: null,
+
             init: () => {
+                // Initialize smooth scroll manager
+                UI.smoothScroll = new SmoothScrollManager();
+
+                // Hide loader
+                UI.hideLoader();
+
+                // Initialize other UI components
                 UI.initParticles();
                 UI.initWaterDrops();
                 UI.initFAQ();
@@ -1604,7 +1609,6 @@
                 UI.setupTaskButtons();
                 UI.setupMobileMenu();
                 UI.initAnimations();
-                UI.initSmoothScroll();
                 UI.fixNavbarOnPC();
                 UI.checkMetaMaskOnLoad();
                 
@@ -1612,11 +1616,29 @@
                 UI.loadTaskProgress();
             },
 
+            hideLoader: () => {
+                const loader = document.getElementById('pageLoader');
+                if (loader) {
+                    setTimeout(() => {
+                        gsap.to(loader, {
+                            opacity: 0,
+                            duration: 0.6,
+                            ease: "power2.out",
+                            onComplete: () => {
+                                loader.classList.add('fade-out');
+                                setTimeout(() => {
+                                    loader.style.display = 'none';
+                                }, 600);
+                            }
+                        });
+                    }, 800);
+                }
+            },
+
             loadTaskProgress: () => {
                 const completedTasks = JSON.parse(localStorage.getItem(STORAGE_KEYS.TASKS_COMPLETED) || '[]');
                 UI.updateTaskProgress(completedTasks.length);
                 
-                // Unlock next tasks based on progress
                 if (completedTasks.includes(1)) {
                     UI.unlockTask(2);
                 }
@@ -1624,7 +1646,6 @@
                     UI.unlockTask(3);
                 }
                 
-                // Check social task button
                 const socialStarted = localStorage.getItem(STORAGE_KEYS.SOCIAL_TASK_STARTED) === 'true';
                 if (socialStarted && !completedTasks.includes(1)) {
                     const verifyBtn = document.getElementById('verify-social');
@@ -1677,81 +1698,13 @@
                     navbar.style.background = 'rgba(2, 4, 2, 0.95)';
                     navbar.style.backdropFilter = 'blur(24px) saturate(200%)';
                     navbar.style.webkitBackdropFilter = 'blur(24px) saturate(200%)';
-                    navbar.style.boxShadow = '0 4px 30px rgba(0, 0, 0, 0.3)';
                 }
-            },
-
-            initSmoothScroll: () => {
-                const scrollToTopBtn = document.createElement('button');
-                scrollToTopBtn.innerHTML = '<i class="fa-solid fa-chevron-up"></i>';
-                scrollToTopBtn.className = 'fixed bottom-8 right-8 w-12 h-12 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center text-white z-40 transition-all duration-300 opacity-0 translate-y-10';
-                scrollToTopBtn.id = 'scrollToTopBtn';
-                scrollToTopBtn.style.boxShadow = '0 4px 20px rgba(74, 222, 128, 0.3)';
-                document.body.appendChild(scrollToTopBtn);
-
-                scrollToTopBtn.addEventListener('click', () => {
-                    window.scrollTo({
-                        top: 0,
-                        behavior: 'smooth'
-                    });
-                });
-
-                window.addEventListener('scroll', () => {
-                    const btn = document.getElementById('scrollToTopBtn');
-                    if (window.scrollY > 300) {
-                        btn.classList.remove('opacity-0', 'translate-y-10');
-                        btn.classList.add('opacity-100', 'translate-y-0');
-                    } else {
-                        btn.classList.remove('opacity-100', 'translate-y-0');
-                        btn.classList.add('opacity-0', 'translate-y-10');
-                    }
-                });
-
-                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                    anchor.addEventListener('click', function(e) {
-                        const href = this.getAttribute('href');
-                        if (href === '#' || href === '') return;
-                        
-                        const targetElement = document.querySelector(href);
-                        if (targetElement) {
-                            e.preventDefault();
-                            const offset = 80;
-                            const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
-                            
-                            window.scrollTo({
-                                top: targetPosition - offset,
-                                behavior: 'smooth'
-                            });
-                        }
-                    });
-                });
             },
 
             initAnimations: () => {
                 gsap.registerPlugin(ScrollTrigger);
 
-                gsap.utils.toArray('.fade-in-up, .fade-in-left, .fade-in-right, .fade-in').forEach(el => {
-                    gsap.from(el, {
-                        scrollTrigger: {
-                            trigger: el,
-                            start: "top 80%",
-                            toggleActions: "play none none reverse"
-                        },
-                        y: 30,
-                        opacity: 0,
-                        duration: 0.8,
-                        ease: "power2.out"
-                    });
-                });
-
-                gsap.to('.grid-overlay', {
-                    scrollTrigger: {
-                        scrub: true
-                    },
-                    y: 100,
-                    ease: "none"
-                });
-
+                // Animate counters
                 const counters = document.querySelectorAll('.counter');
                 counters.forEach(counter => {
                     const target = parseInt(counter.textContent.replace(/,/g, ''));
@@ -1764,6 +1717,7 @@
                             },
                             innerHTML: target,
                             duration: 2,
+                            ease: "power2.out",
                             snap: { innerHTML: 1 },
                             onUpdate: function() {
                                 const value = Math.floor(this.targets()[0].innerHTML);
@@ -1773,36 +1727,42 @@
                     }
                 });
 
+                // Parallax effect for background elements
+                gsap.to('.grid-overlay', {
+                    scrollTrigger: {
+                        scrub: 0.5
+                    },
+                    y: 100,
+                    ease: "none"
+                });
+
+                // Animate glass cards on hover
                 const cards = document.querySelectorAll('.glass-card, .glass-panel');
                 cards.forEach(card => {
                     card.addEventListener('mouseenter', () => {
                         gsap.to(card, {
                             scale: 1.02,
+                            y: -5,
                             duration: 0.3,
                             ease: "power2.out"
                         });
                     });
+                    
                     card.addEventListener('mouseleave', () => {
                         gsap.to(card, {
                             scale: 1,
+                            y: 0,
                             duration: 0.3,
                             ease: "power2.out"
                         });
                     });
                 });
-
-                const progressBar = document.getElementById('progress-bar');
-                if (progressBar) {
-                    gsap.to(progressBar, {
-                        width: "0%",
-                        duration: 0.5,
-                        ease: "power2.out"
-                    });
-                }
             },
 
             initParticles: () => {
                 const cvs = document.getElementById('webgl-canvas');
+                if (!cvs) return;
+                
                 const ctx = cvs.getContext('2d');
                 let particles = [];
                 
@@ -1810,36 +1770,45 @@
                     cvs.width = window.innerWidth; 
                     cvs.height = window.innerHeight; 
                 };
-                window.addEventListener('resize', resize); 
+                window.addEventListener('resize', resize, { passive: true }); 
                 resize();
 
-                class P {
-                    constructor() { this.reset(); }
+                class Particle {
+                    constructor() { 
+                        this.reset(); 
+                        this.y = Math.random() * cvs.height;
+                    }
+                    
                     reset() { 
                         this.x = Math.random() * cvs.width; 
-                        this.y = Math.random() * cvs.height; 
-                        this.size = Math.random() * 2; 
+                        this.y = -10;
+                        this.size = Math.random() * 2 + 0.5; 
                         this.speed = Math.random() * 0.5 + 0.1;
                         this.alpha = Math.random() * 0.3 + 0.1;
                         this.color = `rgba(74, 222, 128, ${this.alpha})`;
                     }
+                    
                     update() { 
-                        this.y -= this.speed; 
-                        if(this.y < 0) this.reset(); 
+                        this.y += this.speed; 
+                        if(this.y > cvs.height) this.reset(); 
                     }
+                    
                     draw() { 
                         ctx.fillStyle = this.color;
                         ctx.beginPath(); 
-                        ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); 
+                        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); 
                         ctx.fill();
                     }
                 }
 
-                for(let i=0; i<50; i++) particles.push(new P());
+                for(let i = 0; i < 50; i++) particles.push(new Particle());
 
                 const animate = () => {
-                    ctx.clearRect(0,0,cvs.width,cvs.height);
-                    particles.forEach(p => { p.update(); p.draw(); });
+                    ctx.clearRect(0, 0, cvs.width, cvs.height);
+                    particles.forEach(p => { 
+                        p.update(); 
+                        p.draw(); 
+                    });
                     requestAnimationFrame(animate);
                 };
                 animate();
@@ -1847,6 +1816,8 @@
 
             initWaterDrops: () => {
                 const container = document.getElementById('water-drops');
+                if (!container) return;
+                
                 const dropsCount = 30;
                 
                 for(let i = 0; i < dropsCount; i++) {
@@ -2023,7 +1994,6 @@
             },
 
             setupTaskButtons: () => {
-                // Social task verification
                 const verifySocialBtn = document.getElementById('verify-social');
                 if (verifySocialBtn) {
                     verifySocialBtn.addEventListener('click', () => {
@@ -2031,7 +2001,6 @@
                     });
                 }
 
-                // Transaction task
                 const verifyTransactionBtn = document.getElementById('verify-transaction');
                 if (verifyTransactionBtn) {
                     verifyTransactionBtn.addEventListener('click', () => {
@@ -2039,7 +2008,6 @@
                     });
                 }
 
-                // Google Form task
                 const formBtn = document.getElementById('btn-form');
                 if (formBtn) {
                     formBtn.addEventListener('click', () => {
@@ -2058,13 +2026,11 @@
                     App.state.address = savedAddress;
                     App.state.walletType = localStorage.getItem(STORAGE_KEYS.WALLET_TYPE);
                     
-                    // Завантажуємо збережений баланс з історії
                     const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
                     const savedBalance = balanceHistory[savedAddress] || localStorage.getItem(STORAGE_KEYS.WALLET_BALANCE) || '0.00';
                     
                     UI.setConnectedState(savedAddress, savedBalance);
                     
-                    // Load transaction history
                     UI.loadTransactionHistory();
                 }
             },
@@ -2081,7 +2047,6 @@
                 localStorage.removeItem(STORAGE_KEYS.WALLET_ADDRESS);
                 localStorage.removeItem(STORAGE_KEYS.LAST_CONNECTED);
                 localStorage.removeItem(STORAGE_KEYS.WALLET_TYPE);
-                // Не видаляємо баланс та транзакції
             },
 
             showPage: (id) => {
@@ -2127,7 +2092,6 @@
                     targetPage.classList.add('active');
                 }
 
-                // Update navigation active state
                 document.querySelectorAll('.nav-link').forEach(el => {
                     el.classList.remove('active', 'text-white', 'border-green-500');
                     el.classList.add('text-gray-400', 'border-transparent');
@@ -2138,10 +2102,9 @@
                     activeLink.classList.remove('text-gray-400', 'border-transparent');
                 }
 
-                window.scrollTo({
-                    top: 0,
-                    behavior: 'smooth'
-                });
+                if (UI.smoothScroll) {
+                    UI.smoothScroll.scrollToTop();
+                }
 
                 setTimeout(() => {
                     UI.initAnimations();
@@ -2197,7 +2160,6 @@
                 
                 document.getElementById('walletAddrDisp').innerText = address;
                 
-                // Оновлюємо баланс з урахуванням збереженої історії
                 const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
                 const savedBalance = balanceHistory[address] || balance || '0.00';
                 document.getElementById('balanceVal').innerText = savedBalance;
@@ -2214,7 +2176,6 @@
                     { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
                 );
 
-                // Show transaction history
                 UI.loadTransactionHistory();
             },
 
@@ -2226,12 +2187,12 @@
                 gsap.to(balanceElement, {
                     innerHTML: formattedBalance,
                     duration: 0.5,
+                    ease: "power2.out",
                     snap: { innerHTML: 0.01 }
                 });
                 
                 dropdownBalance.innerText = `${formattedBalance} KRM`;
                 
-                // Зберігаємо баланс в історії за адресою
                 if (App.state.address) {
                     const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
                     balanceHistory[App.state.address] = formattedBalance;
@@ -2327,13 +2288,12 @@
                     historySection.classList.remove('hidden');
                     noTransactions.style.display = 'none';
                     
-                    // Clear existing list
                     transactionsList.innerHTML = '';
                     
-                    // Add transactions to list
                     transactions.forEach((tx, index) => {
                         const txElement = document.createElement('div');
-                        txElement.className = 'flex justify-between items-center p-3 bg-white/5 rounded-lg';
+                        txElement.className = 'flex justify-between items-center p-3 bg-white/5 rounded-lg animate-smooth-fade-in';
+                        txElement.style.animationDelay = `${index * 0.1}s`;
                         txElement.innerHTML = `
                             <div class="flex items-center gap-3">
                                 <div class="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center">
@@ -2388,7 +2348,6 @@
                         connectBtn.classList.add('connecting');
                         connectBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Connecting...</span>';
                         
-                        // Перевіряємо, чи це мобільний пристрій
                         if (App.state.isMobile) {
                             return App.wallet.connectMobile(type);
                         }
@@ -2470,7 +2429,6 @@
                                 metamaskUrl = 'https://metamask.app.link/dapp/' + window.location.hostname;
                             }
                             
-                            // Додаємо параметр для автоматичного додавання мережі
                             const networkParams = encodeURIComponent(JSON.stringify({
                                 chainId: Config.chain.hex,
                                 chainName: Config.chain.name,
@@ -2541,7 +2499,6 @@
                     
                     await App.wallet.switchNetwork();
                     
-                    // Завантажуємо баланс з історії перед оновленням
                     const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
                     const savedBalance = balanceHistory[address] || '0.00';
                     App.state.krmBalance = savedBalance;
@@ -2555,7 +2512,6 @@
                     connectBtn.classList.remove('connecting');
                     UI.showNotification(`${type} connected successfully!`, 'success');
                     
-                    // Start monitoring for transactions
                     App.tasks.startTransactionMonitoring();
                 },
 
@@ -2655,7 +2611,6 @@
                                 App.state.address = accounts[0];
                                 UI.saveConnection(App.state.address, App.state.walletType);
                                 
-                                // Завантажуємо баланс нової адреси з історії
                                 const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
                                 const savedBalance = balanceHistory[App.state.address] || '0.00';
                                 App.state.krmBalance = savedBalance;
@@ -2696,7 +2651,6 @@
                                     App.state.provider = provider;
                                     App.state.walletType = walletType;
                                     
-                                    // Завантажуємо баланс з історії
                                     const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
                                     const savedBalance = balanceHistory[App.state.address] || '0.00';
                                     App.state.krmBalance = savedBalance;
@@ -2724,7 +2678,6 @@
                             return;
                         }
                         
-                        // Перевіряємо кд
                         const lastClaim = localStorage.getItem(STORAGE_KEYS.LAST_FAUCET_CLAIM);
                         const now = Date.now();
                         const twentyFourHours = 24 * 60 * 60 * 1000;
@@ -2737,14 +2690,12 @@
                         
                         UI.showNotification('Requesting test tokens...', 'info');
                         
-                        // Симулюємо отримання токенів
                         setTimeout(() => {
                             const currentBalance = parseFloat(App.state.krmBalance || 0);
                             const newBalance = (currentBalance + 100).toFixed(4);
                             App.state.krmBalance = newBalance;
                             UI.updateBalance(newBalance);
                             
-                            // Зберігаємо час останнього клейму
                             localStorage.setItem(STORAGE_KEYS.LAST_FAUCET_CLAIM, now.toString());
                             
                             UI.showNotification('Received 100 test KRM tokens!', 'success');
@@ -2823,7 +2774,6 @@
                             UI.unlockTask(2);
                             UI.showNotification('Social task completed!', 'success');
                             
-                            // Give faucet tokens
                             setTimeout(() => {
                                 App.faucet.claimTokens();
                             }, 1000);
@@ -2951,14 +2901,12 @@
                     try {
                         const signer = App.state.provider.getSigner();
                         
-                        // Перевіряємо баланс
                         const balance = await signer.getBalance();
                         if (balance.lt(ethers.utils.parseEther("0.001"))) {
                             UI.showNotification('Insufficient balance for transaction', 'error');
                             return;
                         }
                         
-                        // Відправляємо 0.001 KRM собі
                         const tx = await signer.sendTransaction({
                             to: App.state.address,
                             value: ethers.utils.parseEther("0.001")
@@ -2966,12 +2914,10 @@
                         
                         UI.showNotification(`Transaction sent! Hash: ${tx.hash.substring(0, 10)}...`, 'success');
                         
-                        // Чекаємо на підтвердження
                         await tx.wait();
                         
                         UI.showNotification('Transaction confirmed!', 'success');
                         
-                        // Додаємо в локальне сховище
                         UI.addTransaction({
                             hash: tx.hash,
                             from: App.state.address,
@@ -2980,7 +2926,6 @@
                             timestamp: new Date().toISOString()
                         });
                         
-                        // Автоматично завершуємо задачу 2, якщо ще не завершена
                         if (!App.tasks.completedTasks.includes(2)) {
                             App.tasks.completeTask(2, 'Transaction verified!');
                         }
@@ -2996,6 +2941,11 @@
         window.App = App;
 
         window.addEventListener('load', async () => {
+            // Initialize smooth scroll polyfill
+            if (window.SmoothScroll) {
+                window.SmoothScroll.polyfill();
+            }
+
             await App.ui.init();
             
             if (localStorage.getItem(STORAGE_KEYS.WALLET_CONNECTED) === 'true') {
@@ -3010,13 +2960,14 @@
             const transactionSection = document.querySelector('#transaction-history');
             if (transactionSection) {
                 const makeTxButton = document.createElement('button');
-                makeTxButton.className = 'mt-4 w-full py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-bold transition-colors smooth-transition hover-lift';
+                makeTxButton.className = 'mt-4 w-full py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-bold transition-colors smooth-transition hover-lift animate-smooth-fade-in';
                 makeTxButton.innerHTML = '<i class="fa-solid fa-bolt mr-2"></i> Make Test Transaction';
                 makeTxButton.onclick = App.tasks.makeTestTransaction;
                 transactionSection.appendChild(makeTxButton);
             }
         });
 
+        // Prevent wheel events on modals
         document.addEventListener('wheel', function(e) {
             const modal = document.getElementById('connect-modal');
             const mobileMenu = document.getElementById('mobileMenu');
@@ -3027,8 +2978,25 @@
             }
         }, { passive: false });
 
+        // Handle window resize
         window.addEventListener('resize', function() {
-            UI.fixNavbarOnPC();
+            App.ui.fixNavbarOnPC();
+        });
+
+        // Handle page visibility
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                // Page is hidden
+                if (App.tasks.transactionMonitoring) {
+                    clearInterval(App.tasks.transactionMonitoring);
+                    App.tasks.transactionMonitoring = null;
+                }
+            } else {
+                // Page is visible again
+                if (App.state.address && !App.tasks.transactionMonitoring) {
+                    App.tasks.startTransactionMonitoring();
+                }
+            }
         });
     </script>
 </body>
