@@ -20,6 +20,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/TextPlugin.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -47,6 +49,45 @@
                         sans: ['Inter', 'sans-serif'],
                         mono: ['JetBrains Mono', 'monospace'],
                         display: ['Space Grotesk', 'sans-serif'],
+                    },
+                    animation: {
+                        'spin-slow': 'spin 20s linear infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'water-drop': 'waterDrop 8s linear infinite',
+                        'wave': 'wave 20s linear infinite',
+                        'gradient': 'gradient 8s ease infinite',
+                        'shimmer': 'shimmer 2s infinite',
+                        'glow': 'glow 2s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        waterDrop: {
+                            '0%': { transform: 'translateY(-100px)', opacity: '0' },
+                            '10%': { opacity: '1' },
+                            '90%': { opacity: '1' },
+                            '100%': { transform: 'translateY(100vh)', opacity: '0' },
+                        },
+                        wave: {
+                            '0%': { transform: 'translateX(0) translateY(0)' },
+                            '50%': { transform: 'translateX(-50px) translateY(10px)' },
+                            '100%': { transform: 'translateX(0) translateY(0)' },
+                        },
+                        gradient: {
+                            '0%, 100%': { 'background-position': '0% 50%' },
+                            '50%': { 'background-position': '100% 50%' },
+                        },
+                        shimmer: {
+                            '0%': { transform: 'translateX(-100%)' },
+                            '100%': { transform: 'translateX(100%)' },
+                        },
+                        glow: {
+                            '0%, 100%': { opacity: 1 },
+                            '50%': { opacity: 0.5 },
+                        }
                     }
                 }
             }
@@ -54,12 +95,19 @@
     </script>
 
     <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
+        :root {
+            --glass-bg: rgba(10, 10, 10, 0.6);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --neon-glow: 0 0 20px rgba(74, 222, 128, 0.3);
         }
 
+        * {
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ФІКС ПЛАВНОСТІ СКРОЛУ */
         html {
             scroll-behavior: smooth;
         }
@@ -68,48 +116,83 @@
             background-color: #020402;
             color: #e5e5e5;
             overflow-x: hidden;
-            font-family: 'Inter', sans-serif;
+            cursor: default;
+            font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+            text-rendering: optimizeLegibility;
+            opacity: 0;
+            animation: fadeInBody 1s ease-out forwards;
         }
 
-        /* ПЛАВНИЙ СКРОЛ ФІКС */
-        .scroll-smooth {
-            scroll-behavior: smooth;
+        @keyframes fadeInBody {
+            to { opacity: 1; }
         }
 
         .smooth-transition {
-            transition: all 0.3s ease;
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform: translateZ(0);
+            backface-visibility: hidden;
+        }
+
+        .gradient-text {
+            background: linear-gradient(90deg, #ffffff, #4ade80, #22c55e, #4ade80, #ffffff);
+            background-size: 300% 300%;
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradient 8s ease infinite;
         }
 
         .glass-panel {
             background: rgba(15, 15, 15, 0.6);
-            backdrop-filter: blur(16px);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
             border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.3s ease;
-        }
-
-        .glass-panel:hover {
-            border-color: rgba(74, 222, 128, 0.15);
-            transform: translateY(-2px);
+            box-shadow: 
+                0 4px 30px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(74, 222, 128, 0.05);
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform: translateZ(0);
         }
 
         nav#navbar {
             background: rgba(2, 4, 2, 0.95) !important;
-            backdrop-filter: blur(24px);
-            transition: transform 0.3s ease;
+            backdrop-filter: blur(24px) saturate(200%) !important;
+            -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
+            z-index: 1000;
         }
 
         .btn-primary {
             background: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
             color: white;
-            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
             border: 1px solid rgba(34, 197, 94, 0.3);
+            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.2);
         }
         
         .btn-primary:hover {
             transform: translateY(-2px);
+            box-shadow: 
+                0 8px 30px rgba(34, 197, 94, 0.4),
+                0 0 0 1px rgba(34, 197, 94, 0.2);
+            border-color: #4ade80;
         }
 
-        /* КНОПКА ВГОРУ */
+        /* СКРОЛБАР */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(2, 4, 2, 0.8);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, #15803d, #4ade80);
+            border-radius: 4px;
+        }
+
         #scrollToTopBtn {
             position: fixed;
             bottom: 30px;
@@ -127,11 +210,17 @@
             visibility: hidden;
             transition: all 0.3s ease;
             z-index: 1000;
+            box-shadow: 0 4px 20px rgba(74, 222, 128, 0.3);
         }
 
         #scrollToTopBtn.show {
             opacity: 1;
             visibility: visible;
+        }
+
+        #scrollToTopBtn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 30px rgba(74, 222, 128, 0.5);
         }
 
         /* МОБІЛЬНЕ МЕНЮ */
@@ -145,7 +234,7 @@
             background: rgba(2, 4, 2, 0.98);
             backdrop-filter: blur(20px);
             z-index: 10000;
-            transition: right 0.3s ease;
+            transition: right 0.4s ease;
             padding-top: 100px;
         }
 
@@ -163,7 +252,7 @@
             z-index: 9999;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.4s ease;
         }
 
         .mobile-menu-backdrop.active {
@@ -171,53 +260,92 @@
             pointer-events: all;
         }
 
-        /* ФІКС ДЛЯ iOS */
-        @supports (-webkit-touch-callout: none) {
-            body {
-                -webkit-overflow-scrolling: touch;
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 21px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            z-index: 10001;
+        }
+
+        .hamburger span {
+            width: 100%;
+            height: 3px;
+            background: #4ade80;
+            border-radius: 2px;
+            transition: all 0.4s ease;
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(6px, 6px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        @media (max-width: 1024px) {
+            .desktop-nav {
+                display: none !important;
+            }
+            
+            .hamburger {
+                display: flex;
             }
         }
 
-        /* СКРОЛБАР */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(2, 4, 2, 0.8);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(to bottom, #15803d, #4ade80);
-            border-radius: 4px;
-        }
-
-        /* АНІМАЦІЇ ПРИ СКРОЛІ */
-        .fade-in {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: opacity 0.6s ease, transform 0.6s ease;
-        }
-
-        .fade-in.visible {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        /* СТОРІНКИ */
         .page-content {
             display: none;
             opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: opacity 0.6s ease;
         }
 
         .page-content.active {
             display: block;
             opacity: 1;
         }
+
+        .task-locked {
+            pointer-events: none;
+            opacity: 0.6;
+            filter: grayscale(0.8);
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background: rgba(15, 15, 15, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(74, 222, 128, 0.2);
+            border-radius: 10px;
+            z-index: 10000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
     </style>
 </head>
-<body class="antialiased scroll-smooth">
+<body class="antialiased">
 
     <!-- Мобільне меню -->
     <div class="mobile-menu-backdrop" id="mobileBackdrop"></div>
@@ -263,7 +391,7 @@
             
             <div class="flex items-center gap-3 cursor-pointer group" onclick="App.router.navigate('home')">
                 <div class="relative w-10 h-10">
-                    <svg viewBox="0 0 100 100" class="w-full h-full">
+                    <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_15px_rgba(74,222,128,0.6)]">
                         <path d="M20 10 V90" stroke="#4ade80" stroke-width="8" stroke-linecap="round"/>
                         <path d="M80 10 L20 50 L80 90" stroke="#4ade80" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
                         <circle cx="20" cy="50" r="10" fill="#22c55e"/>
@@ -289,7 +417,7 @@
                     <i class="fa-solid fa-wallet"></i> <span>Connect Wallet</span>
                 </button>
 
-                <button class="hamburger hidden" id="hamburgerBtn">
+                <button class="hamburger" id="hamburgerBtn">
                     <span></span>
                     <span></span>
                     <span></span>
@@ -375,22 +503,22 @@
     <!-- Home Page -->
     <div id="page-home" class="page-content active pt-32 pb-20 px-4">
         
-        <div class="max-w-7xl mx-auto text-center mb-24 fade-in">
+        <div class="max-w-7xl mx-auto text-center mb-24">
             <h1 class="text-4xl md:text-7xl font-bold text-white mb-6 leading-tight">
-                THE ARCHITECTURE OF <br> <span style="background: linear-gradient(135deg, #ffffff, #4ade80); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">DIGITAL TRUST</span>
+                THE ARCHITECTURE OF <br> <span class="gradient-text">DIGITAL TRUST</span>
             </h1>
-            <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto font-light leading-relaxed mb-10 fade-in delay-100">
+            <p class="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto font-light leading-relaxed mb-10">
                 KarChain is the modular consensus layer designed for the next billion users. 
                 <br>Join the Incentivized Testnet and secure your place in the genesis block.
             </p>
             
-            <div class="flex flex-wrap justify-center gap-6 fade-in delay-200">
+            <div class="flex flex-wrap justify-center gap-6">
                 <button onclick="App.router.navigate('vision')" class="px-10 py-4 border border-white/10 hover:bg-white/5 text-white rounded-full text-sm font-bold uppercase tracking-widest transition-all">
                     Read Manifesto
                 </button>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mt-16 border-t border-white/10 pt-8 fade-in delay-300">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto mt-16 border-t border-white/10 pt-8">
                 <div>
                     <p class="text-3xl font-bold text-white">12,492</p>
                     <p class="text-[10px] text-gray-500 uppercase tracking-widest">Blocks Minted</p>
@@ -410,7 +538,7 @@
             </div>
         </div>
 
-        <div id="dashboard-ui" class="max-w-6xl mx-auto fade-in delay-400">
+        <div id="dashboard-ui" class="max-w-6xl mx-auto">
             <div class="glass-panel rounded-3xl p-1">
                 <div class="bg-black/80 backdrop-blur-xl rounded-[20px] p-8 md:p-12">
                     
@@ -527,13 +655,13 @@
 
     <!-- Vision Page -->
     <div id="page-vision" class="page-content pt-32 pb-20 px-4 max-w-7xl mx-auto">
-        <div class="text-center mb-24 fade-in">
-            <h2 class="text-5xl md:text-7xl font-bold text-white mb-6">THE <span style="background: linear-gradient(135deg, #ffffff, #4ade80); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">MANIFESTO</span></h2>
-            <p class="text-xl text-gray-400 font-light max-w-3xl mx-auto fade-in delay-100">Re-engineering the fundamental substrate of human coordination for the 22nd century.</p>
+        <div class="text-center mb-24">
+            <h2 class="text-5xl md:text-7xl font-bold text-white mb-6">THE <span class="gradient-text">MANIFESTO</span></h2>
+            <p class="text-xl text-gray-400 font-light max-w-3xl mx-auto">Re-engineering the fundamental substrate of human coordination for the 22nd century.</p>
         </div>
 
         <div class="grid lg:grid-cols-2 gap-20 items-center mb-32">
-            <div class="space-y-12 fade-in-left">
+            <div class="space-y-12">
                 <div class="border-l-4 border-green-500 pl-8">
                     <h3 class="text-3xl text-white font-bold mb-4 font-mono">01 // Asynchronous Finality</h3>
                     <div class="vision-text">
@@ -544,7 +672,7 @@
                         </a>
                     </div>
                 </div>
-                <div class="border-l-4 border-white/10 pl-8 fade-in-left delay-200">
+                <div class="border-l-4 border-white/10 pl-8">
                     <h3 class="text-3xl text-green-400 font-bold mb-4 font-mono">02 // Post-Quantum Security</h3>
                     <div class="vision-text">
                         <p>The era of elliptic curve cryptography is ending. KarChain is built as a <strong>Quantum Fortress</strong>, utilizing Lattice-based signatures (Kyber/Dilithium) to secure assets against future quantum decryption threats.</p>
@@ -555,7 +683,7 @@
                 </div>
             </div>
             
-            <div class="flex justify-center relative h-[500px] items-center fade-in-right">
+            <div class="flex justify-center relative h-[500px] items-center">
                 <div class="gyro-wrapper">
                     <div class="gyro">
                         <div class="gyro-ring gr-1"></div>
@@ -566,29 +694,29 @@
             </div>
         </div>
 
-        <div class="glass-panel p-12 rounded-3xl border-t border-white/10 fade-in delay-300">
+        <div class="glass-panel p-12 rounded-3xl border-t border-white/10">
             <h3 class="text-3xl text-white font-bold mb-12 text-center">Strategic Roadmap</h3>
             <div class="grid md:grid-cols-4 gap-8">
                 
-                <div class="relative fade-in delay-400">
+                <div class="relative">
                     <div class="w-6 h-6 bg-green-500 rounded-full border-4 border-black mb-4 mx-auto"></div>
                     <h4 class="text-green-400 font-bold text-center mb-2">PHASE 1</h4>
                     <p class="text-white font-bold text-center text-lg mb-2">Genesis</p>
                     <p class="text-gray-500 text-center text-xs">Testnet launch, Faucet activation, Initial Validator onboarding.</p>
                 </div>
-                <div class="relative opacity-70 fade-in delay-500">
+                <div class="relative opacity-70">
                     <div class="w-6 h-6 bg-gray-700 rounded-full border-4 border-black mb-4 mx-auto"></div>
                     <h4 class="text-gray-400 font-bold text-center mb-2">PHASE 2</h4>
                     <p class="text-white font-bold text-center text-lg mb-2">Incentivized</p>
                     <p class="text-gray-500 text-center text-xs">Public stress testing, Bug bounties, Cross-chain bridge beta.</p>
                 </div>
-                <div class="relative opacity-50 fade-in delay-600">
+                <div class="relative opacity-50">
                     <div class="w-6 h-6 bg-gray-700 rounded-full border-4 border-black mb-4 mx-auto"></div>
                     <h4 class="text-gray-400 font-bold text-center mb-2">PHASE 3</h4>
                     <p class="text-white font-bold text-center text-lg mb-2">Ignition</p>
                     <p class="text-gray-500 text-center text-xs">Mainnet launch, TGE, Governance DAO activation.</p>
                 </div>
-                <div class="relative opacity-30 fade-in delay-700">
+                <div class="relative opacity-30">
                     <div class="w-6 h-6 bg-gray-700 rounded-full border-4 border-black mb-4 mx-auto"></div>
                     <h4 class="text-gray-400 font-bold text-center mb-2">PHASE 4</h4>
                     <p class="text-white font-bold text-center text-lg mb-2">Singularity</p>
@@ -600,13 +728,13 @@
 
     <!-- Ecosystem Page -->
     <div id="page-ecosystem" class="page-content pt-32 pb-20 px-4 max-w-7xl mx-auto">
-        <div class="text-center mb-16 fade-in">
+        <div class="text-center mb-16">
             <h2 class="text-5xl font-bold text-white mb-6">ECOSYSTEM</h2>
-            <p class="text-gray-400 fade-in delay-100">Building the next generation of decentralized applications on KarChain.</p>
+            <p class="text-gray-400">Building the next generation of decentralized applications on KarChain.</p>
         </div>
         
         <div class="grid md:grid-cols-3 gap-8">
-            <div class="glass-panel p-8 rounded-xl fade-in delay-200">
+            <div class="glass-panel p-8 rounded-xl">
                 <div class="w-12 h-12 bg-purple-500/20 rounded-lg flex items-center justify-center mb-6 text-2xl text-purple-400">
                     <i class="fa-solid fa-right-left"></i>
                 </div>
@@ -615,7 +743,7 @@
                 <a href="https://swap.karchain.network" target="_blank" class="text-[10px] bg-green-900 text-green-400 px-2 py-1 rounded uppercase hover:bg-green-800">Live on Testnet ↗</a>
             </div>
             
-            <div class="glass-panel p-8 rounded-xl fade-in delay-300">
+            <div class="glass-panel p-8 rounded-xl">
                 <div class="w-12 h-12 bg-red-500/20 rounded-lg flex items-center justify-center mb-6 text-2xl text-red-400">
                     <i class="fa-solid fa-bolt"></i>
                 </div>
@@ -624,7 +752,7 @@
                 <a href="https://docs.karchain.network/ecosystem/karvault" target="_blank" class="text-[10px] bg-gray-800 text-gray-400 px-2 py-1 rounded uppercase hover:bg-gray-700">Coming Soon ↗</a>
             </div>
 
-            <div class="glass-panel p-8 rounded-xl fade-in delay-400">
+            <div class="glass-panel p-8 rounded-xl">
                 <div class="w-12 h-12 bg-yellow-500/20 rounded-lg flex items-center justify-center mb-6 text-2xl text-yellow-400">
                     <i class="fa-solid fa-vault text-2xl"></i>
                 </div>
@@ -632,18 +760,45 @@
                 <p class="text-sm text-gray-400 mb-4">Multi-sig institutional wallet with MPC technology for DAO treasury management.</p>
                 <a href="https://docs.karchain.network/ecosystem/karsafe" target="_blank" class="text-[10px] bg-gray-800 text-gray-400 px-2 py-1 rounded uppercase hover:bg-gray-700">Coming Soon ↗</a>
             </div>
+
+            <div class="glass-panel p-8 rounded-xl">
+                <div class="w-12 h-12 bg-blue-500/20 rounded-lg flex items-center justify-center mb-6 text-2xl text-blue-400">
+                    <i class="fa-solid fa-bridge"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">KarBridge</h3>
+                <p class="text-sm text-gray-400 mb-4">Universal cross-chain bridge with ZK-proofs for secure asset transfers between networks.</p>
+                <a href="https://bridge.karchain.network" target="_blank" class="text-[10px] bg-gray-800 text-gray-400 px-2 py-1 rounded uppercase hover:bg-gray-700">In Development ↗</a>
+            </div>
+
+            <div class="glass-panel p-8 rounded-xl">
+                <div class="w-12 h-12 bg-green-500/20 rounded-lg flex items-center justify-center mb-6 text-2xl text-green-400">
+                    <i class="fa-solid fa-chart-line"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">KarOracle</h3>
+                <p class="text-sm text-gray-400 mb-4">Decentralized oracle network providing tamper-proof data feeds for DeFi applications.</p>
+                <a href="https://docs.karchain.network/ecosystem/karoracle" target="_blank" class="text-[10px] bg-gray-800 text-gray-400 px-2 py-1 rounded uppercase hover:bg-gray-700">Planned Q2 2025 ↗</a>
+            </div>
+
+            <div class="glass-panel p-8 rounded-xl">
+                <div class="w-12 h-12 bg-indigo-500/20 rounded-lg flex items-center justify-center mb-6 text-2xl text-indigo-400">
+                    <i class="fa-solid fa-cube"></i>
+                </div>
+                <h3 class="text-xl font-bold text-white mb-2">KarLaunch</h3>
+                <p class="text-sm text-gray-400 mb-4">Fair launch platform for new projects with anti-snipe protection and vesting schedules.</p>
+                <a href="https://launch.karchain.network" target="_blank" class="text-[10px] bg-gray-800 text-gray-400 px-2 py-1 rounded uppercase hover:bg-gray-700">Coming Soon ↗</a>
+            </div>
         </div>
     </div>
 
     <!-- Support Page -->
     <div id="page-support" class="page-content pt-32 pb-20 px-4 max-w-5xl mx-auto">
-        <div class="text-center mb-20 fade-in">
+        <div class="text-center mb-20">
             <h2 class="text-5xl font-bold text-white mb-6">COMMUNITY HUB</h2>
-            <p class="text-gray-400 text-lg fade-in delay-100">Get support, report bugs, and connect with developers.</p>
+            <p class="text-gray-400 text-lg">Get support, report bugs, and connect with developers.</p>
         </div>
 
         <div class="grid md:grid-cols-2 gap-8 mb-16">
-            <a href="https://t.me/tgkarim1" target="_blank" class="glass-panel p-8 rounded-3xl block hover:bg-blue-900/10 fade-in-left">
+            <a href="https://t.me/tgkarim1" target="_blank" class="glass-panel p-8 rounded-3xl block hover:bg-blue-900/10">
                 <div class="flex items-center gap-6 mb-4">
                     <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-3xl text-white">
                         <i class="fa-brands fa-telegram"></i>
@@ -659,7 +814,7 @@
                 </div>
             </a>
 
-            <a href="mailto:support@karchain.io" class="glass-panel p-8 rounded-3xl block hover:bg-green-900/10 fade-in-right">
+            <a href="mailto:support@karchain.io" class="glass-panel p-8 rounded-3xl block hover:bg-green-900/10">
                 <div class="flex items-center gap-6 mb-4">
                     <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-3xl text-white">
                         <i class="fa-solid fa-envelope"></i>
@@ -679,7 +834,7 @@
 
     <!-- Footer -->
     <footer class="border-t border-white/5 bg-black py-16 mt-20">
-        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-12 fade-in">
+        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-12">
             <div class="col-span-1 md:col-span-2">
                 <span class="text-2xl font-bold tracking-[0.2em] text-white">KARCHAIN</span>
                 <p class="text-gray-500 text-sm mt-4 max-w-xs">The sovereign consensus layer for the decentralized future. Built for speed, security, and sustainability.</p>
@@ -688,14 +843,14 @@
                     <a href="mailto:support@karchain.io" class="text-green-400 hover:text-green-300 font-bold">support@karchain.io</a>
                 </div>
             </div>
-            <div class="fade-in delay-100">
+            <div>
                 <h4 class="text-white font-bold mb-6 uppercase tracking-widest text-xs">Ecosystem</h4>
                 <ul class="space-y-3 text-sm">
                     <li><a href="https://relationless-improperly-nettie.ngrok-free.dev" target="_blank" class="text-gray-400 hover:text-white">Block Explorer</a></li>
                     <li><a href="https://relationless-improperly-nettie.ngrok-free.dev" target="_blank" class="text-gray-400 hover:text-white">Governance</a></li>
                 </ul>
             </div>
-            <div class="fade-in delay-200">
+            <div>
                 <h4 class="text-white font-bold mb-6 uppercase tracking-widest text-xs">Developers</h4>
                 <ul class="space-y-3 text-sm">
                     <li><a href="https://docs.karchain.network" target="_blank" class="text-gray-400 hover:text-white">Documentation</a></li>
@@ -703,7 +858,7 @@
                 </ul>
             </div>
         </div>
-        <div class="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center fade-in delay-300">
+        <div class="max-w-7xl mx-auto px-6 mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center">
             <p class="text-[10px] text-gray-700 font-mono uppercase tracking-widest">© 2025 KarChain Foundation. All rights reserved.</p>
             <div class="flex gap-4 mt-4 md:mt-0">
                 <a href="https://x.com/karim7652117665" target="_blank" class="text-gray-600 hover:text-white">
@@ -730,6 +885,14 @@
                 decimals: 18,
                 explorer: 'https://relationless-improperly-nettie.ngrok-free.dev'
             },
+            walletConnect: {
+                projectId: 'e6d3c5f8b2a4d7c9e1f0a3b5c7d9e2f4',
+                rpc: {
+                    1337: 'https://relationless-improperly-nettie.ngrok-free.dev'
+                }
+            },
+            tokenAddress: null,
+            faucetAddress: null,
             tasks: {
                 twitterUrl: 'https://x.com/karim7652117665',
                 telegramUrl: 'https://t.me/tgkarim1',
@@ -740,390 +903,1142 @@
         const STORAGE_KEYS = {
             WALLET_CONNECTED: 'karchain_wallet_connected',
             WALLET_ADDRESS: 'karchain_wallet_address',
+            LAST_CONNECTED: 'karchain_last_connected',
+            WALLET_BALANCE: 'karchain_wallet_balance',
             WALLET_TYPE: 'karchain_wallet_type',
             TASKS_COMPLETED: 'karchain_tasks_completed',
             TRANSACTIONS: 'karchain_transactions',
-            SOCIAL_TASK_STARTED: 'karchain_social_started'
+            SOCIAL_TASK_STARTED: 'karchain_social_started',
+            TOKEN_BALANCE_HISTORY: 'karchain_token_balance_history',
+            LAST_FAUCET_CLAIM: 'karchain_last_faucet_claim'
         };
 
-        // ПРОСТА СИСТЕМА СКРОЛУ
-        class SmoothScroll {
-            static init() {
-                // Кнопка вгору
-                const scrollBtn = document.getElementById('scrollToTopBtn');
-                scrollBtn.addEventListener('click', () => {
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
+        const UI = {
+            init: () => {
+                UI.initParticles();
+                UI.initWaterDrops();
+                UI.initFAQ();
+                UI.checkSavedConnection();
+                UI.setupWalletButton();
+                UI.showPage('home');
+                UI.setupDropdownToggle();
+                UI.setupTaskButtons();
+                UI.setupMobileMenu();
+                UI.initAnimations();
+                UI.initSmoothScroll();
+                UI.checkMetaMaskOnLoad();
+                
+                // Load completed tasks
+                UI.loadTaskProgress();
+            },
+
+            loadTaskProgress: () => {
+                const completedTasks = JSON.parse(localStorage.getItem(STORAGE_KEYS.TASKS_COMPLETED) || '[]');
+                UI.updateTaskProgress(completedTasks.length);
+                
+                if (completedTasks.includes(1)) {
+                    UI.unlockTask(2);
+                }
+                if (completedTasks.includes(2)) {
+                    UI.unlockTask(3);
+                }
+                
+                const socialStarted = localStorage.getItem(STORAGE_KEYS.SOCIAL_TASK_STARTED) === 'true';
+                if (socialStarted && !completedTasks.includes(1)) {
+                    const verifyBtn = document.getElementById('verify-social');
+                    if (verifyBtn) {
+                        verifyBtn.disabled = false;
+                        verifyBtn.classList.remove('cursor-not-allowed', 'border-white/20', 'text-gray-500');
+                        verifyBtn.classList.add('bg-green-600', 'text-white', 'hover:bg-green-500', 'border-transparent');
+                        verifyBtn.innerHTML = 'VERIFY BOTH';
+                    }
+                }
+            },
+
+            unlockTask: (taskNumber) => {
+                if (taskNumber === 2) {
+                    const taskCard = document.getElementById('card-task-2');
+                    const verifyBtn = document.getElementById('verify-transaction');
+                    if (taskCard) {
+                        taskCard.classList.remove('task-locked');
+                    }
+                    if (verifyBtn) {
+                        verifyBtn.disabled = false;
+                        verifyBtn.classList.remove('cursor-not-allowed', 'border-white/20', 'text-gray-500');
+                        verifyBtn.classList.add('bg-purple-600', 'text-white', 'hover:bg-purple-500', 'border-transparent');
+                        verifyBtn.innerHTML = 'CHECK STATUS';
+                    }
+                }
+                if (taskNumber === 3) {
+                    const taskCard = document.getElementById('card-task-3');
+                    const formBtn = document.getElementById('btn-form');
+                    if (taskCard) {
+                        taskCard.classList.remove('task-locked');
+                    }
+                    if (formBtn) {
+                        formBtn.classList.remove('pointer-events-none', 'opacity-50');
+                    }
+                }
+            },
+
+            initSmoothScroll: () => {
+                const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+                
+                scrollToTopBtn.addEventListener('click', () => {
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
                 });
 
-                // Показуємо/ховаємо кнопку
+                let lastScrollTop = 0;
+                const navbar = document.getElementById('navbar');
+                
                 window.addEventListener('scroll', () => {
-                    if (window.scrollY > 300) {
-                        scrollBtn.classList.add('show');
+                    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                    
+                    // Кнопка "вгору"
+                    const btn = document.getElementById('scrollToTopBtn');
+                    if (scrollTop > 300) {
+                        btn.classList.add('show');
                     } else {
-                        scrollBtn.classList.remove('show');
+                        btn.classList.remove('show');
+                    }
+                    
+                    // Навігаційна панель
+                    if (navbar) {
+                        if (scrollTop > lastScrollTop && scrollTop > 100) {
+                            navbar.style.transform = 'translateY(-100%)';
+                        } else {
+                            navbar.style.transform = 'translateY(0)';
+                        }
+                        lastScrollTop = scrollTop;
                     }
                 });
+            },
 
-                // Анімації при скролі
-                const observer = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        if (entry.isIntersecting) {
-                            entry.target.classList.add('visible');
+            initAnimations: () => {
+                gsap.registerPlugin(ScrollTrigger);
+
+                gsap.utils.toArray('.fade-in-up, .fade-in-left, .fade-in-right, .fade-in').forEach(el => {
+                    gsap.from(el, {
+                        scrollTrigger: {
+                            trigger: el,
+                            start: "top 80%",
+                            toggleActions: "play none none reverse"
+                        },
+                        y: 30,
+                        opacity: 0,
+                        duration: 0.8,
+                        ease: "power2.out"
+                    });
+                });
+            },
+
+            initParticles: () => {
+                // Проста система частинок
+                const cvs = document.createElement('canvas');
+                cvs.id = 'webgl-canvas';
+                cvs.style.position = 'fixed';
+                cvs.style.top = '0';
+                cvs.style.left = '0';
+                cvs.style.width = '100%';
+                cvs.style.height = '100%';
+                cvs.style.zIndex = '-10';
+                cvs.style.opacity = '0.4';
+                cvs.style.pointerEvents = 'none';
+                document.body.appendChild(cvs);
+            },
+
+            initWaterDrops: () => {
+                const container = document.createElement('div');
+                container.id = 'water-drops';
+                document.body.appendChild(container);
+            },
+
+            setupMobileMenu: () => {
+                const hamburgerBtn = document.getElementById('hamburgerBtn');
+                const mobileMenu = document.getElementById('mobileMenu');
+                const mobileBackdrop = document.getElementById('mobileBackdrop');
+                
+                if (hamburgerBtn && mobileMenu && mobileBackdrop) {
+                    hamburgerBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        mobileMenu.classList.toggle('active');
+                        mobileBackdrop.classList.toggle('active');
+                        hamburgerBtn.classList.toggle('active');
+                        document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+                    });
+                    
+                    mobileBackdrop.addEventListener('click', function() {
+                        UI.closeMobileMenu();
+                    });
+                    
+                    window.addEventListener('resize', function() {
+                        if (window.innerWidth > 1024) {
+                            UI.closeMobileMenu();
                         }
                     });
-                }, { threshold: 0.1 });
+                }
+            },
+            
+            closeMobileMenu: () => {
+                const hamburgerBtn = document.getElementById('hamburgerBtn');
+                const mobileMenu = document.getElementById('mobileMenu');
+                const mobileBackdrop = document.getElementById('mobileBackdrop');
+                
+                if (mobileMenu) mobileMenu.classList.remove('active');
+                if (mobileBackdrop) mobileBackdrop.classList.remove('active');
+                if (hamburgerBtn) hamburgerBtn.classList.remove('active');
+                document.body.style.overflow = '';
+            },
 
-                document.querySelectorAll('.fade-in, .fade-in-left, .fade-in-right').forEach(el => {
-                    observer.observe(el);
+            checkMetaMaskOnLoad: () => {
+                const hasMetaMask = typeof window.ethereum !== 'undefined' && window.ethereum.isMetaMask;
+                
+                if (!hasMetaMask) {
+                    setTimeout(() => {
+                        const walletOptions = document.getElementById('wallet-options');
+                        if (walletOptions) {
+                            const installMetaMaskBtn = document.createElement('div');
+                            installMetaMaskBtn.className = 'wallet-option border border-white/10 p-4 rounded-xl bg-white/5 cursor-pointer transition-all flex items-center justify-between hover:bg-white/10';
+                            installMetaMaskBtn.innerHTML = `
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center">
+                                        <i class="fa-solid fa-download text-2xl text-gray-400"></i>
+                                    </div>
+                                    <div>
+                                        <div class="font-bold text-white text-lg">Install MetaMask</div>
+                                        <div class="text-xs text-gray-500 uppercase font-mono">Browser Extension</div>
+                                    </div>
+                                </div>
+                            `;
+                            installMetaMaskBtn.onclick = () => {
+                                window.open('https://metamask.io/download/', '_blank');
+                                UI.showNotification('Opening MetaMask download page...', 'info');
+                            };
+                            walletOptions.appendChild(installMetaMaskBtn);
+                        }
+                    }, 500);
+                }
+            },
+
+            initFAQ: () => {
+                document.querySelectorAll('.faq-toggle').forEach(toggle => {
+                    toggle.addEventListener('click', function() {
+                        const content = this.nextElementSibling;
+                        const icon = this.querySelector('i');
+                        
+                        content.classList.toggle('open');
+                        icon.style.transform = content.classList.contains('open') ? 'rotate(180deg)' : 'rotate(0deg)';
+                    });
                 });
-            }
-        }
+            },
 
-        // ОСНОВНОЙ APP
+            setupWalletButton: () => {
+                const connectBtn = document.getElementById('connectBtn');
+                connectBtn.onclick = UI.openModal;
+            },
+
+            setupDropdownToggle: () => {
+                const connectBtn = document.getElementById('connectBtn');
+                const dropdown = document.getElementById('userDropdown');
+                
+                connectBtn.addEventListener('click', function(e) {
+                    if (App.state.address) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        const isVisible = !dropdown.classList.contains('hidden');
+                        
+                        if (!isVisible) {
+                            dropdown.classList.remove('hidden');
+                        } else {
+                            dropdown.classList.add('hidden');
+                        }
+                    } else {
+                        UI.openModal();
+                    }
+                });
+                
+                document.addEventListener('click', function(e) {
+                    if (App.state.address && 
+                        !dropdown.contains(e.target) && 
+                        !connectBtn.contains(e.target) && 
+                        !dropdown.classList.contains('hidden')) {
+                        dropdown.classList.add('hidden');
+                    }
+                });
+            },
+
+            setupTaskButtons: () => {
+                const verifySocialBtn = document.getElementById('verify-social');
+                if (verifySocialBtn) {
+                    verifySocialBtn.addEventListener('click', () => {
+                        App.tasks.completeSocialTask();
+                    });
+                }
+
+                const verifyTransactionBtn = document.getElementById('verify-transaction');
+                if (verifyTransactionBtn) {
+                    verifyTransactionBtn.addEventListener('click', () => {
+                        App.tasks.checkTransaction();
+                    });
+                }
+
+                const formBtn = document.getElementById('btn-form');
+                if (formBtn) {
+                    formBtn.addEventListener('click', () => {
+                        if (!formBtn.classList.contains('pointer-events-none')) {
+                            App.tasks.openGoogleForm();
+                        }
+                    });
+                }
+            },
+
+            checkSavedConnection: () => {
+                const isConnected = localStorage.getItem(STORAGE_KEYS.WALLET_CONNECTED);
+                const savedAddress = localStorage.getItem(STORAGE_KEYS.WALLET_ADDRESS);
+                
+                if (isConnected === 'true' && savedAddress) {
+                    App.state.address = savedAddress;
+                    App.state.walletType = localStorage.getItem(STORAGE_KEYS.WALLET_TYPE);
+                    
+                    const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
+                    const savedBalance = balanceHistory[savedAddress] || localStorage.getItem(STORAGE_KEYS.WALLET_BALANCE) || '0.00';
+                    
+                    UI.setConnectedState(savedAddress, savedBalance);
+                    
+                    UI.loadTransactionHistory();
+                }
+            },
+
+            saveConnection: (address, walletType) => {
+                localStorage.setItem(STORAGE_KEYS.WALLET_CONNECTED, 'true');
+                localStorage.setItem(STORAGE_KEYS.WALLET_ADDRESS, address);
+                localStorage.setItem(STORAGE_KEYS.WALLET_TYPE, walletType);
+                localStorage.setItem(STORAGE_KEYS.LAST_CONNECTED, Date.now().toString());
+            },
+
+            clearConnection: () => {
+                localStorage.removeItem(STORAGE_KEYS.WALLET_CONNECTED);
+                localStorage.removeItem(STORAGE_KEYS.WALLET_ADDRESS);
+                localStorage.removeItem(STORAGE_KEYS.LAST_CONNECTED);
+                localStorage.removeItem(STORAGE_KEYS.WALLET_TYPE);
+            },
+
+            showPage: (id) => {
+                UI.closeMobileMenu();
+                
+                const currentPage = document.querySelector('.page-content.active');
+                const targetPage = document.getElementById('page-'+id);
+                
+                if (currentPage && targetPage && currentPage !== targetPage) {
+                    currentPage.classList.remove('active');
+                    setTimeout(() => {
+                        targetPage.classList.add('active');
+                    }, 300);
+                } else {
+                    document.querySelectorAll('.page-content').forEach(el => {
+                        el.classList.remove('active');
+                    });
+                    targetPage.classList.add('active');
+                }
+
+                document.querySelectorAll('.nav-link').forEach(el => {
+                    el.classList.remove('active', 'text-white', 'border-green-500');
+                    el.classList.add('text-gray-400', 'border-transparent');
+                });
+                const activeLink = document.getElementById('nav-'+id);
+                if(activeLink) {
+                    activeLink.classList.add('active', 'text-white', 'border-green-500');
+                    activeLink.classList.remove('text-gray-400', 'border-transparent');
+                }
+
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+
+                setTimeout(() => {
+                    UI.initAnimations();
+                }, 100);
+            },
+
+            openModal: () => {
+                const modal = document.getElementById('connect-modal');
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                
+                UI.closeMobileMenu();
+                document.body.style.overflow = 'hidden';
+            },
+
+            closeModal: () => {
+                const modal = document.getElementById('connect-modal');
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+                document.body.style.overflow = '';
+            },
+
+            setConnectedState: (address, balance) => {
+                const btn = document.getElementById('connectBtn');
+                const short = `${address.substring(0,6)}...${address.substring(address.length-4)}`;
+                btn.innerHTML = `<div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div> ${short}`;
+                
+                document.getElementById('dropdownAddress').innerText = short;
+                document.getElementById('dropdownBalance').innerText = balance ? `${balance} KRM` : '0 KRM';
+
+                const mobileWalletInfo = document.getElementById('mobileWalletInfo');
+                const mobileWalletAddress = document.getElementById('mobileWalletAddress');
+                if (mobileWalletInfo && mobileWalletAddress) {
+                    mobileWalletInfo.classList.remove('hidden');
+                    mobileWalletAddress.innerText = short;
+                }
+
+                document.getElementById('view-locked').classList.add('hidden');
+                document.getElementById('view-active').classList.remove('hidden');
+                
+                document.getElementById('walletAddrDisp').innerText = address;
+                
+                const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
+                const savedBalance = balanceHistory[address] || balance || '0.00';
+                document.getElementById('balanceVal').innerText = savedBalance;
+                
+                const dropdown = document.getElementById('userDropdown');
+                dropdown.classList.add('hidden');
+                
+                setTimeout(() => {
+                    UI.setupDropdownToggle();
+                }, 100);
+
+                UI.loadTransactionHistory();
+            },
+
+            updateBalance: (balance) => {
+                const formattedBalance = parseFloat(balance).toFixed(4);
+                const balanceElement = document.getElementById('balanceVal');
+                const dropdownBalance = document.getElementById('dropdownBalance');
+                
+                balanceElement.textContent = formattedBalance;
+                dropdownBalance.innerText = `${formattedBalance} KRM`;
+                
+                if (App.state.address) {
+                    const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
+                    balanceHistory[App.state.address] = formattedBalance;
+                    localStorage.setItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY, JSON.stringify(balanceHistory));
+                }
+            },
+
+            resetState: () => {
+                const btn = document.getElementById('connectBtn');
+                btn.innerHTML = '<i class="fa-solid fa-wallet"></i> <span>Connect Wallet</span>';
+                
+                const mobileWalletInfo = document.getElementById('mobileWalletInfo');
+                if (mobileWalletInfo) {
+                    mobileWalletInfo.classList.add('hidden');
+                }
+                
+                const dropdown = document.getElementById('userDropdown');
+                dropdown.classList.add('hidden');
+                
+                document.getElementById('view-locked').classList.remove('hidden');
+                document.getElementById('view-active').classList.add('hidden');
+                document.getElementById('transaction-history').classList.add('hidden');
+                
+                setTimeout(() => {
+                    UI.setupDropdownToggle();
+                }, 100);
+            },
+
+            showNotification: (message, type = 'info') => {
+                document.querySelectorAll('.notification').forEach(n => n.remove());
+                
+                const notification = document.createElement('div');
+                notification.className = `notification ${
+                    type === 'success' ? 'border-green-500/30 bg-green-900/20' :
+                    type === 'error' ? 'border-red-500/30 bg-red-900/20' :
+                    'border-blue-500/30 bg-blue-900/20'
+                }`;
+                notification.innerHTML = `
+                    <div class="flex items-center gap-3">
+                        <i class="fas ${
+                            type === 'success' ? 'fa-check-circle text-green-400' :
+                            type === 'error' ? 'fa-exclamation-circle text-red-400' :
+                            'fa-info-circle text-blue-400'
+                        }"></i>
+                        <span class="text-white">${message}</span>
+                    </div>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        document.body.removeChild(notification);
+                    }
+                }, 3000);
+            },
+
+            updateTaskProgress: (completedTasks) => {
+                const progressBar = document.getElementById('progress-bar');
+                const progressText = document.getElementById('progress-text');
+                
+                const percentage = (completedTasks / 3) * 100;
+                progressBar.style.width = `${percentage}%`;
+                progressText.innerText = `${completedTasks}/3 Tasks`;
+            },
+
+            loadTransactionHistory: () => {
+                const transactions = JSON.parse(localStorage.getItem(STORAGE_KEYS.TRANSACTIONS) || '[]');
+                const historySection = document.getElementById('transaction-history');
+                const noTransactions = document.getElementById('no-transactions');
+                const transactionsList = document.getElementById('transactions-list');
+                
+                if (transactions.length > 0) {
+                    historySection.classList.remove('hidden');
+                    noTransactions.style.display = 'none';
+                    
+                    transactionsList.innerHTML = '';
+                    
+                    transactions.forEach((tx, index) => {
+                        const txElement = document.createElement('div');
+                        txElement.className = 'flex justify-between items-center p-3 bg-white/5 rounded-lg';
+                        txElement.innerHTML = `
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center">
+                                    <i class="fa-solid fa-arrow-right text-green-400 text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-white">Transaction ${index + 1}</p>
+                                    <p class="text-xs text-gray-500 font-mono">${tx.hash.substring(0, 10)}...${tx.hash.substring(tx.hash.length - 8)}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-bold text-white">${tx.value} KRM</p>
+                                <p class="text-xs text-gray-500">${new Date(tx.timestamp).toLocaleTimeString()}</p>
+                            </div>
+                        `;
+                        transactionsList.appendChild(txElement);
+                    });
+                } else {
+                    historySection.classList.add('hidden');
+                    noTransactions.style.display = 'block';
+                }
+            },
+
+            addTransaction: (transaction) => {
+                const transactions = JSON.parse(localStorage.getItem(STORAGE_KEYS.TRANSACTIONS) || '[]');
+                transactions.push({
+                    ...transaction,
+                    timestamp: new Date().toISOString()
+                });
+                localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(transactions));
+                
+                UI.loadTransactionHistory();
+            }
+        };
+
         const App = {
+            ui: UI,
+            router: { navigate: UI.showPage },
             state: { 
                 address: null, 
                 provider: null,
                 walletType: null,
-                krmBalance: '0.00'
-            },
-
-            ui: {
-                init() {
-                    SmoothScroll.init();
-                    this.setupNavigation();
-                    this.setupMobileMenu();
-                    this.checkSavedConnection();
-                    
-                    // Показати home сторінку
-                    setTimeout(() => {
-                        document.getElementById('page-home').classList.add('active');
-                        document.body.style.opacity = '1';
-                    }, 100);
-                },
-
-                setupNavigation() {
-                    // Проста навігація
-                    document.querySelectorAll('.nav-link').forEach(link => {
-                        link.addEventListener('click', (e) => {
-                            e.preventDefault();
-                            const pageId = link.id.replace('nav-', '');
-                            this.showPage(pageId);
-                        });
-                    });
-                },
-
-                showPage(pageId) {
-                    // Приховуємо всі сторінки
-                    document.querySelectorAll('.page-content').forEach(page => {
-                        page.classList.remove('active');
-                    });
-                    
-                    // Показуємо потрібну
-                    const targetPage = document.getElementById(`page-${pageId}`);
-                    if (targetPage) {
-                        targetPage.classList.add('active');
-                        window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }
-                    
-                    // Оновлюємо активну навігацію
-                    document.querySelectorAll('.nav-link').forEach(link => {
-                        link.classList.remove('text-white', 'border-green-500');
-                        link.classList.add('text-gray-400');
-                    });
-                    
-                    const activeLink = document.getElementById(`nav-${pageId}`);
-                    if (activeLink) {
-                        activeLink.classList.add('text-white', 'border-green-500');
-                        activeLink.classList.remove('text-gray-400');
-                    }
-                },
-
-                setupMobileMenu() {
-                    const hamburger = document.getElementById('hamburgerBtn');
-                    const menu = document.getElementById('mobileMenu');
-                    const backdrop = document.getElementById('mobileBackdrop');
-                    
-                    if (hamburger) {
-                        hamburger.addEventListener('click', () => {
-                            menu.classList.toggle('active');
-                            backdrop.classList.toggle('active');
-                        });
-                        
-                        backdrop.addEventListener('click', () => {
-                            menu.classList.remove('active');
-                            backdrop.classList.remove('active');
-                        });
-                    }
-                },
-
-                closeMobileMenu() {
-                    document.getElementById('mobileMenu').classList.remove('active');
-                    document.getElementById('mobileBackdrop').classList.remove('active');
-                },
-
-                openModal() {
-                    document.getElementById('connect-modal').classList.remove('hidden');
-                    document.getElementById('connect-modal').classList.add('flex');
-                },
-
-                closeModal() {
-                    document.getElementById('connect-modal').classList.add('hidden');
-                    document.getElementById('connect-modal').classList.remove('flex');
-                },
-
-                setConnectedState(address, balance) {
-                    const short = `${address.slice(0,6)}...${address.slice(-4)}`;
-                    document.getElementById('connectBtn').innerHTML = `
-                        <div class="w-2 h-2 bg-green-500 rounded-full mr-2"></div> ${short}
-                    `;
-                    
-                    document.getElementById('view-locked').classList.add('hidden');
-                    document.getElementById('view-active').classList.remove('hidden');
-                    document.getElementById('walletAddrDisp').textContent = short;
-                    
-                    if (balance) {
-                        document.getElementById('balanceVal').textContent = balance;
-                    }
-                },
-
-                resetState() {
-                    document.getElementById('connectBtn').innerHTML = `
-                        <i class="fa-solid fa-wallet"></i> <span>Connect Wallet</span>
-                    `;
-                    document.getElementById('view-locked').classList.remove('hidden');
-                    document.getElementById('view-active').classList.add('hidden');
-                },
-
-                showNotification(message, type = 'info') {
-                    // Просте сповіщення
-                    console.log(`${type}: ${message}`);
-                },
-
-                checkSavedConnection() {
-                    const isConnected = localStorage.getItem(STORAGE_KEYS.WALLET_CONNECTED);
-                    const address = localStorage.getItem(STORAGE_KEYS.WALLET_ADDRESS);
-                    
-                    if (isConnected === 'true' && address) {
-                        App.state.address = address;
-                        this.setConnectedState(address, '0.00');
-                    }
-                }
-            },
-
-            router: {
-                navigate: (pageId) => {
-                    App.ui.showPage(pageId);
-                    App.ui.closeMobileMenu();
-                }
+                walletConnect: null,
+                krmBalance: '0.00',
+                isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
             },
 
             wallet: {
-                async connect(type) {
+                connect: async (type) => {
                     try {
-                        if (type === 'MetaMask') {
-                            if (typeof window.ethereum === 'undefined') {
-                                window.open('https://metamask.io/download/', '_blank');
-                                return;
-                            }
-                            
-                            const provider = new ethers.providers.Web3Provider(window.ethereum);
-                            const accounts = await provider.send("eth_requestAccounts", []);
-                            
-                            if (accounts.length > 0) {
-                                App.state.address = accounts[0];
-                                App.state.provider = provider;
-                                App.state.walletType = type;
-                                
-                                localStorage.setItem(STORAGE_KEYS.WALLET_CONNECTED, 'true');
-                                localStorage.setItem(STORAGE_KEYS.WALLET_ADDRESS, accounts[0]);
-                                localStorage.setItem(STORAGE_KEYS.WALLET_TYPE, type);
-                                
-                                App.ui.setConnectedState(accounts[0], '0.00');
-                                App.ui.closeModal();
-                                App.ui.showNotification('Wallet connected successfully!', 'success');
-                                
-                                // Додаємо мережу
-                                try {
-                                    await window.ethereum.request({
-                                        method: 'wallet_addEthereumChain',
-                                        params: [{
-                                            chainId: '0x539',
-                                            chainName: 'KarChain Testnet',
-                                            rpcUrls: ['https://relationless-improperly-nettie.ngrok-free.dev'],
-                                            nativeCurrency: { 
-                                                name: 'KarChain', 
-                                                symbol: 'KRM', 
-                                                decimals: 18 
-                                            }
-                                        }]
-                                    });
-                                } catch (e) {
-                                    console.log('Network already added or user denied');
-                                }
-                            }
+                        const connectBtn = document.getElementById('connectBtn');
+                        connectBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Connecting...</span>';
+                        
+                        if (App.state.isMobile) {
+                            return App.wallet.connectMobile(type);
                         }
-                    } catch (error) {
-                        App.ui.showNotification(`Connection error: ${error.message}`, 'error');
+                        
+                        let provider;
+                        let accounts;
+                        
+                        switch(type) {
+                            case 'MetaMask':
+                                if (typeof window.ethereum === 'undefined') {
+                                    window.open('https://metamask.io/download/', '_blank');
+                                    throw new Error('MetaMask not found. Please install MetaMask extension.');
+                                }
+                                
+                                provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
+                                
+                                try {
+                                    accounts = await provider.send("eth_requestAccounts", []);
+                                } catch (requestError) {
+                                    if (requestError.code === 4001) {
+                                        throw new Error('Please approve the connection request in your wallet.');
+                                    }
+                                    throw requestError;
+                                }
+                                break;
+                                
+                            case 'Trust':
+                                if (typeof window.ethereum === 'undefined') {
+                                    window.open('https://trustwallet.com/', '_blank');
+                                    throw new Error('Trust Wallet not found.');
+                                }
+                                
+                                provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
+                                accounts = await provider.send("eth_requestAccounts", []);
+                                break;
+                                
+                            case 'WC':
+                                UI.showNotification('WalletConnect requires additional setup. Please use MetaMask or Trust Wallet on desktop.', 'info');
+                                throw new Error('Use MetaMask or Trust Wallet on desktop');
+                                
+                            default:
+                                throw new Error('Unknown wallet type');
+                        }
+                        
+                        if (!accounts || accounts.length === 0) {
+                            throw new Error('Could not get account from wallet');
+                        }
+                        
+                        await App.wallet.finalizeConnection(accounts[0], provider, type);
+                        
+                    } catch (e) {
+                        console.error('Wallet connection error:', e);
+                        
+                        let errorMessage = e.message;
+                        if (e.code === -32002) {
+                            errorMessage = 'MetaMask is already processing a request. Please check your MetaMask.';
+                        }
+                        
+                        UI.showNotification(`Error: ${errorMessage}`, 'error');
+                        
+                        const connectBtn = document.getElementById('connectBtn');
+                        connectBtn.innerHTML = '<i class="fa-solid fa-wallet"></i> <span>Connect Wallet</span>';
                     }
                 },
 
-                disconnect() {
+                connectMobile: async (type) => {
+                    const isAndroid = /Android/i.test(navigator.userAgent);
+                    const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+                    
+                    switch(type) {
+                        case 'MetaMask':
+                            let metamaskUrl;
+                            if (isAndroid) {
+                                metamaskUrl = `https://metamask.app.link/dapp/${window.location.hostname}${window.location.pathname}`;
+                            } else if (isIOS) {
+                                metamaskUrl = `https://metamask.app.link/dapp/${window.location.hostname}${window.location.pathname}`;
+                            } else {
+                                metamaskUrl = 'https://metamask.app.link/dapp/' + window.location.hostname;
+                            }
+                            
+                            const networkParams = encodeURIComponent(JSON.stringify({
+                                chainId: Config.chain.hex,
+                                chainName: Config.chain.name,
+                                rpcUrls: [Config.chain.rpc],
+                                nativeCurrency: {
+                                    name: 'KarChain',
+                                    symbol: Config.chain.symbol,
+                                    decimals: Config.chain.decimals
+                                },
+                                blockExplorerUrls: [Config.chain.explorer]
+                            }));
+                            
+                            const finalUrl = `${metamaskUrl}?action=addNetwork&params=${networkParams}`;
+                            window.location.href = finalUrl;
+                            break;
+                            
+                        case 'Trust':
+                            let trustUrl;
+                            if (isAndroid) {
+                                trustUrl = `https://link.trustwallet.com/wc?uri=${encodeURIComponent(`wc:?action=connect&params=${JSON.stringify({
+                                    chainId: Config.chain.id,
+                                    rpcUrl: Config.chain.rpc,
+                                    chainName: Config.chain.name,
+                                    nativeCurrency: {
+                                        name: 'KarChain',
+                                        symbol: Config.chain.symbol,
+                                        decimals: Config.chain.decimals
+                                    }
+                                })}`)}`;
+                            } else if (isIOS) {
+                                trustUrl = `https://link.trustwallet.com/wc?uri=${encodeURIComponent(`wc:?action=connect&params=${JSON.stringify({
+                                    chainId: Config.chain.id,
+                                    rpcUrl: Config.chain.rpc,
+                                    chainName: Config.chain.name,
+                                    nativeCurrency: {
+                                        name: 'KarChain',
+                                        symbol: Config.chain.symbol,
+                                        decimals: Config.chain.decimals
+                                    }
+                                })}`)}`;
+                            } else {
+                                trustUrl = 'https://link.trustwallet.com/open_url?url=' + encodeURIComponent(window.location.href);
+                            }
+                            
+                            window.location.href = trustUrl;
+                            break;
+                            
+                        case 'WC':
+                            UI.showNotification('WalletConnect is best used with desktop browsers. On mobile, please use MetaMask or Trust Wallet app directly.', 'info');
+                            break;
+                    }
+                    
+                    UI.showNotification('Opening wallet app... Please connect and approve the network addition.', 'info');
+                    
+                    setTimeout(() => {
+                        const connectBtn = document.getElementById('connectBtn');
+                        connectBtn.innerHTML = '<i class="fa-solid fa-wallet"></i> <span>Connect Wallet</span>';
+                    }, 2000);
+                },
+
+                finalizeConnection: async (address, provider, type) => {
+                    App.state.address = address;
+                    App.state.provider = provider;
+                    App.state.walletType = type;
+
+                    UI.closeModal();
+                    
+                    await App.wallet.switchNetwork();
+                    
+                    const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
+                    const savedBalance = balanceHistory[address] || '0.00';
+                    App.state.krmBalance = savedBalance;
+                    
+                    UI.saveConnection(App.state.address, type);
+                    UI.setConnectedState(App.state.address, App.state.krmBalance);
+                    
+                    App.wallet.setupEventListeners();
+                    
+                    const connectBtn = document.getElementById('connectBtn');
+                    UI.showNotification(`${type} connected successfully!`, 'success');
+                    
+                    App.tasks.startTransactionMonitoring();
+                },
+
+                disconnect: () => {
+                    if (App.state.walletType === 'WC' && App.state.walletConnect) {
+                        App.state.walletConnect.disconnect();
+                    }
+                    
                     App.state.address = null;
                     App.state.provider = null;
                     App.state.walletType = null;
+                    App.state.walletConnect = null;
+                    App.state.krmBalance = '0.00';
                     
-                    localStorage.removeItem(STORAGE_KEYS.WALLET_CONNECTED);
-                    localStorage.removeItem(STORAGE_KEYS.WALLET_ADDRESS);
-                    localStorage.removeItem(STORAGE_KEYS.WALLET_TYPE);
+                    UI.clearConnection();
+                    UI.resetState();
+                    UI.showNotification('Wallet disconnected', 'success');
                     
-                    App.ui.resetState();
-                    App.ui.showNotification('Wallet disconnected', 'success');
+                    const dropdown = document.getElementById('userDropdown');
+                    dropdown.classList.add('hidden');
+                    
+                    UI.closeMobileMenu();
                 },
 
-                async refreshBalance() {
-                    if (!App.state.provider || !App.state.address) return;
+                switchNetwork: async () => {
+                    if (App.state.walletType === 'WC' || !window.ethereum) return;
                     
                     try {
-                        const balance = await App.state.provider.getBalance(App.state.address);
-                        const formatted = ethers.utils.formatEther(balance);
-                        App.state.krmBalance = parseFloat(formatted).toFixed(4);
-                        document.getElementById('balanceVal').textContent = App.state.krmBalance;
-                        App.ui.showNotification('Balance updated!', 'success');
-                    } catch (error) {
-                        console.error('Balance error:', error);
+                        await window.ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: Config.chain.hex }],
+                        });
+                    } catch (switchError) {
+                        if (switchError.code === 4902) {
+                            try {
+                                await window.ethereum.request({
+                                    method: 'wallet_addEthereumChain',
+                                    params: [{
+                                        chainId: Config.chain.hex,
+                                        chainName: Config.chain.name,
+                                        rpcUrls: [Config.chain.rpc],
+                                        nativeCurrency: { 
+                                            name: 'KarChain', 
+                                            symbol: Config.chain.symbol, 
+                                            decimals: Config.chain.decimals 
+                                        },
+                                        blockExplorerUrls: [Config.chain.explorer]
+                                    }],
+                                });
+                            } catch (addError) { 
+                                console.error(addError); 
+                                UI.showNotification('Failed to add network. Please add manually.', 'error');
+                            }
+                        }
                     }
+                },
+
+                loadTokenBalance: async () => {
+                    try {
+                        if (!App.state.provider || !App.state.address) return;
+                        
+                        const ethBalance = await App.state.provider.getBalance(App.state.address);
+                        const ethBalanceFormatted = ethers.utils.formatEther(ethBalance);
+                        
+                        App.state.krmBalance = parseFloat(ethBalanceFormatted).toFixed(4);
+                        UI.updateBalance(App.state.krmBalance);
+                        
+                        UI.showNotification(`Balance updated: ${App.state.krmBalance} KRM`, 'success');
+                        
+                    } catch (error) {
+                        console.error('Error loading balance:', error);
+                        UI.showNotification('Failed to load balance', 'error');
+                    }
+                },
+
+                refreshBalance: async () => {
+                    if (!App.state.address) {
+                        UI.showNotification('Please connect wallet first', 'error');
+                        return;
+                    }
+                    
+                    try {
+                        UI.showNotification('Refreshing balance...', 'info');
+                        await App.wallet.loadTokenBalance();
+                    } catch (error) {
+                        console.error('Error refreshing balance:', error);
+                        UI.showNotification('Failed to refresh balance', 'error');
+                    }
+                },
+
+                setupEventListeners: () => {
+                    if (App.state.walletType !== 'WC' && window.ethereum) {
+                        window.ethereum.on('accountsChanged', async (accounts) => {
+                            if (accounts.length === 0) {
+                                App.wallet.disconnect();
+                            } else if (accounts[0] !== App.state.address) {
+                                App.state.address = accounts[0];
+                                UI.saveConnection(App.state.address, App.state.walletType);
+                                
+                                const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
+                                const savedBalance = balanceHistory[App.state.address] || '0.00';
+                                App.state.krmBalance = savedBalance;
+                                
+                                UI.setConnectedState(App.state.address, App.state.krmBalance);
+                                UI.showNotification('Account changed', 'info');
+                            }
+                        });
+
+                        window.ethereum.on('chainChanged', async (chainId) => {
+                            if (parseInt(chainId) !== Config.chain.id) {
+                                UI.showNotification('Please switch to KarChain network', 'error');
+                                await App.wallet.switchNetwork();
+                            } else {
+                                await App.wallet.loadTokenBalance();
+                            }
+                        });
+                    }
+                },
+
+                tryReconnect: async () => {
+                    const isConnected = localStorage.getItem(STORAGE_KEYS.WALLET_CONNECTED);
+                    const savedAddress = localStorage.getItem(STORAGE_KEYS.WALLET_ADDRESS);
+                    const walletType = localStorage.getItem(STORAGE_KEYS.WALLET_TYPE);
+                    
+                    if (isConnected === 'true' && savedAddress && walletType) {
+                        try {
+                            let provider;
+                            
+                            if (walletType === 'MetaMask' || walletType === 'Trust') {
+                                if (!window.ethereum) return false;
+                                
+                                provider = new ethers.providers.Web3Provider(window.ethereum);
+                                const accounts = await provider.send("eth_accounts", []);
+                                
+                                if (accounts.length > 0 && accounts[0].toLowerCase() === savedAddress.toLowerCase()) {
+                                    App.state.address = accounts[0];
+                                    App.state.provider = provider;
+                                    App.state.walletType = walletType;
+                                    
+                                    const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
+                                    const savedBalance = balanceHistory[App.state.address] || '0.00';
+                                    App.state.krmBalance = savedBalance;
+                                    
+                                    UI.setConnectedState(App.state.address, App.state.krmBalance);
+                                    App.wallet.setupEventListeners();
+                                    
+                                    UI.showNotification('Wallet reconnected', 'success');
+                                    return true;
+                                }
+                            }
+                        } catch (e) {
+                            console.log("Auto-reconnect failed:", e);
+                        }
+                    }
+                    return false;
                 }
             },
 
             faucet: {
-                claimTokens() {
-                    if (!App.state.address) {
-                        App.ui.showNotification('Please connect wallet first', 'error');
-                        return;
+                claimTokens: async () => {
+                    try {
+                        if (!App.state.address) {
+                            UI.showNotification('Please connect wallet first', 'error');
+                            return;
+                        }
+                        
+                        const lastClaim = localStorage.getItem(STORAGE_KEYS.LAST_FAUCET_CLAIM);
+                        const now = Date.now();
+                        const twentyFourHours = 24 * 60 * 60 * 1000;
+                        
+                        if (lastClaim && (now - parseInt(lastClaim)) < twentyFourHours) {
+                            const nextClaim = new Date(parseInt(lastClaim) + twentyFourHours);
+                            UI.showNotification(`Faucet on cooldown. Next claim available at ${nextClaim.toLocaleTimeString()}`, 'error');
+                            return;
+                        }
+                        
+                        UI.showNotification('Requesting test tokens...', 'info');
+                        
+                        setTimeout(() => {
+                            const currentBalance = parseFloat(App.state.krmBalance || 0);
+                            const newBalance = (currentBalance + 100).toFixed(4);
+                            App.state.krmBalance = newBalance;
+                            UI.updateBalance(newBalance);
+                            
+                            localStorage.setItem(STORAGE_KEYS.LAST_FAUCET_CLAIM, now.toString());
+                            
+                            UI.showNotification('Received 100 test KRM tokens!', 'success');
+                        }, 2000);
+                        
+                    } catch (error) {
+                        console.error('Faucet error:', error);
+                        UI.showNotification('Failed to get test tokens', 'error');
                     }
-                    
-                    App.ui.showNotification('Claiming test tokens...', 'info');
-                    
-                    setTimeout(() => {
-                        const current = parseFloat(App.state.krmBalance || 0);
-                        App.state.krmBalance = (current + 100).toFixed(4);
-                        document.getElementById('balanceVal').textContent = App.state.krmBalance;
-                        App.ui.showNotification('Received 100 test KRM!', 'success');
-                    }, 1500);
                 }
             },
 
             tasks: {
-                openTwitter() {
+                completedTasks: JSON.parse(localStorage.getItem(STORAGE_KEYS.TASKS_COMPLETED) || '[]'),
+                transactionMonitoring: null,
+
+                openTwitter: () => {
                     window.open(Config.tasks.twitterUrl, '_blank');
                     localStorage.setItem(STORAGE_KEYS.SOCIAL_TASK_STARTED, 'true');
                     
-                    const btn = document.getElementById('verify-social');
-                    btn.disabled = false;
-                    btn.classList.remove('border-white/20', 'text-gray-500', 'cursor-not-allowed');
-                    btn.classList.add('bg-green-600', 'text-white', 'hover:bg-green-500');
-                    btn.textContent = 'VERIFY BOTH';
+                    setTimeout(() => {
+                        const verifyBtn = document.getElementById('verify-social');
+                        if (verifyBtn) {
+                            verifyBtn.disabled = false;
+                            verifyBtn.classList.remove('cursor-not-allowed', 'border-white/20', 'text-gray-500');
+                            verifyBtn.classList.add('bg-green-600', 'text-white', 'hover:bg-green-500', 'border-transparent');
+                            verifyBtn.innerHTML = 'VERIFY BOTH';
+                        }
+                    }, 2000);
+                    
+                    UI.showNotification('Opening X... Follow our account!', 'info');
                 },
 
-                openTelegram() {
+                openTelegram: () => {
                     window.open(Config.tasks.telegramUrl, '_blank');
                     localStorage.setItem(STORAGE_KEYS.SOCIAL_TASK_STARTED, 'true');
                     
-                    const btn = document.getElementById('verify-social');
-                    btn.disabled = false;
-                    btn.classList.remove('border-white/20', 'text-gray-500', 'cursor-not-allowed');
-                    btn.classList.add('bg-green-600', 'text-white', 'hover:bg-green-500');
-                    btn.textContent = 'VERIFY BOTH';
-                },
-
-                completeSocialTask() {
-                    const btn = document.getElementById('verify-social');
-                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-                    
                     setTimeout(() => {
-                        btn.textContent = 'COMPLETED';
-                        btn.classList.remove('bg-green-600', 'hover:bg-green-500');
-                        btn.classList.add('bg-green-900/50', 'text-green-400');
-                        
-                        // Розблокувати наступне завдання
-                        document.getElementById('card-task-2').classList.remove('task-locked');
-                        document.getElementById('verify-transaction').disabled = false;
-                        document.getElementById('verify-transaction').classList.remove('border-white/20', 'text-gray-500', 'cursor-not-allowed');
-                        document.getElementById('verify-transaction').classList.add('bg-purple-600', 'text-white', 'hover:bg-purple-500');
-                        document.getElementById('verify-transaction').textContent = 'CHECK STATUS';
-                        
-                        App.ui.showNotification('Social task completed!', 'success');
-                    }, 1500);
+                        const verifyBtn = document.getElementById('verify-social');
+                        if (verifyBtn) {
+                            verifyBtn.disabled = false;
+                            verifyBtn.classList.remove('cursor-not-allowed', 'border-white/20', 'text-gray-500');
+                            verifyBtn.classList.add('bg-green-600', 'text-white', 'hover:bg-green-500', 'border-transparent');
+                            verifyBtn.innerHTML = 'VERIFY BOTH';
+                        }
+                    }, 2000);
+                    
+                    UI.showNotification('Opening Telegram... Join our channel!', 'info');
                 },
 
-                async makeTestTransaction() {
-                    if (!App.state.provider || !App.state.address) {
-                        App.ui.showNotification('Please connect wallet first', 'error');
+                completeSocialTask: () => {
+                    const verifyBtn = document.getElementById('verify-social');
+                    if (verifyBtn && verifyBtn.disabled === false) {
+                        verifyBtn.disabled = true;
+                        verifyBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                        
+                        setTimeout(() => {
+                            verifyBtn.innerHTML = 'COMPLETED';
+                            verifyBtn.classList.replace('border-white/20', 'bg-green-900/50');
+                            verifyBtn.classList.add('text-green-400');
+                            
+                            if (!App.tasks.completedTasks.includes(1)) {
+                                App.tasks.completedTasks.push(1);
+                                localStorage.setItem(STORAGE_KEYS.TASKS_COMPLETED, JSON.stringify(App.tasks.completedTasks));
+                            }
+                            
+                            UI.updateTaskProgress(App.tasks.completedTasks.length);
+                            UI.unlockTask(2);
+                            UI.showNotification('Social task completed!', 'success');
+                            
+                            setTimeout(() => {
+                                App.faucet.claimTokens();
+                            }, 1000);
+                        }, 1500);
+                    } else {
+                        UI.showNotification('Please open both X and Telegram first', 'info');
+                    }
+                },
+
+                checkTransaction: () => {
+                    if (!App.state.address) {
+                        UI.showNotification('Please connect wallet first', 'error');
                         return;
                     }
+
+                    const transactions = JSON.parse(localStorage.getItem(STORAGE_KEYS.TRANSACTIONS) || '[]');
+                    
+                    if (transactions.length > 0) {
+                        App.tasks.completeTask(2, 'Transaction verified!');
+                    } else {
+                        UI.showNotification('No transactions found. Make a transaction first.', 'info');
+                    }
+                },
+
+                openGoogleForm: () => {
+                    const formUrl = `${Config.tasks.googleFormUrl}?entry.1234567890=${encodeURIComponent(App.state.address)}`;
+                    window.open(formUrl, '_blank');
+                    
+                    setTimeout(() => {
+                        App.tasks.completeTask(3, 'Form submitted!');
+                    }, 3000);
+                },
+
+                completeTask: (taskId, message) => {
+                    const btn = taskId === 2 ? document.getElementById('verify-transaction') : null;
+                    
+                    if (btn && btn.disabled === false) {
+                        btn.disabled = true;
+                        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+                        
+                        setTimeout(() => {
+                            btn.innerHTML = 'COMPLETED';
+                            btn.classList.replace('border-white/20', 'bg-green-900/50');
+                            btn.classList.add('text-green-400');
+                            
+                            if (!App.tasks.completedTasks.includes(taskId)) {
+                                App.tasks.completedTasks.push(taskId);
+                                localStorage.setItem(STORAGE_KEYS.TASKS_COMPLETED, JSON.stringify(App.tasks.completedTasks));
+                            }
+                            
+                            UI.updateTaskProgress(App.tasks.completedTasks.length);
+                            
+                            if (taskId === 2) {
+                                UI.unlockTask(3);
+                            }
+                            
+                            UI.showNotification(message || `Task ${taskId} completed!`, 'success');
+                        }, 1500);
+                    }
+                },
+
+                startTransactionMonitoring: () => {
+                    if (!App.state.address || App.tasks.transactionMonitoring) return;
+                    
+                    App.tasks.transactionMonitoring = setInterval(() => {
+                        App.tasks.checkForTransactions();
+                    }, 30000);
+                    
+                    App.tasks.checkForTransactions();
+                },
+
+                checkForTransactions: async () => {
+                    if (!App.state.address || !App.state.provider) return;
                     
                     try {
+                        const blockNumber = await App.state.provider.getBlockNumber();
+                        
+                        for (let i = Math.max(0, blockNumber - 100); i <= blockNumber; i++) {
+                            const block = await App.state.provider.getBlockWithTransactions(i);
+                            
+                            if (block && block.transactions) {
+                                block.transactions.forEach(tx => {
+                                    if (tx.from.toLowerCase() === App.state.address.toLowerCase()) {
+                                        const existingTransactions = JSON.parse(localStorage.getItem(STORAGE_KEYS.TRANSACTIONS) || '[]');
+                                        const txExists = existingTransactions.some(t => t.hash === tx.hash);
+                                        
+                                        if (!txExists) {
+                                            UI.addTransaction({
+                                                hash: tx.hash,
+                                                from: tx.from,
+                                                to: tx.to,
+                                                value: ethers.utils.formatEther(tx.value),
+                                                timestamp: new Date().toISOString()
+                                            });
+                                            
+                                            UI.showNotification('New transaction detected!', 'success');
+                                            
+                                            if (!App.tasks.completedTasks.includes(2)) {
+                                                App.tasks.completeTask(2, 'Transaction verified automatically!');
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        }
+                    } catch (error) {
+                        console.error('Error checking transactions:', error);
+                    }
+                },
+
+                makeTestTransaction: async () => {
+                    if (!App.state.address || !App.state.provider) {
+                        UI.showNotification('Please connect wallet first', 'error');
+                        return;
+                    }
+
+                    try {
                         const signer = App.state.provider.getSigner();
+                        
+                        const balance = await signer.getBalance();
+                        if (balance.lt(ethers.utils.parseEther("0.001"))) {
+                            UI.showNotification('Insufficient balance for transaction', 'error');
+                            return;
+                        }
+                        
                         const tx = await signer.sendTransaction({
                             to: App.state.address,
                             value: ethers.utils.parseEther("0.001")
                         });
                         
-                        App.ui.showNotification('Transaction sent!', 'success');
+                        UI.showNotification(`Transaction sent! Hash: ${tx.hash.substring(0, 10)}...`, 'success');
                         
-                        setTimeout(() => {
-                            App.ui.showNotification('Transaction confirmed!', 'success');
-                            document.getElementById('verify-transaction').click();
-                        }, 2000);
+                        await tx.wait();
+                        
+                        UI.showNotification('Transaction confirmed!', 'success');
+                        
+                        UI.addTransaction({
+                            hash: tx.hash,
+                            from: App.state.address,
+                            to: App.state.address,
+                            value: "0.001",
+                            timestamp: new Date().toISOString()
+                        });
+                        
+                        if (!App.tasks.completedTasks.includes(2)) {
+                            App.tasks.completeTask(2, 'Transaction verified!');
+                        }
+                        
                     } catch (error) {
-                        App.ui.showNotification(`Transaction failed: ${error.message}`, 'error');
+                        console.error('Transaction error:', error);
+                        UI.showNotification(`Transaction failed: ${error.message}`, 'error');
                     }
-                },
-
-                checkTransaction() {
-                    const btn = document.getElementById('verify-transaction');
-                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-                    
-                    setTimeout(() => {
-                        btn.textContent = 'COMPLETED';
-                        btn.classList.remove('bg-purple-600', 'hover:bg-purple-500');
-                        btn.classList.add('bg-green-900/50', 'text-green-400');
-                        
-                        // Розблокувати останнє завдання
-                        document.getElementById('card-task-3').classList.remove('task-locked');
-                        document.getElementById('btn-form').classList.remove('pointer-events-none', 'opacity-50');
-                        document.getElementById('btn-form').classList.add('hover:bg-orange-500');
-                        
-                        App.ui.showNotification('Transaction verified!', 'success');
-                    }, 1500);
-                },
-
-                openGoogleForm() {
-                    window.open(Config.tasks.googleFormUrl, '_blank');
-                    App.ui.showNotification('Form opened in new tab!', 'info');
                 }
             }
         };
 
-        // Ініціалізація при завантаженні
-        window.addEventListener('DOMContentLoaded', () => {
-            App.ui.init();
-            
-            // Додаємо обробники для кнопок
-            document.getElementById('connectBtn').addEventListener('click', () => App.ui.openModal());
-            
-            // Закриття модалки по кліку на фон
-            document.getElementById('connect-modal').addEventListener('click', (e) => {
-                if (e.target === document.getElementById('connect-modal') || 
-                    e.target.classList.contains('absolute')) {
-                    App.ui.closeModal();
-                }
-            });
-        });
-
-        // Глобальний доступ
         window.App = App;
+
+        window.addEventListener('load', async () => {
+            await App.ui.init();
+            
+            if (localStorage.getItem(STORAGE_KEYS.WALLET_CONNECTED) === 'true') {
+                setTimeout(async () => {
+                    await App.wallet.tryReconnect();
+                }, 1000);
+            }
+        });
     </script>
 </body>
 </html>
