@@ -116,12 +116,6 @@
             text-rendering: optimizeLegibility;
             opacity: 0;
             animation: fadeInBody 1s ease-out forwards;
-            /* Важливі оптимізації для плавного скролу */
-            -webkit-overflow-scrolling: touch;
-            transform: translateZ(0);
-            will-change: transform;
-            /* Вимикаємо підсвічування при тапах на мобільних */
-            -webkit-tap-highlight-color: transparent;
         }
 
         @keyframes fadeInBody {
@@ -139,21 +133,19 @@
             }
         }
 
-        /* Оптимізовані переходи */
         .smooth-transition {
-            transition: opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), 
-                       transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
             transform: translateZ(0);
             backface-visibility: hidden;
         }
 
         .smooth-transform {
-            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
             transform: translateZ(0);
         }
 
         .smooth-opacity {
-            transition: opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: opacity 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         @media (min-width: 1024px) {
@@ -183,50 +175,48 @@
             animation: gradient 8s ease infinite;
         }
 
-        /* Оптимізовані стекляні панелі */
         .glass-panel {
-            background: rgba(15, 15, 15, 0.85);
-            backdrop-filter: blur(8px) saturate(160%);
-            -webkit-backdrop-filter: blur(8px) saturate(160%);
+            background: rgba(15, 15, 15, 0.6);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
             border: 1px solid rgba(255, 255, 255, 0.05);
             box-shadow: 
-                0 4px 20px rgba(0, 0, 0, 0.2),
-                0 0 0 1px rgba(74, 222, 128, 0.03);
-            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+                0 4px 30px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(74, 222, 128, 0.05);
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
             transform: translateZ(0);
         }
 
         .glass-panel:hover {
-            border-color: rgba(74, 222, 128, 0.1);
+            border-color: rgba(74, 222, 128, 0.15);
             box-shadow: 
-                0 8px 30px rgba(0, 0, 0, 0.3),
-                0 0 0 1px rgba(74, 222, 128, 0.08);
-            transform: translateY(-2px) translateZ(0);
+                0 8px 40px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(74, 222, 128, 0.1),
+                0 0 40px rgba(74, 222, 128, 0.1);
+            transform: translateY(-4px) translateZ(0);
         }
 
         .glass-card {
             background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
             border: 1px solid rgba(255,255,255,0.05);
-            backdrop-filter: blur(6px) saturate(160%);
-            -webkit-backdrop-filter: blur(6px) saturate(160%);
-            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            backdrop-filter: blur(10px) saturate(180%);
+            -webkit-backdrop-filter: blur(10px) saturate(180%);
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
             transform: translateZ(0);
         }
 
         .glass-card:hover {
-            border-color: rgba(74, 222, 128, 0.15);
-            transform: translateY(-4px) scale(1.01) translateZ(0);
+            border-color: rgba(74, 222, 128, 0.2);
+            transform: translateY(-8px) scale(1.02) translateZ(0);
             box-shadow: 
-                0 15px 40px -5px rgba(74, 222, 128, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.05);
+                0 20px 60px -10px rgba(74, 222, 128, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
 
         nav#navbar {
-            background: rgba(2, 4, 2, 0.98) !important;
-            backdrop-filter: blur(12px) saturate(180%) !important;
-            -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
-            transform: translateZ(0);
-            backface-visibility: hidden;
+            background: rgba(2, 4, 2, 0.95) !important;
+            backdrop-filter: blur(24px) saturate(200%) !important;
+            -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
         }
 
         .btn-primary {
@@ -234,9 +224,9 @@
             color: white;
             position: relative;
             overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
             border: 1px solid rgba(34, 197, 94, 0.3);
-            box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2);
+            box-shadow: 0 4px 20px rgba(34, 197, 94, 0.2);
             transform: translateZ(0);
         }
         
@@ -247,8 +237,8 @@
             left: -100%;
             width: 100%;
             height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
-            transition: 0.5s;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: 0.6s;
         }
         
         .btn-primary:hover::before {
@@ -258,8 +248,8 @@
         .btn-primary:hover {
             transform: translateY(-2px) translateZ(0);
             box-shadow: 
-                0 6px 20px rgba(34, 197, 94, 0.3),
-                0 0 0 1px rgba(34, 197, 94, 0.15);
+                0 8px 30px rgba(34, 197, 94, 0.4),
+                0 0 0 1px rgba(34, 197, 94, 0.2);
             border-color: #4ade80;
         }
 
@@ -268,19 +258,19 @@
         }
 
         ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
         }
 
         ::-webkit-scrollbar-track {
-            background: rgba(2, 4, 2, 0.9);
-            border-radius: 4px;
+            background: rgba(2, 4, 2, 0.8);
+            border-radius: 5px;
         }
 
         ::-webkit-scrollbar-thumb {
             background: linear-gradient(to bottom, #15803d, #4ade80);
-            border-radius: 4px;
-            border: 2px solid rgba(2, 4, 2, 0.9);
+            border-radius: 5px;
+            border: 2px solid rgba(2, 4, 2, 0.8);
         }
 
         ::-webkit-scrollbar-thumb:hover {
@@ -293,21 +283,19 @@
         }
 
         #scrollToTopBtn {
-            box-shadow: 0 4px 15px rgba(74, 222, 128, 0.3);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            transform: translateZ(0);
+            box-shadow: 0 4px 20px rgba(74, 222, 128, 0.3);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         #scrollToTopBtn:hover {
-            transform: translateY(-3px) translateZ(0);
-            box-shadow: 0 6px 20px rgba(74, 222, 128, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(74, 222, 128, 0.5);
         }
 
         #scrollToTopBtn:active {
-            transform: translateY(0) translateZ(0);
+            transform: translateY(0);
         }
 
-        /* Оптимізований WebGL канвас */
         #webgl-canvas {
             position: fixed;
             top: 0;
@@ -315,18 +303,10 @@
             width: 100%;
             height: 100%;
             z-index: -10;
-            opacity: 0.2;
+            opacity: 0.4;
             pointer-events: none;
-            display: none;
         }
         
-        @media (min-width: 768px) {
-            #webgl-canvas {
-                display: block;
-            }
-        }
-        
-        /* Спрощений grid-overlay */
         .grid-overlay {
             position: fixed;
             top: 0;
@@ -336,19 +316,19 @@
             z-index: -9;
             pointer-events: none;
             background-image: 
-                linear-gradient(rgba(74, 222, 128, 0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(74, 222, 128, 0.02) 1px, transparent 1px);
-            background-size: 80px 80px;
-            transform: translate3d(0, 0, 0);
-            animation: gridFlow 40s linear infinite;
+                linear-gradient(rgba(74, 222, 128, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(74, 222, 128, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 70%);
+            animation: gridFlow 20s linear infinite;
         }
 
         @keyframes gridFlow {
             0% {
-                transform: translate3d(0, 0, 0);
+                transform: translateY(0) translateX(0);
             }
             100% {
-                transform: translate3d(80px, 80px, 0);
+                transform: translateY(60px) translateX(60px);
             }
         }
 
@@ -361,28 +341,27 @@
             animation: gradient 6s ease infinite;
         }
 
-        /* Оптимізовані анімації появи */
         .fade-in {
             opacity: 0;
-            animation: fadeIn 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            animation: fadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
 
         .fade-in-up {
             opacity: 0;
-            transform: translateY(20px);
-            animation: fadeInUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            transform: translateY(40px);
+            animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
 
         .fade-in-left {
             opacity: 0;
-            transform: translateX(-20px);
-            animation: fadeInLeft 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            transform: translateX(-40px);
+            animation: fadeInLeft 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
 
         .fade-in-right {
             opacity: 0;
-            transform: translateX(20px);
-            animation: fadeInRight 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            transform: translateX(40px);
+            animation: fadeInRight 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
 
         .delay-100 { animation-delay: 0.1s; }
@@ -426,9 +405,9 @@
         .page-content {
             display: none;
             opacity: 0;
-            transform: translateY(10px);
-            transition: opacity 0.4s cubic-bezier(0.2, 0.8, 0.2, 1), 
-                        transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform: translateY(20px);
+            transition: opacity 0.6s cubic-bezier(0.2, 0.8, 0.2, 1), 
+                        transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         .page-content.active {
@@ -438,41 +417,30 @@
         }
 
         .hover-lift {
-            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
             transform: translate3d(0, 0, 0);
         }
 
         .hover-lift:hover {
-            transform: translateY(-4px) translate3d(0, 0, 0);
+            transform: translateY(-8px) translate3d(0, 0, 0);
         }
 
         .hover-glow {
-            transition: box-shadow 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: box-shadow 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         .hover-glow:hover {
-            box-shadow: 0 0 30px rgba(74, 222, 128, 0.15);
+            box-shadow: 0 0 40px rgba(74, 222, 128, 0.2);
         }
 
-        /* Спрощені водяні краплі */
-        #water-drops {
-            display: none;
-        }
-        
-        @media (min-width: 1024px) {
-            #water-drops {
-                display: block;
-            }
-        }
-        
         .water-drop {
             position: absolute;
-            width: 1px;
-            background: linear-gradient(to bottom, transparent, rgba(74, 222, 128, 0.2));
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, rgba(74, 222, 128, 0.3));
             border-radius: 0 0 1px 1px;
             z-index: -8;
             pointer-events: none;
-            animation: waterDrop 10s linear infinite;
+            animation: waterDrop 8s linear infinite;
         }
 
         .water-wave {
@@ -480,16 +448,16 @@
             bottom: 0;
             left: 0;
             width: 300%;
-            height: 120px;
+            height: 150px;
             background: linear-gradient(90deg, 
                 transparent, 
-                rgba(74, 222, 128, 0.08) 20%, 
-                rgba(74, 222, 128, 0.03) 40%, 
+                rgba(74, 222, 128, 0.1) 20%, 
+                rgba(74, 222, 128, 0.05) 40%, 
                 transparent 60%);
             z-index: -7;
-            opacity: 0.2;
+            opacity: 0.3;
             pointer-events: none;
-            animation: wave 30s linear infinite;
+            animation: wave 20s linear infinite;
         }
 
         .gyro-wrapper {
@@ -504,7 +472,7 @@
             top: 50%;
             left: 50%;
             transform-style: preserve-3d;
-            animation: rotate3d 25s linear infinite;
+            animation: rotate3d 20s linear infinite;
         }
 
         @keyframes rotate3d {
@@ -517,19 +485,19 @@
             top: 50%;
             left: 50%;
             border-radius: 50%;
-            border: 1px solid rgba(74, 222, 128, 0.5);
-            box-shadow: 0 0 10px rgba(74, 222, 128, 0.15);
-            animation: pulseRing 5s ease-in-out infinite;
+            border: 1px solid rgba(74, 222, 128, 0.6);
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.2);
+            animation: pulseRing 4s ease-in-out infinite;
         }
 
         @keyframes pulseRing {
             0%, 100% { 
-                border-color: rgba(74, 222, 128, 0.5);
-                box-shadow: 0 0 10px rgba(74, 222, 128, 0.15);
+                border-color: rgba(74, 222, 128, 0.6);
+                box-shadow: 0 0 15px rgba(74, 222, 128, 0.2);
             }
             50% { 
-                border-color: rgba(74, 222, 128, 0.7);
-                box-shadow: 0 0 20px rgba(74, 222, 128, 0.3);
+                border-color: rgba(74, 222, 128, 0.9);
+                box-shadow: 0 0 30px rgba(74, 222, 128, 0.4);
             }
         }
 
@@ -537,7 +505,7 @@
             width: 200px;
             height: 200px;
             margin: -100px;
-            animation: rotate1 12s linear infinite;
+            animation: rotate1 10s linear infinite;
             border-left-color: transparent;
         }
 
@@ -545,7 +513,7 @@
             width: 160px;
             height: 160px;
             margin: -80px;
-            animation: rotate2 10s linear infinite;
+            animation: rotate2 8s linear infinite;
             border-top-color: transparent;
             border-width: 2px;
         }
@@ -554,7 +522,7 @@
             width: 120px;
             height: 120px;
             margin: -60px;
-            animation: rotate3 8s linear infinite;
+            animation: rotate3 6s linear infinite;
             border-right-color: transparent;
         }
 
@@ -581,14 +549,13 @@
             max-width: 400px;
             height: 100vh;
             background: rgba(2, 4, 2, 0.98);
-            backdrop-filter: blur(15px) saturate(180%);
-            -webkit-backdrop-filter: blur(15px) saturate(180%);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
             z-index: 10000;
-            transition: right 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: right 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
             padding-top: 100px;
             overflow-y: auto;
             border-left: 1px solid rgba(74, 222, 128, 0.1);
-            transform: translateZ(0);
         }
 
         .mobile-menu.active {
@@ -602,11 +569,11 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(5px);
             z-index: 9999;
             opacity: 0;
             pointer-events: none;
-            transition: opacity 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: opacity 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         .mobile-menu-backdrop.active {
@@ -625,11 +592,11 @@
             cursor: pointer;
             padding: 0;
             z-index: 10001;
-            transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         .hamburger:hover {
-            transform: scale(1.05);
+            transform: scale(1.1);
         }
 
         .hamburger span {
@@ -637,7 +604,7 @@
             height: 3px;
             background: #4ade80;
             border-radius: 2px;
-            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
             transform-origin: center;
         }
 
@@ -652,22 +619,6 @@
 
         .hamburger.active span:nth-child(3) {
             transform: rotate(-45deg) translate(7px, -7px);
-        }
-
-        /* Вимикаємо анімації при зменшеній рухливості */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-            
-            .grid-overlay,
-            .water-wave,
-            .gyro,
-            .gyro-ring {
-                animation: none !important;
-            }
         }
 
         @media (max-width: 1024px) {
@@ -735,20 +686,6 @@
             nav .flex.items-center.gap-4.relative {
                 margin-left: auto;
                 gap: 12px !important;
-            }
-            
-            /* Вимикаємо складні ефекти на мобільних для кращої продуктивності */
-            .glass-panel, .glass-card, #navbar {
-                backdrop-filter: blur(4px) saturate(160%) !important;
-                -webkit-backdrop-filter: blur(4px) saturate(160%) !important;
-            }
-            
-            .grid-overlay {
-                display: none;
-            }
-            
-            .water-wave {
-                display: none;
             }
         }
 
@@ -830,12 +767,12 @@
         }
 
         .notification {
-            animation: slideIn 0.3s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+            animation: slideIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
         }
 
         @keyframes slideIn {
             from { 
-                transform: translateX(100%) translateY(-10px); 
+                transform: translateX(100%) translateY(-20px); 
                 opacity: 0; 
             }
             to { 
@@ -848,7 +785,7 @@
             max-height: 0;
             opacity: 0;
             overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
         
         .faq-content.open {
@@ -863,7 +800,7 @@
             opacity: 0.6;
             filter: grayscale(0.8);
             position: relative;
-            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
         .task-locked::after {
@@ -874,12 +811,12 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            font-size: 24px;
+            font-size: 32px;
             color: rgba(255,255,255,0.8);
             background: rgba(0,0,0,0.7);
-            padding: 15px;
+            padding: 20px;
             border-radius: 50%;
-            backdrop-filter: blur(4px);
+            backdrop-filter: blur(5px);
             animation: pulse 2s ease-in-out infinite;
         }
 
@@ -890,7 +827,7 @@
         .shimmer {
             background: linear-gradient(90deg, 
                 rgba(255, 255, 255, 0) 0%, 
-                rgba(255, 255, 255, 0.08) 50%, 
+                rgba(255, 255, 255, 0.1) 50%, 
                 rgba(255, 255, 255, 0) 100%);
             background-size: 200% 100%;
             animation: shimmer 2s infinite;
@@ -912,22 +849,6 @@
             padding: 2px;
             font-weight: 900;
             font-family: 'Inter', sans-serif;
-        }
-        
-        /* Оптимізація для плавного скролу */
-        .scroll-smooth {
-            scroll-behavior: smooth;
-        }
-        
-        /* Виправлення для IOS */
-        @supports (-webkit-touch-callout: none) {
-            body {
-                height: -webkit-fill-available;
-            }
-            
-            .mobile-menu {
-                height: -webkit-fill-available;
-            }
         }
     </style>
 </head>
@@ -992,12 +913,12 @@
     <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-green-500/5 rounded-full blur-[120px] -z-5 pointer-events-none animate-pulse-slow"></div>
 
     <!-- Navigation -->
-    <nav class="fixed top-0 w-full z-50 border-b border-white/5 transition-all duration-300 smooth-transition" id="navbar" style="background: rgba(2, 4, 2, 0.98); backdrop-filter: blur(12px) saturate(180%); -webkit-backdrop-filter: blur(12px) saturate(180%);">
+    <nav class="fixed top-0 w-full z-50 border-b border-white/5 transition-all duration-300 smooth-transition" id="navbar" style="background: rgba(2, 4, 2, 0.95); backdrop-filter: blur(24px) saturate(200%); -webkit-backdrop-filter: blur(24px) saturate(200%);">
         <div class="max-w-[1600px] mx-auto px-6 h-24 flex items-center justify-between">
             
             <div class="flex items-center gap-3 cursor-pointer group" onclick="App.router.navigate('home')">
                 <div class="relative w-10 h-10 flex items-center justify-center smooth-transform">
-                    <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_10px_rgba(74,222,128,0.5)] transition-transform duration-500 group-hover:rotate-180 group-hover:scale-105">
+                    <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_15px_rgba(74,222,128,0.6)] transition-transform duration-700 group-hover:rotate-180 group-hover:scale-110">
                         <path d="M20 10 V90" stroke="#4ade80" stroke-width="8" stroke-linecap="round"/>
                         <path d="M80 10 L20 50 L80 90" stroke="#4ade80" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
                         <circle cx="20" cy="50" r="10" fill="#22c55e"/>
@@ -1079,7 +1000,7 @@
                             <div class="text-xs text-gray-500 uppercase font-mono">Browser Extension</div>
                         </div>
                     </div>
-                    <div class="wallet-status bg-green-500 shadow-[0_0_8px_#4ade80] group-hover:bg-[#F6851B] group-hover:shadow-[0_0_8px_#F6851B]"></div>
+                    <div class="wallet-status bg-green-500 shadow-[0_0_10px_#4ade80] group-hover:bg-[#F6851B] group-hover:shadow-[0_0_10px_#F6851B]"></div>
                 </div>
 
                 <div onclick="App.wallet.connect('Trust')" class="wallet-option trust group border border-white/10 p-4 rounded-xl bg-white/5 cursor-pointer transition-all flex items-center justify-between hover-lift">
@@ -1092,7 +1013,7 @@
                             <div class="text-xs text-gray-500 uppercase font-mono">Mobile / Desktop</div>
                         </div>
                     </div>
-                    <div class="wallet-status bg-gray-500 group-hover:bg-[#3375BB] group-hover:shadow-[0_0_8px_#3375BB]"></div>
+                    <div class="wallet-status bg-gray-500 group-hover:bg-[#3375BB] group-hover:shadow-[0_0_10px_#3375BB]"></div>
                 </div>
 
                 <div onclick="App.wallet.connect('WC')" class="wallet-option walletconnect group border border-white/10 p-4 rounded-xl bg-white/5 cursor-pointer transition-all flex items-center justify-between hover-lift">
@@ -1105,7 +1026,7 @@
                             <div class="text-xs text-gray-500 uppercase font-mono">Scan QR Code</div>
                         </div>
                     </div>
-                    <div class="wallet-status bg-gray-500 group-hover:bg-[#3B99FC] group-hover:shadow-[0_0_8px_#3B99FC]"></div>
+                    <div class="wallet-status bg-gray-500 group-hover:bg-[#3B99FC] group-hover:shadow-[0_0_10px_#3B99FC]"></div>
                 </div>
             </div>
 
@@ -1462,7 +1383,7 @@
         <div class="grid md:grid-cols-2 gap-8 mb-16">
             <a href="https://t.me/tgkarim1" target="_blank" class="glass-panel p-8 rounded-3xl block group border-t border-blue-500/20 hover:bg-blue-900/10 transition-all duration-300 smooth-transition hover-lift fade-in-left">
                 <div class="flex items-center gap-6 mb-4">
-                    <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-3xl text-white shadow-[0_0_15px_#3b82f6] group-hover:scale-110 transition-transform smooth-transition">
+                    <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center text-3xl text-white shadow-[0_0_20px_#3b82f6] group-hover:scale-110 transition-transform smooth-transition">
                         <i class="fa-brands fa-telegram"></i>
                     </div>
                     <div>
@@ -1478,7 +1399,7 @@
 
             <a href="mailto:support@karchain.io" class="glass-panel p-8 rounded-3xl block group border-t border-green-500/20 hover:bg-green-900/10 transition-all duration-300 smooth-transition hover-lift fade-in-right">
                 <div class="flex items-center gap-6 mb-4">
-                    <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-3xl text-white shadow-[0_0_15px_#22c55e] group-hover:scale-110 transition-transform smooth-transition">
+                    <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center text-3xl text-white shadow-[0_0_20px_#22c55e] group-hover:scale-110 transition-transform smooth-transition">
                         <i class="fa-solid fa-envelope"></i>
                     </div>
                     <div>
@@ -1667,14 +1588,14 @@
             TASKS_COMPLETED: 'karchain_tasks_completed',
             TRANSACTIONS: 'karchain_transactions',
             SOCIAL_TASK_STARTED: 'karchain_social_started',
-            TOKEN_BALANCE_HISTORY: 'karchain_token_balance_history',
+            TOKEN_BALANCE_HISTORY: 'karchain_token_balance_history', // Новий ключ для історії балансу
             LAST_FAUCET_CLAIM: 'karchain_last_faucet_claim'
         };
 
         const UI = {
             init: () => {
-                // Ініціалізуємо тільки необхідні функції
-                UI.initOptimizedEffects();
+                UI.initParticles();
+                UI.initWaterDrops();
                 UI.initFAQ();
                 UI.checkSavedConnection();
                 UI.setupWalletButton();
@@ -1682,25 +1603,13 @@
                 UI.setupDropdownToggle();
                 UI.setupTaskButtons();
                 UI.setupMobileMenu();
+                UI.initAnimations();
                 UI.initSmoothScroll();
                 UI.fixNavbarOnPC();
                 UI.checkMetaMaskOnLoad();
                 
                 // Load completed tasks
                 UI.loadTaskProgress();
-                
-                // Оптимізована ініціалізація GSAP
-                setTimeout(() => {
-                    UI.initAnimations();
-                }, 300);
-            },
-
-            initOptimizedEffects: () => {
-                // Ініціалізуємо тільки на десктопі
-                if (window.innerWidth > 768) {
-                    UI.initParticles();
-                    UI.initWaterDrops();
-                }
             },
 
             loadTaskProgress: () => {
@@ -1734,15 +1643,10 @@
                     const verifyBtn = document.getElementById('verify-transaction');
                     if (taskCard) {
                         taskCard.classList.remove('task-locked');
-                        if (typeof gsap !== 'undefined') {
-                            gsap.fromTo(taskCard,
-                                { scale: 0.95, opacity: 0.6 },
-                                { scale: 1, opacity: 1, duration: 0.4, ease: "power2.out" }
-                            );
-                        } else {
-                            taskCard.style.opacity = '1';
-                            taskCard.style.filter = 'none';
-                        }
+                        gsap.fromTo(taskCard,
+                            { scale: 0.95, opacity: 0.6 },
+                            { scale: 1, opacity: 1, duration: 0.5, ease: "power2.out" }
+                        );
                     }
                     if (verifyBtn) {
                         verifyBtn.disabled = false;
@@ -1756,15 +1660,10 @@
                     const formBtn = document.getElementById('btn-form');
                     if (taskCard) {
                         taskCard.classList.remove('task-locked');
-                        if (typeof gsap !== 'undefined') {
-                            gsap.fromTo(taskCard,
-                                { scale: 0.95, opacity: 0.6 },
-                                { scale: 1, opacity: 1, duration: 0.4, ease: "power2.out", delay: 0.1 }
-                            );
-                        } else {
-                            taskCard.style.opacity = '1';
-                            taskCard.style.filter = 'none';
-                        }
+                        gsap.fromTo(taskCard,
+                            { scale: 0.95, opacity: 0.6 },
+                            { scale: 1, opacity: 1, duration: 0.5, ease: "power2.out", delay: 0.1 }
+                        );
                     }
                     if (formBtn) {
                         formBtn.classList.remove('pointer-events-none', 'opacity-50');
@@ -1775,10 +1674,10 @@
             fixNavbarOnPC: () => {
                 const navbar = document.getElementById('navbar');
                 if (navbar && window.innerWidth >= 1024) {
-                    navbar.style.background = 'rgba(2, 4, 2, 0.98)';
-                    navbar.style.backdropFilter = 'blur(12px) saturate(180%)';
-                    navbar.style.webkitBackdropFilter = 'blur(12px) saturate(180%)';
-                    navbar.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.2)';
+                    navbar.style.background = 'rgba(2, 4, 2, 0.95)';
+                    navbar.style.backdropFilter = 'blur(24px) saturate(200%)';
+                    navbar.style.webkitBackdropFilter = 'blur(24px) saturate(200%)';
+                    navbar.style.boxShadow = '0 4px 30px rgba(0, 0, 0, 0.3)';
                 }
             },
 
@@ -1787,7 +1686,7 @@
                 scrollToTopBtn.innerHTML = '<i class="fa-solid fa-chevron-up"></i>';
                 scrollToTopBtn.className = 'fixed bottom-8 right-8 w-12 h-12 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center text-white z-40 transition-all duration-300 opacity-0 translate-y-10';
                 scrollToTopBtn.id = 'scrollToTopBtn';
-                scrollToTopBtn.style.boxShadow = '0 4px 15px rgba(74, 222, 128, 0.3)';
+                scrollToTopBtn.style.boxShadow = '0 4px 20px rgba(74, 222, 128, 0.3)';
                 document.body.appendChild(scrollToTopBtn);
 
                 scrollToTopBtn.addEventListener('click', () => {
@@ -1797,9 +1696,7 @@
                     });
                 });
 
-                // Оптимізований scroll listener
-                let scrollTimeout;
-                const handleScroll = () => {
+                window.addEventListener('scroll', () => {
                     const btn = document.getElementById('scrollToTopBtn');
                     if (window.scrollY > 300) {
                         btn.classList.remove('opacity-0', 'translate-y-10');
@@ -1808,128 +1705,122 @@
                         btn.classList.remove('opacity-100', 'translate-y-0');
                         btn.classList.add('opacity-0', 'translate-y-10');
                     }
-                    
-                    // Оптимізуємо navbar при скролі
-                    clearTimeout(scrollTimeout);
-                    scrollTimeout = setTimeout(() => {
-                        UI.updateNavbarOnScroll();
-                    }, 16);
-                };
+                });
 
-                window.addEventListener('scroll', handleScroll, { passive: true });
-            },
-
-            updateNavbarOnScroll: () => {
-                const navbar = document.getElementById('navbar');
-                if (navbar) {
-                    if (window.scrollY > 50) {
-                        navbar.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.2)';
-                    } else {
-                        navbar.style.boxShadow = 'none';
-                    }
-                }
-            },
-
-            initAnimations: () => {
-                if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') {
-                    console.warn('GSAP not loaded, skipping animations');
-                    return;
-                }
-
-                try {
-                    gsap.registerPlugin(ScrollTrigger);
-
-                    // Оптимізовані анімації появи
-                    const observerOptions = {
-                        threshold: 0.1,
-                        rootMargin: '0px 0px -50px 0px'
-                    };
-
-                    const observer = new IntersectionObserver((entries) => {
-                        entries.forEach(entry => {
-                            if (entry.isIntersecting) {
-                                const el = entry.target;
-                                const animationClass = Array.from(el.classList).find(cls => 
-                                    cls.startsWith('fade-in') || cls.startsWith('delay-')
-                                );
-                                
-                                if (animationClass) {
-                                    gsap.to(el, {
-                                        y: 0,
-                                        x: 0,
-                                        opacity: 1,
-                                        duration: 0.6,
-                                        ease: "power2.out",
-                                        delay: parseFloat(el.dataset.delay) || 0
-                                    });
-                                    observer.unobserve(el);
-                                }
-                            }
-                        });
-                    }, observerOptions);
-
-                    // Спостереження для анімованих елементів
-                    document.querySelectorAll('.fade-in-up, .fade-in-left, .fade-in-right, .fade-in').forEach(el => {
-                        observer.observe(el);
-                    });
-
-                    // Оптимізовані лічильники
-                    const counters = document.querySelectorAll('.counter');
-                    counters.forEach(counter => {
-                        const target = parseInt(counter.textContent.replace(/,/g, ''));
-                        if (!isNaN(target) && target > 0) {
-                            gsap.to(counter, {
-                                scrollTrigger: {
-                                    trigger: counter,
-                                    start: "top 80%",
-                                    toggleActions: "play none none none",
-                                    once: true
-                                },
-                                innerHTML: target,
-                                duration: 2,
-                                snap: { innerHTML: 1 },
-                                onUpdate: function() {
-                                    const value = Math.floor(this.targets()[0].innerHTML);
-                                    this.targets()[0].innerHTML = value.toLocaleString();
-                                }
+                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', function(e) {
+                        const href = this.getAttribute('href');
+                        if (href === '#' || href === '') return;
+                        
+                        const targetElement = document.querySelector(href);
+                        if (targetElement) {
+                            e.preventDefault();
+                            const offset = 80;
+                            const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+                            
+                            window.scrollTo({
+                                top: targetPosition - offset,
+                                behavior: 'smooth'
                             });
                         }
                     });
+                });
+            },
 
-                } catch (error) {
-                    console.error('Animation initialization error:', error);
+            initAnimations: () => {
+                gsap.registerPlugin(ScrollTrigger);
+
+                gsap.utils.toArray('.fade-in-up, .fade-in-left, .fade-in-right, .fade-in').forEach(el => {
+                    gsap.from(el, {
+                        scrollTrigger: {
+                            trigger: el,
+                            start: "top 80%",
+                            toggleActions: "play none none reverse"
+                        },
+                        y: 30,
+                        opacity: 0,
+                        duration: 0.8,
+                        ease: "power2.out"
+                    });
+                });
+
+                gsap.to('.grid-overlay', {
+                    scrollTrigger: {
+                        scrub: true
+                    },
+                    y: 100,
+                    ease: "none"
+                });
+
+                const counters = document.querySelectorAll('.counter');
+                counters.forEach(counter => {
+                    const target = parseInt(counter.textContent.replace(/,/g, ''));
+                    if (!isNaN(target)) {
+                        gsap.to(counter, {
+                            scrollTrigger: {
+                                trigger: counter,
+                                start: "top 80%",
+                                toggleActions: "play none none reverse"
+                            },
+                            innerHTML: target,
+                            duration: 2,
+                            snap: { innerHTML: 1 },
+                            onUpdate: function() {
+                                const value = Math.floor(this.targets()[0].innerHTML);
+                                this.targets()[0].innerHTML = value.toLocaleString();
+                            }
+                        });
+                    }
+                });
+
+                const cards = document.querySelectorAll('.glass-card, .glass-panel');
+                cards.forEach(card => {
+                    card.addEventListener('mouseenter', () => {
+                        gsap.to(card, {
+                            scale: 1.02,
+                            duration: 0.3,
+                            ease: "power2.out"
+                        });
+                    });
+                    card.addEventListener('mouseleave', () => {
+                        gsap.to(card, {
+                            scale: 1,
+                            duration: 0.3,
+                            ease: "power2.out"
+                        });
+                    });
+                });
+
+                const progressBar = document.getElementById('progress-bar');
+                if (progressBar) {
+                    gsap.to(progressBar, {
+                        width: "0%",
+                        duration: 0.5,
+                        ease: "power2.out"
+                    });
                 }
             },
 
             initParticles: () => {
                 const cvs = document.getElementById('webgl-canvas');
-                if (!cvs) return;
-                
                 const ctx = cvs.getContext('2d');
-                if (!ctx) return;
-                
                 let particles = [];
-                let animationId = null;
-                let isAnimating = false;
                 
                 const resize = () => { 
                     cvs.width = window.innerWidth; 
                     cvs.height = window.innerHeight; 
                 };
-                
-                window.addEventListener('resize', resize, { passive: true }); 
+                window.addEventListener('resize', resize); 
                 resize();
 
-                class Particle {
-                    constructor() { 
-                        this.reset(); 
-                        this.speed = Math.random() * 0.2 + 0.05; // Ще повільніше
-                    }
+                class P {
+                    constructor() { this.reset(); }
                     reset() { 
                         this.x = Math.random() * cvs.width; 
                         this.y = Math.random() * cvs.height; 
-                        this.size = Math.random() * 1 + 0.5; // Ще менше
-                        this.alpha = Math.random() * 0.15 + 0.05; // Ще прозоріше
+                        this.size = Math.random() * 2; 
+                        this.speed = Math.random() * 0.5 + 0.1;
+                        this.alpha = Math.random() * 0.3 + 0.1;
                         this.color = `rgba(74, 222, 128, ${this.alpha})`;
                     }
                     update() { 
@@ -1944,84 +1835,27 @@
                     }
                 }
 
-                // Менше частинок
-                for(let i = 0; i < 20; i++) particles.push(new Particle());
+                for(let i=0; i<50; i++) particles.push(new P());
 
                 const animate = () => {
-                    if (!isAnimating) return;
-                    
-                    ctx.clearRect(0, 0, cvs.width, cvs.height);
-                    
-                    for(let i = 0; i < particles.length; i++) {
-                        particles[i].update();
-                        particles[i].draw();
-                    }
-                    
-                    animationId = requestAnimationFrame(animate);
+                    ctx.clearRect(0,0,cvs.width,cvs.height);
+                    particles.forEach(p => { p.update(); p.draw(); });
+                    requestAnimationFrame(animate);
                 };
-                
-                const startAnimation = () => {
-                    if (!isAnimating && document.visibilityState === 'visible') {
-                        isAnimating = true;
-                        animate();
-                    }
-                };
-                
-                const stopAnimation = () => {
-                    isAnimating = false;
-                    if (animationId) {
-                        cancelAnimationFrame(animationId);
-                        animationId = null;
-                    }
-                };
-                
-                // Керування анімацією
-                if (document.visibilityState === 'visible') {
-                    startAnimation();
-                }
-                
-                document.addEventListener('visibilitychange', () => {
-                    if (document.visibilityState === 'visible') {
-                        startAnimation();
-                    } else {
-                        stopAnimation();
-                    }
-                });
-                
-                // Автопауза при неактивності
-                let activityTimeout;
-                const resetActivityTimer = () => {
-                    clearTimeout(activityTimeout);
-                    startAnimation();
-                    
-                    activityTimeout = setTimeout(() => {
-                        if (document.visibilityState === 'visible') {
-                            stopAnimation();
-                        }
-                    }, 30000); // Зупиняємо через 30 секунд неактивності
-                };
-                
-                ['mousemove', 'scroll', 'click', 'keydown'].forEach(event => {
-                    window.addEventListener(event, resetActivityTimer, { passive: true });
-                });
-                
-                resetActivityTimer();
+                animate();
             },
 
             initWaterDrops: () => {
                 const container = document.getElementById('water-drops');
-                if (!container) return;
-                
-                // Менше крапель
-                const dropsCount = 12;
+                const dropsCount = 30;
                 
                 for(let i = 0; i < dropsCount; i++) {
                     const drop = document.createElement('div');
                     drop.className = 'water-drop';
                     drop.style.left = `${Math.random() * 100}%`;
                     drop.style.animationDelay = `${Math.random() * 8}s`;
-                    drop.style.height = `${10 + Math.random() * 30}px`; // Менше
-                    drop.style.animationDuration = `${10 + Math.random() * 15}s`; // Повільніше
+                    drop.style.height = `${20 + Math.random() * 80}px`;
+                    drop.style.animationDuration = `${5 + Math.random() * 10}s`;
                     container.appendChild(drop);
                 }
             },
@@ -2102,16 +1936,24 @@
                         content.classList.toggle('open');
                         
                         if(content.classList.contains('open')) {
-                            content.style.maxHeight = '500px';
-                            content.style.opacity = '1';
-                            content.style.paddingTop = '1rem';
-                            content.style.paddingBottom = '1rem';
+                            gsap.to(content, {
+                                maxHeight: '500px',
+                                opacity: 1,
+                                paddingTop: '1rem',
+                                paddingBottom: '1rem',
+                                duration: 0.5,
+                                ease: "power2.out"
+                            });
                             icon.style.transform = 'rotate(180deg)';
                         } else {
-                            content.style.maxHeight = '0';
-                            content.style.opacity = '0';
-                            content.style.paddingTop = '0';
-                            content.style.paddingBottom = '0';
+                            gsap.to(content, {
+                                maxHeight: 0,
+                                opacity: 0,
+                                paddingTop: 0,
+                                paddingBottom: 0,
+                                duration: 0.5,
+                                ease: "power2.out"
+                            });
                             icon.style.transform = 'rotate(0deg)';
                         }
                     });
@@ -2139,27 +1981,21 @@
                         
                         if (!isVisible) {
                             dropdown.classList.remove('hidden');
-                            if (typeof gsap !== 'undefined') {
-                                gsap.fromTo(dropdown, 
-                                    { opacity: 0, y: -10, scale: 0.95 },
-                                    { opacity: 1, y: 0, scale: 1, duration: 0.2, ease: "power2.out" }
-                                );
-                            }
+                            gsap.fromTo(dropdown, 
+                                { opacity: 0, y: -20, scale: 0.95 },
+                                { opacity: 1, y: 0, scale: 1, duration: 0.3, ease: "power2.out" }
+                            );
                         } else {
-                            if (typeof gsap !== 'undefined') {
-                                gsap.to(dropdown, {
-                                    opacity: 0,
-                                    y: -10,
-                                    scale: 0.95,
-                                    duration: 0.15,
-                                    ease: "power2.in",
-                                    onComplete: () => {
-                                        dropdown.classList.add('hidden');
-                                    }
-                                });
-                            } else {
-                                dropdown.classList.add('hidden');
-                            }
+                            gsap.to(dropdown, {
+                                opacity: 0,
+                                y: -20,
+                                scale: 0.95,
+                                duration: 0.2,
+                                ease: "power2.in",
+                                onComplete: () => {
+                                    dropdown.classList.add('hidden');
+                                }
+                            });
                         }
                     } else {
                         UI.openModal();
@@ -2172,20 +2008,16 @@
                         !newConnectBtn.contains(e.target) && 
                         !dropdown.classList.contains('hidden')) {
                         
-                        if (typeof gsap !== 'undefined') {
-                            gsap.to(dropdown, {
-                                opacity: 0,
-                                y: -10,
-                                scale: 0.95,
-                                duration: 0.15,
-                                ease: "power2.in",
-                                onComplete: () => {
-                                    dropdown.classList.add('hidden');
-                                }
-                            });
-                        } else {
-                            dropdown.classList.add('hidden');
-                        }
+                        gsap.to(dropdown, {
+                            opacity: 0,
+                            y: -20,
+                            scale: 0.95,
+                            duration: 0.2,
+                            ease: "power2.in",
+                            onComplete: () => {
+                                dropdown.classList.add('hidden');
+                            }
+                        });
                     }
                 });
             },
@@ -2249,6 +2081,7 @@
                 localStorage.removeItem(STORAGE_KEYS.WALLET_ADDRESS);
                 localStorage.removeItem(STORAGE_KEYS.LAST_CONNECTED);
                 localStorage.removeItem(STORAGE_KEYS.WALLET_TYPE);
+                // Не видаляємо баланс та транзакції
             },
 
             showPage: (id) => {
@@ -2258,42 +2091,32 @@
                 const targetPage = document.getElementById('page-'+id);
                 
                 if (currentPage && targetPage && currentPage !== targetPage) {
-                    if (typeof gsap !== 'undefined') {
-                        gsap.to(currentPage, {
-                            opacity: 0,
-                            y: -10,
-                            duration: 0.2,
-                            ease: "power2.in",
-                            onComplete: () => {
-                                document.querySelectorAll('.page-content').forEach(el => {
-                                    el.classList.remove('active');
-                                    el.style.display = 'none';
-                                });
-                                
-                                targetPage.style.display = 'block';
-                                gsap.fromTo(targetPage, 
-                                    { opacity: 0, y: 10 },
-                                    { 
-                                        opacity: 1, 
-                                        y: 0, 
-                                        duration: 0.3, 
-                                        ease: "power2.out",
-                                        onComplete: () => {
-                                            targetPage.classList.add('active');
-                                        }
+                    gsap.to(currentPage, {
+                        opacity: 0,
+                        y: -20,
+                        duration: 0.3,
+                        ease: "power2.in",
+                        onComplete: () => {
+                            document.querySelectorAll('.page-content').forEach(el => {
+                                el.classList.remove('active');
+                                el.style.display = 'none';
+                            });
+                            
+                            targetPage.style.display = 'block';
+                            gsap.fromTo(targetPage, 
+                                { opacity: 0, y: 20 },
+                                { 
+                                    opacity: 1, 
+                                    y: 0, 
+                                    duration: 0.5, 
+                                    ease: "power2.out",
+                                    onComplete: () => {
+                                        targetPage.classList.add('active');
                                     }
-                                );
-                            }
-                        });
-                    } else {
-                        document.querySelectorAll('.page-content').forEach(el => {
-                            el.classList.remove('active');
-                            el.style.display = 'none';
-                        });
-                        
-                        targetPage.style.display = 'block';
-                        targetPage.classList.add('active');
-                    }
+                                }
+                            );
+                        }
+                    });
                 } else {
                     document.querySelectorAll('.page-content').forEach(el => {
                         el.classList.remove('active');
@@ -2330,37 +2153,28 @@
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
                 
-                if (typeof gsap !== 'undefined') {
-                    gsap.fromTo('#modal-content', 
-                        { scale: 0.95, opacity: 0 },
-                        { scale: 1, opacity: 1, duration: 0.3, ease: "power2.out" }
-                    );
-                }
+                gsap.fromTo('#modal-content', 
+                    { scale: 0.95, opacity: 0 },
+                    { scale: 1, opacity: 1, duration: 0.4, ease: "power2.out" }
+                );
                 
                 UI.closeMobileMenu();
                 document.body.style.overflow = 'hidden';
             },
 
             closeModal: () => {
-                if (typeof gsap !== 'undefined') {
-                    gsap.to('#modal-content', {
-                        scale: 0.95,
-                        opacity: 0,
-                        duration: 0.2,
-                        ease: "power2.in",
-                        onComplete: () => {
-                            const modal = document.getElementById('connect-modal');
-                            modal.classList.add('hidden');
-                            modal.classList.remove('flex');
-                            document.body.style.overflow = '';
-                        }
-                    });
-                } else {
-                    const modal = document.getElementById('connect-modal');
-                    modal.classList.add('hidden');
-                    modal.classList.remove('flex');
-                    document.body.style.overflow = '';
-                }
+                gsap.to('#modal-content', {
+                    scale: 0.95,
+                    opacity: 0,
+                    duration: 0.3,
+                    ease: "power2.in",
+                    onComplete: () => {
+                        const modal = document.getElementById('connect-modal');
+                        modal.classList.add('hidden');
+                        modal.classList.remove('flex');
+                        document.body.style.overflow = '';
+                    }
+                });
             },
 
             setConnectedState: (address, balance) => {
@@ -2395,12 +2209,10 @@
                     UI.setupDropdownToggle();
                 }, 100);
 
-                if (typeof gsap !== 'undefined') {
-                    gsap.fromTo('#view-active', 
-                        { opacity: 0, y: 10 },
-                        { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }
-                    );
-                }
+                gsap.fromTo('#view-active', 
+                    { opacity: 0, y: 20 },
+                    { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
+                );
 
                 // Show transaction history
                 UI.loadTransactionHistory();
@@ -2411,15 +2223,11 @@
                 const balanceElement = document.getElementById('balanceVal');
                 const dropdownBalance = document.getElementById('dropdownBalance');
                 
-                if (typeof gsap !== 'undefined') {
-                    gsap.to(balanceElement, {
-                        innerHTML: formattedBalance,
-                        duration: 0.4,
-                        snap: { innerHTML: 0.01 }
-                    });
-                } else {
-                    balanceElement.innerText = formattedBalance;
-                }
+                gsap.to(balanceElement, {
+                    innerHTML: formattedBalance,
+                    duration: 0.5,
+                    snap: { innerHTML: 0.01 }
+                });
                 
                 dropdownBalance.innerText = `${formattedBalance} KRM`;
                 
@@ -2474,31 +2282,23 @@
                 
                 document.body.appendChild(notification);
                 
-                if (typeof gsap !== 'undefined') {
-                    gsap.fromTo(notification,
-                        { x: 100, opacity: 0 },
-                        { x: 0, opacity: 1, duration: 0.3, ease: "power2.out" }
-                    );
-                }
+                gsap.fromTo(notification,
+                    { x: 100, opacity: 0 },
+                    { x: 0, opacity: 1, duration: 0.4, ease: "power2.out" }
+                );
                 
                 setTimeout(() => {
-                    if (typeof gsap !== 'undefined') {
-                        gsap.to(notification, {
-                            x: 100,
-                            opacity: 0,
-                            duration: 0.2,
-                            ease: "power2.in",
-                            onComplete: () => {
-                                if (notification.parentNode) {
-                                    document.body.removeChild(notification);
-                                }
+                    gsap.to(notification, {
+                        x: 100,
+                        opacity: 0,
+                        duration: 0.3,
+                        ease: "power2.in",
+                        onComplete: () => {
+                            if (notification.parentNode) {
+                                document.body.removeChild(notification);
                             }
-                        });
-                    } else {
-                        if (notification.parentNode) {
-                            document.body.removeChild(notification);
                         }
-                    }
+                    });
                 }, 3000);
             },
 
@@ -2508,13 +2308,13 @@
                 
                 const percentage = (completedTasks / 3) * 100;
                 
-                if (progressBar) {
-                    progressBar.style.width = `${percentage}%`;
-                }
+                gsap.to(progressBar, {
+                    width: `${percentage}%`,
+                    duration: 0.7,
+                    ease: "power2.out"
+                });
                 
-                if (progressText) {
-                    progressText.innerText = `${completedTasks}/3 Tasks`;
-                }
+                progressText.innerText = `${completedTasks}/3 Tasks`;
             },
 
             loadTransactionHistory: () => {
@@ -2525,37 +2325,35 @@
                 
                 if (transactions.length > 0) {
                     historySection.classList.remove('hidden');
-                    if (noTransactions) noTransactions.style.display = 'none';
+                    noTransactions.style.display = 'none';
                     
                     // Clear existing list
-                    if (transactionsList) {
-                        transactionsList.innerHTML = '';
-                        
-                        // Add transactions to list (обмежуємо до 10)
-                        transactions.slice(-10).forEach((tx, index) => {
-                            const txElement = document.createElement('div');
-                            txElement.className = 'flex justify-between items-center p-3 bg-white/5 rounded-lg';
-                            txElement.innerHTML = `
-                                <div class="flex items-center gap-3">
-                                    <div class="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center">
-                                        <i class="fa-solid fa-arrow-right text-green-400 text-xs"></i>
-                                    </div>
-                                    <div>
-                                        <p class="text-sm font-bold text-white">Transaction ${index + 1}</p>
-                                        <p class="text-xs text-gray-500 font-mono">${tx.hash?.substring(0, 10) || 'Unknown'}...${tx.hash?.substring(tx.hash.length - 8) || ''}</p>
-                                    </div>
+                    transactionsList.innerHTML = '';
+                    
+                    // Add transactions to list
+                    transactions.forEach((tx, index) => {
+                        const txElement = document.createElement('div');
+                        txElement.className = 'flex justify-between items-center p-3 bg-white/5 rounded-lg';
+                        txElement.innerHTML = `
+                            <div class="flex items-center gap-3">
+                                <div class="w-8 h-8 bg-green-500/20 rounded-full flex items-center justify-center">
+                                    <i class="fa-solid fa-arrow-right text-green-400 text-xs"></i>
                                 </div>
-                                <div class="text-right">
-                                    <p class="text-sm font-bold text-white">${tx.value || '0'} KRM</p>
-                                    <p class="text-xs text-gray-500">${new Date(tx.timestamp).toLocaleTimeString()}</p>
+                                <div>
+                                    <p class="text-sm font-bold text-white">Transaction ${index + 1}</p>
+                                    <p class="text-xs text-gray-500 font-mono">${tx.hash.substring(0, 10)}...${tx.hash.substring(tx.hash.length - 8)}</p>
                                 </div>
-                            `;
-                            transactionsList.appendChild(txElement);
-                        });
-                    }
+                            </div>
+                            <div class="text-right">
+                                <p class="text-sm font-bold text-white">${tx.value} KRM</p>
+                                <p class="text-xs text-gray-500">${new Date(tx.timestamp).toLocaleTimeString()}</p>
+                            </div>
+                        `;
+                        transactionsList.appendChild(txElement);
+                    });
                 } else {
-                    if (historySection) historySection.classList.add('hidden');
-                    if (noTransactions) noTransactions.style.display = 'block';
+                    historySection.classList.add('hidden');
+                    noTransactions.style.display = 'block';
                 }
             },
 
@@ -2565,10 +2363,6 @@
                     ...transaction,
                     timestamp: new Date().toISOString()
                 });
-                // Обмежуємо історію до 50 транзакцій
-                if (transactions.length > 50) {
-                    transactions.shift();
-                }
                 localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(transactions));
                 
                 UI.loadTransactionHistory();
@@ -3007,19 +2801,15 @@
                         verifyBtn.disabled = true;
                         verifyBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
                         
-                        if (typeof gsap !== 'undefined') {
-                            gsap.to(verifyBtn, {
-                                rotation: 360,
-                                duration: 1.2,
-                                ease: "power2.out",
-                                repeat: -1
-                            });
-                        }
+                        gsap.to(verifyBtn, {
+                            rotation: 360,
+                            duration: 1.5,
+                            ease: "power2.out",
+                            repeat: -1
+                        });
                         
                         setTimeout(() => {
-                            if (typeof gsap !== 'undefined') {
-                                gsap.killTweensOf(verifyBtn);
-                            }
+                            gsap.killTweensOf(verifyBtn);
                             verifyBtn.innerHTML = 'COMPLETED';
                             verifyBtn.classList.replace('border-white/20', 'bg-green-900/50');
                             verifyBtn.classList.add('text-green-400');
@@ -3037,7 +2827,7 @@
                             setTimeout(() => {
                                 App.faucet.claimTokens();
                             }, 1000);
-                        }, 1200);
+                        }, 1500);
                     } else {
                         UI.showNotification('Please open both X and Telegram first', 'info');
                     }
@@ -3074,19 +2864,15 @@
                         btn.disabled = true;
                         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
                         
-                        if (typeof gsap !== 'undefined') {
-                            gsap.to(btn, {
-                                rotation: 360,
-                                duration: 1.2,
-                                ease: "power2.out",
-                                repeat: -1
-                            });
-                        }
+                        gsap.to(btn, {
+                            rotation: 360,
+                            duration: 1.5,
+                            ease: "power2.out",
+                            repeat: -1
+                        });
                         
                         setTimeout(() => {
-                            if (typeof gsap !== 'undefined') {
-                                gsap.killTweensOf(btn);
-                            }
+                            gsap.killTweensOf(btn);
                             btn.innerHTML = 'COMPLETED';
                             btn.classList.replace('border-white/20', 'bg-green-900/50');
                             btn.classList.add('text-green-400');
@@ -3103,7 +2889,7 @@
                             }
                             
                             UI.showNotification(message || `Task ${taskId} completed!`, 'success');
-                        }, 1200);
+                        }, 1500);
                     }
                 },
 
@@ -3112,7 +2898,7 @@
                     
                     App.tasks.transactionMonitoring = setInterval(() => {
                         App.tasks.checkForTransactions();
-                    }, 45000); // Збільшуємо інтервал
+                    }, 30000);
                     
                     App.tasks.checkForTransactions();
                 },
@@ -3122,14 +2908,13 @@
                     
                     try {
                         const blockNumber = await App.state.provider.getBlockNumber();
-                        const fromBlock = Math.max(0, blockNumber - 50); // Перевіряємо тільки останні 50 блоків
                         
-                        for (let i = fromBlock; i <= blockNumber; i++) {
+                        for (let i = Math.max(0, blockNumber - 100); i <= blockNumber; i++) {
                             const block = await App.state.provider.getBlockWithTransactions(i);
                             
                             if (block && block.transactions) {
                                 block.transactions.forEach(tx => {
-                                    if (tx.from && tx.from.toLowerCase() === App.state.address.toLowerCase()) {
+                                    if (tx.from.toLowerCase() === App.state.address.toLowerCase()) {
                                         const existingTransactions = JSON.parse(localStorage.getItem(STORAGE_KEYS.TRANSACTIONS) || '[]');
                                         const txExists = existingTransactions.some(t => t.hash === tx.hash);
                                         
@@ -3138,7 +2923,7 @@
                                                 hash: tx.hash,
                                                 from: tx.from,
                                                 to: tx.to,
-                                                value: ethers.utils.formatEther(tx.value || '0'),
+                                                value: ethers.utils.formatEther(tx.value),
                                                 timestamp: new Date().toISOString()
                                             });
                                             
@@ -3218,11 +3003,6 @@
                     await App.wallet.tryReconnect();
                 }, 1000);
             }
-            
-            // Оптимізація завантаження
-            setTimeout(() => {
-                document.body.style.opacity = '1';
-            }, 50);
         });
 
         // Add transaction button to UI
@@ -3237,26 +3017,20 @@
             }
         });
 
-        // Оптимізований scroll listener
-        let scrollTimeout;
-        window.addEventListener('scroll', () => {
-            clearTimeout(scrollTimeout);
-            scrollTimeout = setTimeout(() => {
-                // Оновлюємо тільки необхідні елементи
-                const navbar = document.getElementById('navbar');
-                if (navbar) {
-                    if (window.scrollY > 50) {
-                        navbar.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.2)';
-                    } else {
-                        navbar.style.boxShadow = 'none';
-                    }
-                }
-            }, 16);
-        }, { passive: true });
+        document.addEventListener('wheel', function(e) {
+            const modal = document.getElementById('connect-modal');
+            const mobileMenu = document.getElementById('mobileMenu');
+            
+            if ((modal && !modal.classList.contains('hidden')) || 
+                (mobileMenu && mobileMenu.classList.contains('active'))) {
+                e.preventDefault();
+            }
+        }, { passive: false });
 
-        window.addEventListener('resize', () => {
+        window.addEventListener('resize', function() {
             UI.fixNavbarOnPC();
-        }, { passive: true });
+        });
     </script>
 </body>
 </html>
+
