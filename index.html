@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -103,6 +103,8 @@
 
         * {
             box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         body {
@@ -111,8 +113,6 @@
             overflow-x: hidden;
             cursor: default;
             font-feature-settings: "ss01", "ss02", "cv01", "cv02";
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
             text-rendering: optimizeLegibility;
             opacity: 0;
             animation: fadeInBody 1s ease-out forwards;
@@ -123,14 +123,7 @@
         }
 
         html {
-            scroll-behavior: smooth;
-            overflow-x: hidden;
-        }
-
-        @media (prefers-reduced-motion: no-preference) {
-            html {
-                scroll-behavior: smooth;
-            }
+            scroll-behavior: auto !important;
         }
 
         .smooth-transition {
@@ -155,15 +148,6 @@
                 backface-visibility: hidden;
                 -webkit-transform: translate3d(0, 0, 0);
             }
-            
-            .smooth-transition {
-                transform: translateZ(0);
-                backface-visibility: hidden;
-            }
-        }
-
-        .parallax-layer {
-            will-change: transform;
         }
 
         .gradient-text {
@@ -217,6 +201,8 @@
             background: rgba(2, 4, 2, 0.95) !important;
             backdrop-filter: blur(24px) saturate(200%) !important;
             -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
+            transition: transform 0.2s ease;
+            transform: translateY(0);
         }
 
         .btn-primary {
@@ -320,16 +306,6 @@
                 linear-gradient(90deg, rgba(74, 222, 128, 0.03) 1px, transparent 1px);
             background-size: 60px 60px;
             mask-image: radial-gradient(circle at center, black 40%, transparent 70%);
-            animation: gridFlow 20s linear infinite;
-        }
-
-        @keyframes gridFlow {
-            0% {
-                transform: translateY(0) translateX(0);
-            }
-            100% {
-                transform: translateY(60px) translateX(60px);
-            }
         }
 
         .text-gradient {
@@ -398,10 +374,6 @@
             }
         }
 
-        .stagger-item {
-            opacity: 0;
-        }
-
         .page-content {
             display: none;
             opacity: 0;
@@ -418,11 +390,10 @@
 
         .hover-lift {
             transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-            transform: translate3d(0, 0, 0);
         }
 
         .hover-lift:hover {
-            transform: translateY(-8px) translate3d(0, 0, 0);
+            transform: translateY(-8px);
         }
 
         .hover-glow {
@@ -849,6 +820,16 @@
             padding: 2px;
             font-weight: 900;
             font-family: 'Inter', sans-serif;
+        }
+
+        /* Fix for smooth scrolling */
+        body.no-scroll {
+            overflow: hidden;
+        }
+
+        /* Remove all complex scroll animations */
+        .grid-overlay {
+            animation: none !important;
         }
     </style>
 </head>
@@ -1588,7 +1569,7 @@
             TASKS_COMPLETED: 'karchain_tasks_completed',
             TRANSACTIONS: 'karchain_transactions',
             SOCIAL_TASK_STARTED: 'karchain_social_started',
-            TOKEN_BALANCE_HISTORY: 'karchain_token_balance_history', // Новий ключ для історії балансу
+            TOKEN_BALANCE_HISTORY: 'karchain_token_balance_history',
             LAST_FAUCET_CLAIM: 'karchain_last_faucet_claim'
         };
 
@@ -1605,7 +1586,6 @@
                 UI.setupMobileMenu();
                 UI.initAnimations();
                 UI.initSmoothScroll();
-                UI.fixNavbarOnPC();
                 UI.checkMetaMaskOnLoad();
                 
                 // Load completed tasks
@@ -1616,7 +1596,6 @@
                 const completedTasks = JSON.parse(localStorage.getItem(STORAGE_KEYS.TASKS_COMPLETED) || '[]');
                 UI.updateTaskProgress(completedTasks.length);
                 
-                // Unlock next tasks based on progress
                 if (completedTasks.includes(1)) {
                     UI.unlockTask(2);
                 }
@@ -1624,7 +1603,6 @@
                     UI.unlockTask(3);
                 }
                 
-                // Check social task button
                 const socialStarted = localStorage.getItem(STORAGE_KEYS.SOCIAL_TASK_STARTED) === 'true';
                 if (socialStarted && !completedTasks.includes(1)) {
                     const verifyBtn = document.getElementById('verify-social');
@@ -1671,16 +1649,6 @@
                 }
             },
 
-            fixNavbarOnPC: () => {
-                const navbar = document.getElementById('navbar');
-                if (navbar && window.innerWidth >= 1024) {
-                    navbar.style.background = 'rgba(2, 4, 2, 0.95)';
-                    navbar.style.backdropFilter = 'blur(24px) saturate(200%)';
-                    navbar.style.webkitBackdropFilter = 'blur(24px) saturate(200%)';
-                    navbar.style.boxShadow = '0 4px 30px rgba(0, 0, 0, 0.3)';
-                }
-            },
-
             initSmoothScroll: () => {
                 const scrollToTopBtn = document.createElement('button');
                 scrollToTopBtn.innerHTML = '<i class="fa-solid fa-chevron-up"></i>';
@@ -1696,35 +1664,32 @@
                     });
                 });
 
+                let lastScrollTop = 0;
+                const navbar = document.getElementById('navbar');
+                
                 window.addEventListener('scroll', () => {
+                    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+                    
+                    // Кнопка "вгору"
                     const btn = document.getElementById('scrollToTopBtn');
-                    if (window.scrollY > 300) {
+                    if (scrollTop > 300) {
                         btn.classList.remove('opacity-0', 'translate-y-10');
                         btn.classList.add('opacity-100', 'translate-y-0');
                     } else {
                         btn.classList.remove('opacity-100', 'translate-y-0');
                         btn.classList.add('opacity-0', 'translate-y-10');
                     }
-                });
-
-                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                    anchor.addEventListener('click', function(e) {
-                        const href = this.getAttribute('href');
-                        if (href === '#' || href === '') return;
-                        
-                        const targetElement = document.querySelector(href);
-                        if (targetElement) {
-                            e.preventDefault();
-                            const offset = 80;
-                            const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
-                            
-                            window.scrollTo({
-                                top: targetPosition - offset,
-                                behavior: 'smooth'
-                            });
+                    
+                    // Навігаційна панель
+                    if (navbar) {
+                        if (scrollTop > lastScrollTop && scrollTop > 100) {
+                            navbar.style.transform = 'translateY(-100%)';
+                        } else {
+                            navbar.style.transform = 'translateY(0)';
                         }
-                    });
-                });
+                        lastScrollTop = scrollTop;
+                    }
+                }, { passive: true });
             },
 
             initAnimations: () => {
@@ -1742,14 +1707,6 @@
                         duration: 0.8,
                         ease: "power2.out"
                     });
-                });
-
-                gsap.to('.grid-overlay', {
-                    scrollTrigger: {
-                        scrub: true
-                    },
-                    y: 100,
-                    ease: "none"
                 });
 
                 const counters = document.querySelectorAll('.counter');
@@ -1771,24 +1728,6 @@
                             }
                         });
                     }
-                });
-
-                const cards = document.querySelectorAll('.glass-card, .glass-panel');
-                cards.forEach(card => {
-                    card.addEventListener('mouseenter', () => {
-                        gsap.to(card, {
-                            scale: 1.02,
-                            duration: 0.3,
-                            ease: "power2.out"
-                        });
-                    });
-                    card.addEventListener('mouseleave', () => {
-                        gsap.to(card, {
-                            scale: 1,
-                            duration: 0.3,
-                            ease: "power2.out"
-                        });
-                    });
                 });
 
                 const progressBar = document.getElementById('progress-bar');
@@ -2023,7 +1962,6 @@
             },
 
             setupTaskButtons: () => {
-                // Social task verification
                 const verifySocialBtn = document.getElementById('verify-social');
                 if (verifySocialBtn) {
                     verifySocialBtn.addEventListener('click', () => {
@@ -2031,7 +1969,6 @@
                     });
                 }
 
-                // Transaction task
                 const verifyTransactionBtn = document.getElementById('verify-transaction');
                 if (verifyTransactionBtn) {
                     verifyTransactionBtn.addEventListener('click', () => {
@@ -2039,7 +1976,6 @@
                     });
                 }
 
-                // Google Form task
                 const formBtn = document.getElementById('btn-form');
                 if (formBtn) {
                     formBtn.addEventListener('click', () => {
@@ -2058,13 +1994,11 @@
                     App.state.address = savedAddress;
                     App.state.walletType = localStorage.getItem(STORAGE_KEYS.WALLET_TYPE);
                     
-                    // Завантажуємо збережений баланс з історії
                     const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
                     const savedBalance = balanceHistory[savedAddress] || localStorage.getItem(STORAGE_KEYS.WALLET_BALANCE) || '0.00';
                     
                     UI.setConnectedState(savedAddress, savedBalance);
                     
-                    // Load transaction history
                     UI.loadTransactionHistory();
                 }
             },
@@ -2081,7 +2015,6 @@
                 localStorage.removeItem(STORAGE_KEYS.WALLET_ADDRESS);
                 localStorage.removeItem(STORAGE_KEYS.LAST_CONNECTED);
                 localStorage.removeItem(STORAGE_KEYS.WALLET_TYPE);
-                // Не видаляємо баланс та транзакції
             },
 
             showPage: (id) => {
@@ -2127,7 +2060,6 @@
                     targetPage.classList.add('active');
                 }
 
-                // Update navigation active state
                 document.querySelectorAll('.nav-link').forEach(el => {
                     el.classList.remove('active', 'text-white', 'border-green-500');
                     el.classList.add('text-gray-400', 'border-transparent');
@@ -2197,7 +2129,6 @@
                 
                 document.getElementById('walletAddrDisp').innerText = address;
                 
-                // Оновлюємо баланс з урахуванням збереженої історії
                 const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
                 const savedBalance = balanceHistory[address] || balance || '0.00';
                 document.getElementById('balanceVal').innerText = savedBalance;
@@ -2214,7 +2145,6 @@
                     { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
                 );
 
-                // Show transaction history
                 UI.loadTransactionHistory();
             },
 
@@ -2231,7 +2161,6 @@
                 
                 dropdownBalance.innerText = `${formattedBalance} KRM`;
                 
-                // Зберігаємо баланс в історії за адресою
                 if (App.state.address) {
                     const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
                     balanceHistory[App.state.address] = formattedBalance;
@@ -2327,10 +2256,8 @@
                     historySection.classList.remove('hidden');
                     noTransactions.style.display = 'none';
                     
-                    // Clear existing list
                     transactionsList.innerHTML = '';
                     
-                    // Add transactions to list
                     transactions.forEach((tx, index) => {
                         const txElement = document.createElement('div');
                         txElement.className = 'flex justify-between items-center p-3 bg-white/5 rounded-lg';
@@ -2388,7 +2315,6 @@
                         connectBtn.classList.add('connecting');
                         connectBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Connecting...</span>';
                         
-                        // Перевіряємо, чи це мобільний пристрій
                         if (App.state.isMobile) {
                             return App.wallet.connectMobile(type);
                         }
@@ -2470,7 +2396,6 @@
                                 metamaskUrl = 'https://metamask.app.link/dapp/' + window.location.hostname;
                             }
                             
-                            // Додаємо параметр для автоматичного додавання мережі
                             const networkParams = encodeURIComponent(JSON.stringify({
                                 chainId: Config.chain.hex,
                                 chainName: Config.chain.name,
@@ -2541,7 +2466,6 @@
                     
                     await App.wallet.switchNetwork();
                     
-                    // Завантажуємо баланс з історії перед оновленням
                     const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
                     const savedBalance = balanceHistory[address] || '0.00';
                     App.state.krmBalance = savedBalance;
@@ -2555,7 +2479,6 @@
                     connectBtn.classList.remove('connecting');
                     UI.showNotification(`${type} connected successfully!`, 'success');
                     
-                    // Start monitoring for transactions
                     App.tasks.startTransactionMonitoring();
                 },
 
@@ -2655,7 +2578,6 @@
                                 App.state.address = accounts[0];
                                 UI.saveConnection(App.state.address, App.state.walletType);
                                 
-                                // Завантажуємо баланс нової адреси з історії
                                 const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
                                 const savedBalance = balanceHistory[App.state.address] || '0.00';
                                 App.state.krmBalance = savedBalance;
@@ -2696,7 +2618,6 @@
                                     App.state.provider = provider;
                                     App.state.walletType = walletType;
                                     
-                                    // Завантажуємо баланс з історії
                                     const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
                                     const savedBalance = balanceHistory[App.state.address] || '0.00';
                                     App.state.krmBalance = savedBalance;
@@ -2724,7 +2645,6 @@
                             return;
                         }
                         
-                        // Перевіряємо кд
                         const lastClaim = localStorage.getItem(STORAGE_KEYS.LAST_FAUCET_CLAIM);
                         const now = Date.now();
                         const twentyFourHours = 24 * 60 * 60 * 1000;
@@ -2737,14 +2657,12 @@
                         
                         UI.showNotification('Requesting test tokens...', 'info');
                         
-                        // Симулюємо отримання токенів
                         setTimeout(() => {
                             const currentBalance = parseFloat(App.state.krmBalance || 0);
                             const newBalance = (currentBalance + 100).toFixed(4);
                             App.state.krmBalance = newBalance;
                             UI.updateBalance(newBalance);
                             
-                            // Зберігаємо час останнього клейму
                             localStorage.setItem(STORAGE_KEYS.LAST_FAUCET_CLAIM, now.toString());
                             
                             UI.showNotification('Received 100 test KRM tokens!', 'success');
@@ -2823,7 +2741,6 @@
                             UI.unlockTask(2);
                             UI.showNotification('Social task completed!', 'success');
                             
-                            // Give faucet tokens
                             setTimeout(() => {
                                 App.faucet.claimTokens();
                             }, 1000);
@@ -2951,14 +2868,12 @@
                     try {
                         const signer = App.state.provider.getSigner();
                         
-                        // Перевіряємо баланс
                         const balance = await signer.getBalance();
                         if (balance.lt(ethers.utils.parseEther("0.001"))) {
                             UI.showNotification('Insufficient balance for transaction', 'error');
                             return;
                         }
                         
-                        // Відправляємо 0.001 KRM собі
                         const tx = await signer.sendTransaction({
                             to: App.state.address,
                             value: ethers.utils.parseEther("0.001")
@@ -2966,12 +2881,10 @@
                         
                         UI.showNotification(`Transaction sent! Hash: ${tx.hash.substring(0, 10)}...`, 'success');
                         
-                        // Чекаємо на підтвердження
                         await tx.wait();
                         
                         UI.showNotification('Transaction confirmed!', 'success');
                         
-                        // Додаємо в локальне сховище
                         UI.addTransaction({
                             hash: tx.hash,
                             from: App.state.address,
@@ -2980,7 +2893,6 @@
                             timestamp: new Date().toISOString()
                         });
                         
-                        // Автоматично завершуємо задачу 2, якщо ще не завершена
                         if (!App.tasks.completedTasks.includes(2)) {
                             App.tasks.completeTask(2, 'Transaction verified!');
                         }
@@ -3005,32 +2917,14 @@
             }
         });
 
-        // Add transaction button to UI
-        document.addEventListener('DOMContentLoaded', () => {
-            const transactionSection = document.querySelector('#transaction-history');
-            if (transactionSection) {
-                const makeTxButton = document.createElement('button');
-                makeTxButton.className = 'mt-4 w-full py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-bold transition-colors smooth-transition hover-lift';
-                makeTxButton.innerHTML = '<i class="fa-solid fa-bolt mr-2"></i> Make Test Transaction';
-                makeTxButton.onclick = App.tasks.makeTestTransaction;
-                transactionSection.appendChild(makeTxButton);
-            }
-        });
-
-        document.addEventListener('wheel', function(e) {
-            const modal = document.getElementById('connect-modal');
-            const mobileMenu = document.getElementById('mobileMenu');
-            
-            if ((modal && !modal.classList.contains('hidden')) || 
-                (mobileMenu && mobileMenu.classList.contains('active'))) {
-                e.preventDefault();
-            }
-        }, { passive: false });
+        // Просте рішення для скролу без конфліктів
+        window.addEventListener('scroll', () => {
+            // Нічого не робимо - усі анімації через GSAP
+        }, { passive: true });
 
         window.addEventListener('resize', function() {
-            UI.fixNavbarOnPC();
+            // Просто ресайз
         });
     </script>
 </body>
 </html>
-
