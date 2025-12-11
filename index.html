@@ -17,18 +17,18 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M20 10 V90' stroke='%234ade80' stroke-width='8' stroke-linecap='round'/><path d='M80 10 L20 50 L80 90' stroke='%234ade80' stroke-width='8' stroke-linecap='round' stroke-linejoin='round'/><circle cx='20' cy='50' r='10' fill='%2322c55e'/><circle cx='80' cy='10' r='8' fill='%2322c55e'/><circle cx='80' cy='90' r='8' fill='%2322c55e'/></svg>">
 
     <!-- Libraries -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/TextPlugin.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com" loading="lazy"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" loading="lazy"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" loading="lazy"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" loading="lazy"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/TextPlugin.min.js" loading="lazy"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" loading="lazy">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" loading="lazy">
 
     <!-- WalletConnect -->
-    <script src="https://unpkg.com/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
+    <script src="https://unpkg.com/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js" loading="lazy"></script>
 
     <script>
         tailwind.config = {
@@ -316,19 +316,30 @@
             z-index: -9;
             pointer-events: none;
             background-image: 
-                linear-gradient(rgba(74, 222, 128, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(74, 222, 128, 0.03) 1px, transparent 1px);
-            background-size: 60px 60px;
+                linear-gradient(rgba(74, 222, 128, 0.02) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(74, 222, 128, 0.02) 1px, transparent 1px);
+            background-size: 80px 80px;
             mask-image: radial-gradient(circle at center, black 40%, transparent 70%);
-            animation: gridFlow 20s linear infinite;
+            
+            /* Використовуємо transform3d для апаратного прискорення */
+            transform: translate3d(0, 0, 0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+
+        /* Анімацію запускаємо тільки на десктопі */
+        @media (min-width: 1024px) {
+            .grid-overlay {
+                animation: gridFlow 40s linear infinite;
+            }
         }
 
         @keyframes gridFlow {
             0% {
-                transform: translateY(0) translateX(0);
+                transform: translate3d(0, 0, 0);
             }
             100% {
-                transform: translateY(60px) translateX(60px);
+                transform: translate3d(80px, 80px, 0);
             }
         }
 
@@ -849,6 +860,52 @@
             padding: 2px;
             font-weight: 900;
             font-family: 'Inter', sans-serif;
+        }
+
+        /* Оптимізації для продуктивності */
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* Оптимізація для слабких пристроїв */
+        @media (max-width: 768px) {
+            #webgl-canvas,
+            .water-wave,
+            .water-drop,
+            .grid-overlay {
+                display: none !important;
+            }
+            
+            .gyro-wrapper {
+                transform: scale(0.8);
+            }
+        }
+
+        /* Вимикаємо паралакс-ефекти при скролі на мобільних */
+        @media (max-width: 1024px) {
+            .parallax-layer {
+                transform: none !important;
+            }
+        }
+
+        /* Клас для відключення анімацій на слабких пристроях */
+        .reduce-animations * {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+        }
+
+        .reduce-animations .water-drop,
+        .reduce-animations .water-wave,
+        .reduce-animations .grid-overlay,
+        .reduce-animations .gyro-wrapper {
+            display: none !important;
         }
     </style>
 </head>
@@ -1588,7 +1645,7 @@
             TASKS_COMPLETED: 'karchain_tasks_completed',
             TRANSACTIONS: 'karchain_transactions',
             SOCIAL_TASK_STARTED: 'karchain_social_started',
-            TOKEN_BALANCE_HISTORY: 'karchain_token_balance_history', // Новий ключ для історії балансу
+            TOKEN_BALANCE_HISTORY: 'karchain_token_balance_history',
             LAST_FAUCET_CLAIM: 'karchain_last_faucet_claim'
         };
 
@@ -1610,6 +1667,9 @@
                 
                 // Load completed tasks
                 UI.loadTaskProgress();
+                
+                // Ініціалізуємо монітор продуктивності
+                PerformanceMonitor.init();
             },
 
             loadTaskProgress: () => {
@@ -1729,29 +1789,60 @@
 
             initAnimations: () => {
                 gsap.registerPlugin(ScrollTrigger);
-
-                gsap.utils.toArray('.fade-in-up, .fade-in-left, .fade-in-right, .fade-in').forEach(el => {
-                    gsap.from(el, {
-                        scrollTrigger: {
-                            trigger: el,
-                            start: "top 80%",
-                            toggleActions: "play none none reverse"
-                        },
-                        y: 30,
-                        opacity: 0,
-                        duration: 0.8,
-                        ease: "power2.out"
+                
+                // Вимкнемо GSAP анімації на слабких пристроях
+                if ('hardwareConcurrency' in navigator && navigator.hardwareConcurrency < 4) {
+                    console.log('Low-end device detected, disabling some animations');
+                    return;
+                }
+                
+                // Обмежимо кількість ScrollTrigger на мобільних
+                if (window.innerWidth < 768) {
+                    gsap.utils.toArray('.fade-in-up, .fade-in-left, .fade-in-right').forEach((el, index) => {
+                        if (index < 10) { // Тільки перші 10 елементів
+                            gsap.from(el, {
+                                scrollTrigger: {
+                                    trigger: el,
+                                    start: "top 90%",
+                                    toggleActions: "play none none none" // Тільки один раз
+                                },
+                                y: 20,
+                                opacity: 0,
+                                duration: 0.5,
+                                ease: "power2.out"
+                            });
+                        }
                     });
-                });
-
-                gsap.to('.grid-overlay', {
-                    scrollTrigger: {
-                        scrub: true
-                    },
-                    y: 100,
-                    ease: "none"
-                });
-
+                } else {
+                    // Повна версія для десктопу
+                    gsap.utils.toArray('.fade-in-up, .fade-in-left, .fade-in-right, .fade-in').forEach(el => {
+                        gsap.from(el, {
+                            scrollTrigger: {
+                                trigger: el,
+                                start: "top 80%",
+                                toggleActions: "play none none reverse"
+                            },
+                            y: 30,
+                            opacity: 0,
+                            duration: 0.8,
+                            ease: "power2.out"
+                        });
+                    });
+                }
+                
+                // Вимикаємо паралакс на мобільних
+                if (window.innerWidth > 768) {
+                    gsap.to('.grid-overlay', {
+                        scrollTrigger: {
+                            scrub: true,
+                            end: "bottom top"
+                        },
+                        y: 100,
+                        ease: "none"
+                    });
+                }
+                
+                // Оптимізуємо лічильники - тільки коли вони в зоні видимості
                 const counters = document.querySelectorAll('.counter');
                 counters.forEach(counter => {
                     const target = parseInt(counter.textContent.replace(/,/g, ''));
@@ -1759,11 +1850,12 @@
                         gsap.to(counter, {
                             scrollTrigger: {
                                 trigger: counter,
-                                start: "top 80%",
-                                toggleActions: "play none none reverse"
+                                start: "top 90%",
+                                toggleActions: "play none none none",
+                                once: true // Тільки один раз
                             },
                             innerHTML: target,
-                            duration: 2,
+                            duration: 1.5,
                             snap: { innerHTML: 1 },
                             onUpdate: function() {
                                 const value = Math.floor(this.targets()[0].innerHTML);
@@ -1772,25 +1864,28 @@
                         });
                     }
                 });
-
-                const cards = document.querySelectorAll('.glass-card, .glass-panel');
-                cards.forEach(card => {
-                    card.addEventListener('mouseenter', () => {
-                        gsap.to(card, {
-                            scale: 1.02,
-                            duration: 0.3,
-                            ease: "power2.out"
+                
+                // Обмежимо ховер-анімації
+                if (window.innerWidth > 1024) {
+                    const cards = document.querySelectorAll('.glass-card, .glass-panel');
+                    cards.forEach(card => {
+                        card.addEventListener('mouseenter', () => {
+                            gsap.to(card, {
+                                scale: 1.02,
+                                duration: 0.3,
+                                ease: "power2.out"
+                            });
+                        });
+                        card.addEventListener('mouseleave', () => {
+                            gsap.to(card, {
+                                scale: 1,
+                                duration: 0.3,
+                                ease: "power2.out"
+                            });
                         });
                     });
-                    card.addEventListener('mouseleave', () => {
-                        gsap.to(card, {
-                            scale: 1,
-                            duration: 0.3,
-                            ease: "power2.out"
-                        });
-                    });
-                });
-
+                }
+                
                 const progressBar = document.getElementById('progress-bar');
                 if (progressBar) {
                     gsap.to(progressBar, {
@@ -1803,24 +1898,42 @@
 
             initParticles: () => {
                 const cvs = document.getElementById('webgl-canvas');
+                if (!cvs) return;
+                
                 const ctx = cvs.getContext('2d');
                 let particles = [];
+                let animationId = null;
+                let lastTime = 0;
+                const fps = 30; // Обмежуємо до 30 FPS
+                const interval = 1000 / fps;
+                
+                // Зменшимо кількість частинок
+                const particleCount = window.innerWidth < 768 ? 20 : 30;
                 
                 const resize = () => { 
                     cvs.width = window.innerWidth; 
                     cvs.height = window.innerHeight; 
                 };
-                window.addEventListener('resize', resize); 
+                
+                window.addEventListener('resize', () => {
+                    resize();
+                    // Перестворимо частинки при ресайзі
+                    particles = [];
+                    for(let i = 0; i < particleCount; i++) particles.push(new P());
+                }); 
+                
                 resize();
 
                 class P {
-                    constructor() { this.reset(); }
+                    constructor() { 
+                        this.reset(); 
+                        this.size = Math.random() * 1 + 0.5; // Зменшимо розмір
+                    }
                     reset() { 
                         this.x = Math.random() * cvs.width; 
                         this.y = Math.random() * cvs.height; 
-                        this.size = Math.random() * 2; 
-                        this.speed = Math.random() * 0.5 + 0.1;
-                        this.alpha = Math.random() * 0.3 + 0.1;
+                        this.speed = Math.random() * 0.3 + 0.1; // Повільніше
+                        this.alpha = Math.random() * 0.2 + 0.05; // Прозоріше
                         this.color = `rgba(74, 222, 128, ${this.alpha})`;
                     }
                     update() { 
@@ -1835,27 +1948,83 @@
                     }
                 }
 
-                for(let i=0; i<50; i++) particles.push(new P());
+                for(let i = 0; i < particleCount; i++) particles.push(new P());
 
-                const animate = () => {
-                    ctx.clearRect(0,0,cvs.width,cvs.height);
-                    particles.forEach(p => { p.update(); p.draw(); });
-                    requestAnimationFrame(animate);
+                const animate = (currentTime) => {
+                    if (!currentTime) currentTime = performance.now();
+                    
+                    const delta = currentTime - lastTime;
+                    
+                    if (delta > interval) {
+                        lastTime = currentTime - (delta % interval);
+                        
+                        // Очищаємо тільки необхідну область
+                        ctx.clearRect(0, 0, cvs.width, cvs.height);
+                        
+                        // Рендеримо частинки
+                        for(let i = 0; i < particles.length; i++) {
+                            particles[i].update();
+                            particles[i].draw();
+                        }
+                    }
+                    
+                    animationId = requestAnimationFrame(animate);
                 };
-                animate();
+                
+                // Запускаємо анімацію тільки коли сторінка видима
+                const startAnimation = () => {
+                    if (animationId === null) {
+                        animationId = requestAnimationFrame(animate);
+                    }
+                };
+                
+                const stopAnimation = () => {
+                    if (animationId !== null) {
+                        cancelAnimationFrame(animationId);
+                        animationId = null;
+                    }
+                };
+                
+                // Оптимізація: призупиняємо анімацію коли вкладка неактивна
+                document.addEventListener('visibilitychange', () => {
+                    if (document.hidden) {
+                        stopAnimation();
+                    } else {
+                        startAnimation();
+                    }
+                });
+                
+                // Оптимізація: призупиняємо анімацію при скролі
+                let scrollTimeout;
+                window.addEventListener('scroll', () => {
+                    if (window.innerWidth < 1024) {
+                        stopAnimation();
+                        
+                        clearTimeout(scrollTimeout);
+                        scrollTimeout = setTimeout(() => {
+                            startAnimation();
+                        }, 1000);
+                    }
+                });
+                
+                startAnimation();
             },
 
             initWaterDrops: () => {
                 const container = document.getElementById('water-drops');
-                const dropsCount = 30;
+                if (!container) return;
+                
+                // Зменшимо кількість крапель на мобільних
+                const dropsCount = window.innerWidth < 768 ? 10 : 20;
+                container.innerHTML = ''; // Очистимо старий контент
                 
                 for(let i = 0; i < dropsCount; i++) {
                     const drop = document.createElement('div');
                     drop.className = 'water-drop';
                     drop.style.left = `${Math.random() * 100}%`;
                     drop.style.animationDelay = `${Math.random() * 8}s`;
-                    drop.style.height = `${20 + Math.random() * 80}px`;
-                    drop.style.animationDuration = `${5 + Math.random() * 10}s`;
+                    drop.style.height = `${10 + Math.random() * 40}px`; // Менші краплі
+                    drop.style.animationDuration = `${8 + Math.random() * 8}s`; // Повільніше
                     container.appendChild(drop);
                 }
             },
@@ -2366,6 +2535,61 @@
                 localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(transactions));
                 
                 UI.loadTransactionHistory();
+            }
+        };
+
+        // Монітор продуктивності
+        const PerformanceMonitor = {
+            init: function() {
+                // Перевіряємо продуктивність
+                this.checkPerformance();
+                
+                // Вимкнемо деякі ефекти на мобільних за замовчуванням
+                if (this.isLowEndDevice()) {
+                    this.disableHeavyAnimations();
+                }
+            },
+            
+            isLowEndDevice: function() {
+                // Перевірка на слабкі пристрої
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                const memory = navigator.deviceMemory || 4;
+                const cores = navigator.hardwareConcurrency || 4;
+                
+                return isMobile || memory < 4 || cores < 4;
+            },
+            
+            checkPerformance: function() {
+                // Простий тест продуктивності
+                let startTime = performance.now();
+                let count = 0;
+                
+                for (let i = 0; i < 1000000; i++) {
+                    count += Math.sqrt(i);
+                }
+                
+                const elapsed = performance.now() - startTime;
+                
+                // Якщо тест триває довше 100мс - це слабкий пристрій
+                if (elapsed > 100) {
+                    this.disableHeavyAnimations();
+                }
+            },
+            
+            disableHeavyAnimations: function() {
+                console.log('Low performance detected, disabling heavy animations');
+                
+                // Вимкнемо важкі анімації
+                const heavyElements = document.querySelectorAll('#webgl-canvas, .water-wave, .grid-overlay, .gyro-wrapper');
+                heavyElements.forEach(el => {
+                    if (el) el.style.display = 'none';
+                });
+                
+                // Вимкнемо CSS анімації
+                document.documentElement.style.setProperty('--animation-speed', '0.5s');
+                
+                // Додамо клас для відключення анімацій
+                document.body.classList.add('reduce-animations');
             }
         };
 
@@ -3033,4 +3257,3 @@
     </script>
 </body>
 </html>
-
