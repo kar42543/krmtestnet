@@ -321,13 +321,11 @@
             background-size: 80px 80px;
             mask-image: radial-gradient(circle at center, black 40%, transparent 70%);
             
-            /* Використовуємо transform3d для апаратного прискорення */
             transform: translate3d(0, 0, 0);
             backface-visibility: hidden;
             -webkit-backface-visibility: hidden;
         }
 
-        /* Анімацію запускаємо тільки на десктопі */
         @media (min-width: 1024px) {
             .grid-overlay {
                 animation: gridFlow 40s linear infinite;
@@ -1649,6 +1647,52 @@
             LAST_FAUCET_CLAIM: 'karchain_last_faucet_claim'
         };
 
+        const PerformanceMonitor = {
+            init: function() {
+                this.checkPerformance();
+                
+                if (this.isLowEndDevice()) {
+                    this.disableHeavyAnimations();
+                }
+            },
+            
+            isLowEndDevice: function() {
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                const memory = navigator.deviceMemory || 4;
+                const cores = navigator.hardwareConcurrency || 4;
+                
+                return isMobile || memory < 4 || cores < 4;
+            },
+            
+            checkPerformance: function() {
+                let startTime = performance.now();
+                let count = 0;
+                
+                for (let i = 0; i < 1000000; i++) {
+                    count += Math.sqrt(i);
+                }
+                
+                const elapsed = performance.now() - startTime;
+                
+                if (elapsed > 100) {
+                    this.disableHeavyAnimations();
+                }
+            },
+            
+            disableHeavyAnimations: function() {
+                console.log('Low performance detected, disabling heavy animations');
+                
+                const heavyElements = document.querySelectorAll('#webgl-canvas, .water-wave, .grid-overlay, .gyro-wrapper');
+                heavyElements.forEach(el => {
+                    if (el) el.style.display = 'none';
+                });
+                
+                document.documentElement.style.setProperty('--animation-speed', '0.5s');
+                
+                document.body.classList.add('reduce-animations');
+            }
+        };
+
         const UI = {
             init: () => {
                 UI.initParticles();
@@ -1665,10 +1709,8 @@
                 UI.fixNavbarOnPC();
                 UI.checkMetaMaskOnLoad();
                 
-                // Load completed tasks
                 UI.loadTaskProgress();
                 
-                // Ініціалізуємо монітор продуктивності
                 PerformanceMonitor.init();
             },
 
@@ -1676,7 +1718,6 @@
                 const completedTasks = JSON.parse(localStorage.getItem(STORAGE_KEYS.TASKS_COMPLETED) || '[]');
                 UI.updateTaskProgress(completedTasks.length);
                 
-                // Unlock next tasks based on progress
                 if (completedTasks.includes(1)) {
                     UI.unlockTask(2);
                 }
@@ -1684,7 +1725,6 @@
                     UI.unlockTask(3);
                 }
                 
-                // Check social task button
                 const socialStarted = localStorage.getItem(STORAGE_KEYS.SOCIAL_TASK_STARTED) === 'true';
                 if (socialStarted && !completedTasks.includes(1)) {
                     const verifyBtn = document.getElementById('verify-social');
@@ -1790,21 +1830,19 @@
             initAnimations: () => {
                 gsap.registerPlugin(ScrollTrigger);
                 
-                // Вимкнемо GSAP анімації на слабких пристроях
                 if ('hardwareConcurrency' in navigator && navigator.hardwareConcurrency < 4) {
                     console.log('Low-end device detected, disabling some animations');
                     return;
                 }
                 
-                // Обмежимо кількість ScrollTrigger на мобільних
                 if (window.innerWidth < 768) {
                     gsap.utils.toArray('.fade-in-up, .fade-in-left, .fade-in-right').forEach((el, index) => {
-                        if (index < 10) { // Тільки перші 10 елементів
+                        if (index < 10) {
                             gsap.from(el, {
                                 scrollTrigger: {
                                     trigger: el,
                                     start: "top 90%",
-                                    toggleActions: "play none none none" // Тільки один раз
+                                    toggleActions: "play none none none"
                                 },
                                 y: 20,
                                 opacity: 0,
@@ -1814,7 +1852,6 @@
                         }
                     });
                 } else {
-                    // Повна версія для десктопу
                     gsap.utils.toArray('.fade-in-up, .fade-in-left, .fade-in-right, .fade-in').forEach(el => {
                         gsap.from(el, {
                             scrollTrigger: {
@@ -1830,7 +1867,6 @@
                     });
                 }
                 
-                // Вимикаємо паралакс на мобільних
                 if (window.innerWidth > 768) {
                     gsap.to('.grid-overlay', {
                         scrollTrigger: {
@@ -1842,7 +1878,6 @@
                     });
                 }
                 
-                // Оптимізуємо лічильники - тільки коли вони в зоні видимості
                 const counters = document.querySelectorAll('.counter');
                 counters.forEach(counter => {
                     const target = parseInt(counter.textContent.replace(/,/g, ''));
@@ -1852,7 +1887,7 @@
                                 trigger: counter,
                                 start: "top 90%",
                                 toggleActions: "play none none none",
-                                once: true // Тільки один раз
+                                once: true
                             },
                             innerHTML: target,
                             duration: 1.5,
@@ -1865,7 +1900,6 @@
                     }
                 });
                 
-                // Обмежимо ховер-анімації
                 if (window.innerWidth > 1024) {
                     const cards = document.querySelectorAll('.glass-card, .glass-panel');
                     cards.forEach(card => {
@@ -1904,10 +1938,9 @@
                 let particles = [];
                 let animationId = null;
                 let lastTime = 0;
-                const fps = 30; // Обмежуємо до 30 FPS
+                const fps = 30;
                 const interval = 1000 / fps;
                 
-                // Зменшимо кількість частинок
                 const particleCount = window.innerWidth < 768 ? 20 : 30;
                 
                 const resize = () => { 
@@ -1917,7 +1950,6 @@
                 
                 window.addEventListener('resize', () => {
                     resize();
-                    // Перестворимо частинки при ресайзі
                     particles = [];
                     for(let i = 0; i < particleCount; i++) particles.push(new P());
                 }); 
@@ -1927,13 +1959,13 @@
                 class P {
                     constructor() { 
                         this.reset(); 
-                        this.size = Math.random() * 1 + 0.5; // Зменшимо розмір
+                        this.size = Math.random() * 1 + 0.5;
                     }
                     reset() { 
                         this.x = Math.random() * cvs.width; 
                         this.y = Math.random() * cvs.height; 
-                        this.speed = Math.random() * 0.3 + 0.1; // Повільніше
-                        this.alpha = Math.random() * 0.2 + 0.05; // Прозоріше
+                        this.speed = Math.random() * 0.3 + 0.1;
+                        this.alpha = Math.random() * 0.2 + 0.05;
                         this.color = `rgba(74, 222, 128, ${this.alpha})`;
                     }
                     update() { 
@@ -1958,10 +1990,8 @@
                     if (delta > interval) {
                         lastTime = currentTime - (delta % interval);
                         
-                        // Очищаємо тільки необхідну область
                         ctx.clearRect(0, 0, cvs.width, cvs.height);
                         
-                        // Рендеримо частинки
                         for(let i = 0; i < particles.length; i++) {
                             particles[i].update();
                             particles[i].draw();
@@ -1971,7 +2001,6 @@
                     animationId = requestAnimationFrame(animate);
                 };
                 
-                // Запускаємо анімацію тільки коли сторінка видима
                 const startAnimation = () => {
                     if (animationId === null) {
                         animationId = requestAnimationFrame(animate);
@@ -1985,7 +2014,6 @@
                     }
                 };
                 
-                // Оптимізація: призупиняємо анімацію коли вкладка неактивна
                 document.addEventListener('visibilitychange', () => {
                     if (document.hidden) {
                         stopAnimation();
@@ -1994,7 +2022,6 @@
                     }
                 });
                 
-                // Оптимізація: призупиняємо анімацію при скролі
                 let scrollTimeout;
                 window.addEventListener('scroll', () => {
                     if (window.innerWidth < 1024) {
@@ -2014,17 +2041,16 @@
                 const container = document.getElementById('water-drops');
                 if (!container) return;
                 
-                // Зменшимо кількість крапель на мобільних
                 const dropsCount = window.innerWidth < 768 ? 10 : 20;
-                container.innerHTML = ''; // Очистимо старий контент
+                container.innerHTML = '';
                 
                 for(let i = 0; i < dropsCount; i++) {
                     const drop = document.createElement('div');
                     drop.className = 'water-drop';
                     drop.style.left = `${Math.random() * 100}%`;
                     drop.style.animationDelay = `${Math.random() * 8}s`;
-                    drop.style.height = `${10 + Math.random() * 40}px`; // Менші краплі
-                    drop.style.animationDuration = `${8 + Math.random() * 8}s`; // Повільніше
+                    drop.style.height = `${10 + Math.random() * 40}px`;
+                    drop.style.animationDuration = `${8 + Math.random() * 8}s`;
                     container.appendChild(drop);
                 }
             },
@@ -2192,7 +2218,6 @@
             },
 
             setupTaskButtons: () => {
-                // Social task verification
                 const verifySocialBtn = document.getElementById('verify-social');
                 if (verifySocialBtn) {
                     verifySocialBtn.addEventListener('click', () => {
@@ -2200,7 +2225,6 @@
                     });
                 }
 
-                // Transaction task
                 const verifyTransactionBtn = document.getElementById('verify-transaction');
                 if (verifyTransactionBtn) {
                     verifyTransactionBtn.addEventListener('click', () => {
@@ -2208,7 +2232,6 @@
                     });
                 }
 
-                // Google Form task
                 const formBtn = document.getElementById('btn-form');
                 if (formBtn) {
                     formBtn.addEventListener('click', () => {
@@ -2227,13 +2250,11 @@
                     App.state.address = savedAddress;
                     App.state.walletType = localStorage.getItem(STORAGE_KEYS.WALLET_TYPE);
                     
-                    // Завантажуємо збережений баланс з історії
                     const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
                     const savedBalance = balanceHistory[savedAddress] || localStorage.getItem(STORAGE_KEYS.WALLET_BALANCE) || '0.00';
                     
                     UI.setConnectedState(savedAddress, savedBalance);
                     
-                    // Load transaction history
                     UI.loadTransactionHistory();
                 }
             },
@@ -2250,7 +2271,6 @@
                 localStorage.removeItem(STORAGE_KEYS.WALLET_ADDRESS);
                 localStorage.removeItem(STORAGE_KEYS.LAST_CONNECTED);
                 localStorage.removeItem(STORAGE_KEYS.WALLET_TYPE);
-                // Не видаляємо баланс та транзакції
             },
 
             showPage: (id) => {
@@ -2296,7 +2316,6 @@
                     targetPage.classList.add('active');
                 }
 
-                // Update navigation active state
                 document.querySelectorAll('.nav-link').forEach(el => {
                     el.classList.remove('active', 'text-white', 'border-green-500');
                     el.classList.add('text-gray-400', 'border-transparent');
@@ -2366,7 +2385,6 @@
                 
                 document.getElementById('walletAddrDisp').innerText = address;
                 
-                // Оновлюємо баланс з урахуванням збереженої історії
                 const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
                 const savedBalance = balanceHistory[address] || balance || '0.00';
                 document.getElementById('balanceVal').innerText = savedBalance;
@@ -2383,7 +2401,6 @@
                     { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
                 );
 
-                // Show transaction history
                 UI.loadTransactionHistory();
             },
 
@@ -2400,7 +2417,6 @@
                 
                 dropdownBalance.innerText = `${formattedBalance} KRM`;
                 
-                // Зберігаємо баланс в історії за адресою
                 if (App.state.address) {
                     const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
                     balanceHistory[App.state.address] = formattedBalance;
@@ -2496,10 +2512,8 @@
                     historySection.classList.remove('hidden');
                     noTransactions.style.display = 'none';
                     
-                    // Clear existing list
                     transactionsList.innerHTML = '';
                     
-                    // Add transactions to list
                     transactions.forEach((tx, index) => {
                         const txElement = document.createElement('div');
                         txElement.className = 'flex justify-between items-center p-3 bg-white/5 rounded-lg';
@@ -2538,61 +2552,6 @@
             }
         };
 
-        // Монітор продуктивності
-        const PerformanceMonitor = {
-            init: function() {
-                // Перевіряємо продуктивність
-                this.checkPerformance();
-                
-                // Вимкнемо деякі ефекти на мобільних за замовчуванням
-                if (this.isLowEndDevice()) {
-                    this.disableHeavyAnimations();
-                }
-            },
-            
-            isLowEndDevice: function() {
-                // Перевірка на слабкі пристрої
-                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-                const memory = navigator.deviceMemory || 4;
-                const cores = navigator.hardwareConcurrency || 4;
-                
-                return isMobile || memory < 4 || cores < 4;
-            },
-            
-            checkPerformance: function() {
-                // Простий тест продуктивності
-                let startTime = performance.now();
-                let count = 0;
-                
-                for (let i = 0; i < 1000000; i++) {
-                    count += Math.sqrt(i);
-                }
-                
-                const elapsed = performance.now() - startTime;
-                
-                // Якщо тест триває довше 100мс - це слабкий пристрій
-                if (elapsed > 100) {
-                    this.disableHeavyAnimations();
-                }
-            },
-            
-            disableHeavyAnimations: function() {
-                console.log('Low performance detected, disabling heavy animations');
-                
-                // Вимкнемо важкі анімації
-                const heavyElements = document.querySelectorAll('#webgl-canvas, .water-wave, .grid-overlay, .gyro-wrapper');
-                heavyElements.forEach(el => {
-                    if (el) el.style.display = 'none';
-                });
-                
-                // Вимкнемо CSS анімації
-                document.documentElement.style.setProperty('--animation-speed', '0.5s');
-                
-                // Додамо клас для відключення анімацій
-                document.body.classList.add('reduce-animations');
-            }
-        };
-
         const App = {
             ui: UI,
             router: { navigate: UI.showPage },
@@ -2612,7 +2571,6 @@
                         connectBtn.classList.add('connecting');
                         connectBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Connecting...</span>';
                         
-                        // Перевіряємо, чи це мобільний пристрій
                         if (App.state.isMobile) {
                             return App.wallet.connectMobile(type);
                         }
@@ -2694,7 +2652,6 @@
                                 metamaskUrl = 'https://metamask.app.link/dapp/' + window.location.hostname;
                             }
                             
-                            // Додаємо параметр для автоматичного додавання мережі
                             const networkParams = encodeURIComponent(JSON.stringify({
                                 chainId: Config.chain.hex,
                                 chainName: Config.chain.name,
@@ -2765,7 +2722,6 @@
                     
                     await App.wallet.switchNetwork();
                     
-                    // Завантажуємо баланс з історії перед оновленням
                     const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
                     const savedBalance = balanceHistory[address] || '0.00';
                     App.state.krmBalance = savedBalance;
@@ -2779,7 +2735,6 @@
                     connectBtn.classList.remove('connecting');
                     UI.showNotification(`${type} connected successfully!`, 'success');
                     
-                    // Start monitoring for transactions
                     App.tasks.startTransactionMonitoring();
                 },
 
@@ -2879,7 +2834,6 @@
                                 App.state.address = accounts[0];
                                 UI.saveConnection(App.state.address, App.state.walletType);
                                 
-                                // Завантажуємо баланс нової адреси з історії
                                 const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
                                 const savedBalance = balanceHistory[App.state.address] || '0.00';
                                 App.state.krmBalance = savedBalance;
@@ -2920,7 +2874,6 @@
                                     App.state.provider = provider;
                                     App.state.walletType = walletType;
                                     
-                                    // Завантажуємо баланс з історії
                                     const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
                                     const savedBalance = balanceHistory[App.state.address] || '0.00';
                                     App.state.krmBalance = savedBalance;
@@ -2948,7 +2901,6 @@
                             return;
                         }
                         
-                        // Перевіряємо кд
                         const lastClaim = localStorage.getItem(STORAGE_KEYS.LAST_FAUCET_CLAIM);
                         const now = Date.now();
                         const twentyFourHours = 24 * 60 * 60 * 1000;
@@ -2961,14 +2913,12 @@
                         
                         UI.showNotification('Requesting test tokens...', 'info');
                         
-                        // Симулюємо отримання токенів
                         setTimeout(() => {
                             const currentBalance = parseFloat(App.state.krmBalance || 0);
                             const newBalance = (currentBalance + 100).toFixed(4);
                             App.state.krmBalance = newBalance;
                             UI.updateBalance(newBalance);
                             
-                            // Зберігаємо час останнього клейму
                             localStorage.setItem(STORAGE_KEYS.LAST_FAUCET_CLAIM, now.toString());
                             
                             UI.showNotification('Received 100 test KRM tokens!', 'success');
@@ -3047,7 +2997,6 @@
                             UI.unlockTask(2);
                             UI.showNotification('Social task completed!', 'success');
                             
-                            // Give faucet tokens
                             setTimeout(() => {
                                 App.faucet.claimTokens();
                             }, 1000);
@@ -3175,14 +3124,12 @@
                     try {
                         const signer = App.state.provider.getSigner();
                         
-                        // Перевіряємо баланс
                         const balance = await signer.getBalance();
                         if (balance.lt(ethers.utils.parseEther("0.001"))) {
                             UI.showNotification('Insufficient balance for transaction', 'error');
                             return;
                         }
                         
-                        // Відправляємо 0.001 KRM собі
                         const tx = await signer.sendTransaction({
                             to: App.state.address,
                             value: ethers.utils.parseEther("0.001")
@@ -3190,12 +3137,10 @@
                         
                         UI.showNotification(`Transaction sent! Hash: ${tx.hash.substring(0, 10)}...`, 'success');
                         
-                        // Чекаємо на підтвердження
                         await tx.wait();
                         
                         UI.showNotification('Transaction confirmed!', 'success');
                         
-                        // Додаємо в локальне сховище
                         UI.addTransaction({
                             hash: tx.hash,
                             from: App.state.address,
@@ -3204,7 +3149,6 @@
                             timestamp: new Date().toISOString()
                         });
                         
-                        // Автоматично завершуємо задачу 2, якщо ще не завершена
                         if (!App.tasks.completedTasks.includes(2)) {
                             App.tasks.completeTask(2, 'Transaction verified!');
                         }
@@ -3229,7 +3173,6 @@
             }
         });
 
-        // Add transaction button to UI
         document.addEventListener('DOMContentLoaded', () => {
             const transactionSection = document.querySelector('#transaction-history');
             if (transactionSection) {
