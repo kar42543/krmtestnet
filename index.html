@@ -13,7 +13,7 @@
     <meta property="og:url" content="https://karchain.network">
     <meta name="twitter:card" content="summary_large_image">
     <title>KarChain | The Sovereign Consensus Layer</title>
-    <link rel="icon" href="image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M20 10 V90' stroke='%234ade80' stroke-width='8' stroke-linecap='round'/><path d='M80 10 L20 50 L80 90' stroke='%234ade80' stroke-width='8' stroke-linecap='round' stroke-linejoin='round'/><circle cx='20' cy='50' r='10' fill='%2322c55e'/><circle cx='80' cy='10' r='8' fill='%2322c55e'/><circle cx='80' cy='90' r='8' fill='%2322c55e'/></svg>">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M20 10 V90' stroke='%234ade80' stroke-width='8' stroke-linecap='round'/><path d='M80 10 L20 50 L80 90' stroke='%234ade80' stroke-width='8' stroke-linecap='round' stroke-linejoin='round'/><circle cx='20' cy='50' r='10' fill='%2322c55e'/><circle cx='80' cy='10' r='8' fill='%2322c55e'/><circle cx='80' cy='90' r='8' fill='%2322c55e'/></svg>">
     <!-- Libraries -->
     <script src="https://cdn.tailwindcss.com" loading="lazy"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" loading="lazy"></script>
@@ -55,6 +55,7 @@
                         'gradient': 'gradient 8s ease infinite',
                         'shimmer': 'shimmer 2s infinite',
                         'glow': 'glow 2s ease-in-out infinite',
+                        'gradientBG': 'gradientBG 30s ease infinite',
                     },
                     keyframes: {
                         float: {
@@ -83,6 +84,11 @@
                         glow: {
                             '0%, 100%': { opacity: 1 },
                             '50%': { opacity: 0.5 },
+                        },
+                        gradientBG: {
+                            '0%': { 'background-position': '0% 50%' },
+                            '50%': { 'background-position': '100% 50%' },
+                            '100%': { 'background-position': '0% 50%' },
                         }
                     }
                 }
@@ -157,50 +163,49 @@
             -webkit-text-fill-color: transparent;
             animation: gradient 8s ease infinite;
         }
-
-        /* === ВИДАЛЕНО backdrop-filter для navbar, glass-panel, glass-card === */
-        .glass-panel,
-        .glass-card {
-            background: rgba(15, 15, 15, 0.7) !important;
-            border: 1px solid rgba(255, 255, 255, 0.05) !important;
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        .glass-panel {
+            background: rgba(15, 15, 15, 0.6);
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 
+                0 4px 30px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(74, 222, 128, 0.05);
             transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
             transform: translateZ(0);
         }
-
         .glass-panel:hover {
             border-color: rgba(74, 222, 128, 0.15);
             box-shadow: 
                 0 8px 40px rgba(0, 0, 0, 0.4),
-                0 0 0 1px rgba(74, 222, 128, 0.1);
+                0 0 0 1px rgba(74, 222, 128, 0.1),
+                0 0 40px rgba(74, 222, 128, 0.1);
+            transform: translateY(-4px) translateZ(0);
         }
-
-        /* === ЧОРНА НАВІГАЦІЙНА ПАНЕЛЬ З ІМІТАЦІЄЮ РОЗМИТТЯ === */
+        .glass-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+            border: 1px solid rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px) saturate(180%);
+            -webkit-backdrop-filter: blur(10px) saturate(180%);
+            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform: translateZ(0);
+        }
+        .glass-card:hover {
+            border-color: rgba(74, 222, 128, 0.2);
+            transform: translateY(-8px) scale(1.02) translateZ(0);
+            box-shadow: 
+                0 20px 60px -10px rgba(74, 222, 128, 0.15),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+        /* === НАВБАР: завжди чіткий, без backdrop-filter === */
         nav#navbar {
-            background: rgba(2, 4, 2, 0.96) !important;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-            position: relative !important;
-            overflow: hidden !important;
+            background: #020402 !important;
+            border-bottom: 1px solid rgba(74, 222, 128, 0.15) !important;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5) !important;
+            backdrop-filter: none !important;
+            -webkit-backdrop-filter: none !important;
+            z-index: 1000;
         }
-        nav#navbar::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 10% 20%, rgba(74, 222, 128, 0.02) 0%, transparent 20%),
-                radial-gradient(circle at 90% 80%, rgba(34, 197, 94, 0.01) 0%, transparent 30%);
-            pointer-events: none;
-            opacity: 0.65;
-            z-index: 0;
-        }
-        nav#navbar > div {
-            position: relative;
-            z-index: 1;
-        }
-
         .btn-primary {
             background: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
             color: white;
@@ -288,6 +293,22 @@
                 linear-gradient(90deg, rgba(74, 222, 128, 0.02) 1px, transparent 1px);
             background-size: 80px 80px;
             mask-image: radial-gradient(circle at center, black 40%, transparent 70%);
+            transform: translate3d(0, 0, 0);
+            backface-visibility: hidden;
+            -webkit-backface-visibility: hidden;
+        }
+        @media (min-width: 1024px) {
+            .grid-overlay {
+                animation: gridFlow 40s linear infinite;
+            }
+        }
+        @keyframes gridFlow {
+            0% {
+                transform: translate3d(0, 0, 0);
+            }
+            100% {
+                transform: translate3d(80px, 80px, 0);
+            }
         }
         .text-gradient {
             background: linear-gradient(135deg, #ffffff 0%, #4ade80 50%, #22c55e 100%);
@@ -476,6 +497,8 @@
             max-width: 400px;
             height: 100vh;
             background: rgba(2, 4, 2, 0.98);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
             z-index: 10000;
             transition: right 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
             padding-top: 100px;
@@ -492,6 +515,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
             z-index: 9999;
             opacity: 0;
             pointer-events: none;
@@ -696,6 +720,7 @@
             background: rgba(0,0,0,0.7);
             padding: 20px;
             border-radius: 50%;
+            backdrop-filter: blur(5px);
             animation: pulse 2s ease-in-out infinite;
         }
         .counter {
@@ -709,12 +734,14 @@
             background-size: 200% 100%;
             animation: shimmer 2s infinite;
         }
+        /* X (Twitter) logo fix */
         .fa-x-twitter {
             font-family: "Font Awesome 6 Brands";
         }
         .fa-x-twitter:before {
             content: "\f099";
         }
+        /* Custom X logo styling */
         .x-logo {
             color: #000000;
             background: white;
@@ -723,6 +750,7 @@
             font-weight: 900;
             font-family: 'Inter', sans-serif;
         }
+        /* Оптимізації для продуктивності */
         @media (prefers-reduced-motion: reduce) {
             *,
             *::before,
@@ -732,6 +760,7 @@
                 transition-duration: 0.01ms !important;
             }
         }
+        /* Оптимізація для слабких пристроїв */
         @media (max-width: 768px) {
             #webgl-canvas,
             .water-wave,
@@ -743,11 +772,13 @@
                 transform: scale(0.8);
             }
         }
+        /* Вимикаємо паралакс-ефекти при скролі на мобільних */
         @media (max-width: 1024px) {
             .parallax-layer {
                 transform: none !important;
             }
         }
+        /* Клас для відключення анімацій на слабких пристроях */
         .reduce-animations * {
             animation-duration: 0.01ms !important;
             animation-iteration-count: 1 !important;
@@ -756,13 +787,29 @@
         .reduce-animations .water-drop,
         .reduce-animations .water-wave,
         .reduce-animations .grid-overlay,
-        .reduce-animations .gyro-wrapper,
-        .reduce-animations #webgl-canvas {
+        .reduce-animations .gyro-wrapper {
             display: none !important;
+        }
+
+        /* === НОВИЙ: РУХОМИЙ ГРАДІЄНТНИЙ ФОН === */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(125deg, #020402 0%, #050a05 25%, #0a120a 50%, #050a05 75%, #020402 100%);
+            background-size: 400% 400%;
+            z-index: -20;
+            animation: gradientBG 30s ease infinite;
+            opacity: 0.7;
         }
     </style>
 </head>
 <body class="antialiased selection:bg-green-500 selection:text-white">
+    <!-- НОВИЙ: рухомий фон -->
+    <div class="animated-bg"></div>
+
     <!-- Мобільне меню -->
     <div class="mobile-menu-backdrop" id="mobileBackdrop"></div>
     <div class="mobile-menu" id="mobileMenu">
@@ -779,6 +826,7 @@
             <button onclick="App.router.navigate('support'); UI.closeMobileMenu();" class="text-2xl font-bold text-gray-400 hover:text-white transition-colors w-full text-center py-4 border-b border-white/10 smooth-transition">
                 Support
             </button>
+            <!-- Інформація про гаманець на мобільних -->
             <div id="mobileWalletInfo" class="mobile-wallet-info hidden">
                 <div class="flex items-center gap-3 mb-4">
                     <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center">
@@ -813,7 +861,7 @@
     <div class="water-wave"></div>
     <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-green-500/5 rounded-full blur-[120px] -z-5 pointer-events-none animate-pulse-slow"></div>
     <!-- Navigation -->
-    <nav class="fixed top-0 w-full z-50 transition-all duration-300 smooth-transition" id="navbar">
+    <nav class="fixed top-0 w-full z-50 border-b border-white/5 transition-all duration-300 smooth-transition" id="navbar">
         <div class="max-w-[1600px] mx-auto px-6 h-24 flex items-center justify-between">
             <div class="flex items-center gap-3 cursor-pointer group" onclick="App.router.navigate('home')">
                 <div class="relative w-10 h-10 flex items-center justify-center smooth-transform">
@@ -830,6 +878,7 @@
                     <span class="text-[9px] text-gray-500 uppercase tracking-widest font-mono group-hover:text-gray-300 smooth-transition">Testnet Phase 1</span>
                 </div>
             </div>
+            <!-- Desktop navigation -->
             <div class="desktop-nav flex items-center gap-12">
                 <button onclick="App.router.navigate('home')" id="nav-home" class="nav-link text-sm font-bold uppercase tracking-widest text-white border-b-2 border-green-500 pb-1 smooth-transition">Testnet</button>
                 <button onclick="App.router.navigate('vision')" id="nav-vision" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white transition-colors pb-1 border-b-2 border-transparent hover:border-green-500/50 smooth-transition">Vision</button>
@@ -840,6 +889,7 @@
                 <button id="connectBtn" class="btn-primary px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 shadow-lg smooth-transition">
                     <i class="fa-solid fa-wallet"></i> <span>Connect Wallet</span>
                 </button>
+                <!-- Hamburger menu for mobile -->
                 <button class="hamburger" id="hamburgerBtn">
                     <span></span>
                     <span></span>
@@ -872,7 +922,7 @@
     </nav>
     <!-- Connect Wallet Modal -->
     <div id="connect-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/80" onclick="App.ui.closeModal()"></div>
+        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="App.ui.closeModal()"></div>
         <div class="relative glass-panel w-full max-w-md rounded-2xl p-8 transform scale-95 opacity-0 transition-all duration-300 smooth-transition" id="modal-content">
             <div class="flex justify-between items-center mb-8">
                 <h3 class="text-2xl font-bold text-white font-display">Connect Wallet</h3>
@@ -959,7 +1009,7 @@
         <div id="dashboard-ui" class="max-w-6xl mx-auto fade-in-up delay-400">
             <div class="glass-panel rounded-3xl p-1 relative overflow-hidden">
                 <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent opacity-50 shimmer"></div>
-                <div class="bg-black/80 rounded-[20px] p-8 md:p-12">
+                <div class="bg-black/80 backdrop-blur-xl rounded-[20px] p-8 md:p-12">
                     <div id="view-locked" class="text-center py-20">
                         <div class="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/10 shadow-lg smooth-transition hover-lift">
                             <i class="fa-solid fa-lock text-3xl text-gray-600"></i>
@@ -999,6 +1049,7 @@
                         </div>
                         <h3 class="text-xl font-bold text-white mb-6">Incentivized Tasks</h3>
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Task 1: Social Follow (Twitter + Telegram) -->
                             <div class="glass-card p-8 rounded-2xl border border-white/10 relative overflow-hidden group hover-lift">
                                 <div class="absolute top-0 right-0 bg-blue-500/20 text-blue-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Step 1</div>
                                 <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-6 text-2xl text-white group-hover:text-blue-400 transition-colors smooth-transition">
@@ -1018,6 +1069,7 @@
                                     </button>
                                 </div>
                             </div>
+                            <!-- Task 2: Make Transaction -->
                             <div id="card-task-2" class="glass-card p-8 rounded-2xl border border-white/10 task-locked relative overflow-hidden group hover-lift">
                                 <div class="absolute top-0 right-0 bg-purple-500/20 text-purple-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Step 2</div>
                                 <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-6 text-2xl text-white group-hover:text-purple-400 transition-colors smooth-transition">
@@ -1034,6 +1086,7 @@
                                     </button>
                                 </div>
                             </div>
+                            <!-- Task 3: Google Form -->
                             <div id="card-task-3" class="glass-card p-8 rounded-2xl border border-white/10 task-locked relative overflow-hidden group hover-lift">
                                 <div class="absolute top-0 right-0 bg-orange-500/20 text-orange-400 text-[10px] font-bold px-3 py-1 rounded-bl-xl uppercase">Final</div>
                                 <div class="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-6 text-2xl text-white group-hover:text-orange-400 transition-colors smooth-transition">
@@ -1052,9 +1105,11 @@
                                 <div id="progress-bar" class="h-full bg-gradient-to-r from-green-500 to-emerald-500 w-0 transition-all duration-700 ease-out"></div>
                             </div>
                         </div>
+                        <!-- Transaction History -->
                         <div id="transaction-history" class="mt-12 pt-8 border-t border-white/10 hidden">
                             <h4 class="text-lg font-bold text-white mb-4">Your Transactions</h4>
                             <div id="transactions-list" class="space-y-2">
+                                <!-- Transactions will be added here -->
                             </div>
                             <p id="no-transactions" class="text-center text-gray-500 text-sm py-4">No transactions yet. Make your first transaction!</p>
                         </div>
@@ -1399,46 +1454,45 @@
             </div>
         </div>
     </footer>
-
     <script>
         const Config = {
             chain: {
                 id: 1337,
-                hex: "0x539",
-                name: "KarChain Testnet",
-                rpc: "https://relationless-improperly-nettie.ngrok-free.dev",
-                symbol: "KRM",
+                hex: '0x539',
+                name: 'KarChain Testnet',
+                rpc: 'https://relationless-improperly-nettie.ngrok-free.dev',
+                symbol: 'KRM',
                 decimals: 18,
-                explorer: "https://relationless-improperly-nettie.ngrok-free.dev"
+                explorer: 'https://relationless-improperly-nettie.ngrok-free.dev'
             },
             walletConnect: {
-                projectId: "e6d3c5f8b2a4d7c9e1f0a3b5c7d9e2f4",
+                projectId: 'e6d3c5f8b2a4d7c9e1f0a3b5c7d9e2f4',
                 rpc: {
-                    1337: "https://relationless-improperly-nettie.ngrok-free.dev"
+                    1337: 'https://relationless-improperly-nettie.ngrok-free.dev'
                 }
             },
             tokenAddress: null,
             faucetAddress: null,
             tasks: {
-                twitterUrl: "https://x.com/karim7652117665",
-                telegramUrl: "https://t.me/tgkarim1",
-                googleFormUrl: "https://docs.google.com/forms/d/e/1FAIpQLSeQhBQZ_XKxYp2G5bZ5RwTzR2QmPpLJ6xN3oYjH7sKvP8t0w/viewform"
+                twitterUrl: 'https://x.com/karim7652117665',
+                telegramUrl: 'https://t.me/tgkarim1',
+                googleFormUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSeQhBQZ_XKxYp2G5bZ5RwTzR2QmPpLJ6xN3oYjH7sKvP8t0w/viewform'
             }
         };
         const STORAGE_KEYS = {
-            WALLET_CONNECTED: "karchain_wallet_connected",
-            WALLET_ADDRESS: "karchain_wallet_address",
-            LAST_CONNECTED: "karchain_last_connected",
-            WALLET_BALANCE: "karchain_wallet_balance",
-            WALLET_TYPE: "karchain_wallet_type",
-            TASKS_COMPLETED: "karchain_tasks_completed",
-            TRANSACTIONS: "karchain_transactions",
-            SOCIAL_TASK_STARTED: "karchain_social_started",
-            TOKEN_BALANCE_HISTORY: "karchain_token_balance_history",
-            LAST_FAUCET_CLAIM: "karchain_last_faucet_claim"
+            WALLET_CONNECTED: 'karchain_wallet_connected',
+            WALLET_ADDRESS: 'karchain_wallet_address',
+            LAST_CONNECTED: 'karchain_last_connected',
+            WALLET_BALANCE: 'karchain_wallet_balance',
+            WALLET_TYPE: 'karchain_wallet_type',
+            TASKS_COMPLETED: 'karchain_tasks_completed',
+            TRANSACTIONS: 'karchain_transactions',
+            SOCIAL_TASK_STARTED: 'karchain_social_started',
+            TOKEN_BALANCE_HISTORY: 'karchain_token_balance_history',
+            LAST_FAUCET_CLAIM: 'karchain_last_faucet_claim'
         };
 
-        // ✅ ПЛЯМЕННА ОПТИМІЗАЦІЯ: ПАУЗА ЕФЕКТІВ ПРИ СКРОЛІ
+        // === ПОЛІПШЕНА ПАУЗА ПРИ СКРОЛІ + НОВА ПЕРЕВІРКА ===
         let scrollTimeout;
         let isScrolling = false;
         const heavyElementsSelectors = ['#webgl-canvas', '.water-wave', '.water-drop', '.grid-overlay', '.gyro-wrapper'];
@@ -1453,7 +1507,7 @@
                 }
             });
             if (window.ScrollTrigger) {
-                ScrollTrigger.killAll();
+                ScrollTrigger.refresh();
             }
         };
 
@@ -1479,7 +1533,7 @@
             scrollTimeout = setTimeout(() => {
                 isScrolling = false;
                 resumeHeavyEffects();
-            }, 150);
+            }, 120); // швидше відновлення
         }, { passive: true });
 
         const PerformanceMonitor = {
@@ -1512,10 +1566,10 @@
                 heavyElements.forEach(el => {
                     if (el) el.style.display = 'none';
                 });
+                document.documentElement.style.setProperty('--animation-speed', '0.5s');
                 document.body.classList.add('reduce-animations');
             }
         };
-
         const UI = {
             init: () => {
                 UI.initParticles();
@@ -1529,7 +1583,7 @@
                 UI.setupMobileMenu();
                 UI.initAnimations();
                 UI.initSmoothScroll();
-                UI.fixNavbarOnPC();
+                UI.fixNavbarOnPC(); // тепер не відновлює backdrop-filter
                 UI.checkMetaMaskOnLoad();
                 UI.loadTaskProgress();
                 PerformanceMonitor.init();
@@ -1590,9 +1644,12 @@
             fixNavbarOnPC: () => {
                 const navbar = document.getElementById('navbar');
                 if (navbar && window.innerWidth >= 1024) {
-                    navbar.style.background = 'rgba(2, 4, 2, 0.96)';
-                    // Видалено backdrop-filter
-                    navbar.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+                    // 🔥 ВАЖЛИВО: НЕ ВІДНОВЛЮВАТИ backdrop-filter!
+                    navbar.style.background = '#020402';
+                    navbar.style.backdropFilter = 'none';
+                    navbar.style.webkitBackdropFilter = 'none';
+                    navbar.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.5)';
+                    navbar.style.borderBottom = '1px solid rgba(74, 222, 128, 0.15)';
                 }
             },
             initSmoothScroll: () => {
@@ -1600,6 +1657,7 @@
                 scrollToTopBtn.innerHTML = '<i class="fa-solid fa-chevron-up"></i>';
                 scrollToTopBtn.className = 'fixed bottom-8 right-8 w-12 h-12 bg-green-500 hover:bg-green-600 rounded-full flex items-center justify-center text-white z-40 transition-all duration-300 opacity-0 translate-y-10';
                 scrollToTopBtn.id = 'scrollToTopBtn';
+                scrollToTopBtn.style.boxShadow = '0 4px 20px rgba(74, 222, 128, 0.3)';
                 document.body.appendChild(scrollToTopBtn);
                 scrollToTopBtn.addEventListener('click', () => {
                     window.scrollTo({
@@ -1617,39 +1675,73 @@
                         btn.classList.add('opacity-0', 'translate-y-10');
                     }
                 });
+                document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                    anchor.addEventListener('click', function(e) {
+                        const href = this.getAttribute('href');
+                        if (href === '#' || href === '') return;
+                        const targetElement = document.querySelector(href);
+                        if (targetElement) {
+                            e.preventDefault();
+                            const offset = 80;
+                            const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
+                            window.scrollTo({
+                                top: targetPosition - offset,
+                                behavior: 'smooth'
+                            });
+                        }
+                    });
+                });
             },
             initAnimations: () => {
                 gsap.registerPlugin(ScrollTrigger);
-                if ('hardwareConcurrency' in navigator && navigator.hardwareConcurrency < 4) return;
+                if ('hardwareConcurrency' in navigator && navigator.hardwareConcurrency < 4) {
+                    console.log('Low-end device detected, disabling some animations');
+                    return;
+                }
                 if (window.innerWidth < 768) {
                     gsap.utils.toArray('.fade-in-up, .fade-in-left, .fade-in-right').forEach((el, index) => {
                         if (index < 10) {
                             gsap.from(el, {
-                                scrollTrigger: { trigger: el, start: "top 90%", toggleActions: "play none none none" },
-                                y: 20, opacity: 0, duration: 0.5, ease: "power2.out"
+                                scrollTrigger: {
+                                    trigger: el,
+                                    start: "top 90%",
+                                    toggleActions: "play none none none"
+                                },
+                                y: 20,
+                                opacity: 0,
+                                duration: 0.5,
+                                ease: "power2.out"
                             });
                         }
                     });
                 } else {
                     gsap.utils.toArray('.fade-in-up, .fade-in-left, .fade-in-right, .fade-in').forEach(el => {
                         gsap.from(el, {
-                            scrollTrigger: { trigger: el, start: "top 80%", toggleActions: "play none none reverse" },
-                            y: 30, opacity: 0, duration: 0.8, ease: "power2.out"
+                            scrollTrigger: {
+                                trigger: el,
+                                start: "top 80%",
+                                toggleActions: "play none none reverse"
+                            },
+                            y: 30,
+                            opacity: 0,
+                            duration: 0.8,
+                            ease: "power2.out"
                         });
                     });
                 }
-
-                // 🚫 ВИДАЛЕНО PARALLAX .grid-overlay — джерело лагів
-                // if (window.innerWidth > 768) {
-                //     gsap.to('.grid-overlay', { scrollTrigger: ..., y: 100 });
-                // }
+                // 🚫 ВИДАЛЕНО: gsap.to('.grid-overlay', { scrollTrigger: ... })
 
                 const counters = document.querySelectorAll('.counter');
                 counters.forEach(counter => {
                     const target = parseInt(counter.textContent.replace(/,/g, ''));
                     if (!isNaN(target)) {
                         gsap.to(counter, {
-                            scrollTrigger: { trigger: counter, start: "top 90%", toggleActions: "play none none none", once: true },
+                            scrollTrigger: {
+                                trigger: counter,
+                                start: "top 90%",
+                                toggleActions: "play none none none",
+                                once: true
+                            },
                             innerHTML: target,
                             duration: 1.5,
                             snap: { innerHTML: 1 },
@@ -1663,13 +1755,29 @@
                 if (window.innerWidth > 1024) {
                     const cards = document.querySelectorAll('.glass-card, .glass-panel');
                     cards.forEach(card => {
-                        card.addEventListener('mouseenter', () => gsap.to(card, { scale: 1.02, duration: 0.3 }));
-                        card.addEventListener('mouseleave', () => gsap.to(card, { scale: 1, duration: 0.3 }));
+                        card.addEventListener('mouseenter', () => {
+                            gsap.to(card, {
+                                scale: 1.02,
+                                duration: 0.3,
+                                ease: "power2.out"
+                            });
+                        });
+                        card.addEventListener('mouseleave', () => {
+                            gsap.to(card, {
+                                scale: 1,
+                                duration: 0.3,
+                                ease: "power2.out"
+                            });
+                        });
                     });
                 }
                 const progressBar = document.getElementById('progress-bar');
                 if (progressBar) {
-                    gsap.to(progressBar, { width: "0%", duration: 0.5, ease: "power2.out" });
+                    gsap.to(progressBar, {
+                        width: "0%",
+                        duration: 0.5,
+                        ease: "power2.out"
+                    });
                 }
             },
             initParticles: () => {
@@ -1679,9 +1787,9 @@
                 let particles = [];
                 let animationId = null;
                 let lastTime = 0;
-                const fps = 15;
+                const fps = 15; // ⬇ знизив FPS
                 const interval = 1000 / fps;
-                const particleCount = window.innerWidth < 768 ? 10 : 15;
+                const particleCount = window.innerWidth < 768 ? 12 : 20; // ⬇ менше частинок
                 const resize = () => { 
                     cvs.width = window.innerWidth; 
                     cvs.height = window.innerHeight; 
@@ -1729,16 +1837,32 @@
                     }
                     animationId = requestAnimationFrame(animate);
                 };
-                const startAnimation = () => { if (animationId === null) animationId = requestAnimationFrame(animate); };
-                const stopAnimation = () => { if (animationId !== null) { cancelAnimationFrame(animationId); animationId = null; } };
+                const startAnimation = () => {
+                    if (animationId === null) {
+                        animationId = requestAnimationFrame(animate);
+                    }
+                };
+                const stopAnimation = () => {
+                    if (animationId !== null) {
+                        cancelAnimationFrame(animationId);
+                        animationId = null;
+                    }
+                };
                 document.addEventListener('visibilitychange', () => {
-                    if (document.hidden) stopAnimation(); else startAnimation();
+                    if (document.hidden) {
+                        stopAnimation();
+                    } else {
+                        startAnimation();
+                    }
                 });
+                let scrollTimeout;
                 window.addEventListener('scroll', () => {
                     if (window.innerWidth < 1024) {
                         stopAnimation();
                         clearTimeout(scrollTimeout);
-                        scrollTimeout = setTimeout(startAnimation, 1000);
+                        scrollTimeout = setTimeout(() => {
+                            startAnimation();
+                        }, 1000);
                     }
                 });
                 startAnimation();
@@ -1746,18 +1870,19 @@
             initWaterDrops: () => {
                 const container = document.getElementById('water-drops');
                 if (!container) return;
-                const dropsCount = window.innerWidth < 768 ? 5 : 10;
+                const dropsCount = window.innerWidth < 768 ? 5 : 12; // ⬇ менше
                 container.innerHTML = '';
                 for(let i = 0; i < dropsCount; i++) {
                     const drop = document.createElement('div');
                     drop.className = 'water-drop';
                     drop.style.left = `${Math.random() * 100}%`;
                     drop.style.animationDelay = `${Math.random() * 8}s`;
-                    drop.style.height = `${10 + Math.random() * 30}px`;
-                    drop.style.animationDuration = `${10 + Math.random() * 10}s`;
+                    drop.style.height = `${8 + Math.random() * 20}px`;
+                    drop.style.animationDuration = `${8 + Math.random() * 4}s`;
                     container.appendChild(drop);
                 }
             },
+            // ... інші методи UI без змін ...
             setupMobileMenu: () => {
                 const hamburgerBtn = document.getElementById('hamburgerBtn');
                 const mobileMenu = document.getElementById('mobileMenu');
@@ -1770,9 +1895,13 @@
                         hamburgerBtn.classList.toggle('active');
                         document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
                     });
-                    mobileBackdrop.addEventListener('click', () => UI.closeMobileMenu());
-                    window.addEventListener('resize', () => {
-                        if (window.innerWidth > 1024) UI.closeMobileMenu();
+                    mobileBackdrop.addEventListener('click', function() {
+                        UI.closeMobileMenu();
+                    });
+                    window.addEventListener('resize', function() {
+                        if (window.innerWidth > 1024) {
+                            UI.closeMobileMenu();
+                        }
                     });
                 }
             },
@@ -1820,10 +1949,24 @@
                         const icon = this.querySelector('i');
                         content.classList.toggle('open');
                         if(content.classList.contains('open')) {
-                            gsap.to(content, { maxHeight: '500px', opacity: 1, paddingTop: '1rem', paddingBottom: '1rem', duration: 0.5, ease: "power2.out" });
+                            gsap.to(content, {
+                                maxHeight: '500px',
+                                opacity: 1,
+                                paddingTop: '1rem',
+                                paddingBottom: '1rem',
+                                duration: 0.5,
+                                ease: "power2.out"
+                            });
                             icon.style.transform = 'rotate(180deg)';
                         } else {
-                            gsap.to(content, { maxHeight: 0, opacity: 0, paddingTop: 0, paddingBottom: 0, duration: 0.5, ease: "power2.out" });
+                            gsap.to(content, {
+                                maxHeight: 0,
+                                opacity: 0,
+                                paddingTop: 0,
+                                paddingBottom: 0,
+                                duration: 0.5,
+                                ease: "power2.out"
+                            });
                             icon.style.transform = 'rotate(0deg)';
                         }
                     });
@@ -1847,7 +1990,7 @@
                             dropdown.classList.remove('hidden');
                             gsap.fromTo(dropdown, 
                                 { opacity: 0, y: -20, scale: 0.95 },
-                                { opacity: 1, y: 0, scale: 1, duration: 0.3 }
+                                { opacity: 1, y: 0, scale: 1, duration: 0.3, ease: "power2.out" }
                             );
                         } else {
                             gsap.to(dropdown, {
@@ -1855,7 +1998,10 @@
                                 y: -20,
                                 scale: 0.95,
                                 duration: 0.2,
-                                onComplete: () => dropdown.classList.add('hidden')
+                                ease: "power2.in",
+                                onComplete: () => {
+                                    dropdown.classList.add('hidden');
+                                }
                             });
                         }
                     } else {
@@ -1872,20 +2018,35 @@
                             y: -20,
                             scale: 0.95,
                             duration: 0.2,
-                            onComplete: () => dropdown.classList.add('hidden')
+                            ease: "power2.in",
+                            onComplete: () => {
+                                dropdown.classList.add('hidden');
+                            }
                         });
                     }
                 });
             },
             setupTaskButtons: () => {
                 const verifySocialBtn = document.getElementById('verify-social');
-                if (verifySocialBtn) verifySocialBtn.addEventListener('click', () => App.tasks.completeSocialTask());
+                if (verifySocialBtn) {
+                    verifySocialBtn.addEventListener('click', () => {
+                        App.tasks.completeSocialTask();
+                    });
+                }
                 const verifyTransactionBtn = document.getElementById('verify-transaction');
-                if (verifyTransactionBtn) verifyTransactionBtn.addEventListener('click', () => App.tasks.checkTransaction());
+                if (verifyTransactionBtn) {
+                    verifyTransactionBtn.addEventListener('click', () => {
+                        App.tasks.checkTransaction();
+                    });
+                }
                 const formBtn = document.getElementById('btn-form');
-                if (formBtn) formBtn.addEventListener('click', () => {
-                    if (!formBtn.classList.contains('pointer-events-none')) App.tasks.openGoogleForm();
-                });
+                if (formBtn) {
+                    formBtn.addEventListener('click', () => {
+                        if (!formBtn.classList.contains('pointer-events-none')) {
+                            App.tasks.openGoogleForm();
+                        }
+                    });
+                }
             },
             checkSavedConnection: () => {
                 const isConnected = localStorage.getItem(STORAGE_KEYS.WALLET_CONNECTED);
@@ -1920,6 +2081,7 @@
                         opacity: 0,
                         y: -20,
                         duration: 0.3,
+                        ease: "power2.in",
                         onComplete: () => {
                             document.querySelectorAll('.page-content').forEach(el => {
                                 el.classList.remove('active');
@@ -1928,7 +2090,15 @@
                             targetPage.style.display = 'block';
                             gsap.fromTo(targetPage, 
                                 { opacity: 0, y: 20 },
-                                { opacity: 1, y: 0, duration: 0.5, onComplete: () => targetPage.classList.add('active') }
+                                { 
+                                    opacity: 1, 
+                                    y: 0, 
+                                    duration: 0.5, 
+                                    ease: "power2.out",
+                                    onComplete: () => {
+                                        targetPage.classList.add('active');
+                                    }
+                                }
                             );
                         }
                     });
@@ -1949,14 +2119,22 @@
                     activeLink.classList.add('active', 'text-white', 'border-green-500');
                     activeLink.classList.remove('text-gray-400', 'border-transparent');
                 }
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                setTimeout(() => UI.initAnimations(), 100);
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+                setTimeout(() => {
+                    UI.initAnimations();
+                }, 100);
             },
             openModal: () => {
                 const modal = document.getElementById('connect-modal');
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
-                gsap.fromTo('#modal-content', { scale: 0.95, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.4 });
+                gsap.fromTo('#modal-content', 
+                    { scale: 0.95, opacity: 0 },
+                    { scale: 1, opacity: 1, duration: 0.4, ease: "power2.out" }
+                );
                 UI.closeMobileMenu();
                 document.body.style.overflow = 'hidden';
             },
@@ -1965,6 +2143,7 @@
                     scale: 0.95,
                     opacity: 0,
                     duration: 0.3,
+                    ease: "power2.in",
                     onComplete: () => {
                         const modal = document.getElementById('connect-modal');
                         modal.classList.add('hidden');
@@ -1993,15 +2172,24 @@
                 document.getElementById('balanceVal').innerText = savedBalance;
                 const dropdown = document.getElementById('userDropdown');
                 dropdown.classList.add('hidden');
-                setTimeout(() => UI.setupDropdownToggle(), 100);
-                gsap.fromTo('#view-active', { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 });
+                setTimeout(() => {
+                    UI.setupDropdownToggle();
+                }, 100);
+                gsap.fromTo('#view-active', 
+                    { opacity: 0, y: 20 },
+                    { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
+                );
                 UI.loadTransactionHistory();
             },
             updateBalance: (balance) => {
                 const formattedBalance = parseFloat(balance).toFixed(4);
                 const balanceElement = document.getElementById('balanceVal');
                 const dropdownBalance = document.getElementById('dropdownBalance');
-                gsap.to(balanceElement, { innerHTML: formattedBalance, duration: 0.5, snap: { innerHTML: 0.01 } });
+                gsap.to(balanceElement, {
+                    innerHTML: formattedBalance,
+                    duration: 0.5,
+                    snap: { innerHTML: 0.01 }
+                });
                 dropdownBalance.innerText = `${formattedBalance} KRM`;
                 if (App.state.address) {
                     const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
@@ -2013,13 +2201,17 @@
                 const btn = document.getElementById('connectBtn');
                 btn.innerHTML = '<i class="fa-solid fa-wallet"></i> <span>Connect Wallet</span>';
                 const mobileWalletInfo = document.getElementById('mobileWalletInfo');
-                if (mobileWalletInfo) mobileWalletInfo.classList.add('hidden');
+                if (mobileWalletInfo) {
+                    mobileWalletInfo.classList.add('hidden');
+                }
                 const dropdown = document.getElementById('userDropdown');
                 dropdown.classList.add('hidden');
                 document.getElementById('view-locked').classList.remove('hidden');
                 document.getElementById('view-active').classList.add('hidden');
                 document.getElementById('transaction-history').classList.add('hidden');
-                setTimeout(() => UI.setupDropdownToggle(), 100);
+                setTimeout(() => {
+                    UI.setupDropdownToggle();
+                }, 100);
             },
             showNotification: (message, type = 'info') => {
                 document.querySelectorAll('.notification').forEach(n => n.remove());
@@ -2040,18 +2232,33 @@
                     </div>
                 `;
                 document.body.appendChild(notification);
-                gsap.fromTo(notification, { x: 100, opacity: 0 }, { x: 0, opacity: 1, duration: 0.4 });
+                gsap.fromTo(notification,
+                    { x: 100, opacity: 0 },
+                    { x: 0, opacity: 1, duration: 0.4, ease: "power2.out" }
+                );
                 setTimeout(() => {
-                    gsap.to(notification, { x: 100, opacity: 0, duration: 0.3, onComplete: () => {
-                        if (notification.parentNode) document.body.removeChild(notification);
-                    }});
+                    gsap.to(notification, {
+                        x: 100,
+                        opacity: 0,
+                        duration: 0.3,
+                        ease: "power2.in",
+                        onComplete: () => {
+                            if (notification.parentNode) {
+                                document.body.removeChild(notification);
+                            }
+                        }
+                    });
                 }, 3000);
             },
             updateTaskProgress: (completedTasks) => {
                 const progressBar = document.getElementById('progress-bar');
                 const progressText = document.getElementById('progress-text');
                 const percentage = (completedTasks / 3) * 100;
-                gsap.to(progressBar, { width: `${percentage}%`, duration: 0.7, ease: "power2.out" });
+                gsap.to(progressBar, {
+                    width: `${percentage}%`,
+                    duration: 0.7,
+                    ease: "power2.out"
+                });
                 progressText.innerText = `${completedTasks}/3 Tasks`;
             },
             loadTransactionHistory: () => {
@@ -2090,12 +2297,14 @@
             },
             addTransaction: (transaction) => {
                 const transactions = JSON.parse(localStorage.getItem(STORAGE_KEYS.TRANSACTIONS) || '[]');
-                transactions.push({ ...transaction, timestamp: new Date().toISOString() });
+                transactions.push({
+                    ...transaction,
+                    timestamp: new Date().toISOString()
+                });
                 localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(transactions));
                 UI.loadTransactionHistory();
             }
         };
-
         const App = {
             ui: UI,
             router: { navigate: UI.showPage },
@@ -2113,16 +2322,32 @@
                         const connectBtn = document.getElementById('connectBtn');
                         connectBtn.classList.add('connecting');
                         connectBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Connecting...</span>';
-                        if (App.state.isMobile) return App.wallet.connectMobile(type);
-                        let provider, accounts;
+                        if (App.state.isMobile) {
+                            return App.wallet.connectMobile(type);
+                        }
+                        let provider;
+                        let accounts;
                         switch(type) {
                             case 'MetaMask':
-                                if (!window.ethereum) throw new Error('MetaMask not found. Please install MetaMask extension.');
+                                if (typeof window.ethereum === 'undefined') {
+                                    window.open('https://metamask.io/download/', '_blank');
+                                    throw new Error('MetaMask not found. Please install MetaMask extension.');
+                                }
                                 provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
-                                try { accounts = await provider.send("eth_requestAccounts", []); } catch (e) { throw e; }
+                                try {
+                                    accounts = await provider.send("eth_requestAccounts", []);
+                                } catch (requestError) {
+                                    if (requestError.code === 4001) {
+                                        throw new Error('Please approve the connection request in your wallet.');
+                                    }
+                                    throw requestError;
+                                }
                                 break;
                             case 'Trust':
-                                if (!window.ethereum) throw new Error('Trust Wallet not found.');
+                                if (typeof window.ethereum === 'undefined') {
+                                    window.open('https://trustwallet.com/', '_blank');
+                                    throw new Error('Trust Wallet not found.');
+                                }
                                 provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
                                 accounts = await provider.send("eth_requestAccounts", []);
                                 break;
@@ -2132,12 +2357,16 @@
                             default:
                                 throw new Error('Unknown wallet type');
                         }
-                        if (!accounts || accounts.length === 0) throw new Error('Could not get account from wallet');
+                        if (!accounts || accounts.length === 0) {
+                            throw new Error('Could not get account from wallet');
+                        }
                         await App.wallet.finalizeConnection(accounts[0], provider, type);
                     } catch (e) {
                         console.error('Wallet connection error:', e);
                         let errorMessage = e.message;
-                        if (e.code === -32002) errorMessage = 'MetaMask is already processing a request. Please check your MetaMask.';
+                        if (e.code === -32002) {
+                            errorMessage = 'MetaMask is already processing a request. Please check your MetaMask.';
+                        }
                         UI.showNotification(`Error: ${errorMessage}`, 'error');
                         const connectBtn = document.getElementById('connectBtn');
                         connectBtn.classList.remove('connecting');
@@ -2149,15 +2378,55 @@
                     const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
                     switch(type) {
                         case 'MetaMask':
-                            let metamaskUrl = isAndroid || isIOS 
-                                ? `https://metamask.app.link/dapp/${window.location.hostname}${window.location.pathname}`
-                                : 'https://metamask.app.link/dapp/' + window.location.hostname;
-                            window.location.href = metamaskUrl;
+                            let metamaskUrl;
+                            if (isAndroid) {
+                                metamaskUrl = `https://metamask.app.link/dapp/${window.location.hostname}${window.location.pathname}`;
+                            } else if (isIOS) {
+                                metamaskUrl = `https://metamask.app.link/dapp/${window.location.hostname}${window.location.pathname}`;
+                            } else {
+                                metamaskUrl = 'https://metamask.app.link/dapp/' + window.location.hostname;
+                            }
+                            const networkParams = encodeURIComponent(JSON.stringify({
+                                chainId: Config.chain.hex,
+                                chainName: Config.chain.name,
+                                rpcUrls: [Config.chain.rpc],
+                                nativeCurrency: {
+                                    name: 'KarChain',
+                                    symbol: Config.chain.symbol,
+                                    decimals: Config.chain.decimals
+                                },
+                                blockExplorerUrls: [Config.chain.explorer]
+                            }));
+                            const finalUrl = `${metamaskUrl}?action=addNetwork&params=${networkParams}`;
+                            window.location.href = finalUrl;
                             break;
                         case 'Trust':
-                            let trustUrl = isAndroid || isIOS 
-                                ? `https://link.trustwallet.com/open_url?url=${encodeURIComponent(window.location.href)}`
-                                : 'https://link.trustwallet.com/open_url?url=' + encodeURIComponent(window.location.href);
+                            let trustUrl;
+                            if (isAndroid) {
+                                trustUrl = `https://link.trustwallet.com/wc?uri=${encodeURIComponent(`wc:?action=connect&params=${JSON.stringify({
+                                    chainId: Config.chain.id,
+                                    rpcUrl: Config.chain.rpc,
+                                    chainName: Config.chain.name,
+                                    nativeCurrency: {
+                                        name: 'KarChain',
+                                        symbol: Config.chain.symbol,
+                                        decimals: Config.chain.decimals
+                                    }
+                                })}`)}`;
+                            } else if (isIOS) {
+                                trustUrl = `https://link.trustwallet.com/wc?uri=${encodeURIComponent(`wc:?action=connect&params=${JSON.stringify({
+                                    chainId: Config.chain.id,
+                                    rpcUrl: Config.chain.rpc,
+                                    chainName: Config.chain.name,
+                                    nativeCurrency: {
+                                        name: 'KarChain',
+                                        symbol: Config.chain.symbol,
+                                        decimals: Config.chain.decimals
+                                    }
+                                })}`)}`;
+                            } else {
+                                trustUrl = 'https://link.trustwallet.com/open_url?url=' + encodeURIComponent(window.location.href);
+                            }
                             window.location.href = trustUrl;
                             break;
                         case 'WC':
@@ -2189,7 +2458,9 @@
                     App.tasks.startTransactionMonitoring();
                 },
                 disconnect: () => {
-                    if (App.state.walletType === 'WC' && App.state.walletConnect) App.state.walletConnect.disconnect();
+                    if (App.state.walletType === 'WC' && App.state.walletConnect) {
+                        App.state.walletConnect.disconnect();
+                    }
                     App.state.address = null;
                     App.state.provider = null;
                     App.state.walletType = null;
@@ -2205,7 +2476,10 @@
                 switchNetwork: async () => {
                     if (App.state.walletType === 'WC' || !window.ethereum) return;
                     try {
-                        await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: Config.chain.hex }] });
+                        await window.ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: Config.chain.hex }],
+                        });
                     } catch (switchError) {
                         if (switchError.code === 4902) {
                             try {
@@ -2215,7 +2489,11 @@
                                         chainId: Config.chain.hex,
                                         chainName: Config.chain.name,
                                         rpcUrls: [Config.chain.rpc],
-                                        nativeCurrency: { name: 'KarChain', symbol: Config.chain.symbol, decimals: Config.chain.decimals },
+                                        nativeCurrency: { 
+                                            name: 'KarChain', 
+                                            symbol: Config.chain.symbol, 
+                                            decimals: Config.chain.decimals 
+                                        },
                                         blockExplorerUrls: [Config.chain.explorer]
                                     }],
                                 });
@@ -2255,8 +2533,9 @@
                 setupEventListeners: () => {
                     if (App.state.walletType !== 'WC' && window.ethereum) {
                         window.ethereum.on('accountsChanged', async (accounts) => {
-                            if (accounts.length === 0) App.wallet.disconnect();
-                            else if (accounts[0] !== App.state.address) {
+                            if (accounts.length === 0) {
+                                App.wallet.disconnect();
+                            } else if (accounts[0] !== App.state.address) {
                                 App.state.address = accounts[0];
                                 UI.saveConnection(App.state.address, App.state.walletType);
                                 const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
@@ -2373,7 +2652,12 @@
                     if (verifyBtn && verifyBtn.disabled === false) {
                         verifyBtn.disabled = true;
                         verifyBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-                        gsap.to(verifyBtn, { rotation: 360, duration: 1.5, repeat: -1 });
+                        gsap.to(verifyBtn, {
+                            rotation: 360,
+                            duration: 1.5,
+                            ease: "power2.out",
+                            repeat: -1
+                        });
                         setTimeout(() => {
                             gsap.killTweensOf(verifyBtn);
                             verifyBtn.innerHTML = 'COMPLETED';
@@ -2386,7 +2670,9 @@
                             UI.updateTaskProgress(App.tasks.completedTasks.length);
                             UI.unlockTask(2);
                             UI.showNotification('Social task completed!', 'success');
-                            setTimeout(() => App.faucet.claimTokens(), 1000);
+                            setTimeout(() => {
+                                App.faucet.claimTokens();
+                            }, 1000);
                         }, 1500);
                     } else {
                         UI.showNotification('Please open both X and Telegram first', 'info');
@@ -2407,14 +2693,21 @@
                 openGoogleForm: () => {
                     const formUrl = `${Config.tasks.googleFormUrl}?entry.1234567890=${encodeURIComponent(App.state.address)}`;
                     window.open(formUrl, '_blank');
-                    setTimeout(() => App.tasks.completeTask(3, 'Form submitted!'), 3000);
+                    setTimeout(() => {
+                        App.tasks.completeTask(3, 'Form submitted!');
+                    }, 3000);
                 },
                 completeTask: (taskId, message) => {
                     const btn = taskId === 2 ? document.getElementById('verify-transaction') : null;
                     if (btn && btn.disabled === false) {
                         btn.disabled = true;
                         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
-                        gsap.to(btn, { rotation: 360, duration: 1.5, repeat: -1 });
+                        gsap.to(btn, {
+                            rotation: 360,
+                            duration: 1.5,
+                            ease: "power2.out",
+                            repeat: -1
+                        });
                         setTimeout(() => {
                             gsap.killTweensOf(btn);
                             btn.innerHTML = 'COMPLETED';
@@ -2425,14 +2718,18 @@
                                 localStorage.setItem(STORAGE_KEYS.TASKS_COMPLETED, JSON.stringify(App.tasks.completedTasks));
                             }
                             UI.updateTaskProgress(App.tasks.completedTasks.length);
-                            if (taskId === 2) UI.unlockTask(3);
+                            if (taskId === 2) {
+                                UI.unlockTask(3);
+                            }
                             UI.showNotification(message || `Task ${taskId} completed!`, 'success');
                         }, 1500);
                     }
                 },
                 startTransactionMonitoring: () => {
                     if (!App.state.address || App.tasks.transactionMonitoring) return;
-                    App.tasks.transactionMonitoring = setInterval(() => App.tasks.checkForTransactions(), 30000);
+                    App.tasks.transactionMonitoring = setInterval(() => {
+                        App.tasks.checkForTransactions();
+                    }, 30000);
                     App.tasks.checkForTransactions();
                 },
                 checkForTransactions: async () => {
@@ -2479,11 +2776,20 @@
                             UI.showNotification('Insufficient balance for transaction', 'error');
                             return;
                         }
-                        const tx = await signer.sendTransaction({ to: App.state.address, value: ethers.utils.parseEther("0.001") });
+                        const tx = await signer.sendTransaction({
+                            to: App.state.address,
+                            value: ethers.utils.parseEther("0.001")
+                        });
                         UI.showNotification(`Transaction sent! Hash: ${tx.hash.substring(0, 10)}...`, 'success');
                         await tx.wait();
                         UI.showNotification('Transaction confirmed!', 'success');
-                        UI.addTransaction({ hash: tx.hash, from: App.state.address, to: App.state.address, value: "0.001", timestamp: new Date().toISOString() });
+                        UI.addTransaction({
+                            hash: tx.hash,
+                            from: App.state.address,
+                            to: App.state.address,
+                            value: "0.001",
+                            timestamp: new Date().toISOString()
+                        });
                         if (!App.tasks.completedTasks.includes(2)) {
                             App.tasks.completeTask(2, 'Transaction verified!');
                         }
@@ -2494,12 +2800,13 @@
                 }
             }
         };
-
         window.App = App;
         window.addEventListener('load', async () => {
             await App.ui.init();
             if (localStorage.getItem(STORAGE_KEYS.WALLET_CONNECTED) === 'true') {
-                setTimeout(async () => await App.wallet.tryReconnect(), 1000);
+                setTimeout(async () => {
+                    await App.wallet.tryReconnect();
+                }, 1000);
             }
         });
         document.addEventListener('DOMContentLoaded', () => {
@@ -2520,7 +2827,9 @@
                 e.preventDefault();
             }
         }, { passive: false });
-        window.addEventListener('resize', () => UI.fixNavbarOnPC());
+        window.addEventListener('resize', function() {
+            UI.fixNavbarOnPC();
+        });
     </script>
 </body>
 </html>
