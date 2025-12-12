@@ -17,14 +17,18 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M20 10 V90' stroke='%234ade80' stroke-width='8' stroke-linecap='round'/><path d='M80 10 L20 50 L80 90' stroke='%234ade80' stroke-width='8' stroke-linecap='round' stroke-linejoin='round'/><circle cx='20' cy='50' r='10' fill='%2322c55e'/><circle cx='80' cy='10' r='8' fill='%2322c55e'/><circle cx='80' cy='90' r='8' fill='%2322c55e'/></svg>">
 
     <!-- Libraries -->
-    <script src="https://cdn.tailwindcss.com" loading="lazy"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" loading="lazy"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js" loading="lazy"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js" loading="lazy"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet" loading="lazy">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/TextPlugin.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" loading="lazy">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+    <!-- WalletConnect -->
+    <script src="https://unpkg.com/@walletconnect/web3-provider@1.7.8/dist/umd/index.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -50,6 +54,8 @@
                         'spin-slow': 'spin 20s linear infinite',
                         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                         'float': 'float 6s ease-in-out infinite',
+                        'water-drop': 'waterDrop 8s linear infinite',
+                        'wave': 'wave 20s linear infinite',
                         'gradient': 'gradient 8s ease infinite',
                         'shimmer': 'shimmer 2s infinite',
                         'glow': 'glow 2s ease-in-out infinite',
@@ -58,6 +64,17 @@
                         float: {
                             '0%, 100%': { transform: 'translateY(0)' },
                             '50%': { transform: 'translateY(-20px)' },
+                        },
+                        waterDrop: {
+                            '0%': { transform: 'translateY(-100px)', opacity: '0' },
+                            '10%': { opacity: '1' },
+                            '90%': { opacity: '1' },
+                            '100%': { transform: 'translateY(100vh)', opacity: '0' },
+                        },
+                        wave: {
+                            '0%': { transform: 'translateX(0) translateY(0)' },
+                            '50%': { transform: 'translateX(-50px) translateY(10px)' },
+                            '100%': { transform: 'translateX(0) translateY(0)' },
                         },
                         gradient: {
                             '0%, 100%': { 'background-position': '0% 50%' },
@@ -110,16 +127,43 @@
             overflow-x: hidden;
         }
 
+        @media (prefers-reduced-motion: no-preference) {
+            html {
+                scroll-behavior: smooth;
+            }
+        }
+
         .smooth-transition {
             transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform: translateZ(0);
+            backface-visibility: hidden;
         }
 
         .smooth-transform {
             transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform: translateZ(0);
         }
 
         .smooth-opacity {
             transition: opacity 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        @media (min-width: 1024px) {
+            .hover-lift {
+                will-change: transform;
+                transform: translate3d(0, 0, 0);
+                backface-visibility: hidden;
+                -webkit-transform: translate3d(0, 0, 0);
+            }
+            
+            .smooth-transition {
+                transform: translateZ(0);
+                backface-visibility: hidden;
+            }
+        }
+
+        .parallax-layer {
+            will-change: transform;
         }
 
         .gradient-text {
@@ -140,6 +184,7 @@
                 0 4px 30px rgba(0, 0, 0, 0.3),
                 0 0 0 1px rgba(74, 222, 128, 0.05);
             transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform: translateZ(0);
         }
 
         .glass-panel:hover {
@@ -148,7 +193,7 @@
                 0 8px 40px rgba(0, 0, 0, 0.4),
                 0 0 0 1px rgba(74, 222, 128, 0.1),
                 0 0 40px rgba(74, 222, 128, 0.1);
-            transform: translateY(-4px);
+            transform: translateY(-4px) translateZ(0);
         }
 
         .glass-card {
@@ -157,11 +202,12 @@
             backdrop-filter: blur(10px) saturate(180%);
             -webkit-backdrop-filter: blur(10px) saturate(180%);
             transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform: translateZ(0);
         }
 
         .glass-card:hover {
             border-color: rgba(74, 222, 128, 0.2);
-            transform: translateY(-8px) scale(1.02);
+            transform: translateY(-8px) scale(1.02) translateZ(0);
             box-shadow: 
                 0 20px 60px -10px rgba(74, 222, 128, 0.15),
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
@@ -181,6 +227,7 @@
             transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
             border: 1px solid rgba(34, 197, 94, 0.3);
             box-shadow: 0 4px 20px rgba(34, 197, 94, 0.2);
+            transform: translateZ(0);
         }
         
         .btn-primary::before {
@@ -199,7 +246,7 @@
         }
         
         .btn-primary:hover {
-            transform: translateY(-2px);
+            transform: translateY(-2px) translateZ(0);
             box-shadow: 
                 0 8px 30px rgba(34, 197, 94, 0.4),
                 0 0 0 1px rgba(34, 197, 94, 0.2);
@@ -207,7 +254,7 @@
         }
 
         .btn-primary:active {
-            transform: translateY(0);
+            transform: translateY(0) translateZ(0);
         }
 
         ::-webkit-scrollbar {
@@ -249,6 +296,17 @@
             transform: translateY(0);
         }
 
+        #webgl-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -10;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        
         .grid-overlay {
             position: fixed;
             top: 0;
@@ -258,10 +316,20 @@
             z-index: -9;
             pointer-events: none;
             background-image: 
-                linear-gradient(rgba(74, 222, 128, 0.02) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(74, 222, 128, 0.02) 1px, transparent 1px);
-            background-size: 80px 80px;
+                linear-gradient(rgba(74, 222, 128, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(74, 222, 128, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
             mask-image: radial-gradient(circle at center, black 40%, transparent 70%);
+            animation: gridFlow 20s linear infinite;
+        }
+
+        @keyframes gridFlow {
+            0% {
+                transform: translateY(0) translateX(0);
+            }
+            100% {
+                transform: translateY(60px) translateX(60px);
+            }
         }
 
         .text-gradient {
@@ -330,6 +398,10 @@
             }
         }
 
+        .stagger-item {
+            opacity: 0;
+        }
+
         .page-content {
             display: none;
             opacity: 0;
@@ -346,10 +418,127 @@
 
         .hover-lift {
             transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+            transform: translate3d(0, 0, 0);
         }
 
         .hover-lift:hover {
-            transform: translateY(-8px);
+            transform: translateY(-8px) translate3d(0, 0, 0);
+        }
+
+        .hover-glow {
+            transition: box-shadow 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+
+        .hover-glow:hover {
+            box-shadow: 0 0 40px rgba(74, 222, 128, 0.2);
+        }
+
+        .water-drop {
+            position: absolute;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, rgba(74, 222, 128, 0.3));
+            border-radius: 0 0 1px 1px;
+            z-index: -8;
+            pointer-events: none;
+            animation: waterDrop 8s linear infinite;
+        }
+
+        .water-wave {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 300%;
+            height: 150px;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(74, 222, 128, 0.1) 20%, 
+                rgba(74, 222, 128, 0.05) 40%, 
+                transparent 60%);
+            z-index: -7;
+            opacity: 0.3;
+            pointer-events: none;
+            animation: wave 20s linear infinite;
+        }
+
+        .gyro-wrapper {
+            perspective: 1000px;
+            width: 300px;
+            height: 300px;
+            position: relative;
+        }
+
+        .gyro {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform-style: preserve-3d;
+            animation: rotate3d 20s linear infinite;
+        }
+
+        @keyframes rotate3d {
+            0% { transform: rotateX(0) rotateY(0) rotateZ(0); }
+            100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(180deg); }
+        }
+
+        .gyro-ring {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            border-radius: 50%;
+            border: 1px solid rgba(74, 222, 128, 0.6);
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.2);
+            animation: pulseRing 4s ease-in-out infinite;
+        }
+
+        @keyframes pulseRing {
+            0%, 100% { 
+                border-color: rgba(74, 222, 128, 0.6);
+                box-shadow: 0 0 15px rgba(74, 222, 128, 0.2);
+            }
+            50% { 
+                border-color: rgba(74, 222, 128, 0.9);
+                box-shadow: 0 0 30px rgba(74, 222, 128, 0.4);
+            }
+        }
+
+        .gr-1 {
+            width: 200px;
+            height: 200px;
+            margin: -100px;
+            animation: rotate1 10s linear infinite;
+            border-left-color: transparent;
+        }
+
+        .gr-2 {
+            width: 160px;
+            height: 160px;
+            margin: -80px;
+            animation: rotate2 8s linear infinite;
+            border-top-color: transparent;
+            border-width: 2px;
+        }
+
+        .gr-3 {
+            width: 120px;
+            height: 120px;
+            margin: -60px;
+            animation: rotate3 6s linear infinite;
+            border-right-color: transparent;
+        }
+
+        @keyframes rotate1 {
+            0% { transform: rotateX(0) rotateY(0); }
+            100% { transform: rotateX(360deg) rotateY(360deg); }
+        }
+
+        @keyframes rotate2 {
+            0% { transform: rotateX(0) rotateY(0); }
+            100% { transform: rotateX(-360deg) rotateY(180deg); }
+        }
+
+        @keyframes rotate3 {
+            0% { transform: rotateX(0) rotateY(0); }
+            100% { transform: rotateX(180deg) rotateY(-360deg); }
         }
 
         .mobile-menu {
@@ -661,41 +850,6 @@
             font-weight: 900;
             font-family: 'Inter', sans-serif;
         }
-
-        /* Оптимізації для продуктивності */
-        @media (prefers-reduced-motion: reduce) {
-            *,
-            *::before,
-            *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-        }
-
-        /* Вимкнення важких ефектів */
-        .reduce-animations * {
-            animation-duration: 0.01ms !important;
-            animation-iteration-count: 1 !important;
-            transition-duration: 0.01ms !important;
-        }
-
-        .reduce-animations .grid-overlay,
-        .reduce-animations .gyro-wrapper {
-            display: none !important;
-        }
-
-        /* Вимкнення всіх фонових ефектів */
-        .no-background-effects .grid-overlay,
-        .no-background-effects .gyro-wrapper,
-        .no-background-effects .fixed.top-1\\/2.left-1\\/2 {
-            display: none !important;
-        }
-
-        /* Простий фон без анімацій */
-        .simple-background {
-            background: linear-gradient(135deg, rgba(2,4,2,0.95) 0%, rgba(5,10,5,0.95) 100%);
-        }
     </style>
 </head>
 <body class="antialiased selection:bg-green-500 selection:text-white">
@@ -750,6 +904,11 @@
 
     <!-- Background effects -->
     <div class="grid-overlay"></div>
+    <canvas id="webgl-canvas"></canvas>
+    
+    <div id="water-drops"></div>
+    
+    <div class="water-wave"></div>
     
     <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-green-500/5 rounded-full blur-[120px] -z-5 pointer-events-none animate-pulse-slow"></div>
 
@@ -1405,6 +1564,14 @@
                 decimals: 18,
                 explorer: 'https://relationless-improperly-nettie.ngrok-free.dev'
             },
+            walletConnect: {
+                projectId: 'e6d3c5f8b2a4d7c9e1f0a3b5c7d9e2f4',
+                rpc: {
+                    1337: 'https://relationless-improperly-nettie.ngrok-free.dev'
+                }
+            },
+            tokenAddress: null,
+            faucetAddress: null,
             tasks: {
                 twitterUrl: 'https://x.com/karim7652117665',
                 telegramUrl: 'https://t.me/tgkarim1',
@@ -1421,89 +1588,14 @@
             TASKS_COMPLETED: 'karchain_tasks_completed',
             TRANSACTIONS: 'karchain_transactions',
             SOCIAL_TASK_STARTED: 'karchain_social_started',
-            TOKEN_BALANCE_HISTORY: 'karchain_token_balance_history',
+            TOKEN_BALANCE_HISTORY: 'karchain_token_balance_history', // Новий ключ для історії балансу
             LAST_FAUCET_CLAIM: 'karchain_last_faucet_claim'
-        };
-
-        const PerformanceMonitor = {
-            init: function() {
-                this.disableHeavyEffects();
-                this.setupPerformanceOptimizations();
-            },
-            
-            disableHeavyEffects: function() {
-                // Вимикаємо важкі ефекти на всіх пристроях для максимальної продуктивності
-                document.body.classList.add('no-background-effects');
-                
-                // Вимикаємо всі складні CSS анімації
-                const style = document.createElement('style');
-                style.textContent = `
-                    .grid-overlay,
-                    .gyro-wrapper,
-                    .fixed.top-1\\/2.left-1\\/2 {
-                        display: none !important;
-                    }
-                    body {
-                        background: linear-gradient(135deg, rgba(2,4,2,0.95) 0%, rgba(5,10,5,0.95) 100%) !important;
-                    }
-                `;
-                document.head.appendChild(style);
-                
-                console.log('Heavy effects disabled for maximum performance');
-            },
-            
-            setupPerformanceOptimizations: function() {
-                // Відключаємо непотрібні GSAP анімації при скролі
-                if (typeof gsap !== 'undefined' && gsap.core.globals().ScrollTrigger) {
-                    ScrollTrigger.config({
-                        ignoreMobileResize: true,
-                        autoRefreshEvents: "visibilitychange,DOMContentLoaded,load"
-                    });
-                }
-                
-                // Оптимізуємо requestAnimationFrame
-                this.optimizeRAF();
-                
-                // Відключаємо ховер-анімації при скролі
-                this.disableHoverOnScroll();
-            },
-            
-            optimizeRAF: function() {
-                let lastTime = 0;
-                const fps = 60;
-                const interval = 1000 / fps;
-                
-                const optimizedRAF = (callback) => {
-                    const currentTime = performance.now();
-                    const delta = currentTime - lastTime;
-                    
-                    if (delta > interval) {
-                        lastTime = currentTime - (delta % interval);
-                        callback(currentTime);
-                    } else {
-                        requestAnimationFrame(() => optimizedRAF(callback));
-                    }
-                };
-                
-                // Підміняємо стандартний requestAnimationFrame
-                window.requestAnimationFrame = optimizedRAF;
-            },
-            
-            disableHoverOnScroll: function() {
-                let isScrolling;
-                window.addEventListener('scroll', () => {
-                    document.body.classList.add('disable-hover');
-                    
-                    clearTimeout(isScrolling);
-                    isScrolling = setTimeout(() => {
-                        document.body.classList.remove('disable-hover');
-                    }, 100);
-                }, false);
-            }
         };
 
         const UI = {
             init: () => {
+                UI.initParticles();
+                UI.initWaterDrops();
                 UI.initFAQ();
                 UI.checkSavedConnection();
                 UI.setupWalletButton();
@@ -1511,69 +1603,20 @@
                 UI.setupDropdownToggle();
                 UI.setupTaskButtons();
                 UI.setupMobileMenu();
+                UI.initAnimations();
                 UI.initSmoothScroll();
                 UI.fixNavbarOnPC();
                 UI.checkMetaMaskOnLoad();
                 
+                // Load completed tasks
                 UI.loadTaskProgress();
-                
-                // Ініціалізуємо монітор продуктивності
-                PerformanceMonitor.init();
-                
-                // Ініціалізуємо оптимізовані анімації
-                UI.initOptimizedAnimations();
-            },
-
-            initOptimizedAnimations: () => {
-                if (typeof gsap === 'undefined') return;
-                
-                gsap.registerPlugin(ScrollTrigger);
-                
-                // Прості анімації входу
-                gsap.utils.toArray('.fade-in-up, .fade-in-left, .fade-in-right').forEach((el, index) => {
-                    gsap.from(el, {
-                        scrollTrigger: {
-                            trigger: el,
-                            start: "top 90%",
-                            toggleActions: "play none none none",
-                            once: true
-                        },
-                        y: 20,
-                        opacity: 0,
-                        duration: 0.5,
-                        ease: "power2.out",
-                        delay: index * 0.1
-                    });
-                });
-                
-                // Анімації лічильників
-                const counters = document.querySelectorAll('.counter');
-                counters.forEach(counter => {
-                    const target = parseInt(counter.textContent.replace(/,/g, ''));
-                    if (!isNaN(target)) {
-                        gsap.to(counter, {
-                            scrollTrigger: {
-                                trigger: counter,
-                                start: "top 90%",
-                                toggleActions: "play none none none",
-                                once: true
-                            },
-                            innerHTML: target,
-                            duration: 1.5,
-                            snap: { innerHTML: 1 },
-                            onUpdate: function() {
-                                const value = Math.floor(this.targets()[0].innerHTML);
-                                this.targets()[0].innerHTML = value.toLocaleString();
-                            }
-                        });
-                    }
-                });
             },
 
             loadTaskProgress: () => {
                 const completedTasks = JSON.parse(localStorage.getItem(STORAGE_KEYS.TASKS_COMPLETED) || '[]');
                 UI.updateTaskProgress(completedTasks.length);
                 
+                // Unlock next tasks based on progress
                 if (completedTasks.includes(1)) {
                     UI.unlockTask(2);
                 }
@@ -1581,6 +1624,7 @@
                     UI.unlockTask(3);
                 }
                 
+                // Check social task button
                 const socialStarted = localStorage.getItem(STORAGE_KEYS.SOCIAL_TASK_STARTED) === 'true';
                 if (socialStarted && !completedTasks.includes(1)) {
                     const verifyBtn = document.getElementById('verify-social');
@@ -1663,7 +1707,6 @@
                     }
                 });
 
-                // Прості якорі без складних обчислень
                 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
                     anchor.addEventListener('click', function(e) {
                         const href = this.getAttribute('href');
@@ -1673,15 +1716,148 @@
                         if (targetElement) {
                             e.preventDefault();
                             const offset = 80;
-                            const targetPosition = targetElement.offsetTop - offset;
+                            const targetPosition = targetElement.getBoundingClientRect().top + window.pageYOffset;
                             
                             window.scrollTo({
-                                top: targetPosition,
+                                top: targetPosition - offset,
                                 behavior: 'smooth'
                             });
                         }
                     });
                 });
+            },
+
+            initAnimations: () => {
+                gsap.registerPlugin(ScrollTrigger);
+
+                gsap.utils.toArray('.fade-in-up, .fade-in-left, .fade-in-right, .fade-in').forEach(el => {
+                    gsap.from(el, {
+                        scrollTrigger: {
+                            trigger: el,
+                            start: "top 80%",
+                            toggleActions: "play none none reverse"
+                        },
+                        y: 30,
+                        opacity: 0,
+                        duration: 0.8,
+                        ease: "power2.out"
+                    });
+                });
+
+                gsap.to('.grid-overlay', {
+                    scrollTrigger: {
+                        scrub: true
+                    },
+                    y: 100,
+                    ease: "none"
+                });
+
+                const counters = document.querySelectorAll('.counter');
+                counters.forEach(counter => {
+                    const target = parseInt(counter.textContent.replace(/,/g, ''));
+                    if (!isNaN(target)) {
+                        gsap.to(counter, {
+                            scrollTrigger: {
+                                trigger: counter,
+                                start: "top 80%",
+                                toggleActions: "play none none reverse"
+                            },
+                            innerHTML: target,
+                            duration: 2,
+                            snap: { innerHTML: 1 },
+                            onUpdate: function() {
+                                const value = Math.floor(this.targets()[0].innerHTML);
+                                this.targets()[0].innerHTML = value.toLocaleString();
+                            }
+                        });
+                    }
+                });
+
+                const cards = document.querySelectorAll('.glass-card, .glass-panel');
+                cards.forEach(card => {
+                    card.addEventListener('mouseenter', () => {
+                        gsap.to(card, {
+                            scale: 1.02,
+                            duration: 0.3,
+                            ease: "power2.out"
+                        });
+                    });
+                    card.addEventListener('mouseleave', () => {
+                        gsap.to(card, {
+                            scale: 1,
+                            duration: 0.3,
+                            ease: "power2.out"
+                        });
+                    });
+                });
+
+                const progressBar = document.getElementById('progress-bar');
+                if (progressBar) {
+                    gsap.to(progressBar, {
+                        width: "0%",
+                        duration: 0.5,
+                        ease: "power2.out"
+                    });
+                }
+            },
+
+            initParticles: () => {
+                const cvs = document.getElementById('webgl-canvas');
+                const ctx = cvs.getContext('2d');
+                let particles = [];
+                
+                const resize = () => { 
+                    cvs.width = window.innerWidth; 
+                    cvs.height = window.innerHeight; 
+                };
+                window.addEventListener('resize', resize); 
+                resize();
+
+                class P {
+                    constructor() { this.reset(); }
+                    reset() { 
+                        this.x = Math.random() * cvs.width; 
+                        this.y = Math.random() * cvs.height; 
+                        this.size = Math.random() * 2; 
+                        this.speed = Math.random() * 0.5 + 0.1;
+                        this.alpha = Math.random() * 0.3 + 0.1;
+                        this.color = `rgba(74, 222, 128, ${this.alpha})`;
+                    }
+                    update() { 
+                        this.y -= this.speed; 
+                        if(this.y < 0) this.reset(); 
+                    }
+                    draw() { 
+                        ctx.fillStyle = this.color;
+                        ctx.beginPath(); 
+                        ctx.arc(this.x, this.y, this.size, 0, Math.PI*2); 
+                        ctx.fill();
+                    }
+                }
+
+                for(let i=0; i<50; i++) particles.push(new P());
+
+                const animate = () => {
+                    ctx.clearRect(0,0,cvs.width,cvs.height);
+                    particles.forEach(p => { p.update(); p.draw(); });
+                    requestAnimationFrame(animate);
+                };
+                animate();
+            },
+
+            initWaterDrops: () => {
+                const container = document.getElementById('water-drops');
+                const dropsCount = 30;
+                
+                for(let i = 0; i < dropsCount; i++) {
+                    const drop = document.createElement('div');
+                    drop.className = 'water-drop';
+                    drop.style.left = `${Math.random() * 100}%`;
+                    drop.style.animationDelay = `${Math.random() * 8}s`;
+                    drop.style.height = `${20 + Math.random() * 80}px`;
+                    drop.style.animationDuration = `${5 + Math.random() * 10}s`;
+                    container.appendChild(drop);
+                }
             },
 
             setupMobileMenu: () => {
@@ -1847,6 +2023,7 @@
             },
 
             setupTaskButtons: () => {
+                // Social task verification
                 const verifySocialBtn = document.getElementById('verify-social');
                 if (verifySocialBtn) {
                     verifySocialBtn.addEventListener('click', () => {
@@ -1854,6 +2031,7 @@
                     });
                 }
 
+                // Transaction task
                 const verifyTransactionBtn = document.getElementById('verify-transaction');
                 if (verifyTransactionBtn) {
                     verifyTransactionBtn.addEventListener('click', () => {
@@ -1861,6 +2039,7 @@
                     });
                 }
 
+                // Google Form task
                 const formBtn = document.getElementById('btn-form');
                 if (formBtn) {
                     formBtn.addEventListener('click', () => {
@@ -1879,11 +2058,13 @@
                     App.state.address = savedAddress;
                     App.state.walletType = localStorage.getItem(STORAGE_KEYS.WALLET_TYPE);
                     
+                    // Завантажуємо збережений баланс з історії
                     const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
                     const savedBalance = balanceHistory[savedAddress] || localStorage.getItem(STORAGE_KEYS.WALLET_BALANCE) || '0.00';
                     
                     UI.setConnectedState(savedAddress, savedBalance);
                     
+                    // Load transaction history
                     UI.loadTransactionHistory();
                 }
             },
@@ -1900,6 +2081,7 @@
                 localStorage.removeItem(STORAGE_KEYS.WALLET_ADDRESS);
                 localStorage.removeItem(STORAGE_KEYS.LAST_CONNECTED);
                 localStorage.removeItem(STORAGE_KEYS.WALLET_TYPE);
+                // Не видаляємо баланс та транзакції
             },
 
             showPage: (id) => {
@@ -1945,6 +2127,7 @@
                     targetPage.classList.add('active');
                 }
 
+                // Update navigation active state
                 document.querySelectorAll('.nav-link').forEach(el => {
                     el.classList.remove('active', 'text-white', 'border-green-500');
                     el.classList.add('text-gray-400', 'border-transparent');
@@ -1961,7 +2144,7 @@
                 });
 
                 setTimeout(() => {
-                    UI.initOptimizedAnimations();
+                    UI.initAnimations();
                 }, 100);
             },
 
@@ -2014,6 +2197,7 @@
                 
                 document.getElementById('walletAddrDisp').innerText = address;
                 
+                // Оновлюємо баланс з урахуванням збереженої історії
                 const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
                 const savedBalance = balanceHistory[address] || balance || '0.00';
                 document.getElementById('balanceVal').innerText = savedBalance;
@@ -2030,6 +2214,7 @@
                     { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" }
                 );
 
+                // Show transaction history
                 UI.loadTransactionHistory();
             },
 
@@ -2046,6 +2231,7 @@
                 
                 dropdownBalance.innerText = `${formattedBalance} KRM`;
                 
+                // Зберігаємо баланс в історії за адресою
                 if (App.state.address) {
                     const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
                     balanceHistory[App.state.address] = formattedBalance;
@@ -2141,8 +2327,10 @@
                     historySection.classList.remove('hidden');
                     noTransactions.style.display = 'none';
                     
+                    // Clear existing list
                     transactionsList.innerHTML = '';
                     
+                    // Add transactions to list
                     transactions.forEach((tx, index) => {
                         const txElement = document.createElement('div');
                         txElement.className = 'flex justify-between items-center p-3 bg-white/5 rounded-lg';
@@ -2188,6 +2376,7 @@
                 address: null, 
                 provider: null,
                 walletType: null,
+                walletConnect: null,
                 krmBalance: '0.00',
                 isMobile: /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
             },
@@ -2199,6 +2388,7 @@
                         connectBtn.classList.add('connecting');
                         connectBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Connecting...</span>';
                         
+                        // Перевіряємо, чи це мобільний пристрій
                         if (App.state.isMobile) {
                             return App.wallet.connectMobile(type);
                         }
@@ -2280,6 +2470,7 @@
                                 metamaskUrl = 'https://metamask.app.link/dapp/' + window.location.hostname;
                             }
                             
+                            // Додаємо параметр для автоматичного додавання мережі
                             const networkParams = encodeURIComponent(JSON.stringify({
                                 chainId: Config.chain.hex,
                                 chainName: Config.chain.name,
@@ -2350,6 +2541,7 @@
                     
                     await App.wallet.switchNetwork();
                     
+                    // Завантажуємо баланс з історії перед оновленням
                     const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
                     const savedBalance = balanceHistory[address] || '0.00';
                     App.state.krmBalance = savedBalance;
@@ -2363,13 +2555,19 @@
                     connectBtn.classList.remove('connecting');
                     UI.showNotification(`${type} connected successfully!`, 'success');
                     
+                    // Start monitoring for transactions
                     App.tasks.startTransactionMonitoring();
                 },
 
                 disconnect: () => {
+                    if (App.state.walletType === 'WC' && App.state.walletConnect) {
+                        App.state.walletConnect.disconnect();
+                    }
+                    
                     App.state.address = null;
                     App.state.provider = null;
                     App.state.walletType = null;
+                    App.state.walletConnect = null;
                     App.state.krmBalance = '0.00';
                     
                     UI.clearConnection();
@@ -2383,7 +2581,7 @@
                 },
 
                 switchNetwork: async () => {
-                    if (!window.ethereum) return;
+                    if (App.state.walletType === 'WC' || !window.ethereum) return;
                     
                     try {
                         await window.ethereum.request({
@@ -2449,7 +2647,7 @@
                 },
 
                 setupEventListeners: () => {
-                    if (window.ethereum) {
+                    if (App.state.walletType !== 'WC' && window.ethereum) {
                         window.ethereum.on('accountsChanged', async (accounts) => {
                             if (accounts.length === 0) {
                                 App.wallet.disconnect();
@@ -2457,6 +2655,7 @@
                                 App.state.address = accounts[0];
                                 UI.saveConnection(App.state.address, App.state.walletType);
                                 
+                                // Завантажуємо баланс нової адреси з історії
                                 const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
                                 const savedBalance = balanceHistory[App.state.address] || '0.00';
                                 App.state.krmBalance = savedBalance;
@@ -2497,6 +2696,7 @@
                                     App.state.provider = provider;
                                     App.state.walletType = walletType;
                                     
+                                    // Завантажуємо баланс з історії
                                     const balanceHistory = JSON.parse(localStorage.getItem(STORAGE_KEYS.TOKEN_BALANCE_HISTORY) || '{}');
                                     const savedBalance = balanceHistory[App.state.address] || '0.00';
                                     App.state.krmBalance = savedBalance;
@@ -2524,6 +2724,7 @@
                             return;
                         }
                         
+                        // Перевіряємо кд
                         const lastClaim = localStorage.getItem(STORAGE_KEYS.LAST_FAUCET_CLAIM);
                         const now = Date.now();
                         const twentyFourHours = 24 * 60 * 60 * 1000;
@@ -2536,12 +2737,14 @@
                         
                         UI.showNotification('Requesting test tokens...', 'info');
                         
+                        // Симулюємо отримання токенів
                         setTimeout(() => {
                             const currentBalance = parseFloat(App.state.krmBalance || 0);
                             const newBalance = (currentBalance + 100).toFixed(4);
                             App.state.krmBalance = newBalance;
                             UI.updateBalance(newBalance);
                             
+                            // Зберігаємо час останнього клейму
                             localStorage.setItem(STORAGE_KEYS.LAST_FAUCET_CLAIM, now.toString());
                             
                             UI.showNotification('Received 100 test KRM tokens!', 'success');
@@ -2620,6 +2823,7 @@
                             UI.unlockTask(2);
                             UI.showNotification('Social task completed!', 'success');
                             
+                            // Give faucet tokens
                             setTimeout(() => {
                                 App.faucet.claimTokens();
                             }, 1000);
@@ -2747,12 +2951,14 @@
                     try {
                         const signer = App.state.provider.getSigner();
                         
+                        // Перевіряємо баланс
                         const balance = await signer.getBalance();
                         if (balance.lt(ethers.utils.parseEther("0.001"))) {
                             UI.showNotification('Insufficient balance for transaction', 'error');
                             return;
                         }
                         
+                        // Відправляємо 0.001 KRM собі
                         const tx = await signer.sendTransaction({
                             to: App.state.address,
                             value: ethers.utils.parseEther("0.001")
@@ -2760,10 +2966,12 @@
                         
                         UI.showNotification(`Transaction sent! Hash: ${tx.hash.substring(0, 10)}...`, 'success');
                         
+                        // Чекаємо на підтвердження
                         await tx.wait();
                         
                         UI.showNotification('Transaction confirmed!', 'success');
                         
+                        // Додаємо в локальне сховище
                         UI.addTransaction({
                             hash: tx.hash,
                             from: App.state.address,
@@ -2772,6 +2980,7 @@
                             timestamp: new Date().toISOString()
                         });
                         
+                        // Автоматично завершуємо задачу 2, якщо ще не завершена
                         if (!App.tasks.completedTasks.includes(2)) {
                             App.tasks.completeTask(2, 'Transaction verified!');
                         }
@@ -2796,6 +3005,7 @@
             }
         });
 
+        // Add transaction button to UI
         document.addEventListener('DOMContentLoaded', () => {
             const transactionSection = document.querySelector('#transaction-history');
             if (transactionSection) {
@@ -2823,3 +3033,4 @@
     </script>
 </body>
 </html>
+
