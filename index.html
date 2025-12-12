@@ -13,7 +13,7 @@
     <meta property="og:url" content="https://karchain.network">
     <meta name="twitter:card" content="summary_large_image">
     <title>KarChain | The Sovereign Consensus Layer</title>
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M20 10 V90' stroke='%234ade80' stroke-width='8' stroke-linecap='round'/><path d='M80 10 L20 50 L80 90' stroke='%234ade80' stroke-width='8' stroke-linecap='round' stroke-linejoin='round'/><circle cx='20' cy='50' r='10' fill='%2322c55e'/><circle cx='80' cy='10' r='8' fill='%2322c55e'/><circle cx='80' cy='90' r='8' fill='%2322c55e'/></svg>">
+    <link rel="icon" href="image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><path d='M20 10 V90' stroke='%234ade80' stroke-width='8' stroke-linecap='round'/><path d='M80 10 L20 50 L80 90' stroke='%234ade80' stroke-width='8' stroke-linecap='round' stroke-linejoin='round'/><circle cx='20' cy='50' r='10' fill='%2322c55e'/><circle cx='80' cy='10' r='8' fill='%2322c55e'/><circle cx='80' cy='90' r='8' fill='%2322c55e'/></svg>">
     <!-- Libraries -->
     <script src="https://cdn.tailwindcss.com" loading="lazy"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js" loading="lazy"></script>
@@ -158,23 +158,47 @@
             animation: gradient 8s ease infinite;
         }
 
-        /* === ЗАМІНА backdrop-filter на простіший фон для desktop === */
+        /* === ВИДАЛЕНО backdrop-filter для navbar, glass-panel, glass-card === */
         .glass-panel,
-        .glass-card,
-        nav#navbar {
+        .glass-card {
             background: rgba(15, 15, 15, 0.7) !important;
-            border: 1px solid rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.05) !important;
             box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
             transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
             transform: translateZ(0);
         }
 
-        .glass-panel:hover,
-        .glass-card:hover {
+        .glass-panel:hover {
             border-color: rgba(74, 222, 128, 0.15);
             box-shadow: 
                 0 8px 40px rgba(0, 0, 0, 0.4),
                 0 0 0 1px rgba(74, 222, 128, 0.1);
+        }
+
+        /* === ЧОРНА НАВІГАЦІЙНА ПАНЕЛЬ З ІМІТАЦІЄЮ РОЗМИТТЯ === */
+        nav#navbar {
+            background: rgba(2, 4, 2, 0.96) !important;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            position: relative !important;
+            overflow: hidden !important;
+        }
+        nav#navbar::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(74, 222, 128, 0.02) 0%, transparent 20%),
+                radial-gradient(circle at 90% 80%, rgba(34, 197, 94, 0.01) 0%, transparent 30%);
+            pointer-events: none;
+            opacity: 0.65;
+            z-index: 0;
+        }
+        nav#navbar > div {
+            position: relative;
+            z-index: 1;
         }
 
         .btn-primary {
@@ -672,7 +696,6 @@
             background: rgba(0,0,0,0.7);
             padding: 20px;
             border-radius: 50%;
-            backdrop-filter: blur(5px);
             animation: pulse 2s ease-in-out infinite;
         }
         .counter {
@@ -790,7 +813,7 @@
     <div class="water-wave"></div>
     <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-green-500/5 rounded-full blur-[120px] -z-5 pointer-events-none animate-pulse-slow"></div>
     <!-- Navigation -->
-    <nav class="fixed top-0 w-full z-50 border-b border-white/5 transition-all duration-300 smooth-transition" id="navbar">
+    <nav class="fixed top-0 w-full z-50 transition-all duration-300 smooth-transition" id="navbar">
         <div class="max-w-[1600px] mx-auto px-6 h-24 flex items-center justify-between">
             <div class="flex items-center gap-3 cursor-pointer group" onclick="App.router.navigate('home')">
                 <div class="relative w-10 h-10 flex items-center justify-center smooth-transform">
@@ -849,7 +872,7 @@
     </nav>
     <!-- Connect Wallet Modal -->
     <div id="connect-modal" class="fixed inset-0 z-[100] hidden flex items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/80 backdrop-blur-sm" onclick="App.ui.closeModal()"></div>
+        <div class="absolute inset-0 bg-black/80" onclick="App.ui.closeModal()"></div>
         <div class="relative glass-panel w-full max-w-md rounded-2xl p-8 transform scale-95 opacity-0 transition-all duration-300 smooth-transition" id="modal-content">
             <div class="flex justify-between items-center mb-8">
                 <h3 class="text-2xl font-bold text-white font-display">Connect Wallet</h3>
@@ -1415,28 +1438,49 @@
             LAST_FAUCET_CLAIM: "karchain_last_faucet_claim"
         };
 
-        // === НОВА ФУНКЦІЯ: PAUSE/RESUME ЕФЕКТІВ ПРИ СКРОЛІ ===
+        // ✅ ПЛЯМЕННА ОПТИМІЗАЦІЯ: ПАУЗА ЕФЕКТІВ ПРИ СКРОЛІ
         let scrollTimeout;
+        let isScrolling = false;
+        const heavyElementsSelectors = ['#webgl-canvas', '.water-wave', '.water-drop', '.grid-overlay', '.gyro-wrapper'];
+
         const pauseHeavyEffects = () => {
-            const heavyElements = document.querySelectorAll('#webgl-canvas, .water-wave, .water-drop, .grid-overlay, .gyro-wrapper');
-            heavyElements.forEach(el => {
-                if (el) el.style.display = 'none';
+            if (window.innerWidth <= 768) return;
+            heavyElementsSelectors.forEach(selector => {
+                const el = document.querySelector(selector);
+                if (el && el.style.display !== 'none') {
+                    el.dataset.originalDisplay = el.style.display || 'block';
+                    el.style.display = 'none';
+                }
             });
+            if (window.ScrollTrigger) {
+                ScrollTrigger.killAll();
+            }
         };
+
         const resumeHeavyEffects = () => {
             if (window.innerWidth <= 768) return;
-            const heavyElements = document.querySelectorAll('#webgl-canvas, .water-wave, .water-drop, .grid-overlay, .gyro-wrapper');
-            heavyElements.forEach(el => {
-                if (el) el.style.display = '';
+            heavyElementsSelectors.forEach(selector => {
+                const el = document.querySelector(selector);
+                if (el && el.dataset.originalDisplay) {
+                    el.style.display = el.dataset.originalDisplay;
+                    delete el.dataset.originalDisplay;
+                }
             });
+            setTimeout(() => UI.initAnimations(), 100);
         };
 
         window.addEventListener('scroll', () => {
             if (window.innerWidth <= 768) return;
-            pauseHeavyEffects();
+            if (!isScrolling) {
+                isScrolling = true;
+                pauseHeavyEffects();
+            }
             clearTimeout(scrollTimeout);
-            scrollTimeout = setTimeout(resumeHeavyEffects, 300);
-        });
+            scrollTimeout = setTimeout(() => {
+                isScrolling = false;
+                resumeHeavyEffects();
+            }, 150);
+        }, { passive: true });
 
         const PerformanceMonitor = {
             init: function() {
@@ -1464,7 +1508,7 @@
             },
             disableHeavyAnimations: function() {
                 console.log('Low performance detected, disabling heavy animations');
-                const heavyElements = document.querySelectorAll('#webgl-canvas, .water-wave, .grid-overlay, .gyro-wrapper, .water-drop');
+                const heavyElements = document.querySelectorAll('#webgl-canvas, .water-wave, .grid-overlay, .gyro-wrapper');
                 heavyElements.forEach(el => {
                     if (el) el.style.display = 'none';
                 });
@@ -1546,7 +1590,8 @@
             fixNavbarOnPC: () => {
                 const navbar = document.getElementById('navbar');
                 if (navbar && window.innerWidth >= 1024) {
-                    navbar.style.background = 'rgba(15, 15, 15, 0.95)';
+                    navbar.style.background = 'rgba(2, 4, 2, 0.96)';
+                    // Видалено backdrop-filter
                     navbar.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
                 }
             },
@@ -1594,7 +1639,10 @@
                     });
                 }
 
-                // ВИДАЛЕНО: gsap.to('.grid-overlay', { scrollTrigger: ... }) — саме він лагав
+                // 🚫 ВИДАЛЕНО PARALLAX .grid-overlay — джерело лагів
+                // if (window.innerWidth > 768) {
+                //     gsap.to('.grid-overlay', { scrollTrigger: ..., y: 100 });
+                // }
 
                 const counters = document.querySelectorAll('.counter');
                 counters.forEach(counter => {
@@ -1631,9 +1679,9 @@
                 let particles = [];
                 let animationId = null;
                 let lastTime = 0;
-                const fps = 15; // знизив FPS з 30 до 15
+                const fps = 15;
                 const interval = 1000 / fps;
-                const particleCount = window.innerWidth < 768 ? 10 : 15; // менше частинок
+                const particleCount = window.innerWidth < 768 ? 10 : 15;
                 const resize = () => { 
                     cvs.width = window.innerWidth; 
                     cvs.height = window.innerHeight; 
@@ -1698,7 +1746,7 @@
             initWaterDrops: () => {
                 const container = document.getElementById('water-drops');
                 if (!container) return;
-                const dropsCount = window.innerWidth < 768 ? 5 : 10; // менше крапель
+                const dropsCount = window.innerWidth < 768 ? 5 : 10;
                 container.innerHTML = '';
                 for(let i = 0; i < dropsCount; i++) {
                     const drop = document.createElement('div');
