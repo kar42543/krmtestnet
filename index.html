@@ -27,6 +27,9 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
+    <!-- Turnstile CAPTCHA -->
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
     <!-- WalletConnect -->
     <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
 
@@ -830,13 +833,20 @@
             margin: 0;
         }
 
-        /* CAPTCHA Styles */
+        /* CAPTCHA Styles - Cloudflare Turnstile */
+        .cf-turnstile {
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+        }
+
         .captcha-container {
             background: rgba(0, 0, 0, 0.3);
             border: 2px solid rgba(74, 222, 128, 0.2);
             border-radius: 12px;
-            padding: 16px;
+            padding: 20px;
             transition: all 0.3s ease;
+            text-align: center;
         }
 
         .captcha-container.failed {
@@ -844,46 +854,57 @@
             animation: shake 0.5s ease-in-out;
         }
 
-        .captcha-question {
-            font-size: 24px;
-            font-weight: bold;
-            color: #4ade80;
-            text-shadow: 0 0 10px rgba(74, 222, 128, 0.3);
+        /* Faucet Level Cards */
+        .level-card {
+            background: linear-gradient(145deg, rgba(74, 222, 128, 0.05) 0%, rgba(74, 222, 128, 0.01) 100%);
+            border: 1px solid rgba(74, 222, 128, 0.1);
+            border-radius: 16px;
+            padding: 20px;
+            transition: all 0.4s ease;
         }
 
-        .captcha-input {
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid rgba(74, 222, 128, 0.3);
-            color: white;
-            font-size: 20px;
-            font-weight: bold;
-            text-align: center;
-            width: 80px;
-            padding: 8px;
-            border-radius: 8px;
-            outline: none;
-            transition: all 0.3s ease;
+        .level-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(74, 222, 128, 0.3);
+            box-shadow: 0 20px 40px -20px rgba(74, 222, 128, 0.3);
         }
 
-        .captcha-input:focus {
+        .level-card.locked {
+            opacity: 0.7;
+            filter: grayscale(0.7);
+            pointer-events: none;
+        }
+
+        .level-card.active {
             border-color: #4ade80;
-            box-shadow: 0 0 20px rgba(74, 222, 128, 0.3);
+            box-shadow: 0 0 30px rgba(74, 222, 128, 0.2);
         }
 
-        .captcha-input.error {
-            border-color: #ef4444;
-            background: rgba(239, 68, 68, 0.1);
+        .level-badge {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
-        .captcha-refresh {
-            color: #9ca3af;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .captcha-refresh:hover {
+        .eth-price {
+            font-family: 'JetBrains Mono', monospace;
             color: #4ade80;
-            transform: rotate(180deg);
+            background: rgba(74, 222, 128, 0.1);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+
+        .progress-ring {
+            transition: stroke-dashoffset 0.5s;
+            transform: rotate(-90deg);
+            transform-origin: 50% 50%;
         }
 
         /* Performance optimizations */
@@ -942,10 +963,17 @@
                             <span class="text-white font-bold font-mono" id="mobileWalletBalance">0.00 KRM</span>
                         </div>
                         
-                        <button onclick="App.faucet.claimTokens()" class="w-full py-3 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-faucet"></i>
-                            <span>Daily Faucet (1 KRM)</span>
-                        </button>
+                        <div class="space-y-2">
+                            <button onclick="App.faucet.claimLevel1()" class="w-full py-3 bg-green-600 hover:bg-green-500 text-white rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-droplet"></i>
+                                <span>Level 1 Faucet (1 KRM)</span>
+                            </button>
+                            
+                            <button onclick="App.faucet.claimLevel2()" class="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2">
+                                <i class="fa-brands fa-ethereum"></i>
+                                <span>Level 2 Faucet (5 KRM)</span>
+                            </button>
+                        </div>
                         
                         <button onclick="App.wallet.disconnect()" class="w-full py-3 bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2">
                             <i class="fa-solid fa-right-from-bracket"></i>
@@ -1043,15 +1071,27 @@
                             <span class="text-white font-bold font-mono" id="dropdownBalance">0.00 KRM</span>
                         </div>
                         
-                        <button onclick="App.faucet.claimTokens()" class="w-full text-left px-3 py-3 text-sm text-gray-300 hover:bg-white/5 rounded-lg transition-all flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                                <i class="fa-solid fa-faucet text-green-400"></i>
-                            </div>
-                            <div>
-                                <p class="font-bold text-white">Daily Faucet</p>
-                                <p class="text-xs text-gray-500">Claim 1 KRM every 24h</p>
-                            </div>
-                        </button>
+                        <div class="space-y-2 mt-3">
+                            <button onclick="App.faucet.claimLevel1()" class="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/5 rounded-lg transition-all flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
+                                    <i class="fa-solid fa-droplet text-green-400"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-white">Level 1 Faucet</p>
+                                    <p class="text-xs text-gray-500">Claim 1 KRM daily</p>
+                                </div>
+                            </button>
+                            
+                            <button onclick="App.faucet.claimLevel2()" class="w-full text-left px-3 py-2 text-sm text-gray-300 hover:bg-white/5 rounded-lg transition-all flex items-center gap-3">
+                                <div class="w-8 h-8 rounded-full bg-purple-500/20 flex items-center justify-center">
+                                    <i class="fa-brands fa-ethereum text-purple-400"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-white">Level 2 Faucet</p>
+                                    <p class="text-xs text-gray-500">Send 0.005 ETH → 5 KRM</p>
+                                </div>
+                            </button>
+                        </div>
                         
                         <button onclick="App.wallet.disconnect()" class="w-full text-left px-3 py-3 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition-all flex items-center gap-3">
                             <div class="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center">
@@ -1268,34 +1308,90 @@
                                 </div>
                             </div>
 
-                            <!-- Daily Faucet Card with Working CAPTCHA -->
-                            <div class="glass-card p-6 rounded-2xl mb-8 border border-green-500/30 relative overflow-hidden group">
-                                <div class="absolute inset-0 bg-gradient-to-r from-green-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                <div class="absolute top-0 right-0 w-32 h-32 bg-green-500/10 rounded-full blur-3xl -mr-10 -mt-10"></div>
+                            <!-- Faucet Levels with Cloudflare Turnstile CAPTCHA -->
+                            <div class="mb-8">
+                                <h3 class="text-2xl font-bold text-white mb-4 flex items-center gap-3">
+                                    <i class="fa-solid fa-water text-green-400"></i>
+                                    Faucet Levels
+                                    <span class="text-xs font-normal text-gray-500 ml-2">Complete Level 1 to unlock Level 2</span>
+                                </h3>
                                 
-                                <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6 relative z-10">
-                                    <div class="flex items-center gap-4">
-                                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                            <i class="fa-solid fa-faucet text-white text-2xl"></i>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    
+                                    <!-- Level 1 Card - Free Daily -->
+                                    <div class="level-card relative overflow-hidden group" id="level1-card">
+                                        <div class="level-badge bg-green-500/20 text-green-400 border border-green-500/30">Level 1</div>
+                                        
+                                        <div class="flex items-center gap-4 mb-4">
+                                            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                                <i class="fa-solid fa-droplet text-white text-2xl"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="text-xl font-bold text-white">Free Faucet</h4>
+                                                <p class="text-sm text-gray-400">1 KRM every 24 hours</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h3 class="text-xl font-bold text-white mb-1 flex items-center gap-2">
-                                                Daily Faucet
-                                                <span class="text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded-full">24h cooldown</span>
-                                            </h3>
-                                            <p class="text-sm text-gray-400">Claim 1 free KRM token every day. Complete the captcha to verify you're human.</p>
+                                        
+                                        <div class="space-y-4">
+                                            <div class="bg-white/5 rounded-lg p-3 text-sm">
+                                                <div class="flex justify-between mb-1">
+                                                    <span class="text-gray-400">Daily Limit</span>
+                                                    <span class="text-green-400 font-bold">1 KRM</span>
+                                                </div>
+                                                <div class="flex justify-between">
+                                                    <span class="text-gray-400">Cooldown</span>
+                                                    <span class="text-gray-300">24 hours</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Level 1 Faucet State Container with Cloudflare Turnstile -->
+                                            <div id="faucet-level1-state" class="w-full">
+                                                <!-- Dynamically populated by JS -->
+                                            </div>
                                         </div>
                                     </div>
                                     
-                                    <!-- Faucet State Container with Working CAPTCHA -->
-                                    <div id="faucet-state" class="w-full md:w-auto min-w-[300px]">
-                                        <!-- Dynamically populated by JS with CAPTCHA -->
+                                    <!-- Level 2 Card - Paid with ETH -->
+                                    <div class="level-card relative overflow-hidden group opacity-70" id="level2-card">
+                                        <div class="level-badge bg-purple-500/20 text-purple-400 border border-purple-500/30">Level 2</div>
+                                        
+                                        <div class="flex items-center gap-4 mb-4">
+                                            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
+                                                <i class="fa-brands fa-ethereum text-white text-2xl"></i>
+                                            </div>
+                                            <div>
+                                                <h4 class="text-xl font-bold text-white">Premium Faucet</h4>
+                                                <p class="text-sm text-gray-400">5 KRM for 0.005 ETH payment</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="space-y-4">
+                                            <div class="bg-white/5 rounded-lg p-3 text-sm">
+                                                <div class="flex justify-between mb-1">
+                                                    <span class="text-gray-400">Reward</span>
+                                                    <span class="text-purple-400 font-bold">5 KRM</span>
+                                                </div>
+                                                <div class="flex justify-between mb-1">
+                                                    <span class="text-gray-400">Payment</span>
+                                                    <span class="text-gray-300 font-mono">0.005 ETH</span>
+                                                </div>
+                                                <div class="flex justify-between">
+                                                    <span class="text-gray-400">≈ USD</span>
+                                                    <span class="text-gray-300">$10.00</span>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Level 2 Faucet State Container -->
+                                            <div id="faucet-level2-state" class="w-full">
+                                                <!-- Dynamically populated by JS -->
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
 
                             <!-- Incentivized Tasks -->
-                            <h3 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                            <h3 class="text-2xl font-bold text-white mb-6 flex items-center gap-3 mt-10 pt-6 border-t border-white/10">
                                 <i class="fa-solid fa-list-check text-green-400"></i>
                                 Incentivized Tasks
                                 <span class="text-sm font-normal text-gray-500 ml-2">Complete all to qualify for rewards</span>
@@ -1725,13 +1821,12 @@
                 </button>
                 <div class="faq-content border-t border-white/5">
                     <div class="px-6 pb-6 text-gray-400 text-sm leading-relaxed">
-                        <p>Once you connect your wallet, you'll see the Daily Faucet card in your dashboard. Here's how it works:</p>
+                        <p>Once you connect your wallet, you'll see two faucet levels in your dashboard:</p>
                         <ul class="list-disc list-inside mt-3 space-y-2">
-                            <li>You can claim <span class="text-green-400 font-bold">1 KRM</span> every 24 hours</li>
-                            <li>Complete a simple math captcha to prove you're human</li>
-                            <li>The timer shows when your next claim is available</li>
-                            <li>Tokens are added directly to your wallet balance</li>
-                            <li>No gas fees required for claiming</li>
+                            <li><span class="text-green-400 font-bold">Level 1 (Free):</span> Claim 1 KRM every 24 hours - Complete Cloudflare Turnstile CAPTCHA verification</li>
+                            <li><span class="text-purple-400 font-bold">Level 2 (Premium):</span> Send 0.005 ETH (≈$10) to our treasury and receive 5 KRM - Real transaction required</li>
+                            <li>Level 1 must be completed before Level 2 becomes available</li>
+                            <li>Tokens are added directly to your wallet balance after verification</li>
                         </ul>
                     </div>
                 </div>
@@ -1782,7 +1877,8 @@
                             <li>Complete the Social Identity task (follow X & Telegram)</li>
                             <li>Make your first transaction on the network</li>
                             <li>Submit your wallet in the Genesis Registration form</li>
-                            <li>Claim your daily KRM from the faucet</li>
+                            <li>Claim daily KRM from Level 1 faucet (free, with CAPTCHA)</li>
+                            <li>Optional: Upgrade to Level 2 faucet by sending 0.005 ETH for 5 KRM</li>
                         </ol>
                         <p class="mt-4 text-green-400">Rewards are based on task completion and will be distributed after the testnet concludes.</p>
                     </div>
@@ -1821,7 +1917,7 @@
                         <li><a href="#" class="text-gray-400 hover:text-green-400 transition-colors flex items-center gap-2"><i class="fa-solid fa-compass text-xs"></i> Explorer</a></li>
                         <li><a href="#" class="text-gray-400 hover:text-green-400 transition-colors flex items-center gap-2"><i class="fa-solid fa-vote-yea text-xs"></i> Governance</a></li>
                         <li><a href="#" class="text-gray-400 hover:text-green-400 transition-colors flex items-center gap-2"><i class="fa-solid fa-bridge text-xs"></i> Bridge</a></li>
-                        <li><a href="#" onclick="App.faucet.claimTokens()" class="text-gray-400 hover:text-green-400 transition-colors flex items-center gap-2"><i class="fa-solid fa-faucet text-xs"></i> Faucet</a></li>
+                        <li><a href="#" onclick="App.faucet.claimLevel1()" class="text-gray-400 hover:text-green-400 transition-colors flex items-center gap-2"><i class="fa-solid fa-faucet text-xs"></i> Faucet</a></li>
                     </ul>
                 </div>
 
@@ -1885,8 +1981,15 @@
                 googleFormUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSeQhBQZ_XKxYp2G5bZ5RwTzR2QmPpLJ6xN3oYjH7sKvP8t0w/viewform'
             },
             faucet: {
-                dailyAmount: 1,
-                cooldownHours: 24
+                level1: {
+                    amount: 1,
+                    cooldownHours: 24
+                },
+                level2: {
+                    amount: 5,
+                    paymentEth: '0.005', // ~$10 USD
+                    paymentAddress: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e' // Treasury address
+                }
             }
         };
 
@@ -1901,54 +2004,14 @@
             TRANSACTIONS: 'karchain_transactions',
             SOCIAL_TASK_STARTED: 'karchain_social_started',
             TOKEN_BALANCE_HISTORY: 'karchain_token_balance_history',
-            LAST_FAUCET_CLAIM: 'karchain_last_faucet_claim_'
+            LAST_FAUCET_CLAIM_LEVEL1: 'karchain_last_faucet_claim_level1_',
+            LEVEL2_UNLOCKED: 'karchain_level2_unlocked_'
         };
-
-        // ==================== CAPTCHA CLASS ====================
-        class Captcha {
-            constructor() {
-                this.operators = ['+', '-', '*'];
-                this.num1 = 0;
-                this.num2 = 0;
-                this.operator = '';
-                this.answer = 0;
-                this.generateNew();
-            }
-
-            generateNew() {
-                this.num1 = Math.floor(Math.random() * 10) + 1;
-                this.num2 = Math.floor(Math.random() * 10) + 1;
-                this.operator = this.operators[Math.floor(Math.random() * this.operators.length)];
-                
-                switch(this.operator) {
-                    case '+':
-                        this.answer = this.num1 + this.num2;
-                        break;
-                    case '-':
-                        // Ensure positive result
-                        if (this.num1 < this.num2) {
-                            [this.num1, this.num2] = [this.num2, this.num1];
-                        }
-                        this.answer = this.num1 - this.num2;
-                        break;
-                    case '*':
-                        this.answer = this.num1 * this.num2;
-                        break;
-                }
-            }
-
-            getQuestion() {
-                return `${this.num1} ${this.operator} ${this.num2} = ?`;
-            }
-
-            checkAnswer(userAnswer) {
-                return parseInt(userAnswer) === this.answer;
-            }
-        }
 
         // ==================== UI OBJECT ====================
         const UI = {
-            currentCaptcha: new Captcha(),
+            turnstileWidgetId: null,
+            turnstileVerified: false,
             
             init: function() {
                 this.initParticles(40);
@@ -1961,13 +2024,13 @@
                 this.setupDropdownToggle();
                 this.setupWalletButton();
                 this.checkSavedConnection();
-                this.startFaucetTimer();
+                this.startFaucetTimers();
                 
                 // Initialize counters with animation
                 this.animateCounters();
                 
                 // Set up periodic updates
-                setInterval(() => this.startFaucetTimer(), 1000);
+                setInterval(() => this.startFaucetTimers(), 1000);
                 
                 // Chrome-specific optimizations
                 this.fixChromeRendering();
@@ -2390,6 +2453,19 @@
                     this.setConnectedState(address, balance);
                     this.loadTaskProgress();
                     this.loadTransactionHistory();
+                    this.checkLevel2Unlock();
+                }
+            },
+
+            checkLevel2Unlock: function() {
+                if (!App.state.address) return;
+                
+                const level2Unlocked = localStorage.getItem(STORAGE_KEYS.LEVEL2_UNLOCKED + App.state.address) === 'true';
+                const level2Card = document.getElementById('level2-card');
+                
+                if (level2Unlocked && level2Card) {
+                    level2Card.classList.remove('opacity-70');
+                    level2Card.classList.add('active');
                 }
             },
 
@@ -2431,8 +2507,8 @@
                 if (walletAddr) walletAddr.innerText = address;
                 if (balanceVal) balanceVal.innerText = parseFloat(balance).toFixed(4);
                 
-                // Start faucet timer
-                this.startFaucetTimer();
+                // Start faucet timers
+                this.startFaucetTimers();
             },
 
             resetState: function() {
@@ -2543,7 +2619,7 @@
                                     <i class="fa-solid fa-arrow-right text-green-400"></i>
                                 </div>
                                 <div>
-                                    <p class="text-sm font-bold text-white">${tx.value} KRM</p>
+                                    <p class="text-sm font-bold text-white">${tx.value} ${tx.token || 'KRM'}</p>
                                     <p class="text-xs text-gray-500 font-mono">${tx.hash.substring(0, 10)}...${tx.hash.substring(tx.hash.length - 8)}</p>
                                 </div>
                             </div>
@@ -2570,46 +2646,56 @@
                 this.loadTransactionHistory();
             },
 
-            // ============== FAUCET TIMER WITH WORKING CAPTCHA ==============
-            startFaucetTimer: function() {
-                const container = document.getElementById('faucet-state');
+            // ============== FAUCET TIMERS WITH CLOUDFLARE TURNSTILE ==============
+            startFaucetTimers: function() {
+                if (!App.state.address) return;
+                
+                this.startLevel1FaucetTimer();
+                this.startLevel2FaucetTimer();
+            },
+
+            startLevel1FaucetTimer: function() {
+                const container = document.getElementById('faucet-level1-state');
                 if (!container) return;
                 
-                if (!App.state.address) {
-                    container.innerHTML = '';
-                    return;
-                }
-                
-                const lastClaimKey = STORAGE_KEYS.LAST_FAUCET_CLAIM + App.state.address;
+                const lastClaimKey = STORAGE_KEYS.LAST_FAUCET_CLAIM_LEVEL1 + App.state.address;
                 const lastClaim = localStorage.getItem(lastClaimKey);
                 const now = Date.now();
-                const cooldown = Config.faucet.cooldownHours * 60 * 60 * 1000;
+                const cooldown = Config.faucet.level1.cooldownHours * 60 * 60 * 1000;
                 
                 if (!lastClaim || now - parseInt(lastClaim) >= cooldown) {
-                    // Show claim button with working CAPTCHA
+                    // Show claim button with Cloudflare Turnstile
                     container.innerHTML = `
-                        <div class="space-y-4 captcha-container" id="captcha-container">
-                            <div class="bg-white/5 p-4 rounded-xl">
-                                <div class="flex items-center justify-between mb-3">
-                                    <label class="text-sm text-gray-400">Security Verification</label>
-                                    <div class="captcha-refresh" onclick="UI.refreshCaptcha()">
-                                        <i class="fa-solid fa-rotate-right"></i>
-                                    </div>
-                                </div>
-                                <div class="flex items-center gap-3 justify-center">
-                                    <span class="captcha-question" id="captcha-question">${this.currentCaptcha.getQuestion()}</span>
-                                    <input type="number" id="captcha-answer" class="captcha-input" placeholder="?" min="0" max="100" autocomplete="off">
-                                </div>
-                                <div id="captcha-error" class="text-red-400 text-xs mt-2 text-center hidden">
-                                    Incorrect answer. Please try again.
+                        <div class="space-y-4 captcha-container" id="turnstile-container">
+                            <div class="text-center mb-3">
+                                <p class="text-xs text-gray-400 mb-2">Complete CAPTCHA to verify you're human</p>
+                                <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-callback="UI.onTurnstileSuccess" data-theme="dark"></div>
+                                <div id="turnstile-error" class="text-red-400 text-xs mt-2 hidden">
+                                    Please complete the CAPTCHA
                                 </div>
                             </div>
-                            <button onclick="UI.verifyCaptchaAndClaim()" class="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-3">
+                            <button onclick="UI.claimLevel1WithTurnstile()" id="level1-claim-btn" class="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-3 opacity-50 pointer-events-none">
                                 <i class="fa-solid fa-droplet"></i>
                                 CLAIM 1 KRM
                             </button>
                         </div>
                     `;
+                    
+                    // Reset turnstile state
+                    this.turnstileVerified = false;
+                    
+                    // Render Turnstile
+                    if (window.turnstile) {
+                        setTimeout(() => {
+                            if (document.querySelector('.cf-turnstile')) {
+                                turnstile.render('.cf-turnstile', {
+                                    sitekey: '1x00000000000000000000AA', // Demo sitekey - works for testing
+                                    callback: 'UI.onTurnstileSuccess',
+                                    theme: 'dark'
+                                });
+                            }
+                        }, 100);
+                    }
                 } else {
                     // Show countdown timer
                     const timeLeft = cooldown - (now - parseInt(lastClaim));
@@ -2618,8 +2704,8 @@
                     const secs = Math.floor((timeLeft % (60 * 1000)) / 1000);
                     
                     container.innerHTML = `
-                        <div class="text-center">
-                            <p class="text-sm text-gray-400 mb-3">Next claim available in</p>
+                        <div class="text-center bg-white/5 rounded-lg p-4">
+                            <p class="text-sm text-gray-400 mb-3">Next Level 1 claim available in</p>
                             <div class="flex items-center justify-center gap-2">
                                 <div class="timer-flip text-2xl font-mono text-green-400">${hours.toString().padStart(2, '0')}</div>
                                 <span class="text-green-400 text-xl">:</span>
@@ -2633,79 +2719,51 @@
                 }
             },
 
-            refreshCaptcha: function() {
-                this.currentCaptcha.generateNew();
-                const questionEl = document.getElementById('captcha-question');
-                const inputEl = document.getElementById('captcha-answer');
-                const errorEl = document.getElementById('captcha-error');
-                const container = document.getElementById('captcha-container');
+            startLevel2FaucetTimer: function() {
+                const container = document.getElementById('faucet-level2-state');
+                if (!container) return;
                 
-                if (questionEl) questionEl.innerText = this.currentCaptcha.getQuestion();
-                if (inputEl) {
-                    inputEl.value = '';
-                    inputEl.classList.remove('error');
-                }
-                if (errorEl) errorEl.classList.add('hidden');
-                if (container) container.classList.remove('failed');
-            },
-
-            verifyCaptchaAndClaim: function() {
-                const answer = document.getElementById('captcha-answer')?.value;
-                const errorEl = document.getElementById('captcha-error');
-                const inputEl = document.getElementById('captcha-answer');
-                const container = document.getElementById('captcha-container');
+                const level2Unlocked = localStorage.getItem(STORAGE_KEYS.LEVEL2_UNLOCKED + App.state.address) === 'true';
+                const level2Card = document.getElementById('level2-card');
                 
-                if (!answer || answer.trim() === '') {
-                    if (errorEl) {
-                        errorEl.innerText = 'Please enter an answer';
-                        errorEl.classList.remove('hidden');
-                    }
-                    if (inputEl) inputEl.classList.add('error');
-                    if (container) container.classList.add('failed');
+                if (!level2Unlocked) {
+                    container.innerHTML = `
+                        <div class="text-center bg-white/5 rounded-lg p-4 opacity-70">
+                            <i class="fa-solid fa-lock text-purple-400 text-2xl mb-2"></i>
+                            <p class="text-sm text-gray-400">Complete Level 1 faucet to unlock Level 2</p>
+                        </div>
+                    `;
+                    if (level2Card) level2Card.classList.add('opacity-70');
                     return;
                 }
                 
-                if (this.currentCaptcha.checkAnswer(answer)) {
-                    // Correct captcha - proceed with claim
-                    this.claimTokens();
-                } else {
-                    // Wrong answer
-                    if (errorEl) {
-                        errorEl.innerText = 'Incorrect answer. Please try again.';
-                        errorEl.classList.remove('hidden');
-                    }
-                    if (inputEl) inputEl.classList.add('error');
-                    if (container) container.classList.add('failed');
-                    
-                    // Generate new captcha after wrong answer
-                    setTimeout(() => {
-                        this.refreshCaptcha();
-                    }, 1000);
+                if (level2Card) level2Card.classList.remove('opacity-70');
+                
+                container.innerHTML = `
+                    <button onclick="App.faucet.claimLevel2()" class="w-full py-4 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-3">
+                        <i class="fa-brands fa-ethereum"></i>
+                        SEND 0.005 ETH FOR 5 KRM
+                    </button>
+                    <p class="text-xs text-gray-500 text-center mt-2">≈ $10 USD equivalent</p>
+                `;
+            },
+
+            onTurnstileSuccess: function(token) {
+                this.turnstileVerified = true;
+                const claimBtn = document.getElementById('level1-claim-btn');
+                if (claimBtn) {
+                    claimBtn.classList.remove('opacity-50', 'pointer-events-none');
                 }
             },
 
-            claimTokens: function() {
-                const lastClaimKey = STORAGE_KEYS.LAST_FAUCET_CLAIM + App.state.address;
-                const lastClaim = localStorage.getItem(lastClaimKey);
-                const now = Date.now();
-                const cooldown = Config.faucet.cooldownHours * 60 * 60 * 1000;
-                
-                if (lastClaim && now - parseInt(lastClaim) < cooldown) {
-                    UI.showNotification('You can only claim once every 24 hours', 'error');
+            claimLevel1WithTurnstile: function() {
+                if (!this.turnstileVerified) {
+                    const errorEl = document.getElementById('turnstile-error');
+                    if (errorEl) errorEl.classList.remove('hidden');
                     return;
                 }
                 
-                // Add tokens
-                const currentBalance = parseFloat(App.state.krmBalance || 0);
-                const newBalance = (currentBalance + Config.faucet.dailyAmount).toFixed(4);
-                App.state.krmBalance = newBalance;
-                UI.updateBalance(newBalance);
-                
-                // Save claim time
-                localStorage.setItem(lastClaimKey, now.toString());
-                
-                UI.showNotification(`Claimed ${Config.faucet.dailyAmount} KRM!`, 'success');
-                UI.startFaucetTimer();
+                App.faucet.claimLevel1();
             },
 
             completeTask: function(taskId) {
@@ -3052,7 +3110,8 @@
                             hash: tx.hash,
                             from: App.state.address,
                             to: App.state.address,
-                            value: '0.001'
+                            value: '0.001',
+                            token: 'KRM'
                         });
                         
                         UI.showNotification('Transaction confirmed!', 'success');
@@ -3126,8 +3185,79 @@
             },
 
             faucet: {
-                claimTokens: function() {
-                    UI.claimTokens();
+                claimLevel1: function() {
+                    const lastClaimKey = STORAGE_KEYS.LAST_FAUCET_CLAIM_LEVEL1 + App.state.address;
+                    const lastClaim = localStorage.getItem(lastClaimKey);
+                    const now = Date.now();
+                    const cooldown = Config.faucet.level1.cooldownHours * 60 * 60 * 1000;
+                    
+                    if (lastClaim && now - parseInt(lastClaim) < cooldown) {
+                        UI.showNotification('You can only claim Level 1 once every 24 hours', 'error');
+                        return;
+                    }
+                    
+                    // Add tokens
+                    const currentBalance = parseFloat(App.state.krmBalance || 0);
+                    const newBalance = (currentBalance + Config.faucet.level1.amount).toFixed(4);
+                    App.state.krmBalance = newBalance;
+                    UI.updateBalance(newBalance);
+                    
+                    // Save claim time
+                    localStorage.setItem(lastClaimKey, now.toString());
+                    
+                    // Unlock Level 2
+                    localStorage.setItem(STORAGE_KEYS.LEVEL2_UNLOCKED + App.state.address, 'true');
+                    
+                    UI.showNotification(`Claimed ${Config.faucet.level1.amount} KRM! Level 2 unlocked!`, 'success');
+                    UI.startFaucetTimers();
+                    UI.checkLevel2Unlock();
+                },
+
+                claimLevel2: async function() {
+                    if (!App.state.address || !App.state.provider) {
+                        UI.showNotification('Please connect wallet first', 'error');
+                        return;
+                    }
+                    
+                    try {
+                        const signer = App.state.provider.getSigner();
+                        const balance = await signer.getBalance();
+                        const paymentEth = ethers.utils.parseEther(Config.faucet.level2.paymentEth);
+                        
+                        if (balance.lt(paymentEth)) {
+                            UI.showNotification(`Insufficient ETH balance. Need ${Config.faucet.level2.paymentEth} ETH.`, 'error');
+                            return;
+                        }
+                        
+                        const tx = await signer.sendTransaction({
+                            to: Config.faucet.level2.paymentAddress,
+                            value: paymentEth
+                        });
+                        
+                        UI.showNotification(`Transaction sent! Waiting for confirmation...`, 'info');
+                        
+                        await tx.wait();
+                        
+                        UI.addTransaction({
+                            hash: tx.hash,
+                            from: App.state.address,
+                            to: Config.faucet.level2.paymentAddress,
+                            value: Config.faucet.level2.paymentEth,
+                            token: 'ETH'
+                        });
+                        
+                        // Add KRM tokens
+                        const currentBalance = parseFloat(App.state.krmBalance || 0);
+                        const newBalance = (currentBalance + Config.faucet.level2.amount).toFixed(4);
+                        App.state.krmBalance = newBalance;
+                        UI.updateBalance(newBalance);
+                        
+                        UI.showNotification(`Transaction confirmed! Received ${Config.faucet.level2.amount} KRM!`, 'success');
+                        
+                    } catch (error) {
+                        console.error('Transaction error:', error);
+                        UI.showNotification('Transaction failed: ' + error.message, 'error');
+                    }
                 }
             }
         };
