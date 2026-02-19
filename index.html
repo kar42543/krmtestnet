@@ -2632,7 +2632,7 @@
                         <div class="space-y-4 captcha-container" id="recaptcha-container">
                             <div class="text-center mb-3">
                                 <p class="text-xs text-gray-400 mb-2">Complete CAPTCHA to verify you're human</p>
-                                <div class="g-recaptcha" data-sitekey="6LdwWHEsAAAAAKQSrRUpiB0LhVjyRQx0QySMjRci" data-callback="UI.onRecaptchaSuccess" data-theme="dark"></div>
+                                <div class="g-recaptcha" data-sitekey="6LfGW3EsAAAAAJPcGcPSJzMRSiv9yWby2eUzdoYZ" data-callback="UI.onRecaptchaSuccess" data-theme="dark"></div>
                                 <div id="recaptcha-error" class="text-red-400 text-xs mt-2 hidden">
                                     Please complete the CAPTCHA
                                 </div>
@@ -2649,7 +2649,7 @@
                     if (typeof grecaptcha !== 'undefined' && grecaptcha.render) {
                         try {
                             this.recaptchaWidgetId = grecaptcha.render(document.querySelector('.g-recaptcha'), {
-                                sitekey: '6LdwWHEsAAAAAKQSrRUpiB0LhVjyRQx0QySMjRci',
+                                ssitekey: '6LfGW3EsAAAAAJPcGcPSJzMRSiv9yWby2eUzdoYZ',
                                 callback: 'UI.onRecaptchaSuccess',
                                 theme: 'dark'
                             });
@@ -3269,3 +3269,4 @@
     </script>
 </body>
 </html>
+
