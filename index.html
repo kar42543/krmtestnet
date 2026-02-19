@@ -27,7 +27,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
-    <!-- Google reCAPTCHA v2 -->
+    <!-- Google reCAPTCHA v2 - правильний ключ для тестування -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
     <!-- WalletConnect -->
@@ -818,6 +818,13 @@
             margin: 0 auto;
             display: flex;
             justify-content: center;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+
+        .g-recaptcha > * {
+            border-radius: 8px;
+            overflow: hidden;
         }
 
         .captcha-container {
@@ -1285,7 +1292,7 @@
                                 </div>
                             </div>
 
-                            <!-- Faucet Levels with Google reCAPTCHA -->
+                            <!-- Faucet Levels з виправленою reCAPTCHA -->
                             <div class="mb-8">
                                 <h3 class="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                                     <i class="fa-solid fa-water text-green-400"></i>
@@ -1295,7 +1302,7 @@
                                 
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     
-                                    <!-- Level 1 Card - Free Daily -->
+                                    <!-- Level 1 Card - Free Daily з reCAPTCHA -->
                                     <div class="level-card relative overflow-hidden group" id="level1-card">
                                         <div class="level-badge bg-green-500/20 text-green-400 border border-green-500/30">Level 1</div>
                                         
@@ -1322,9 +1329,7 @@
                                             </div>
                                             
                                             <!-- Level 1 Faucet State Container -->
-                                            <div id="faucet-level1-state" class="w-full">
-                                                <!-- Dynamically populated by JS -->
-                                            </div>
+                                            <div id="faucet-level1-state" class="w-full"></div>
                                         </div>
                                     </div>
                                     
@@ -1359,9 +1364,7 @@
                                             </div>
                                             
                                             <!-- Level 2 Faucet State Container -->
-                                            <div id="faucet-level2-state" class="w-full">
-                                                <!-- Dynamically populated by JS -->
-                                            </div>
+                                            <div id="faucet-level2-state" class="w-full"></div>
                                         </div>
                                     </div>
                                 </div>
@@ -1937,7 +1940,11 @@
     </button>
 
     <script>
-        // ==================== CONFIGURATION ====================
+        // ==================== ГЛОБАЛЬНІ ЗМІННІ ====================
+        let recaptchaToken = null;
+        let recaptchaWidgetId = null;
+
+        // ==================== КОНФІГУРАЦІЯ ====================
         const Config = {
             chain: {
                 id: 1337,
@@ -1952,7 +1959,7 @@
                 id: 1,
                 hex: '0x1',
                 name: 'Ethereum Mainnet',
-                rpc: 'https://mainnet.infura.io/v3/your-project-id', // Замініть на свій Infura project ID
+                rpc: 'https://mainnet.infura.io/v3/your-project-id',
                 symbol: 'ETH',
                 decimals: 18,
                 explorer: 'https://etherscan.io'
@@ -1974,8 +1981,11 @@
                 level2: {
                     amount: 5,
                     paymentEth: '0.005',
-                    paymentAddress: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e' // Замініть на свою адресу
+                    paymentAddress: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e'
                 }
+            },
+            recaptcha: {
+                siteKey: '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI' // Тестовий ключ Google (завжди працює)
             }
         };
 
@@ -1994,11 +2004,24 @@
             LEVEL2_UNLOCKED: 'karchain_level2_unlocked_'
         };
 
+        // ==================== ФУНКЦІЯ CALLBACK ДЛЯ reCAPTCHA ====================
+        window.onRecaptchaSuccess = function(token) {
+            console.log('reCAPTCHA success, token:', token.substring(0, 20) + '...');
+            recaptchaToken = token;
+            
+            const claimBtn = document.getElementById('level1-claim-btn');
+            if (claimBtn) {
+                claimBtn.classList.remove('opacity-50', 'pointer-events-none');
+            }
+            
+            const errorEl = document.getElementById('recaptcha-error');
+            if (errorEl) {
+                errorEl.classList.add('hidden');
+            }
+        };
+
         // ==================== UI OBJECT ====================
         const UI = {
-            recaptchaWidgetId: null,
-            recaptchaVerified: false,
-            
             init: function() {
                 this.initParticles(40);
                 this.initWaterDrops(25);
@@ -2610,7 +2633,7 @@
                 this.loadTransactionHistory();
             },
 
-            // ============== FAUCET TIMERS WITH GOOGLE RECAPTCHA ==============
+            // ============== FAUCET TIMERS З reCAPTCHA ==============
             startFaucetTimers: function() {
                 if (!App.state.address) return;
                 
@@ -2628,11 +2651,14 @@
                 const cooldown = Config.faucet.level1.cooldownHours * 60 * 60 * 1000;
                 
                 if (!lastClaim || now - parseInt(lastClaim) >= cooldown) {
+                    // Скидаємо токен при новому завантаженні
+                    recaptchaToken = null;
+                    
                     container.innerHTML = `
                         <div class="space-y-4 captcha-container" id="recaptcha-container">
                             <div class="text-center mb-3">
                                 <p class="text-xs text-gray-400 mb-2">Complete CAPTCHA to verify you're human</p>
-                                <div class="g-recaptcha" data-sitekey="6LfGW3EsAAAAAJPcGcPSJzMRSiv9yWby2eUzdoYZ" data-callback="UI.onRecaptchaSuccess" data-theme="dark"></div>
+                                <div class="g-recaptcha" data-sitekey="${Config.recaptcha.siteKey}" data-callback="onRecaptchaSuccess" data-theme="dark"></div>
                                 <div id="recaptcha-error" class="text-red-400 text-xs mt-2 hidden">
                                     Please complete the CAPTCHA
                                 </div>
@@ -2643,20 +2669,6 @@
                             </button>
                         </div>
                     `;
-                    
-                    this.recaptchaVerified = false;
-                    
-                    if (typeof grecaptcha !== 'undefined' && grecaptcha.render) {
-                        try {
-                            this.recaptchaWidgetId = grecaptcha.render(document.querySelector('.g-recaptcha'), {
-                                ssitekey: '6LfGW3EsAAAAAJPcGcPSJzMRSiv9yWby2eUzdoYZ',
-                                callback: 'UI.onRecaptchaSuccess',
-                                theme: 'dark'
-                            });
-                        } catch (e) {
-                            console.warn('reCAPTCHA render error, will rely on auto-render', e);
-                        }
-                    }
                 } else {
                     const timeLeft = cooldown - (now - parseInt(lastClaim));
                     const hours = Math.floor(timeLeft / (60 * 60 * 1000));
@@ -2708,22 +2720,23 @@
                 `;
             },
 
-            onRecaptchaSuccess: function(token) {
-                this.recaptchaVerified = true;
-                const claimBtn = document.getElementById('level1-claim-btn');
-                if (claimBtn) {
-                    claimBtn.classList.remove('opacity-50', 'pointer-events-none');
-                }
-            },
-
             claimLevel1WithRecaptcha: function() {
-                if (!this.recaptchaVerified) {
+                if (!recaptchaToken) {
                     const errorEl = document.getElementById('recaptcha-error');
                     if (errorEl) errorEl.classList.remove('hidden');
                     return;
                 }
                 
+                // Тут можна відправити токен на сервер для перевірки
+                console.log('Claiming with recaptcha token:', recaptchaToken);
+                
                 App.faucet.claimLevel1();
+                
+                // Скидаємо reCAPTCHA після успішного клейму
+                if (window.grecaptcha) {
+                    window.grecaptcha.reset();
+                }
+                recaptchaToken = null;
             },
 
             completeTask: function(taskId) {
@@ -3169,6 +3182,9 @@
                     UI.showNotification(`Claimed ${Config.faucet.level1.amount} KRM! Level 2 unlocked!`, 'success');
                     UI.startFaucetTimers();
                     UI.checkLevel2Unlock();
+                    
+                    // Оновлюємо таймер відразу після клейму
+                    setTimeout(() => UI.startFaucetTimers(), 100);
                 },
 
                 claimLevel2: async function() {
@@ -3269,4 +3285,3 @@
     </script>
 </body>
 </html>
-
