@@ -27,8 +27,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
-    <!-- Turnstile CAPTCHA -->
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+    <!-- Google reCAPTCHA v2 -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
     <!-- WalletConnect -->
     <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
@@ -149,7 +149,6 @@
             }
         }
 
-        /* Smooth transitions - optimized for all browsers */
         .smooth-transition {
             transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
             transform: translateZ(0);
@@ -167,7 +166,6 @@
             transition: opacity 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
 
-        /* Glass panels - cross-browser optimized */
         .glass-panel {
             background: rgba(15, 15, 15, 0.7);
             backdrop-filter: blur(20px) saturate(200%);
@@ -204,7 +202,6 @@
                 inset 0 1px 0 rgba(255, 255, 255, 0.1);
         }
 
-        /* Navigation - fixed for Chrome */
         nav#navbar {
             background: rgba(2, 4, 2, 0.95) !important;
             backdrop-filter: blur(24px) saturate(200%) !important;
@@ -215,7 +212,6 @@
             -webkit-transform: translateZ(0);
         }
 
-        /* Buttons */
         .btn-primary {
             background: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
             color: white;
@@ -266,7 +262,6 @@
             transform: translateY(-2px);
         }
 
-        /* Scrollbar - cross-browser */
         ::-webkit-scrollbar {
             width: 12px;
             height: 12px;
@@ -287,7 +282,6 @@
             background: linear-gradient(to bottom, #4ade80, #22c55e);
         }
 
-        /* Firefox scrollbar */
         * {
             scrollbar-width: thin;
             scrollbar-color: #4ade80 #020402;
@@ -298,7 +292,6 @@
             color: #ffffff;
         }
 
-        /* Background elements - optimized */
         #webgl-canvas {
             position: fixed;
             top: 0;
@@ -360,7 +353,6 @@
             animation: wave 20s linear infinite;
         }
 
-        /* Gradient text */
         .gradient-text {
             background: linear-gradient(90deg, #ffffff, #4ade80, #22c55e, #4ade80, #ffffff);
             background-size: 300% 300%;
@@ -379,7 +371,6 @@
             animation: gradient 6s ease infinite;
         }
 
-        /* Animations */
         .fade-in {
             opacity: 0;
             animation: fadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
@@ -452,7 +443,6 @@
         .delay-900 { animation-delay: 0.9s; }
         .delay-1000 { animation-delay: 1s; }
 
-        /* Page transitions */
         .page-content {
             display: none;
             opacity: 0;
@@ -464,7 +454,6 @@
             opacity: 1;
         }
 
-        /* Hover effects */
         .hover-lift {
             transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
         }
@@ -489,7 +478,6 @@
             transform: scale(1.05);
         }
 
-        /* 3D Gyro */
         .gyro-wrapper {
             perspective: 1000px;
             width: 300px;
@@ -571,7 +559,6 @@
             100% { transform: rotateX(180deg) rotateY(-360deg); }
         }
 
-        /* Mobile menu */
         .mobile-menu {
             position: fixed;
             top: 0;
@@ -709,7 +696,6 @@
             }
         }
 
-        /* Notifications */
         .notification {
             animation: slideIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
             max-width: 350px;
@@ -727,7 +713,6 @@
             }
         }
 
-        /* FAQ */
         .faq-content {
             max-height: 0;
             opacity: 0;
@@ -750,7 +735,6 @@
             transform: rotate(180deg);
         }
 
-        /* Task cards */
         .task-locked {
             pointer-events: none;
             opacity: 0.5;
@@ -796,7 +780,6 @@
             box-shadow: 0 0 20px rgba(74, 222, 128, 0.2);
         }
 
-        /* Scroll to top button */
         #scrollToTopBtn {
             box-shadow: 0 4px 20px rgba(74, 222, 128, 0.3);
             transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -816,13 +799,11 @@
             box-shadow: 0 8px 30px rgba(74, 222, 128, 0.5);
         }
 
-        /* Wallet dropdown */
         #userDropdown {
             transition: opacity 0.3s ease, transform 0.3s ease;
             transform-origin: top right;
         }
 
-        /* Form inputs */
         input[type="number"] {
             -moz-appearance: textfield;
         }
@@ -833,8 +814,7 @@
             margin: 0;
         }
 
-        /* CAPTCHA Styles - Cloudflare Turnstile */
-        .cf-turnstile {
+        .g-recaptcha {
             margin: 0 auto;
             display: flex;
             justify-content: center;
@@ -854,7 +834,6 @@
             animation: shake 0.5s ease-in-out;
         }
 
-        /* Faucet Level Cards */
         .level-card {
             background: linear-gradient(145deg, rgba(74, 222, 128, 0.05) 0%, rgba(74, 222, 128, 0.01) 100%);
             border: 1px solid rgba(74, 222, 128, 0.1);
@@ -907,7 +886,6 @@
             transform-origin: 50% 50%;
         }
 
-        /* Performance optimizations */
         .will-change-transform {
             will-change: transform;
         }
@@ -916,7 +894,6 @@
             will-change: opacity;
         }
 
-        /* Fix for Chrome rendering */
         .fix-chrome {
             -webkit-font-smoothing: antialiased;
             -moz-osx-font-smoothing: grayscale;
@@ -1308,7 +1285,7 @@
                                 </div>
                             </div>
 
-                            <!-- Faucet Levels with Cloudflare Turnstile CAPTCHA -->
+                            <!-- Faucet Levels with Google reCAPTCHA -->
                             <div class="mb-8">
                                 <h3 class="text-2xl font-bold text-white mb-4 flex items-center gap-3">
                                     <i class="fa-solid fa-water text-green-400"></i>
@@ -1344,7 +1321,7 @@
                                                 </div>
                                             </div>
                                             
-                                            <!-- Level 1 Faucet State Container with Cloudflare Turnstile -->
+                                            <!-- Level 1 Faucet State Container -->
                                             <div id="faucet-level1-state" class="w-full">
                                                 <!-- Dynamically populated by JS -->
                                             </div>
@@ -1823,7 +1800,7 @@
                     <div class="px-6 pb-6 text-gray-400 text-sm leading-relaxed">
                         <p>Once you connect your wallet, you'll see two faucet levels in your dashboard:</p>
                         <ul class="list-disc list-inside mt-3 space-y-2">
-                            <li><span class="text-green-400 font-bold">Level 1 (Free):</span> Claim 1 KRM every 24 hours - Complete Cloudflare Turnstile CAPTCHA verification</li>
+                            <li><span class="text-green-400 font-bold">Level 1 (Free):</span> Claim 1 KRM every 24 hours - Complete Google reCAPTCHA verification</li>
                             <li><span class="text-purple-400 font-bold">Level 2 (Premium):</span> Send 0.005 ETH (≈$10) to our treasury and receive 5 KRM - Real transaction required</li>
                             <li>Level 1 must be completed before Level 2 becomes available</li>
                             <li>Tokens are added directly to your wallet balance after verification</li>
@@ -1877,7 +1854,7 @@
                             <li>Complete the Social Identity task (follow X & Telegram)</li>
                             <li>Make your first transaction on the network</li>
                             <li>Submit your wallet in the Genesis Registration form</li>
-                            <li>Claim daily KRM from Level 1 faucet (free, with CAPTCHA)</li>
+                            <li>Claim daily KRM from Level 1 faucet (free, with reCAPTCHA)</li>
                             <li>Optional: Upgrade to Level 2 faucet by sending 0.005 ETH for 5 KRM</li>
                         </ol>
                         <p class="mt-4 text-green-400">Rewards are based on task completion and will be distributed after the testnet concludes.</p>
@@ -1971,6 +1948,15 @@
                 decimals: 18,
                 explorer: 'https://explorer.karchain.network'
             },
+            ethereum: {
+                id: 1,
+                hex: '0x1',
+                name: 'Ethereum Mainnet',
+                rpc: 'https://mainnet.infura.io/v3/your-project-id', // Замініть на свій Infura project ID
+                symbol: 'ETH',
+                decimals: 18,
+                explorer: 'https://etherscan.io'
+            },
             walletConnect: {
                 projectId: 'e6d3c5f8b2a4d7c9e1f0a3b5c7d9e2f4',
                 rpc: { 1337: 'https://rpc.karchain.network' }
@@ -1987,8 +1973,8 @@
                 },
                 level2: {
                     amount: 5,
-                    paymentEth: '0.005', // ~$10 USD
-                    paymentAddress: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e' // Treasury address
+                    paymentEth: '0.005',
+                    paymentAddress: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e' // Замініть на свою адресу
                 }
             }
         };
@@ -2010,8 +1996,8 @@
 
         // ==================== UI OBJECT ====================
         const UI = {
-            turnstileWidgetId: null,
-            turnstileVerified: false,
+            recaptchaWidgetId: null,
+            recaptchaVerified: false,
             
             init: function() {
                 this.initParticles(40);
@@ -2026,18 +2012,12 @@
                 this.checkSavedConnection();
                 this.startFaucetTimers();
                 
-                // Initialize counters with animation
                 this.animateCounters();
-                
-                // Set up periodic updates
                 setInterval(() => this.startFaucetTimers(), 1000);
-                
-                // Chrome-specific optimizations
                 this.fixChromeRendering();
             },
 
             fixChromeRendering: function() {
-                // Force hardware acceleration for Chrome
                 if (navigator.userAgent.indexOf('Chrome') > -1) {
                     document.querySelectorAll('.glass-panel, .glass-card, nav').forEach(el => {
                         if (el) {
@@ -2095,7 +2075,6 @@
                     animationFrame = requestAnimationFrame(animate);
                 }
                 
-                // Cancel previous animation frame if exists
                 if (animationFrame) {
                     cancelAnimationFrame(animationFrame);
                 }
@@ -2107,7 +2086,6 @@
                 const container = document.getElementById('water-drops');
                 if (!container) return;
                 
-                // Clear existing drops
                 container.innerHTML = '';
                 
                 for (let i = 0; i < count; i++) {
@@ -2244,7 +2222,6 @@
                 
                 gsap.registerPlugin(ScrollTrigger, TextPlugin);
 
-                // Animate elements on scroll
                 gsap.utils.toArray('.fade-in-up, .fade-in-left, .fade-in-right, .scale-in').forEach(el => {
                     gsap.from(el, {
                         scrollTrigger: {
@@ -2259,7 +2236,6 @@
                     });
                 });
 
-                // Animate glass panels on hover
                 gsap.utils.toArray('.glass-card, .glass-panel').forEach(card => {
                     card.addEventListener('mouseenter', () => {
                         gsap.to(card, {
@@ -2342,9 +2318,7 @@
                 });
             },
 
-            setupWalletButton: function() {
-                // Already handled in dropdown toggle
-            },
+            setupWalletButton: function() {},
 
             openModal: function() {
                 const modal = document.getElementById('connect-modal');
@@ -2385,7 +2359,6 @@
             },
 
             showNotification: function(message, type = 'info') {
-                // Remove existing notifications
                 document.querySelectorAll('.notification').forEach(n => n.remove());
                 
                 const notification = document.createElement('div');
@@ -2472,7 +2445,6 @@
             setConnectedState: function(address, balance) {
                 const short = address.substring(0, 6) + '...' + address.substring(address.length - 4);
                 
-                // Update connect button
                 const connectBtn = document.getElementById('connectBtn');
                 if (connectBtn) {
                     connectBtn.innerHTML = `
@@ -2481,13 +2453,11 @@
                     `;
                 }
                 
-                // Update dropdown
                 const dropdownAddress = document.getElementById('dropdownAddress');
                 const dropdownBalance = document.getElementById('dropdownBalance');
                 if (dropdownAddress) dropdownAddress.innerText = short;
                 if (dropdownBalance) dropdownBalance.innerText = parseFloat(balance).toFixed(4) + ' KRM';
                 
-                // Update mobile
                 const mobileAddress = document.getElementById('mobileWalletAddress');
                 const mobileBalance = document.getElementById('mobileWalletBalance');
                 const mobileInfo = document.getElementById('mobileWalletInfo');
@@ -2495,19 +2465,16 @@
                 if (mobileBalance) mobileBalance.innerText = parseFloat(balance).toFixed(4) + ' KRM';
                 if (mobileInfo) mobileInfo.classList.remove('hidden');
                 
-                // Switch views
                 const viewLocked = document.getElementById('view-locked');
                 const viewActive = document.getElementById('view-active');
                 if (viewLocked) viewLocked.classList.add('hidden');
                 if (viewActive) viewActive.classList.remove('hidden');
                 
-                // Update wallet display
                 const walletAddr = document.getElementById('walletAddrDisp');
                 const balanceVal = document.getElementById('balanceVal');
                 if (walletAddr) walletAddr.innerText = address;
                 if (balanceVal) balanceVal.innerText = parseFloat(balance).toFixed(4);
                 
-                // Start faucet timers
                 this.startFaucetTimers();
             },
 
@@ -2550,16 +2517,13 @@
                 if (progressText) progressText.innerText = `${count}/3 Tasks`;
                 if (progressBar) progressBar.style.width = (count / 3 * 100) + '%';
                 
-                // Calculate total reward
                 const rewards = [10, 25, 50];
                 const total = completed.reduce((sum, id) => sum + (rewards[id - 1] || 0), 0);
                 if (totalReward) totalReward.innerText = `+${total} KRM`;
                 
-                // Unlock tasks
                 if (completed.includes(1)) this.unlockTask(2);
                 if (completed.includes(2)) this.unlockTask(3);
                 
-                // Check social started
                 if (localStorage.getItem(STORAGE_KEYS.SOCIAL_TASK_STARTED) === 'true' && !completed.includes(1)) {
                     const verifyBtn = document.getElementById('verify-social');
                     if (verifyBtn) {
@@ -2646,7 +2610,7 @@
                 this.loadTransactionHistory();
             },
 
-            // ============== FAUCET TIMERS WITH CLOUDFLARE TURNSTILE ==============
+            // ============== FAUCET TIMERS WITH GOOGLE RECAPTCHA ==============
             startFaucetTimers: function() {
                 if (!App.state.address) return;
                 
@@ -2664,40 +2628,36 @@
                 const cooldown = Config.faucet.level1.cooldownHours * 60 * 60 * 1000;
                 
                 if (!lastClaim || now - parseInt(lastClaim) >= cooldown) {
-                    // Show claim button with Cloudflare Turnstile
                     container.innerHTML = `
-                        <div class="space-y-4 captcha-container" id="turnstile-container">
+                        <div class="space-y-4 captcha-container" id="recaptcha-container">
                             <div class="text-center mb-3">
                                 <p class="text-xs text-gray-400 mb-2">Complete CAPTCHA to verify you're human</p>
-                                <div class="cf-turnstile" data-sitekey="1x00000000000000000000AA" data-callback="UI.onTurnstileSuccess" data-theme="dark"></div>
-                                <div id="turnstile-error" class="text-red-400 text-xs mt-2 hidden">
+                                <div class="g-recaptcha" data-sitekey="6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI" data-callback="UI.onRecaptchaSuccess" data-theme="dark"></div>
+                                <div id="recaptcha-error" class="text-red-400 text-xs mt-2 hidden">
                                     Please complete the CAPTCHA
                                 </div>
                             </div>
-                            <button onclick="UI.claimLevel1WithTurnstile()" id="level1-claim-btn" class="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-3 opacity-50 pointer-events-none">
+                            <button onclick="UI.claimLevel1WithRecaptcha()" id="level1-claim-btn" class="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-3 opacity-50 pointer-events-none">
                                 <i class="fa-solid fa-droplet"></i>
                                 CLAIM 1 KRM
                             </button>
                         </div>
                     `;
                     
-                    // Reset turnstile state
-                    this.turnstileVerified = false;
+                    this.recaptchaVerified = false;
                     
-                    // Render Turnstile
-                    if (window.turnstile) {
-                        setTimeout(() => {
-                            if (document.querySelector('.cf-turnstile')) {
-                                turnstile.render('.cf-turnstile', {
-                                    sitekey: '1x00000000000000000000AA', // Demo sitekey - works for testing
-                                    callback: 'UI.onTurnstileSuccess',
-                                    theme: 'dark'
-                                });
-                            }
-                        }, 100);
+                    if (typeof grecaptcha !== 'undefined' && grecaptcha.render) {
+                        try {
+                            this.recaptchaWidgetId = grecaptcha.render(document.querySelector('.g-recaptcha'), {
+                                sitekey: '6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI',
+                                callback: 'UI.onRecaptchaSuccess',
+                                theme: 'dark'
+                            });
+                        } catch (e) {
+                            console.warn('reCAPTCHA render error, will rely on auto-render', e);
+                        }
                     }
                 } else {
-                    // Show countdown timer
                     const timeLeft = cooldown - (now - parseInt(lastClaim));
                     const hours = Math.floor(timeLeft / (60 * 60 * 1000));
                     const mins = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
@@ -2748,17 +2708,17 @@
                 `;
             },
 
-            onTurnstileSuccess: function(token) {
-                this.turnstileVerified = true;
+            onRecaptchaSuccess: function(token) {
+                this.recaptchaVerified = true;
                 const claimBtn = document.getElementById('level1-claim-btn');
                 if (claimBtn) {
                     claimBtn.classList.remove('opacity-50', 'pointer-events-none');
                 }
             },
 
-            claimLevel1WithTurnstile: function() {
-                if (!this.turnstileVerified) {
-                    const errorEl = document.getElementById('turnstile-error');
+            claimLevel1WithRecaptcha: function() {
+                if (!this.recaptchaVerified) {
+                    const errorEl = document.getElementById('recaptcha-error');
                     if (errorEl) errorEl.classList.remove('hidden');
                     return;
                 }
@@ -2778,7 +2738,6 @@
                     if (taskId === 1) this.unlockTask(2);
                     if (taskId === 2) this.unlockTask(3);
                     
-                    // Add reward to balance
                     const rewards = { 1: 10, 2: 25, 3: 50 };
                     const currentBalance = parseFloat(App.state.krmBalance || 0);
                     const newBalance = (currentBalance + rewards[taskId]).toFixed(4);
@@ -2808,7 +2767,6 @@
                     const targetPage = document.getElementById('page-' + page);
                     if (targetPage) targetPage.classList.add('active');
                     
-                    // Update nav
                     document.querySelectorAll('.nav-link').forEach(link => {
                         link.classList.remove('text-white', 'border-green-500');
                         link.classList.add('text-gray-400', 'border-transparent');
@@ -2906,7 +2864,7 @@
                     
                     UI.closeModal();
                     
-                    await this.switchNetwork();
+                    await this.switchNetwork(Config.chain);
                     
                     const balance = await this.loadTokenBalance();
                     
@@ -2921,35 +2879,39 @@
                     this.setupEventListeners();
                 },
 
-                switchNetwork: async function() {
-                    if (!window.ethereum) return;
+                switchNetwork: async function(chainConfig) {
+                    if (!window.ethereum) return false;
                     
                     try {
                         await window.ethereum.request({
                             method: 'wallet_switchEthereumChain',
-                            params: [{ chainId: Config.chain.hex }]
+                            params: [{ chainId: chainConfig.hex }]
                         });
+                        return true;
                     } catch (error) {
                         if (error.code === 4902) {
                             try {
                                 await window.ethereum.request({
                                     method: 'wallet_addEthereumChain',
                                     params: [{
-                                        chainId: Config.chain.hex,
-                                        chainName: Config.chain.name,
-                                        rpcUrls: [Config.chain.rpc],
+                                        chainId: chainConfig.hex,
+                                        chainName: chainConfig.name,
+                                        rpcUrls: [chainConfig.rpc],
                                         nativeCurrency: {
-                                            name: 'KarChain',
-                                            symbol: Config.chain.symbol,
-                                            decimals: Config.chain.decimals
+                                            name: chainConfig.symbol === 'ETH' ? 'Ethereum' : 'KarChain',
+                                            symbol: chainConfig.symbol,
+                                            decimals: chainConfig.decimals
                                         },
-                                        blockExplorerUrls: [Config.chain.explorer]
+                                        blockExplorerUrls: [chainConfig.explorer]
                                     }]
                                 });
+                                return true;
                             } catch (addError) {
                                 console.error('Failed to add network:', addError);
+                                return false;
                             }
                         }
+                        return false;
                     }
                 },
 
@@ -3002,7 +2964,7 @@
                         window.ethereum.on('chainChanged', (chainId) => {
                             if (parseInt(chainId) !== Config.chain.id) {
                                 UI.showNotification('Please switch to KarChain network', 'error');
-                                this.switchNetwork();
+                                this.switchNetwork(Config.chain);
                             }
                         });
                     }
@@ -3116,7 +3078,6 @@
                         
                         UI.showNotification('Transaction confirmed!', 'success');
                         
-                        // Auto-complete task
                         if (!this.completedTasks.includes(2)) {
                             setTimeout(() => {
                                 const verifyBtn = document.getElementById('verify-transaction');
@@ -3176,7 +3137,7 @@
                         if (formBtn) {
                             formBtn.innerHTML = '<i class="fa-solid fa-check-circle"></i> COMPLETED';
                             formBtn.classList.remove('bg-orange-600', 'hover:bg-orange-500');
-                            formBtn.classList.add('bg-green-900/50', 'text-green-400', 'cursor-not-allowed', 'pointer-events-none');
+                            formBtn.classList.add('bg-green-900/50', 'text-green-400', 'cursor-allowed', 'pointer-events-none');
                         }
                         
                         UI.showNotification('Genesis registration completed! +50 KRM', 'success');
@@ -3196,16 +3157,13 @@
                         return;
                     }
                     
-                    // Add tokens
                     const currentBalance = parseFloat(App.state.krmBalance || 0);
                     const newBalance = (currentBalance + Config.faucet.level1.amount).toFixed(4);
                     App.state.krmBalance = newBalance;
                     UI.updateBalance(newBalance);
                     
-                    // Save claim time
                     localStorage.setItem(lastClaimKey, now.toString());
                     
-                    // Unlock Level 2
                     localStorage.setItem(STORAGE_KEYS.LEVEL2_UNLOCKED + App.state.address, 'true');
                     
                     UI.showNotification(`Claimed ${Config.faucet.level1.amount} KRM! Level 2 unlocked!`, 'success');
@@ -3220,12 +3178,24 @@
                     }
                     
                     try {
+                        const currentChainId = await App.state.provider.getNetwork().then(n => n.chainId);
+                        if (currentChainId !== Config.ethereum.id) {
+                            UI.showNotification('Switching to Ethereum Mainnet for payment...', 'info');
+                            const switched = await App.wallet.switchNetwork(Config.ethereum);
+                            if (!switched) {
+                                UI.showNotification('Failed to switch to Ethereum Mainnet. Please switch manually.', 'error');
+                                return;
+                            }
+                            await new Promise(resolve => setTimeout(resolve, 1000));
+                            App.state.provider = new ethers.providers.Web3Provider(window.ethereum);
+                        }
+                        
                         const signer = App.state.provider.getSigner();
                         const balance = await signer.getBalance();
                         const paymentEth = ethers.utils.parseEther(Config.faucet.level2.paymentEth);
                         
                         if (balance.lt(paymentEth)) {
-                            UI.showNotification(`Insufficient ETH balance. Need ${Config.faucet.level2.paymentEth} ETH.`, 'error');
+                            UI.showNotification(`Insufficient ETH balance. Need ${Config.faucet.level2.paymentEth} ETH on Ethereum Mainnet.`, 'error');
                             return;
                         }
                         
@@ -3246,13 +3216,14 @@
                             token: 'ETH'
                         });
                         
-                        // Add KRM tokens
                         const currentBalance = parseFloat(App.state.krmBalance || 0);
                         const newBalance = (currentBalance + Config.faucet.level2.amount).toFixed(4);
                         App.state.krmBalance = newBalance;
                         UI.updateBalance(newBalance);
                         
                         UI.showNotification(`Transaction confirmed! Received ${Config.faucet.level2.amount} KRM!`, 'success');
+                        
+                        UI.showNotification('You are now on Ethereum Mainnet. Switch back to KarChain manually if needed.', 'info');
                         
                     } catch (error) {
                         console.error('Transaction error:', error);
@@ -3266,19 +3237,16 @@
         window.addEventListener('load', () => {
             UI.init();
             
-            // Try to reconnect
             if (localStorage.getItem(STORAGE_KEYS.WALLET_CONNECTED) === 'true') {
                 setTimeout(() => App.wallet.tryReconnect(), 1000);
             }
             
-            // Fix for Chrome scroll performance
             if (navigator.userAgent.indexOf('Chrome') > -1) {
                 document.documentElement.style.overflowY = 'scroll';
                 document.documentElement.style.webkitOverflowScrolling = 'touch';
             }
         });
 
-        // Prevent scroll on modal open
         window.addEventListener('wheel', (e) => {
             const modal = document.getElementById('connect-modal');
             const mobileMenu = document.getElementById('mobileMenu');
@@ -3289,7 +3257,6 @@
             }
         }, { passive: false });
 
-        // Touch event prevention for mobile
         window.addEventListener('touchmove', (e) => {
             const modal = document.getElementById('connect-modal');
             const mobileMenu = document.getElementById('mobileMenu');
@@ -3301,4 +3268,4 @@
         }, { passive: false });
     </script>
 </body>
-</html> 
+</html>
