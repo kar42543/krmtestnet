@@ -27,11 +27,14 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 
-    <!-- Google reCAPTCHA v2 - правильний ключ для тестування -->
+    <!-- Google reCAPTCHA v2 -->
     <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 
     <!-- WalletConnect -->
     <script src="https://unpkg.com/@walletconnect/web3-provider@1.8.0/dist/umd/index.min.js"></script>
+
+    <!-- Solana Web3 for Phantom -->
+    <script src="https://unpkg.com/@solana/web3.js@1.87.6/lib/index.iife.min.js"></script>
 
     <script>
         tailwind.config = {
@@ -815,25 +818,28 @@
         }
 
         .g-recaptcha {
-            margin: 0 auto;
+            margin: 10px auto;
             display: flex;
             justify-content: center;
-            transform: scale(0.95);
+            transform: scale(1);
             transition: transform 0.3s ease;
+            min-height: 78px;
         }
 
-        .g-recaptcha > * {
+        .g-recaptcha iframe {
             border-radius: 8px;
             overflow: hidden;
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.2);
         }
 
         .captcha-container {
-            background: rgba(0, 0, 0, 0.3);
-            border: 2px solid rgba(74, 222, 128, 0.2);
-            border-radius: 12px;
-            padding: 20px;
+            background: linear-gradient(145deg, rgba(20, 20, 20, 0.9), rgba(10, 10, 10, 0.95));
+            border: 2px solid rgba(74, 222, 128, 0.3);
+            border-radius: 16px;
+            padding: 24px;
             transition: all 0.3s ease;
             text-align: center;
+            backdrop-filter: blur(10px);
         }
 
         .captcha-container.failed {
@@ -1124,6 +1130,22 @@
                             </div>
                         </div>
                         <div class="w-3 h-3 rounded-full bg-green-500/50 group-hover:bg-green-400 group-hover:shadow-[0_0_15px_#4ade80] transition-all"></div>
+                    </div>
+                </div>
+
+                <!-- Phantom Wallet -->
+                <div onclick="App.wallet.connect('Phantom')" class="wallet-option group border border-white/10 p-5 rounded-xl bg-white/5 cursor-pointer transition-all hover:border-purple-500/50 hover:bg-white/10 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)]">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 rounded-xl bg-[#AB9FF2]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                                <i class="fa-solid fa-ghost text-3xl text-[#AB9FF2]"></i>
+                            </div>
+                            <div>
+                                <div class="font-bold text-white text-lg group-hover:text-[#AB9FF2] transition-colors">Phantom</div>
+                                <div class="text-xs text-gray-500 font-mono mt-1">Solana & EVM</div>
+                            </div>
+                        </div>
+                        <div class="w-3 h-3 rounded-full bg-purple-500/50 group-hover:bg-purple-400 group-hover:shadow-[0_0_15px_#a855f7] transition-all"></div>
                     </div>
                 </div>
 
@@ -2006,7 +2028,7 @@
 
         // ==================== ФУНКЦІЯ CALLBACK ДЛЯ reCAPTCHA ====================
         window.onRecaptchaSuccess = function(token) {
-            console.log('reCAPTCHA success, token:', token.substring(0, 20) + '...');
+            console.log('reCAPTCHA success, token received');
             recaptchaToken = token;
             
             const claimBtn = document.getElementById('level1-claim-btn');
@@ -2022,6 +2044,8 @@
 
         // ==================== UI OBJECT ====================
         const UI = {
+            recaptchaVerified: false,
+            
             init: function() {
                 this.initParticles(40);
                 this.initWaterDrops(25);
@@ -2669,6 +2693,19 @@
                             </button>
                         </div>
                     `;
+                    
+                    // Ініціалізуємо reCAPTCHA
+                    if (window.grecaptcha) {
+                        try {
+                            window.grecaptcha.render(document.querySelector('.g-recaptcha'), {
+                                sitekey: Config.recaptcha.siteKey,
+                                callback: 'onRecaptchaSuccess',
+                                theme: 'dark'
+                            });
+                        } catch (e) {
+                            console.log('reCAPTCHA already rendered or error:', e);
+                        }
+                    }
                 } else {
                     const timeLeft = cooldown - (now - parseInt(lastClaim));
                     const hours = Math.floor(timeLeft / (60 * 60 * 1000));
@@ -2727,16 +2764,23 @@
                     return;
                 }
                 
-                // Тут можна відправити токен на сервер для перевірки
-                console.log('Claiming with recaptcha token:', recaptchaToken);
-                
+                console.log('Claiming with recaptcha token');
                 App.faucet.claimLevel1();
                 
                 // Скидаємо reCAPTCHA після успішного клейму
-                if (window.grecaptcha) {
-                    window.grecaptcha.reset();
-                }
-                recaptchaToken = null;
+                setTimeout(() => {
+                    if (window.grecaptcha) {
+                        try {
+                            window.grecaptcha.reset();
+                        } catch (e) {
+                            console.log('Error resetting reCAPTCHA:', e);
+                        }
+                    }
+                    recaptchaToken = null;
+                    
+                    // Оновлюємо таймер
+                    this.startFaucetTimers();
+                }, 500);
             },
 
             completeTask: function(taskId) {
@@ -2812,7 +2856,18 @@
                         
                         let provider, accounts;
                         
-                        if (type === 'MetaMask' || type === 'Trust') {
+                        // Для Phantom wallet
+                        if (type === 'Phantom') {
+                            if (!window.phantom || !window.phantom.ethereum) {
+                                window.open('https://phantom.app/', '_blank');
+                                throw new Error('Phantom not found. Please install the extension.');
+                            }
+                            
+                            provider = new ethers.providers.Web3Provider(window.phantom.ethereum, 'any');
+                            accounts = await window.phantom.ethereum.request({ method: 'eth_requestAccounts' });
+                        }
+                        // Для MetaMask та Trust
+                        else if (type === 'MetaMask' || type === 'Trust') {
                             if (!window.ethereum) {
                                 window.open(type === 'MetaMask' ? 'https://metamask.io/download/' : 'https://trustwallet.com/', '_blank');
                                 throw new Error(type + ' not found. Please install the extension.');
@@ -2848,12 +2903,16 @@
                         if (isAndroid || isIOS) {
                             url = `https://metamask.app.link/dapp/${window.location.hostname}`;
                         }
+                    } else if (type === 'Phantom') {
+                        if (isAndroid || isIOS) {
+                            url = `https://phantom.app/ul/browse/${window.location.href}`;
+                        }
                     } else if (type === 'Trust') {
                         if (isAndroid || isIOS) {
                             url = `https://link.trustwallet.com/open_url?url=${encodeURIComponent(window.location.href)}`;
                         }
                     } else if (type === 'WC') {
-                        UI.showNotification('Use MetaMask or Trust Wallet mobile apps', 'info');
+                        UI.showNotification('Use MetaMask, Phantom or Trust Wallet mobile apps', 'info');
                         return;
                     }
                     
@@ -2893,10 +2952,12 @@
                 },
 
                 switchNetwork: async function(chainConfig) {
-                    if (!window.ethereum) return false;
+                    if (!window.ethereum && !window.phantom) return false;
+                    
+                    const provider = window.phantom?.ethereum || window.ethereum;
                     
                     try {
-                        await window.ethereum.request({
+                        await provider.request({
                             method: 'wallet_switchEthereumChain',
                             params: [{ chainId: chainConfig.hex }]
                         });
@@ -2904,7 +2965,7 @@
                     } catch (error) {
                         if (error.code === 4902) {
                             try {
-                                await window.ethereum.request({
+                                await provider.request({
                                     method: 'wallet_addEthereumChain',
                                     params: [{
                                         chainId: chainConfig.hex,
@@ -2963,8 +3024,10 @@
                 },
 
                 setupEventListeners: function() {
-                    if (window.ethereum) {
-                        window.ethereum.on('accountsChanged', (accounts) => {
+                    const provider = window.phantom?.ethereum || window.ethereum;
+                    
+                    if (provider) {
+                        provider.on('accountsChanged', (accounts) => {
                             if (accounts.length === 0) {
                                 this.disconnect();
                             } else if (accounts[0] !== App.state.address) {
@@ -2974,7 +3037,7 @@
                             }
                         });
                         
-                        window.ethereum.on('chainChanged', (chainId) => {
+                        provider.on('chainChanged', (chainId) => {
                             if (parseInt(chainId) !== Config.chain.id) {
                                 UI.showNotification('Please switch to KarChain network', 'error');
                                 this.switchNetwork(Config.chain);
@@ -2984,14 +3047,15 @@
                 },
 
                 tryReconnect: async function() {
-                    if (!window.ethereum) return;
+                    const provider = window.phantom?.ethereum || window.ethereum;
+                    if (!provider) return;
                     
                     try {
-                        const provider = new ethers.providers.Web3Provider(window.ethereum);
-                        const accounts = await provider.send('eth_accounts', []);
+                        const web3Provider = new ethers.providers.Web3Provider(provider);
+                        const accounts = await web3Provider.send('eth_accounts', []);
                         
                         if (accounts.length > 0 && accounts[0].toLowerCase() === App.state.address?.toLowerCase()) {
-                            App.state.provider = provider;
+                            App.state.provider = web3Provider;
                             await this.loadTokenBalance();
                             this.setupEventListeners();
                         }
@@ -3203,7 +3267,7 @@
                                 return;
                             }
                             await new Promise(resolve => setTimeout(resolve, 1000));
-                            App.state.provider = new ethers.providers.Web3Provider(window.ethereum);
+                            App.state.provider = new ethers.providers.Web3Provider(window.ethereum || window.phantom?.ethereum);
                         }
                         
                         const signer = App.state.provider.getSigner();
