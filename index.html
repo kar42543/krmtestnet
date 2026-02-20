@@ -1965,6 +1965,7 @@
         // ==================== ГЛОБАЛЬНІ ЗМІННІ ====================
         let recaptchaToken = null;
         let recaptchaWidgetId = null;
+        let isRecaptchaReady = false;
 
         // ==================== КОНФІГУРАЦІЯ ====================
         const Config = {
@@ -2034,6 +2035,7 @@
             const claimBtn = document.getElementById('level1-claim-btn');
             if (claimBtn) {
                 claimBtn.classList.remove('opacity-50', 'pointer-events-none');
+                claimBtn.classList.add('opacity-100', 'cursor-pointer');
             }
             
             const errorEl = document.getElementById('recaptcha-error');
@@ -2062,6 +2064,9 @@
                 this.animateCounters();
                 setInterval(() => this.startFaucetTimers(), 1000);
                 this.fixChromeRendering();
+                
+                // Ініціалізація reCAPTCHA після завантаження
+                this.initRecaptcha();
             },
 
             fixChromeRendering: function() {
@@ -2657,6 +2662,27 @@
                 this.loadTransactionHistory();
             },
 
+            // ============== Ініціалізація reCAPTCHA ==============
+            initRecaptcha: function() {
+                if (window.grecaptcha) {
+                    window.grecaptcha.ready(() => {
+                        isRecaptchaReady = true;
+                        console.log('reCAPTCHA ready');
+                    });
+                } else {
+                    // Якщо grecaptcha ще не завантажена, чекаємо
+                    const checkRecaptcha = setInterval(() => {
+                        if (window.grecaptcha) {
+                            clearInterval(checkRecaptcha);
+                            window.grecaptcha.ready(() => {
+                                isRecaptchaReady = true;
+                                console.log('reCAPTCHA ready after delay');
+                            });
+                        }
+                    }, 100);
+                }
+            },
+
             // ============== FAUCET TIMERS З reCAPTCHA ==============
             startFaucetTimers: function() {
                 if (!App.state.address) return;
@@ -2694,17 +2720,36 @@
                         </div>
                     `;
                     
-                    // Ініціалізуємо reCAPTCHA
-                    if (window.grecaptcha) {
-                        try {
-                            window.grecaptcha.render(document.querySelector('.g-recaptcha'), {
-                                sitekey: Config.recaptcha.siteKey,
-                                callback: 'onRecaptchaSuccess',
-                                theme: 'dark'
-                            });
-                        } catch (e) {
-                            console.log('reCAPTCHA already rendered or error:', e);
-                        }
+                    // Ініціалізуємо reCAPTCHA з правильним рендерингом
+                    if (window.grecaptcha && isRecaptchaReady) {
+                        setTimeout(() => {
+                            const recaptchaElement = container.querySelector('.g-recaptcha');
+                            if (recaptchaElement && !recaptchaElement.hasChildNodes()) {
+                                window.grecaptcha.render(recaptchaElement, {
+                                    sitekey: Config.recaptcha.siteKey,
+                                    callback: 'onRecaptchaSuccess',
+                                    theme: 'dark'
+                                });
+                            }
+                        }, 100);
+                    } else {
+                        // Якщо grecaptcha не готова, чекаємо і пробуємо знову
+                        const waitForRecaptcha = setInterval(() => {
+                            if (window.grecaptcha && isRecaptchaReady) {
+                                clearInterval(waitForRecaptcha);
+                                const recaptchaElement = container.querySelector('.g-recaptcha');
+                                if (recaptchaElement && !recaptchaElement.hasChildNodes()) {
+                                    window.grecaptcha.render(recaptchaElement, {
+                                        sitekey: Config.recaptcha.siteKey,
+                                        callback: 'onRecaptchaSuccess',
+                                        theme: 'dark'
+                                    });
+                                }
+                            }
+                        }, 200);
+                        
+                        // Припиняємо через 5 секунд, якщо не вийшло
+                        setTimeout(() => clearInterval(waitForRecaptcha), 5000);
                     }
                 } else {
                     const timeLeft = cooldown - (now - parseInt(lastClaim));
