@@ -1,1036 +1,1199 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KarChain | Sovereign Layer-1 Blockchain</title>
-    
-    <!-- Fonts & Icons -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-    
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#020402">
+<title>KarChain | The Sovereign Consensus Layer</title>
 
-        body {
-            background: #020402;
-            color: #ffffff;
-            font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
-            position: relative;
-        }
+<!-- Libraries -->
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@200..800&family=Space+Grotesk:wght@300..700&family=JetBrains+Mono:wght@400..700&display=swap" rel="stylesheet">
 
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar { width: 12px; }
-        ::-webkit-scrollbar-track { background: #0a0f0a; }
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(180deg, #22c55e, #16a34a);
-            border-radius: 6px;
-            border: 2px solid #0a0f0a;
-        }
+<style>
+:root {
+    --glass-bg: rgba(10, 10, 10, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    --neon-glow: 0 0 30px rgba(74, 222, 128, 0.4);
+    --neon-glow-hover: 0 0 50px rgba(74, 222, 128, 0.6);
+}
 
-        /* Animations */
-        @keyframes float {
-            0%, 100% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-        }
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
 
-        @keyframes glow {
-            0%, 100% { box-shadow: 0 0 30px rgba(74, 222, 128, 0.3); }
-            50% { box-shadow: 0 0 60px rgba(74, 222, 128, 0.6); }
-        }
+body {
+    background-color: #020402;
+    color: #e5e5e5;
+    overflow-x: hidden;
+    cursor: default;
+    font-feature-settings: "ss01", "ss02", "cv01", "cv02";
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    opacity: 0;
+    animation: fadeInBody 1s ease-out forwards;
+    min-height: 100vh;
+    position: relative;
+    font-family: 'Inter', sans-serif;
+}
 
-        @keyframes gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
+@keyframes fadeInBody {
+    to { opacity: 1; }
+}
 
-        @keyframes spin-slow {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
+html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+}
 
-        @keyframes pulse-ring {
-            0% { transform: scale(0.95); opacity: 0.5; }
-            50% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(0.95); opacity: 0.5; }
-        }
+/* ===== АНІМАЦІЇ ===== */
+@keyframes float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    25% { transform: translateY(-15px) rotate(2deg); }
+    75% { transform: translateY(15px) rotate(-2deg); }
+}
 
-        /* Custom Classes */
-        .glass-panel {
-            background: rgba(10, 15, 10, 0.7);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(74, 222, 128, 0.1);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-        }
+@keyframes pulse-glow {
+    0%, 100% { opacity: 0.3; filter: blur(60px); }
+    50% { opacity: 0.7; filter: blur(80px); }
+}
 
-        .glass-card {
-            background: linear-gradient(145deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
-            border: 1px solid rgba(74, 222, 128, 0.1);
-            backdrop-filter: blur(12px);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+@keyframes rotate3d {
+    0% { transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg); }
+    100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(180deg); }
+}
 
-        .glass-card:hover {
-            border-color: rgba(74, 222, 128, 0.4);
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 40px -20px rgba(74, 222, 128, 0.5);
-        }
+@keyframes waterDrop {
+    0% { transform: translateY(-100vh) scale(1); opacity: 0; }
+    10% { opacity: 0.8; }
+    90% { opacity: 0.4; }
+    100% { transform: translateY(100vh) scale(0.5); opacity: 0; }
+}
 
-        .btn-primary {
-            background: linear-gradient(135deg, #15803d, #16a34a);
-            color: white;
-            font-weight: 600;
-            padding: 12px 32px;
-            border-radius: 12px;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.3s;
-            border: 1px solid rgba(74, 222, 128, 0.3);
-        }
+@keyframes gridFlow {
+    0% { transform: translateY(0) translateX(0); }
+    100% { transform: translateY(60px) translateX(60px); }
+}
 
-        .btn-primary::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.6s;
-        }
+@keyframes gradient {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
 
-        .btn-primary:hover::before { left: 100%; }
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 40px rgba(34, 197, 94, 0.4);
-        }
+@keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
 
-        .btn-secondary {
-            background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: white;
-            padding: 12px 32px;
-            border-radius: 12px;
-            transition: all 0.3s;
-        }
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
 
-        .btn-secondary:hover {
-            border-color: rgba(74, 222, 128, 0.5);
-            background: rgba(255, 255, 255, 0.05);
-            transform: translateY(-2px);
-        }
+@keyframes borderPulse {
+    0%, 100% { border-color: rgba(74, 222, 128, 0.3); box-shadow: 0 0 20px rgba(74, 222, 128, 0.2); }
+    50% { border-color: rgba(74, 222, 128, 0.8); box-shadow: 0 0 40px rgba(74, 222, 128, 0.4); }
+}
 
-        .gradient-text {
-            background: linear-gradient(90deg, #fff, #4ade80, #22c55e, #4ade80, #fff);
-            background-size: 300% 300%;
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            animation: gradient 8s ease infinite;
-        }
+/* ===== ОСНОВНІ СТИЛІ ===== */
+.smooth-transition {
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+}
 
-        .floating { animation: float 6s ease-in-out infinite; }
-        .glow { animation: glow 3s ease-in-out infinite; }
-        .spin-slow { animation: spin-slow 20s linear infinite; }
+.glass-panel {
+    background: rgba(15, 15, 15, 0.7);
+    backdrop-filter: blur(20px) saturate(200%);
+    -webkit-backdrop-filter: blur(20px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(74, 222, 128, 0.05);
+    transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
 
-        .bg-grid {
-            background-image: 
-                linear-gradient(rgba(74, 222, 128, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(74, 222, 128, 0.05) 1px, transparent 1px);
-            background-size: 50px 50px;
-        }
+.glass-panel:hover {
+    border-color: rgba(74, 222, 128, 0.2);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(74, 222, 128, 0.15);
+    transform: translateY(-2px);
+}
 
-        .hero-orb {
-            position: absolute;
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, rgba(74, 222, 128, 0.15) 0%, transparent 70%);
-            border-radius: 50%;
-            filter: blur(60px);
-            animation: pulse-ring 8s ease-in-out infinite;
-        }
+.glass-card {
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.03) 0%, rgba(255, 255, 255, 0.01) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(12px) saturate(180%);
+    -webkit-backdrop-filter: blur(12px) saturate(180%);
+    transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
 
-        .stat-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(74, 222, 128, 0.1);
-            border-radius: 20px;
-            padding: 24px;
-            transition: all 0.3s;
-        }
+.glass-card:hover {
+    border-color: rgba(74, 222, 128, 0.25);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 30px 80px -20px rgba(74, 222, 128, 0.2);
+}
 
-        .stat-card:hover {
-            border-color: rgba(74, 222, 128, 0.4);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px -15px #4ade80;
-        }
+.btn-primary {
+    background: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
+    color: white;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    box-shadow: 0 4px 20px rgba(34, 197, 94, 0.2);
+}
 
-        .network-node {
-            width: 8px;
-            height: 8px;
-            background: #4ade80;
-            border-radius: 50%;
-            position: absolute;
-            box-shadow: 0 0 20px #4ade80;
-        }
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.6s ease;
+}
 
-        .toast-notification {
-            position: fixed;
-            top: 100px;
-            right: 20px;
-            padding: 16px 24px;
-            background: rgba(10, 15, 10, 0.95);
-            backdrop-filter: blur(10px);
-            border-left: 4px solid #4ade80;
-            border-radius: 12px;
-            color: white;
-            z-index: 9999;
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
-            max-width: 350px;
-        }
+.btn-primary:hover::before {
+    left: 100%;
+}
 
-        .toast-notification.show { transform: translateX(0); }
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 40px rgba(34, 197, 94, 0.4);
+    border-color: #4ade80;
+}
 
-        .modal-backdrop {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(8px);
-            z-index: 9998;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.3s;
-        }
+.btn-secondary {
+    background: transparent;
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
 
-        .modal-backdrop.show {
-            opacity: 1;
-            pointer-events: all;
-        }
+.btn-secondary:hover {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(74, 222, 128, 0.3);
+    transform: translateY(-2px);
+}
 
-        .modal {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.9);
-            background: #0a0f0a;
-            border: 1px solid rgba(74, 222, 128, 0.3);
-            border-radius: 24px;
-            padding: 32px;
-            z-index: 9999;
-            opacity: 0;
-            pointer-events: none;
-            transition: all 0.3s;
-            max-width: 450px;
-            width: 90%;
-        }
+/* ===== КАСТОМНИЙ СКРОЛ ===== */
+::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
 
-        .modal.show {
-            opacity: 1;
-            pointer-events: all;
-            transform: translate(-50%, -50%) scale(1);
-        }
+::-webkit-scrollbar-track {
+    background: rgba(2, 4, 2, 0.9);
+    border-radius: 6px;
+}
 
-        .wallet-option {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(to bottom, #15803d, #4ade80);
+    border-radius: 6px;
+    border: 2px solid rgba(2, 4, 2, 0.9);
+}
 
-        .wallet-option:hover {
-            background: rgba(74, 222, 128, 0.1);
-            border-color: #4ade80;
-            transform: translateX(5px);
-        }
+/* ===== ФОНОВІ ЕФЕКТИ ===== */
+#webgl-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -10;
+    opacity: 0.35;
+    pointer-events: none;
+    will-change: transform;
+}
 
-        .faq-item {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            margin-bottom: 12px;
-            overflow: hidden;
-        }
+.grid-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -9;
+    pointer-events: none;
+    background-image: linear-gradient(rgba(74, 222, 128, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(74, 222, 128, 0.03) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(circle at center, black 40%, transparent 70%);
+    -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 70%);
+    animation: gridFlow 20s linear infinite;
+}
 
-        .faq-question {
-            padding: 20px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 600;
-        }
+.water-drop {
+    position: absolute;
+    width: 2px;
+    background: linear-gradient(to bottom, transparent, rgba(74, 222, 128, 0.4));
+    border-radius: 0 0 1px 1px;
+    z-index: -8;
+    pointer-events: none;
+    animation: waterDrop 8s linear infinite;
+}
 
-        .faq-answer {
-            padding: 0 20px;
-            max-height: 0;
-            overflow: hidden;
-            transition: all 0.3s;
-            color: #9ca3af;
-        }
+.water-wave {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 300%;
+    height: 150px;
+    background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.1) 20%, rgba(74, 222, 128, 0.05) 40%, transparent 60%);
+    z-index: -7;
+    opacity: 0.3;
+    pointer-events: none;
+    animation: wave 20s linear infinite;
+}
 
-        .faq-answer.open {
-            padding: 0 20px 20px;
-            max-height: 200px;
-        }
+@keyframes wave {
+    0% { transform: translateX(0) translateY(0); }
+    50% { transform: translateX(-50px) translateY(10px); }
+    100% { transform: translateX(0) translateY(0); }
+}
 
-        .loader {
-            width: 48px;
-            height: 48px;
-            border: 3px solid rgba(74, 222, 128, 0.3);
-            border-radius: 50%;
-            border-top-color: #4ade80;
-            animation: spin-slow 1s linear infinite;
-        }
+/* =----- ТЕКСТОВІ ЕФЕКТИ =----- */
+.gradient-text {
+    background: linear-gradient(90deg, #ffffff, #4ade80, #22c55e, #4ade80, #ffffff);
+    background-size: 300% 300%;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: gradient 8s ease infinite;
+}
 
-        .input-field {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            padding: 14px 16px;
-            color: white;
-            width: 100%;
-            transition: all 0.3s;
-        }
+/* =----- АНІМАЦІЇ ПОЯВИ =----- */
+.fade-in { opacity: 0; animation: fadeIn 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+.fade-in-up { opacity: 0; transform: translateY(40px); animation: fadeInUp 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+.fade-in-left { opacity: 0; transform: translateX(-40px); animation: fadeInLeft 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+.fade-in-right { opacity: 0; transform: translateX(40px); animation: fadeInRight 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
 
-        .input-field:focus {
-            outline: none;
-            border-color: #4ade80;
-            box-shadow: 0 0 0 2px rgba(74, 222, 128, 0.2);
-        }
+@keyframes fadeIn { to { opacity: 1; } }
+@keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeInLeft { to { opacity: 1; transform: translateX(0); } }
+@keyframes fadeInRight { to { opacity: 1; transform: translateX(0); } }
 
-        .input-field::placeholder {
-            color: rgba(255, 255, 255, 0.3);
-        }
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+.delay-600 { animation-delay: 0.6s; }
+.delay-700 { animation-delay: 0.7s; }
 
-        .transaction-item {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 8px;
-            transition: all 0.3s;
-        }
+/* =----- ГІРОСКОП =----- */
+.gyro-wrapper { perspective: 1000px; width: 300px; height: 300px; position: relative; }
+.gyro { position: absolute; top: 50%; left: 50%; transform-style: preserve-3d; animation: rotate3d 20s linear infinite; }
+@keyframes rotate3d { 0% { transform: rotateX(0) rotateY(0) rotateZ(0); } 100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(180deg); } }
+.gyro-ring { position: absolute; top: 50%; left: 50%; border-radius: 50%; border: 2px solid rgba(74, 222, 128, 0.6); box-shadow: 0 0 20px rgba(74, 222, 128, 0.3); animation: pulseRing 4s ease-in-out infinite; }
+@keyframes pulseRing { 0%, 100% { border-color: rgba(74, 222, 128, 0.6); box-shadow: 0 0 20px rgba(74, 222, 128, 0.3); } 50% { border-color: rgba(74, 222, 128, 1); box-shadow: 0 0 40px rgba(74, 222, 128, 0.6); } }
+.gr-1 { width: 200px; height: 200px; margin: -100px; animation: rotate1 10s linear infinite; border-left-color: transparent; }
+.gr-2 { width: 160px; height: 160px; margin: -80px; animation: rotate2 8s linear infinite; border-top-color: transparent; border-width: 2px; }
+.gr-3 { width: 120px; height: 120px; margin: -60px; animation: rotate3 6s linear infinite; border-right-color: transparent; }
+@keyframes rotate1 { 0% { transform: rotateX(0) rotateY(0); } 100% { transform: rotateX(360deg) rotateY(360deg); } }
+@keyframes rotate2 { 0% { transform: rotateX(0) rotateY(0); } 100% { transform: rotateX(-360deg) rotateY(180deg); } }
+@keyframes rotate3 { 0% { transform: rotateX(0) rotateY(0); } 100% { transform: rotateX(180deg) rotateY(-360deg); } }
 
-        .transaction-item:hover {
-            background: rgba(74, 222, 128, 0.05);
-            border-color: rgba(74, 222, 128, 0.3);
-        }
+/* =----- МОБІЛЬНЕ МЕНЮ =----- */
+.mobile-menu { 
+    position: fixed; 
+    top: 0; 
+    right: -100%; 
+    width: 80%; 
+    max-width: 400px; 
+    height: 100vh; 
+    background: rgba(2, 4, 2, 0.98); 
+    backdrop-filter: blur(20px); 
+    z-index: 10000; 
+    transition: right 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); 
+    padding-top: 100px; 
+    overflow-y: auto; 
+    border-left: 1px solid rgba(74, 222, 128, 0.1); 
+}
+.mobile-menu.active { right: 0; }
+.mobile-menu-backdrop { 
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%; 
+    background: rgba(0, 0, 0, 0.7); 
+    backdrop-filter: blur(5px); 
+    z-index: 9999; 
+    opacity: 0; 
+    pointer-events: none; 
+    transition: opacity 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); 
+}
+.mobile-menu-backdrop.active { opacity: 1; pointer-events: all; }
 
-        .timer-flip {
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(74, 222, 128, 0.3);
-            border-radius: 8px;
-            padding: 8px 12px;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 24px;
-            color: #4ade80;
-        }
+.hamburger { 
+    display: none; 
+    flex-direction: column; 
+    justify-content: space-between; 
+    width: 30px; 
+    height: 21px; 
+    background: transparent; 
+    border: none; 
+    cursor: pointer; 
+    padding: 0; 
+    z-index: 10001; 
+}
+.hamburger span { 
+    width: 100%; 
+    height: 3px; 
+    background: #4ade80; 
+    border-radius: 2px; 
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); 
+}
+.hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(6px, 6px); }
+.hamburger.active span:nth-child(2) { opacity: 0; }
+.hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(7px, -7px); }
 
-        .page {
-            display: none;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
+@media (max-width: 1024px) { 
+    .desktop-nav { display: none !important; } 
+    .hamburger { display: flex; } 
+}
 
-        .page.active {
-            display: block;
-            opacity: 1;
-        }
+/* =----- КАРТКИ ЗАВДАНЬ =----- */
+.task-card {
+    background: linear-gradient(145deg, rgba(74, 222, 128, 0.05) 0%, rgba(74, 222, 128, 0.01) 100%);
+    border: 1px solid rgba(74, 222, 128, 0.1);
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
 
-        .mobile-menu {
-            position: fixed;
-            top: 0;
-            right: -100%;
-            width: 300px;
-            height: 100vh;
-            background: #0a0f0a;
-            border-left: 1px solid rgba(74, 222, 128, 0.2);
-            z-index: 9997;
-            transition: right 0.3s;
-            padding: 100px 20px 20px;
-        }
+.task-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(74, 222, 128, 0.3);
+    box-shadow: 0 20px 40px -20px rgba(74, 222, 128, 0.3);
+}
 
-        .mobile-menu.open { right: 0; }
+.task-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(74, 222, 128, 0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.6s;
+    pointer-events: none;
+}
 
-        .hamburger {
-            display: none;
-            flex-direction: column;
-            gap: 6px;
-            cursor: pointer;
-            z-index: 9998;
-        }
+.task-card:hover::before {
+    opacity: 1;
+}
 
-        .hamburger span {
-            width: 30px;
-            height: 3px;
-            background: #4ade80;
-            border-radius: 3px;
-            transition: all 0.3s;
-        }
+.task-card.completed {
+    border-color: #4ade80;
+    background: linear-gradient(145deg, rgba(74, 222, 128, 0.1) 0%, rgba(74, 222, 128, 0.05) 100%);
+}
 
-        .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(6px, 6px); }
-        .hamburger.open span:nth-child(2) { opacity: 0; }
-        .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(7px, -7px); }
+.task-card.locked {
+    opacity: 0.5;
+    filter: grayscale(0.8);
+    pointer-events: none;
+}
 
-        @media (max-width: 768px) {
-            .desktop-nav { display: none; }
-            .hamburger { display: flex; }
-        }
+.task-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    background: rgba(74, 222, 128, 0.2);
+    border: 1px solid rgba(74, 222, 128, 0.3);
+    color: #4ade80;
+}
 
-        .badge {
-            padding: 4px 12px;
-            border-radius: 100px;
-            font-size: 12px;
-            font-weight: 600;
-            text-transform: uppercase;
-        }
+/* =----- ТАЙМЕРИ =----- */
+.timer-flip {
+    font-variant-numeric: tabular-nums;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(74, 222, 128, 0.3);
+    box-shadow: 0 0 20px rgba(74, 222, 128, 0.2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 24px;
+    color: #4ade80;
+}
 
-        .badge-success { background: rgba(74, 222, 128, 0.2); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.3); }
-        .badge-warning { background: rgba(245, 158, 11, 0.2); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.3); }
-        .badge-error { background: rgba(239, 68, 68, 0.2); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); }
+/* =----- НОТИФІКАЦІЇ =----- */
+.notification { 
+    animation: slideIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; 
+    max-width: 350px; 
+    width: 90%; 
+}
+@keyframes slideIn { 
+    from { transform: translateX(100%) translateY(-20px); opacity: 0; } 
+    to { transform: translateX(0) translateY(0); opacity: 1; } 
+}
 
-        .feature-card {
-            background: linear-gradient(145deg, rgba(74, 222, 128, 0.05), rgba(74, 222, 128, 0.01));
-            border: 1px solid rgba(74, 222, 128, 0.1);
-            border-radius: 24px;
-            padding: 32px;
-            transition: all 0.4s;
-        }
+/* =----- ІНПУТИ =----- */
+.tx-input {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: white;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    width: 100%;
+}
 
-        .feature-card:hover {
-            border-color: #4ade80;
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px -20px #4ade80;
-        }
+.tx-input:focus {
+    outline: none;
+    border-color: rgba(74, 222, 128, 0.5);
+    box-shadow: 0 0 20px rgba(74, 222, 128, 0.2);
+}
 
-        .feature-icon {
-            width: 60px;
-            height: 60px;
-            background: rgba(74, 222, 128, 0.1);
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 24px;
-            font-size: 24px;
-            color: #4ade80;
-            transition: all 0.3s;
-        }
+.tx-input::placeholder {
+    color: rgba(255, 255, 255, 0.4);
+}
 
-        .feature-card:hover .feature-icon {
-            background: #4ade80;
-            color: #020402;
-            transform: scale(1.1) rotate(5deg);
-        }
+/* =----- КНОПКА ВВЕРХ =----- */
+#scrollToTopBtn { 
+    box-shadow: 0 4px 20px rgba(74, 222, 128, 0.3); 
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
+    opacity: 0; 
+    transform: translateY(20px); 
+    pointer-events: none; 
+}
+#scrollToTopBtn.visible { 
+    opacity: 1; 
+    transform: translateY(0); 
+    pointer-events: all; 
+}
 
-        .progress-bar {
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            overflow: hidden;
-        }
+/* =----- FAQ =----- */
+.faq-content { 
+    max-height: 0; 
+    opacity: 0; 
+    overflow: hidden; 
+    transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); 
+}
+.faq-content.open { 
+    max-height: 500px; 
+    opacity: 1; 
+    padding-top: 1rem; 
+    padding-bottom: 1rem; 
+}
+.faq-toggle i { 
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); 
+}
+.faq-toggle.open i { 
+    transform: rotate(180deg); 
+}
 
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #22c55e, #4ade80);
-            border-radius: 4px;
-            transition: width 0.3s;
-        }
+/* =----- СТОРІНКИ =----- */
+.page-content { 
+    display: none; 
+    opacity: 0; 
+    transition: opacity 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); 
+}
+.page-content.active { 
+    display: block; 
+    opacity: 1; 
+}
 
-        .token-price {
-            font-family: 'JetBrains Mono', monospace;
-            background: rgba(74, 222, 128, 0.1);
-            padding: 4px 12px;
-            border-radius: 100px;
-            border: 1px solid rgba(74, 222, 128, 0.2);
-        }
-    </style>
+/* =----- НАВІГАЦІЯ =----- */
+nav#navbar {
+    background: rgba(2, 4, 2, 0.95) !important;
+    backdrop-filter: blur(24px) saturate(200%) !important;
+    -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    will-change: transform;
+    transform: translateZ(0);
+    -webkit-transform: translateZ(0);
+}
+
+.nav-link {
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.nav-link::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: #4ade80;
+    transition: width 0.3s ease;
+}
+
+.nav-link:hover::after {
+    width: 100%;
+}
+
+.nav-link.active {
+    color: white;
+}
+
+.nav-link.active::after {
+    width: 100%;
+}
+
+/* =----- МОДАЛЬНЕ ВІКНО =----- */
+#connect-modal {
+    transition: all 0.3s ease;
+}
+
+.wallet-option {
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.wallet-option:hover {
+    border-color: #4ade80;
+    transform: translateX(5px);
+    background: rgba(74, 222, 128, 0.1);
+}
+
+/* =----- ПРОГРЕС БАР =----- */
+.progress-bar {
+    width: 100%;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4ade80, #22c55e);
+    border-radius: 3px;
+    transition: width 0.3s ease;
+}
+
+/* =----- СТАТИСТИКА =----- */
+.stat-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 16px;
+    padding: 24px;
+    transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+    border-color: rgba(74, 222, 128, 0.3);
+    transform: translateY(-4px);
+}
+
+.counter {
+    font-family: 'JetBrains Mono', monospace;
+}
+</style>
 </head>
 
-<body class="bg-[#020402] text-white antialiased">
-    <!-- Background Effects -->
-    <div class="fixed inset-0 bg-grid opacity-30 pointer-events-none"></div>
-    <div class="hero-orb fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"></div>
-    
-    <!-- Network Nodes Animation -->
-    <div class="fixed inset-0 pointer-events-none">
-        <div class="network-node" style="top: 20%; left: 15%;"></div>
-        <div class="network-node" style="top: 70%; left: 85%; animation-delay: 2s;"></div>
-        <div class="network-node" style="top: 40%; left: 45%; animation-delay: 1s;"></div>
-        <div class="network-node" style="top: 80%; left: 25%; animation-delay: 3s;"></div>
-        <div class="network-node" style="top: 15%; left: 75%; animation-delay: 1.5s;"></div>
-    </div>
+<body class="antialiased selection:bg-green-500 selection:text-white fix-chrome">
 
-    <!-- Toast Notification -->
-    <div id="toast" class="toast-notification">
-        <div class="flex items-center gap-3">
-            <i id="toastIcon" class="fa-solid fa-info-circle text-green-400 text-xl"></i>
-            <div>
-                <div id="toastTitle" class="font-bold mb-1">Info</div>
-                <div id="toastMessage" class="text-sm text-gray-300"></div>
+<!-- ===== МОБІЛЬНЕ МЕНЮ ===== -->
+<div class="mobile-menu-backdrop" id="mobileBackdrop" onclick="UI.closeMobileMenu()"></div>
+<div class="mobile-menu" id="mobileMenu">
+    <div class="flex flex-col items-center p-8 space-y-6">
+        <button onclick="App.router.navigate('home'); UI.closeMobileMenu();" class="text-2xl font-bold text-white hover:text-green-400 transition-colors w-full text-center py-4 border-b border-white/10">
+            <i class="fa-solid fa-flask mr-3"></i>Testnet
+        </button>
+        <button onclick="App.router.navigate('vision'); UI.closeMobileMenu();" class="text-2xl font-bold text-gray-400 hover:text-white transition-colors w-full text-center py-4 border-b border-white/10">
+            <i class="fa-solid fa-eye mr-3"></i>Vision
+        </button>
+        <button onclick="App.router.navigate('ecosystem'); UI.closeMobileMenu();" class="text-2xl font-bold text-gray-400 hover:text-white transition-colors w-full text-center py-4 border-b border-white/10">
+            <i class="fa-solid fa-cubes mr-3"></i>Ecosystem
+        </button>
+        <button onclick="App.router.navigate('support'); UI.closeMobileMenu();" class="text-2xl font-bold text-gray-400 hover:text-white transition-colors w-full text-center py-4 border-b border-white/10">
+            <i class="fa-solid fa-headset mr-3"></i>Support
+        </button>
+        
+        <div id="mobileWalletInfo" class="hidden w-full mt-4">
+            <div class="glass-panel rounded-xl p-6">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-14 h-14 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg">
+                        <i class="fa-solid fa-wallet text-white text-xl"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-white font-bold text-base">Connected Wallet</p>
+                        <p class="text-gray-400 text-xs font-mono break-all" id="mobileWalletAddress">Not connected</p>
+                    </div>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+                        <span class="text-gray-400 text-sm">Balance</span>
+                        <span class="text-white font-bold font-mono" id="mobileWalletBalance">0.00 KRM</span>
+                    </div>
+                    <button onclick="App.wallet.disconnect()" class="w-full py-3 bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-right-from-bracket"></i><span>Disconnect</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex justify-center space-x-8 mt-8">
+            <a href="https://x.com/karim7652117665" target="_blank" class="text-gray-400 hover:text-white transition-colors text-2xl"><i class="fa-brands fa-x-twitter"></i></a>
+            <a href="https://t.me/tgkarim1" target="_blank" class="text-gray-400 hover:text-white transition-colors text-2xl"><i class="fa-brands fa-telegram"></i></a>
+            <a href="https://github.com/KarChain" target="_blank" class="text-gray-400 hover:text-white transition-colors text-2xl"><i class="fa-brands fa-github"></i></a>
+            <a href="#" class="text-gray-400 hover:text-white transition-colors text-2xl"><i class="fa-brands fa-discord"></i></a>
+        </div>
+    </div>
+</div>
+
+<!-- ===== ФОНОВІ ЕЛЕМЕНТИ ===== -->
+<div class="grid-overlay"></div>
+<canvas id="webgl-canvas"></canvas>
+<div id="water-drops" class="fixed inset-0 pointer-events-none z-[-8]"></div>
+<div class="water-wave"></div>
+<div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-green-500/5 rounded-full blur-[150px] -z-5 pointer-events-none animate-pulse-slow"></div>
+
+<!-- ===== НАВІГАЦІЯ ===== -->
+<nav class="fixed top-0 w-full z-50 transition-all duration-300 will-change-transform" id="navbar">
+    <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+        <div class="flex items-center gap-4 cursor-pointer group" onclick="App.router.navigate('home')">
+            <div class="relative w-12 h-12 flex items-center justify-center transition-transform duration-700 group-hover:rotate-180 group-hover:scale-110">
+                <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_20px_rgba(74,222,128,0.6)]">
+                    <path d="M20 10 V90" stroke="#4ade80" stroke-width="8" stroke-linecap="round"/>
+                    <path d="M80 10 L20 50 L80 90" stroke="#4ade80" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+                    <circle cx="20" cy="50" r="10" fill="#22c55e"/>
+                    <circle cx="80" cy="10" r="8" fill="#22c55e"/>
+                    <circle cx="80" cy="90" r="8" fill="#22c55e"/>
+                </svg>
+            </div>
+            <div class="flex flex-col">
+                <span class="text-lg font-bold tracking-[0.2em] text-white group-hover:text-green-400 transition-colors font-display">KARCHAIN</span>
+                <span class="text-[8px] text-gray-500 uppercase tracking-widest font-mono">Testnet Phase 1</span>
+            </div>
+        </div>
+        
+        <div class="desktop-nav flex items-center gap-8">
+            <button onclick="App.router.navigate('home')" id="nav-home" class="nav-link text-sm font-bold uppercase tracking-widest text-white pb-1 px-1 transition-all hover:text-green-400">Testnet</button>
+            <button onclick="App.router.navigate('vision')" id="nav-vision" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white pb-1 px-1 transition-all">Vision</button>
+            <button onclick="App.router.navigate('ecosystem')" id="nav-ecosystem" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white pb-1 px-1 transition-all">Ecosystem</button>
+            <button onclick="App.router.navigate('support')" id="nav-support" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white pb-1 px-1 transition-all">Support</button>
+        </div>
+        
+        <div class="flex items-center gap-4">
+            <button id="connectBtn" class="btn-primary px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 shadow-lg">
+                <i class="fa-solid fa-wallet"></i>
+                <span>Connect Wallet</span>
+            </button>
+            <button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button>
+            
+            <div id="userDropdown" class="hidden absolute top-20 right-4 w-72 glass-panel rounded-xl p-5 z-50 border border-green-500/20">
+                <div class="flex items-center gap-4 mb-4 pb-4 border-b border-white/10">
+                    <div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center shadow-lg">
+                        <i class="fa-solid fa-wallet text-white text-lg"></i>
+                    </div>
+                    <div class="flex-1">
+                        <p class="text-white font-bold text-sm">Connected Wallet</p>
+                        <p class="text-gray-400 text-xs font-mono truncate" id="dropdownAddress">0x00...0000</p>
+                    </div>
+                </div>
+                <div class="space-y-2">
+                    <div class="flex justify-between items-center p-3 bg-white/5 rounded-lg">
+                        <span class="text-gray-400 text-sm">Balance</span>
+                        <span class="text-white font-bold font-mono" id="dropdownBalance">0.00 KRM</span>
+                    </div>
+                    <button onclick="App.wallet.disconnect()" class="w-full text-left px-3 py-3 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition-all flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center">
+                            <i class="fa-solid fa-right-from-bracket text-red-400"></i>
+                        </div>
+                        <div>
+                            <p class="font-bold">Disconnect</p>
+                            <p class="text-xs text-red-500/70">End current session</p>
+                        </div>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
+</nav>
 
-    <!-- Connect Wallet Modal -->
-    <div id="modalBackdrop" class="modal-backdrop" onclick="closeModal()"></div>
-    <div id="walletModal" class="modal">
+<!-- ===== МОДАЛЬНЕ ВІКНО ПІДКЛЮЧЕННЯ ===== -->
+<div id="connect-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="UI.closeModal()"></div>
+    <div class="relative glass-panel w-full max-w-md rounded-2xl p-8 transform scale-95 opacity-0 transition-all duration-300" id="modal-content">
         <div class="flex justify-between items-center mb-6">
-            <h3 class="text-2xl font-bold">Connect Wallet</h3>
-            <button onclick="closeModal()" class="text-gray-400 hover:text-white text-xl">
-                <i class="fa-solid fa-times"></i>
+            <h3 class="text-2xl font-bold text-white font-display flex items-center gap-3">
+                <i class="fa-solid fa-plug text-green-400"></i>Connect Wallet
+            </h3>
+            <button onclick="UI.closeModal()" class="text-gray-400 hover:text-white transition-colors w-10 h-10 rounded-full hover:bg-white/5 flex items-center justify-center">
+                <i class="fa-solid fa-xmark text-xl"></i>
             </button>
         </div>
-        <p class="text-gray-400 text-sm mb-8">Choose your preferred wallet to interact with KarChain</p>
+        <p class="text-gray-400 text-sm mb-8">Choose your preferred wallet to interact with the KarChain network.</p>
         
-        <div class="wallet-option" onclick="connectWallet('metamask')">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" class="w-10 h-10">
-            <div>
-                <div class="font-bold">MetaMask</div>
-                <div class="text-xs text-gray-400">Browser Extension</div>
-            </div>
-            <i class="fa-solid fa-chevron-right ml-auto text-gray-500"></i>
-        </div>
-        
-        <div class="wallet-option" onclick="connectWallet('walletconnect')">
-            <i class="fa-solid fa-qrcode text-3xl text-blue-400"></i>
-            <div>
-                <div class="font-bold">WalletConnect</div>
-                <div class="text-xs text-gray-400">Scan with mobile</div>
-            </div>
-            <i class="fa-solid fa-chevron-right ml-auto text-gray-500"></i>
-        </div>
-        
-        <div class="wallet-option" onclick="connectWallet('trust')">
-            <i class="fa-solid fa-shield-halved text-3xl text-blue-600"></i>
-            <div>
-                <div class="font-bold">Trust Wallet</div>
-                <div class="text-xs text-gray-400">Mobile wallet</div>
-            </div>
-            <i class="fa-solid fa-chevron-right ml-auto text-gray-500"></i>
-        </div>
-        
-        <p class="text-center text-xs text-gray-500 mt-6">
-            By connecting, you agree to our Terms of Service
-        </p>
-    </div>
-
-    <!-- Navigation -->
-    <nav class="fixed top-0 w-full z-50 glass-panel border-b border-green-500/10">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <!-- Logo -->
-            <div class="flex items-center gap-3 cursor-pointer group" onclick="navigateTo('home')">
-                <div class="w-12 h-12 relative">
-                    <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_20px_rgba(74,222,128,0.5)]">
-                        <path d="M20 10 V90" stroke="#4ade80" stroke-width="8" stroke-linecap="round"/>
-                        <path d="M80 10 L20 50 L80 90" stroke="#4ade80" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-                        <circle cx="20" cy="50" r="10" fill="#22c55e"/>
-                        <circle cx="80" cy="10" r="8" fill="#22c55e"/>
-                        <circle cx="80" cy="90" r="8" fill="#22c55e"/>
-                    </svg>
-                </div>
-                <div>
-                    <span class="text-xl font-bold tracking-wider font-display">KARCHAIN</span>
-                    <span class="text-[10px] text-green-500 block">SOVEREIGN LAYER 1</span>
-                </div>
-            </div>
-
-            <!-- Desktop Navigation -->
-            <div class="desktop-nav flex items-center gap-8">
-                <button onclick="navigateTo('home')" class="nav-link text-white font-medium hover:text-green-400 transition-colors">Testnet</button>
-                <button onclick="navigateTo('vision')" class="nav-link text-gray-400 font-medium hover:text-white transition-colors">Vision</button>
-                <button onclick="navigateTo('ecosystem')" class="nav-link text-gray-400 font-medium hover:text-white transition-colors">Ecosystem</button>
-                <button onclick="navigateTo('support')" class="nav-link text-gray-400 font-medium hover:text-white transition-colors">Support</button>
-            </div>
-
-            <!-- Right Section -->
-            <div class="flex items-center gap-4">
-                <button id="walletButton" onclick="openModal()" class="btn-primary flex items-center gap-2">
-                    <i class="fa-solid fa-wallet"></i>
-                    <span>Connect Wallet</span>
-                </button>
-                
-                <!-- Hamburger Menu -->
-                <div class="hamburger" id="hamburger" onclick="toggleMobileMenu()">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </div>
-            </div>
-        </div>
-    </nav>
-
-    <!-- Mobile Menu -->
-    <div id="mobileMenu" class="mobile-menu">
-        <div class="flex flex-col gap-6">
-            <button onclick="navigateTo('home'); toggleMobileMenu()" class="text-xl font-bold text-white hover:text-green-400 transition-colors">Testnet</button>
-            <button onclick="navigateTo('vision'); toggleMobileMenu()" class="text-xl font-bold text-gray-400 hover:text-white transition-colors">Vision</button>
-            <button onclick="navigateTo('ecosystem'); toggleMobileMenu()" class="text-xl font-bold text-gray-400 hover:text-white transition-colors">Ecosystem</button>
-            <button onclick="navigateTo('support'); toggleMobileMenu()" class="text-xl font-bold text-gray-400 hover:text-white transition-colors">Support</button>
-            
-            <div class="border-t border-white/10 my-4"></div>
-            
-            <div id="mobileWalletInfo" class="hidden">
-                <div class="glass-panel p-4 rounded-xl">
-                    <p class="text-sm text-gray-400 mb-2">Connected</p>
-                    <p id="mobileAddress" class="font-mono text-xs break-all"></p>
-                    <p id="mobileBalance" class="text-lg font-bold mt-2"></p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main Content -->
-    <main class="pt-32 pb-20 px-4 max-w-7xl mx-auto">
-        <!-- HOME PAGE -->
-        <div id="home-page" class="page active">
-            <!-- Hero Section -->
-            <div class="text-center mb-20 relative">
-                <div class="inline-block mb-6">
-                    <span class="badge badge-success">
-                        <i class="fa-solid fa-circle-nodes mr-2"></i>
-                        INCENTIVIZED TESTNET PHASE 1
-                    </span>
-                </div>
-                
-                <h1 class="text-6xl md:text-8xl font-bold mb-8 leading-tight">
-                    THE ARCHITECTURE OF
-                    <span class="gradient-text block mt-2">DIGITAL TRUST</span>
-                </h1>
-                
-                <p class="text-xl text-gray-400 max-w-3xl mx-auto mb-12 leading-relaxed">
-                    KarChain is the first hyper-scalable Layer-1 blockchain featuring Adaptive State Sharding 
-                    and Proof-of-Synchrony consensus. Join the incentivized testnet and shape the future.
-                </p>
-                
-                <div class="flex flex-wrap justify-center gap-4 mb-16">
-                    <button onclick="openModal()" class="btn-primary px-8 py-4 text-lg">
-                        <i class="fa-solid fa-rocket mr-2"></i>
-                        Launch Testnet
-                    </button>
-                    <a href="https://docs.karchain.network" target="_blank" class="btn-secondary px-8 py-4 text-lg">
-                        <i class="fa-solid fa-book mr-2"></i>
-                        Documentation
-                    </a>
-                </div>
-
-                <!-- Stats Grid -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
-                    <div class="stat-card">
-                        <div class="text-4xl font-bold text-white mb-2" id="statBlocks">12,492</div>
-                        <div class="text-sm text-gray-400">Blocks Finalized</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="text-4xl font-bold text-white mb-2" id="statTxs">15.8K</div>
-                        <div class="text-sm text-gray-400">Transactions</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="text-4xl font-bold text-white mb-2" id="statValidators">138</div>
-                        <div class="text-sm text-gray-400">Active Validators</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="text-4xl font-bold text-white mb-2" id="statTPS">4,892</div>
-                        <div class="text-sm text-gray-400">TPS</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Dashboard Section -->
-            <div class="glass-panel rounded-3xl p-1 glow">
-                <div class="bg-[#0a0f0a] rounded-[23px] p-8">
-                    <!-- Locked View -->
-                    <div id="lockedView" class="text-center py-16">
-                        <div class="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
-                            <i class="fa-solid fa-lock text-4xl text-gray-500"></i>
+        <div class="space-y-4" id="wallet-options">
+            <!-- MetaMask -->
+            <div onclick="App.wallet.connect('MetaMask')" class="wallet-option group border border-white/10 p-5 rounded-xl bg-white/5 cursor-pointer transition-all hover:border-green-500/50 hover:bg-white/10 hover:shadow-[0_0_30px_rgba(74,222,128,0.15)]">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-xl bg-[#F6851B]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" class="w-8 h-8" alt="MetaMask">
                         </div>
-                        <h2 class="text-3xl font-bold mb-3">Dashboard Locked</h2>
-                        <p class="text-gray-400 mb-8 max-w-md mx-auto">
-                            Connect your wallet to access the testnet dashboard, claim daily tokens, 
-                            and complete incentivized tasks.
-                        </p>
-                        <button onclick="openModal()" class="btn-primary px-12 py-4 text-lg">
-                            <i class="fa-solid fa-wallet mr-2"></i>
-                            Connect Wallet
+                        <div>
+                            <div class="font-bold text-white text-lg group-hover:text-[#F6851B] transition-colors">MetaMask</div>
+                            <div class="text-xs text-gray-500 font-mono mt-1">Browser Extension</div>
+                        </div>
+                    </div>
+                    <div class="w-3 h-3 rounded-full bg-green-500/50 group-hover:bg-green-400 group-hover:shadow-[0_0_15px_#4ade80] transition-all"></div>
+                </div>
+            </div>
+            
+            <!-- WalletConnect -->
+            <div onclick="App.wallet.connect('WalletConnect')" class="wallet-option group border border-white/10 p-5 rounded-xl bg-white/5 cursor-pointer transition-all hover:border-purple-500/50 hover:bg-white/10 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)]">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-xl bg-[#3B99FC]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-qrcode text-3xl text-[#3B99FC]"></i>
+                        </div>
+                        <div>
+                            <div class="font-bold text-white text-lg group-hover:text-[#3B99FC] transition-colors">WalletConnect</div>
+                            <div class="text-xs text-gray-500 font-mono mt-1">Scan QR Code</div>
+                        </div>
+                    </div>
+                    <div class="w-3 h-3 rounded-full bg-purple-500/50 group-hover:bg-purple-400 group-hover:shadow-[0_0_15px_#a855f7] transition-all"></div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-8 pt-6 border-t border-white/10 text-center">
+            <p class="text-[10px] text-gray-600 uppercase tracking-widest">By connecting, you agree to our Terms & Privacy Policy</p>
+        </div>
+    </div>
+</div>
+
+<!-- ===== ГОЛОВНА СТОРІНКА ===== -->
+<div id="page-home" class="page-content active pt-28 pb-20 px-4">
+    <div class="max-w-7xl mx-auto">
+        <!-- Hero Section -->
+        <div class="text-center mb-20 fade-in-up">
+            <div class="inline-block px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold uppercase tracking-widest mb-6 animate-pulse-slow">
+                <i class="fa-solid fa-circle-nodes mr-2"></i>Incentivized Testnet Live
+            </div>
+            <h1 class="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight">
+                THE ARCHITECTURE OF <br>
+                <span class="gradient-text">DIGITAL TRUST</span>
+            </h1>
+            <p class="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto font-light leading-relaxed mb-10">
+                KarChain is the modular consensus layer designed for the next billion users.
+                Join the Incentivized Testnet and secure your place in the genesis block.
+            </p>
+            <div class="flex flex-wrap justify-center gap-4">
+                <button onclick="App.router.navigate('vision')" class="btn-secondary px-8 py-4 rounded-full text-sm font-bold uppercase tracking-widest flex items-center gap-2">
+                    <i class="fa-solid fa-scroll"></i>Read Manifesto
+                </button>
+                <a href="#" class="btn-primary px-8 py-4 rounded-full text-sm font-bold uppercase tracking-widest flex items-center gap-2">
+                    <i class="fa-solid fa-book"></i>Documentation
+                </a>
+            </div>
+            
+            <!-- Stats Grid -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto mt-16 pt-8 border-t border-white/10">
+                <div class="text-center group stat-card">
+                    <div class="text-3xl md:text-4xl font-bold text-white mb-2 font-mono counter" id="stat-blocks">12,492</div>
+                    <div class="text-xs text-gray-500 uppercase tracking-wider flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-cube text-green-500/50 group-hover:text-green-400 transition-colors"></i>Blocks Minted
+                    </div>
+                </div>
+                <div class="text-center group stat-card">
+                    <div class="text-3xl md:text-4xl font-bold text-white mb-2 font-mono counter" id="stat-blocktime">0.4</div>
+                    <div class="text-xs text-gray-500 uppercase tracking-wider flex items-center justify-center gap-1">
+                        <i class="fa-regular fa-clock text-green-500/50 group-hover:text-green-400 transition-colors"></i>Block Time (s)
+                    </div>
+                </div>
+                <div class="text-center group stat-card">
+                    <div class="text-3xl md:text-4xl font-bold text-white mb-2 font-mono counter" id="stat-txs">15,892</div>
+                    <div class="text-xs text-gray-500 uppercase tracking-wider flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-arrow-right-arrow-left text-green-500/50 group-hover:text-green-400 transition-colors"></i>Transactions
+                    </div>
+                </div>
+                <div class="text-center group stat-card">
+                    <div class="text-3xl md:text-4xl font-bold text-white mb-2 font-mono counter" id="stat-validators">138</div>
+                    <div class="text-xs text-gray-500 uppercase tracking-wider flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-check-circle text-green-500/50 group-hover:text-green-400 transition-colors"></i>Active Validators
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Dashboard -->
+        <div id="dashboard-ui" class="max-w-6xl mx-auto fade-in-up delay-300">
+            <div class="glass-panel rounded-3xl p-1 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent opacity-50 shimmer"></div>
+                <div class="bg-black/80 backdrop-blur-xl rounded-[20px] p-6 md:p-10">
+                    <!-- Locked View -->
+                    <div id="view-locked" class="text-center py-16">
+                        <div class="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/10 shadow-lg group hover:border-green-500/50 transition-all">
+                            <i class="fa-solid fa-lock text-3xl text-gray-600 group-hover:text-green-400 transition-colors"></i>
+                        </div>
+                        <h2 class="text-3xl font-bold text-white mb-3 font-display">Dashboard Locked</h2>
+                        <p class="text-gray-400 mb-8 max-w-md mx-auto">Connect your wallet to access the testnet dashboard, claim daily tokens, and complete incentivized tasks.</p>
+                        <button onclick="UI.openModal()" class="btn-primary px-12 py-4 rounded-xl text-sm font-bold uppercase tracking-widest shadow-xl inline-flex items-center gap-3">
+                            <i class="fa-solid fa-wallet"></i>Connect Wallet
                         </button>
                     </div>
-
+                    
                     <!-- Active View -->
-                    <div id="activeView" class="hidden">
-                        <!-- Header -->
-                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 pb-8 border-b border-white/10">
+                    <div id="view-active" class="hidden">
+                        <!-- Balance Header -->
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-white/10 pb-6 mb-8">
                             <div>
                                 <div class="flex items-center gap-2 text-green-400 mb-2">
-                                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                                     <span class="text-xs font-bold uppercase tracking-wider">Connected to KarChain</span>
                                 </div>
-                                <p class="text-sm text-gray-400 mb-1">Available Balance</p>
+                                <p class="text-sm text-gray-500 mb-1">Available Balance</p>
                                 <div class="flex items-baseline gap-3">
-                                    <span id="krmBalance" class="text-5xl md:text-6xl font-bold font-mono">0.00</span>
+                                    <span id="balanceVal" class="text-5xl md:text-6xl font-bold text-white font-mono tracking-tighter counter">0.00</span>
                                     <span class="text-2xl font-bold text-green-500 bg-green-500/10 px-4 py-2 rounded-lg">KRM</span>
                                 </div>
                             </div>
-                            <div class="mt-6 md:mt-0">
-                                <div class="flex items-center gap-4">
-                                    <div>
-                                        <p class="text-xs text-gray-400">Wallet Address</p>
-                                        <p id="walletAddress" class="text-sm font-mono bg-white/5 px-3 py-2 rounded-lg"></p>
+                            <div class="mt-6 md:mt-0 flex flex-col items-end">
+                                <div class="flex items-center gap-3 mb-3">
+                                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
+                                        <i class="fa-solid fa-fingerprint text-white"></i>
                                     </div>
-                                    <button onclick="refreshBalance()" class="text-gray-400 hover:text-green-400 transition-colors">
-                                        <i class="fa-solid fa-rotate"></i>
+                                    <div>
+                                        <p class="text-xs text-gray-500">Wallet Address</p>
+                                        <p class="text-sm text-white font-mono bg-white/5 px-3 py-1 rounded-lg border border-white/10" id="walletAddrDisp">0x0000...0000</p>
+                                    </div>
+                                </div>
+                                <div class="flex gap-2">
+                                    <button onclick="App.wallet.refreshBalance()" class="text-xs text-gray-500 hover:text-green-400 transition-colors px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 flex items-center gap-1">
+                                        <i class="fa-solid fa-rotate"></i>Refresh
                                     </button>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Send Transaction -->
-                        <div class="glass-card rounded-2xl p-6 mb-8">
-                            <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                        
+                        <!-- ЗАВДАННЯ (TASKS) - ОСЬ ВОНИ! -->
+                        <div class="mb-8">
+                            <h3 class="text-2xl font-bold text-white mb-6 flex items-center gap-3">
+                                <i class="fa-solid fa-list-check text-green-400"></i>
+                                Testnet Tasks
+                                <span class="text-xs font-normal text-gray-500 ml-2">Complete tasks to earn rewards</span>
+                            </h3>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                                <!-- Task 1: Send to Self -->
+                                <div class="task-card" id="task-self">
+                                    <div class="task-badge" id="task-self-badge">PENDING</div>
+                                    <div class="flex items-center gap-4 mb-4">
+                                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center shadow-lg">
+                                            <i class="fa-solid fa-user text-white text-2xl"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-xl font-bold text-white">Test Transaction</h4>
+                                            <p class="text-sm text-gray-400">Send to self</p>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-3">
+                                        <div class="bg-white/5 rounded-lg p-3 text-sm">
+                                            <div class="flex justify-between mb-1">
+                                                <span class="text-gray-400">Reward</span>
+                                                <span class="text-green-400 font-bold">0.01 KRM</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-400">Requirement</span>
+                                                <span class="text-gray-300">Send 0.001 KRM to self</span>
+                                            </div>
+                                        </div>
+                                        <button onclick="App.tasks.sendToSelf()" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-bold transition-all flex items-center justify-center gap-2" id="task-self-btn">
+                                            <i class="fa-solid fa-paper-plane"></i>
+                                            EXECUTE TASK
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Task 2: Level 1 Faucet -->
+                                <div class="task-card" id="task-faucet1">
+                                    <div class="task-badge" id="task-faucet1-badge">PENDING</div>
+                                    <div class="flex items-center gap-4 mb-4">
+                                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg">
+                                            <i class="fa-solid fa-droplet text-white text-2xl"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-xl font-bold text-white">Daily Faucet</h4>
+                                            <p class="text-sm text-gray-400">Claim Level 1</p>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-3">
+                                        <div class="bg-white/5 rounded-lg p-3 text-sm">
+                                            <div class="flex justify-between mb-1">
+                                                <span class="text-gray-400">Reward</span>
+                                                <span class="text-green-400 font-bold">1 KRM</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-400">Cooldown</span>
+                                                <span class="text-gray-300">24 hours</span>
+                                            </div>
+                                        </div>
+                                        <div id="faucet-level1-state"></div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Task 3: Level 2 Faucet -->
+                                <div class="task-card locked" id="task-faucet2">
+                                    <div class="task-badge" id="task-faucet2-badge">LOCKED</div>
+                                    <div class="flex items-center gap-4 mb-4">
+                                        <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg">
+                                            <i class="fa-brands fa-ethereum text-white text-2xl"></i>
+                                        </div>
+                                        <div>
+                                            <h4 class="text-xl font-bold text-white">Premium Faucet</h4>
+                                            <p class="text-sm text-gray-400">Level 2</p>
+                                        </div>
+                                    </div>
+                                    <div class="space-y-3">
+                                        <div class="bg-white/5 rounded-lg p-3 text-sm">
+                                            <div class="flex justify-between mb-1">
+                                                <span class="text-gray-400">Reward</span>
+                                                <span class="text-purple-400 font-bold">5 KRM</span>
+                                            </div>
+                                            <div class="flex justify-between">
+                                                <span class="text-gray-400">Payment</span>
+                                                <span class="text-gray-300">0.005 ETH</span>
+                                            </div>
+                                        </div>
+                                        <div id="faucet-level2-state"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Progress Bar -->
+                            <div class="mt-8 p-4 bg-white/5 rounded-xl">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-sm text-gray-400">Overall Progress</span>
+                                    <span class="text-sm font-bold text-green-400" id="task-progress">0/3 Completed</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress-fill" id="task-progress-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Send Transaction Section -->
+                        <div class="mb-8 p-6 bg-white/5 rounded-2xl border border-white/10">
+                            <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-3">
                                 <i class="fa-solid fa-paper-plane text-green-400"></i>
                                 Send Transaction
                             </h3>
                             
-                            <button onclick="sendToSelf()" class="w-full py-4 bg-blue-600 hover:bg-blue-700 rounded-xl font-bold mb-6 transition-all">
-                                <i class="fa-solid fa-user mr-2"></i>
-                                SEND TO SELF (0.001 KRM)
-                            </button>
-                            
-                            <div class="relative my-8">
-                                <div class="absolute inset-0 flex items-center">
-                                    <div class="w-full border-t border-white/10"></div>
-                                </div>
-                                <div class="relative flex justify-center">
-                                    <span class="px-4 bg-[#0a0f0a] text-gray-500 text-sm">OR SEND TO OTHER ADDRESS</span>
-                                </div>
-                            </div>
-                            
                             <div class="space-y-4">
-                                <input type="text" id="recipientAddress" placeholder="Recipient Address (0x...)" 
-                                       class="input-field font-mono">
-                                <div class="flex gap-4">
-                                    <input type="number" id="sendAmount" placeholder="Amount (KRM)" step="0.001" min="0.001"
-                                           class="input-field flex-1">
-                                    <button onclick="sendTransaction()" class="btn-primary px-8">
-                                        SEND
-                                    </button>
+                                <div>
+                                    <label class="text-sm text-gray-400 mb-2 block">Recipient Address</label>
+                                    <input type="text" id="tx-recipient" class="tx-input" placeholder="0x...">
                                 </div>
+                                <div>
+                                    <label class="text-sm text-gray-400 mb-2 block">Amount (KRM)</label>
+                                    <input type="number" id="tx-amount" class="tx-input" placeholder="0.001" step="0.001" min="0.001">
+                                </div>
+                                <button onclick="App.transactions.send()" class="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-3">
+                                    <i class="fa-solid fa-bolt"></i>
+                                    SEND TRANSACTION
+                                </button>
                             </div>
                         </div>
-
-                        <!-- Faucet Section -->
-                        <div class="grid md:grid-cols-2 gap-6 mb-8">
-                            <!-- Level 1 Faucet -->
-                            <div class="glass-card rounded-2xl p-6">
-                                <div class="flex items-center gap-4 mb-6">
-                                    <div class="feature-icon !w-16 !h-16 !mb-0">
-                                        <i class="fa-solid fa-droplet text-2xl"></i>
-                                    </div>
-                                    <div>
-                                        <h4 class="text-xl font-bold">Level 1 Faucet</h4>
-                                        <p class="text-sm text-gray-400">1 KRM every 24 hours</p>
-                                    </div>
-                                </div>
-                                <div id="faucetLevel1" class="space-y-3"></div>
-                            </div>
-
-                            <!-- Level 2 Faucet -->
-                            <div class="glass-card rounded-2xl p-6" id="level2Card">
-                                <div class="flex items-center gap-4 mb-6">
-                                    <div class="feature-icon !w-16 !h-16 !mb-0">
-                                        <i class="fa-brands fa-ethereum text-2xl"></i>
-                                    </div>
-                                    <div>
-                                        <h4 class="text-xl font-bold">Level 2 Faucet</h4>
-                                        <p class="text-sm text-gray-400">5 KRM for 0.005 ETH</p>
-                                    </div>
-                                </div>
-                                <div id="faucetLevel2"></div>
-                            </div>
-                        </div>
-
+                        
                         <!-- Transaction History -->
-                        <div class="mt-8">
-                            <h3 class="text-xl font-bold mb-6 flex items-center gap-2">
+                        <div id="transaction-history" class="mt-12 pt-8 border-t border-white/10">
+                            <h4 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
                                 <i class="fa-solid fa-clock-rotate-left text-green-400"></i>
                                 Recent Transactions
-                                <button onclick="loadTransactionHistory()" class="ml-auto text-sm text-green-400 hover:text-green-300">
-                                    <i class="fa-solid fa-rotate mr-1"></i>Refresh
+                                <button onclick="App.transactions.loadFromBlockchain()" class="ml-auto text-xs text-green-400 hover:text-green-300 transition-colors flex items-center gap-1">
+                                    <i class="fa-solid fa-rotate"></i>Refresh
                                 </button>
-                            </h3>
-                            <div id="transactionList" class="space-y-3 max-h-96 overflow-y-auto pr-2"></div>
-                            <div id="noTransactions" class="text-center py-12 text-gray-500 hidden">
-                                <i class="fa-solid fa-receipt text-5xl mb-4 opacity-50"></i>
-                                <p>No transactions yet</p>
+                            </h4>
+                            <div id="transactions-list" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
+                            <div id="no-transactions" class="text-center text-gray-500 text-sm py-8 bg-white/5 rounded-xl">
+                                <i class="fa-solid fa-receipt text-3xl mb-3 opacity-50"></i><br>
+                                No transactions yet. Make your first transaction to see it here!
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
 
-            <!-- Features Grid -->
-            <div class="grid md:grid-cols-3 gap-8 mt-20">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fa-solid fa-bolt"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3">Proof-of-Synchrony</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        Novel consensus mechanism achieving mathematical finality in sub-second timeframes
-                    </p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fa-solid fa-shield-halved"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3">Post-Quantum Security</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        Lattice-based cryptography protecting against quantum computing threats
-                    </p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fa-solid fa-cubes"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-3">Adaptive Sharding</h3>
-                    <p class="text-gray-400 text-sm leading-relaxed">
-                        Dynamic shard allocation for infinite horizontal scalability
-                    </p>
+<!-- ===== СТОРІНКА VISION ===== -->
+<div id="page-vision" class="page-content pt-28 pb-20 px-4 max-w-7xl mx-auto">
+    <div class="text-center mb-20 fade-in-up">
+        <div class="inline-block px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold uppercase tracking-widest mb-6">
+            <i class="fa-solid fa-compass mr-2"></i>Our Vision
+        </div>
+        <h2 class="text-5xl md:text-7xl font-bold text-white mb-6">THE <span class="gradient-text">MANIFESTO</span></h2>
+        <p class="text-xl text-gray-400 font-light max-w-3xl mx-auto">Re-engineering the fundamental substrate of human coordination for the 22nd century.</p>
+    </div>
+    
+    <div class="grid lg:grid-cols-2 gap-20 items-center mb-32">
+        <div class="space-y-12 fade-in-left">
+            <div class="border-l-4 border-green-500 pl-8 transition-all hover:pl-10">
+                <h3 class="text-3xl text-white font-bold mb-4 font-mono flex items-center gap-3">
+                    <span class="text-green-400">01</span>
+                    <span class="text-gray-400 text-sm font-normal">//</span>
+                    Asynchronous Finality
+                </h3>
+                <p class="text-gray-300 leading-relaxed mb-4">KarChain introduces a paradigm shift with <span class="text-green-400 font-bold">Hyper-Graph Sharding</span>. Unlike linear blockchains, our state is partitioned into thousands of concurrent execution threads.</p>
+                <p class="text-gray-400 leading-relaxed">Using <span class="text-green-400">Proof-of-Synchrony</span>, we achieve mathematical finality in sub-second timeframes.</p>
+            </div>
+            <div class="border-l-4 border-white/10 pl-8 transition-all hover:pl-10 hover:border-green-500/50">
+                <h3 class="text-3xl text-green-400 font-bold mb-4 font-mono flex items-center gap-3">
+                    <span class="text-green-400">02</span>
+                    <span class="text-gray-400 text-sm font-normal">//</span>
+                    Post-Quantum Security
+                </h3>
+                <p class="text-gray-300 leading-relaxed mb-4">The era of elliptic curve cryptography is ending. KarChain is built as a <span class="text-green-400 font-bold">Quantum Fortress</span>, utilizing Lattice-based signatures to secure assets against future quantum decryption threats.</p>
+            </div>
+        </div>
+        <div class="flex justify-center relative h-[500px] items-center fade-in-right">
+            <div class="absolute inset-0 bg-green-500/10 blur-[100px] rounded-full animate-pulse"></div>
+            <div class="gyro-wrapper">
+                <div class="gyro">
+                    <div class="gyro-ring gr-1"></div>
+                    <div class="gyro-ring gr-2"></div>
+                    <div class="gyro-ring gr-3"></div>
                 </div>
             </div>
         </div>
-
-        <!-- VISION PAGE -->
-        <div id="vision-page" class="page">
-            <div class="text-center mb-16">
-                <span class="badge badge-success mb-4">OUR VISION</span>
-                <h2 class="text-5xl md:text-7xl font-bold mb-6">THE <span class="gradient-text">MANIFESTO</span></h2>
-                <p class="text-xl text-gray-400 max-w-3xl mx-auto">
-                    Re-engineering the fundamental substrate of human coordination for the 22nd century
-                </p>
+    </div>
+    
+    <!-- Roadmap -->
+    <div class="glass-panel p-12 rounded-3xl fade-in-up">
+        <h3 class="text-3xl text-white font-bold mb-12 text-center font-display">Strategic Roadmap</h3>
+        <div class="grid md:grid-cols-4 gap-8 relative">
+            <div class="relative text-center group">
+                <div class="w-8 h-8 bg-green-500 rounded-full border-4 border-black mb-4 mx-auto relative z-10 animate-pulse group-hover:scale-125 transition-transform"></div>
+                <div class="absolute top-4 left-1/2 w-full h-0.5 bg-gradient-to-r from-green-500 to-transparent hidden md:block"></div>
+                <h4 class="text-green-400 font-bold mb-2">PHASE 1</h4>
+                <p class="text-white font-bold text-lg mb-2">Genesis</p>
+                <p class="text-gray-500 text-xs">Testnet launch, Faucet activation</p>
             </div>
-
-            <div class="grid lg:grid-cols-2 gap-12 items-center mb-20">
-                <div class="space-y-8">
-                    <div class="glass-panel p-8 rounded-2xl border-l-4 border-green-500">
-                        <h3 class="text-2xl font-bold mb-4 flex items-center gap-3">
-                            <span class="text-green-400">01</span>
-                            Asynchronous Finality
-                        </h3>
-                        <p class="text-gray-300 leading-relaxed">
-                            KarChain introduces Hyper-Graph Sharding, partitioning state into thousands of 
-                            concurrent execution threads. Using Proof-of-Synchrony, we achieve mathematical 
-                            finality in sub-second timeframes.
-                        </p>
-                    </div>
-                    <div class="glass-panel p-8 rounded-2xl hover:border-green-500/50 transition-all">
-                        <h3 class="text-2xl font-bold mb-4 flex items-center gap-3">
-                            <span class="text-green-400">02</span>
-                            Quantum Resistance
-                        </h3>
-                        <p class="text-gray-300 leading-relaxed">
-                            Built as a Quantum Fortress utilizing Lattice-based signatures (Kyber/Dilithium) 
-                            to secure assets against future quantum decryption threats.
-                        </p>
-                    </div>
-                </div>
-                
-                <div class="relative h-[400px] flex items-center justify-center">
-                    <div class="absolute inset-0 bg-green-500/20 blur-[100px] rounded-full animate-pulse"></div>
-                    <div class="relative spin-slow">
-                        <div class="w-64 h-64 border-2 border-green-500/30 rounded-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
-                        <div class="w-48 h-48 border-2 border-green-500/50 rounded-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
-                        <div class="w-32 h-32 border-2 border-green-500 rounded-full absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></div>
-                        <i class="fa-solid fa-infinity text-8xl text-green-400 absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2"></i>
-                    </div>
-                </div>
+            <div class="relative text-center group opacity-70">
+                <div class="w-8 h-8 bg-gray-700 rounded-full border-4 border-black mb-4 mx-auto relative z-10"></div>
+                <h4 class="text-gray-400 font-bold mb-2">PHASE 2</h4>
+                <p class="text-white font-bold text-lg mb-2">Incentivized</p>
+                <p class="text-gray-500 text-xs">Stress testing, Bug bounties</p>
             </div>
-
-            <!-- Roadmap -->
-            <div class="glass-panel rounded-3xl p-12">
-                <h3 class="text-3xl font-bold text-center mb-12">Strategic Roadmap</h3>
-                <div class="grid md:grid-cols-4 gap-8">
-                    <div class="text-center">
-                        <div class="w-12 h-12 bg-green-500 rounded-full mx-auto mb-4 glow"></div>
-                        <h4 class="text-green-400 font-bold mb-2">PHASE 1</h4>
-                        <p class="text-white font-bold">Genesis</p>
-                        <p class="text-sm text-gray-500 mt-2">Testnet launch, Faucet activation</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="w-12 h-12 bg-gray-700 rounded-full mx-auto mb-4"></div>
-                        <h4 class="text-gray-400 font-bold mb-2">PHASE 2</h4>
-                        <p class="text-white font-bold">Incentivized</p>
-                        <p class="text-sm text-gray-500 mt-2">Stress testing, Bug bounties</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="w-12 h-12 bg-gray-700 rounded-full mx-auto mb-4"></div>
-                        <h4 class="text-gray-400 font-bold mb-2">PHASE 3</h4>
-                        <p class="text-white font-bold">Ignition</p>
-                        <p class="text-sm text-gray-500 mt-2">Mainnet launch, TGE</p>
-                    </div>
-                    <div class="text-center">
-                        <div class="w-12 h-12 bg-gray-700 rounded-full mx-auto mb-4"></div>
-                        <h4 class="text-gray-400 font-bold mb-2">PHASE 4</h4>
-                        <p class="text-white font-bold">Singularity</p>
-                        <p class="text-sm text-gray-500 mt-2">Global settlement layer</p>
-                    </div>
-                </div>
+            <div class="relative text-center group opacity-50">
+                <div class="w-8 h-8 bg-gray-700 rounded-full border-4 border-black mb-4 mx-auto relative z-10"></div>
+                <h4 class="text-gray-400 font-bold mb-2">PHASE 3</h4>
+                <p class="text-white font-bold text-lg mb-2">Ignition</p>
+                <p class="text-gray-500 text-xs">Mainnet launch, TGE</p>
+            </div>
+            <div class="relative text-center group opacity-30">
+                <div class="w-8 h-8 bg-gray-700 rounded-full border-4 border-black mb-4 mx-auto relative z-10"></div>
+                <h4 class="text-gray-400 font-bold mb-2">PHASE 4</h4>
+                <p class="text-white font-bold text-lg mb-2">Singularity</p>
+                <p class="text-gray-500 text-xs">Global settlement layer</p>
             </div>
         </div>
+    </div>
+</div>
 
-        <!-- ECOSYSTEM PAGE -->
-        <div id="ecosystem-page" class="page">
-            <div class="text-center mb-16">
-                <span class="badge badge-success mb-4">ECOSYSTEM</span>
-                <h2 class="text-5xl md:text-7xl font-bold mb-6">BUILDING THE <span class="gradient-text">FUTURE</span></h2>
-                <p class="text-xl text-gray-400 max-w-3xl mx-auto">
-                    Explore the growing ecosystem of dApps and protocols on KarChain
-                </p>
-            </div>
-
-            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <div class="glass-card p-8 rounded-2xl group cursor-pointer">
-                    <div class="feature-icon group-hover:bg-purple-500 group-hover:text-white">
-                        <i class="fa-solid fa-arrow-right-arrow-left"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2">KarSwap DEX</h3>
-                    <p class="text-gray-400 text-sm mb-4">Native AMM with concentrated liquidity and zero slippage</p>
-                    <span class="badge badge-success">Live on Testnet</span>
-                </div>
-
-                <div class="glass-card p-8 rounded-2xl group cursor-pointer">
-                    <div class="feature-icon group-hover:bg-blue-500 group-hover:text-white">
-                        <i class="fa-solid fa-vault"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2">KarVault Lending</h3>
-                    <p class="text-gray-400 text-sm mb-4">Cross-chain lending with undercollateralized loans</p>
-                    <span class="badge badge-warning">Coming Q2 2025</span>
-                </div>
-
-                <div class="glass-card p-8 rounded-2xl group cursor-pointer">
-                    <div class="feature-icon group-hover:bg-emerald-500 group-hover:text-white">
-                        <i class="fa-solid fa-shield-halved"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2">KarSafe</h3>
-                    <p class="text-gray-400 text-sm mb-4">Multi-sig institutional wallet with MPC</p>
-                    <span class="badge badge-success">Audited</span>
-                </div>
-
-                <div class="glass-card p-8 rounded-2xl group cursor-pointer">
-                    <div class="feature-icon group-hover:bg-cyan-500 group-hover:text-white">
-                        <i class="fa-solid fa-bridge"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2">KarBridge</h3>
-                    <p class="text-gray-400 text-sm mb-4">ZK-proof cross-chain bridge</p>
-                    <span class="badge badge-warning">In Development</span>
-                </div>
-
-                <div class="glass-card p-8 rounded-2xl group cursor-pointer">
-                    <div class="feature-icon group-hover:bg-yellow-500 group-hover:text-white">
-                        <i class="fa-solid fa-chart-line"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2">KarOracle</h3>
-                    <p class="text-gray-400 text-sm mb-4">Decentralized oracle network</p>
-                    <span class="badge badge-success">Testnet</span>
-                </div>
-
-                <div class="glass-card p-8 rounded-2xl group cursor-pointer">
-                    <div class="feature-icon group-hover:bg-pink-500 group-hover:text-white">
-                        <i class="fa-solid fa-rocket"></i>
-                    </div>
-                    <h3 class="text-xl font-bold mb-2">KarLaunch</h3>
-                    <p class="text-gray-400 text-sm mb-4">Fair launch platform</p>
-                    <span class="badge badge-warning">Q3 2025</span>
-                </div>
-            </div>
-
-            <!-- Partners -->
-            <div class="mt-20">
-                <h3 class="text-2xl font-bold text-center mb-12">Strategic Partners</h3>
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
-                    <div class="glass-panel p-6 rounded-xl text-center">
-                        <i class="fa-solid fa-server text-4xl text-blue-400 mb-3"></i>
-                        <p class="font-bold">Infrastructure</p>
-                    </div>
-                    <div class="glass-panel p-6 rounded-xl text-center">
-                        <i class="fa-solid fa-shield text-4xl text-green-400 mb-3"></i>
-                        <p class="font-bold">Security</p>
-                    </div>
-                    <div class="glass-panel p-6 rounded-xl text-center">
-                        <i class="fa-solid fa-users text-4xl text-orange-400 mb-3"></i>
-                        <p class="font-bold">Community</p>
-                    </div>
-                    <div class="glass-panel p-6 rounded-xl text-center">
-                        <i class="fa-solid fa-code text-4xl text-purple-400 mb-3"></i>
-                        <p class="font-bold">Development</p>
-                    </div>
-                </div>
-            </div>
+<!-- ===== СТОРІНКА ECOSYSTEM ===== -->
+<div id="page-ecosystem" class="page-content pt-28 pb-20 px-4 max-w-7xl mx-auto">
+    <div class="text-center mb-16 fade-in-up">
+        <div class="inline-block px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold uppercase tracking-widest mb-6">
+            <i class="fa-solid fa-cubes mr-2"></i>Ecosystem
         </div>
-
-        <!-- SUPPORT PAGE -->
-        <div id="support-page" class="page">
-            <div class="text-center mb-16">
-                <span class="badge badge-success mb-4">SUPPORT</span>
-                <h2 class="text-5xl md:text-7xl font-bold mb-6">COMMUNITY <span class="gradient-text">HUB</span></h2>
-                <p class="text-xl text-gray-400 max-w-3xl mx-auto">
-                    Get support, report bugs, and connect with the team
-                </p>
+        <h2 class="text-5xl font-bold text-white mb-6">BUILDING THE FUTURE</h2>
+        <p class="text-gray-400 max-w-2xl mx-auto">Explore the growing ecosystem of dApps and protocols being built on KarChain.</p>
+    </div>
+    
+    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div class="glass-card p-8 rounded-xl group cursor-pointer hover:border-purple-500/30 transition-all">
+            <div class="w-16 h-16 bg-purple-500/20 rounded-xl flex items-center justify-center mb-6 text-3xl text-purple-400 group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-arrow-right-arrow-left"></i>
             </div>
-
-            <div class="grid md:grid-cols-2 gap-8 mb-16">
-                <a href="https://t.me/tgkarim1" target="_blank" class="glass-panel p-8 rounded-2xl group hover:border-blue-500/50 transition-all">
-                    <div class="flex items-center gap-6">
-                        <div class="w-20 h-20 bg-blue-500/20 rounded-2xl flex items-center justify-center text-3xl text-blue-400">
-                            <i class="fa-brands fa-telegram"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold mb-2">Telegram</h3>
-                            <p class="text-gray-400">Join 50,000+ members</p>
-                        </div>
-                    </div>
-                </a>
-
-                <a href="mailto:support@karchain.io" class="glass-panel p-8 rounded-2xl group hover:border-green-500/50 transition-all">
-                    <div class="flex items-center gap-6">
-                        <div class="w-20 h-20 bg-green-500/20 rounded-2xl flex items-center justify-center text-3xl text-green-400">
-                            <i class="fa-solid fa-envelope"></i>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl font-bold mb-2">Email Support</h3>
-                            <p class="text-gray-400">support@karchain.io</p>
-                        </div>
-                    </div>
-                </a>
+            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-purple-400 transition-colors">KarSwap DEX</h3>
+            <p class="text-sm text-gray-400 mb-4">Native AMM with concentrated liquidity</p>
+            <span class="text-xs px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full">Live on Testnet</span>
+        </div>
+        
+        <div class="glass-card p-8 rounded-xl group cursor-pointer hover:border-blue-500/30 transition-all">
+            <div class="w-16 h-16 bg-blue-500/20 rounded-xl flex items-center justify-center mb-6 text-3xl text-blue-400 group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-vault"></i>
             </div>
+            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">KarVault Lending</h3>
+            <p class="text-sm text-gray-400 mb-4">Cross-chain lending protocol</p>
+            <span class="text-xs px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full">Coming Q2 2025</span>
+        </div>
+        
+        <div class="glass-card p-8 rounded-xl group cursor-pointer hover:border-emerald-500/30 transition-all">
+            <div class="w-16 h-16 bg-emerald-500/20 rounded-xl flex items-center justify-center mb-6 text-3xl text-emerald-400 group-hover:scale-110 transition-transform">
+                <i class="fa-solid fa-shield-halved"></i>
+            </div>
+            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors">KarSafe</h3>
+            <p class="text-sm text-gray-400 mb-4">Multi-sig treasury management</p>
+            <span class="text-xs px-3 py-1 bg-green-500/20 text-green-400 rounded-full">Audited</span>
+        </div>
+    </div>
+</div>
 
-            <!-- FAQ -->
-            <h3 class="text-2xl font-bold mb-8">Frequently Asked Questions</h3>
-            
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">
-                    <span>How to add KarChain to MetaMask?</span>
-                    <i class="fa-solid fa-chevron-down text-green-400 transition-transform"></i>
+<!-- ===== СТОРІНКА SUPPORT ===== -->
+<div id="page-support" class="page-content pt-28 pb-20 px-4 max-w-5xl mx-auto">
+    <div class="text-center mb-20 fade-in-up">
+        <div class="inline-block px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold uppercase tracking-widest mb-6">
+            <i class="fa-solid fa-headset mr-2"></i>Support
+        </div>
+        <h2 class="text-5xl font-bold text-white mb-6">COMMUNITY HUB</h2>
+        <p class="text-gray-400 text-lg">Get support, report bugs, and connect with the team.</p>
+    </div>
+    
+    <div class="grid md:grid-cols-2 gap-8 mb-16">
+        <a href="https://t.me/tgkarim1" target="_blank" class="glass-panel p-8 rounded-3xl block group hover:border-blue-500/30 transition-all">
+            <div class="flex items-center gap-6 mb-6">
+                <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center text-3xl text-white shadow-lg group-hover:scale-110 transition-transform">
+                    <i class="fa-brands fa-telegram"></i>
                 </div>
-                <div class="faq-answer">
+                <div>
+                    <h3 class="text-2xl font-bold text-white mb-1">Telegram Community</h3>
+                    <p class="text-gray-400">Join 50,000+ members</p>
+                </div>
+            </div>
+        </a>
+        <a href="mailto:support@karchain.io" class="glass-panel p-8 rounded-3xl block group hover:border-green-500/30 transition-all">
+            <div class="flex items-center gap-6 mb-6">
+                <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center text-3xl text-white shadow-lg group-hover:scale-110 transition-transform">
+                    <i class="fa-solid fa-envelope"></i>
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-white mb-1">Email Support</h3>
+                    <p class="text-gray-400">support@karchain.io</p>
+                </div>
+            </div>
+        </a>
+    </div>
+    
+    <!-- FAQ -->
+    <div class="space-y-4 fade-in-up">
+        <h3 class="text-2xl font-bold text-white mb-6 pl-4 border-l-4 border-green-500">Frequently Asked Questions</h3>
+        
+        <div class="glass-panel rounded-xl overflow-hidden">
+            <button class="faq-toggle w-full p-6 text-left flex justify-between items-center text-white font-bold hover:bg-white/5 transition-colors">
+                <span>How to add KarChain to MetaMask?</span>
+                <i class="fa-solid fa-chevron-down text-green-400 transition-transform"></i>
+            </button>
+            <div class="faq-content border-t border-white/5">
+                <div class="px-6 pb-6 text-gray-400 text-sm">
                     <p>Click "Connect Wallet" on our dashboard. The site will automatically prompt you to add the network.</p>
                     <div class="bg-white/5 p-4 rounded-xl font-mono text-xs mt-4">
                         <p>Network Name: KarChain Testnet</p>
@@ -1040,701 +1203,880 @@
                     </div>
                 </div>
             </div>
-
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">
-                    <span>How does the faucet work?</span>
-                    <i class="fa-solid fa-chevron-down text-green-400 transition-transform"></i>
-                </div>
-                <div class="faq-answer">
+        </div>
+        
+        <div class="glass-panel rounded-xl overflow-hidden">
+            <button class="faq-toggle w-full p-6 text-left flex justify-between items-center text-white font-bold hover:bg-white/5 transition-colors">
+                <span>How does the faucet work?</span>
+                <i class="fa-solid fa-chevron-down text-green-400 transition-transform"></i>
+            </button>
+            <div class="faq-content border-t border-white/5">
+                <div class="px-6 pb-6 text-gray-400 text-sm">
                     <p>Level 1: Claim 1 KRM every 24 hours for free.</p>
                     <p>Level 2: Send 0.005 ETH and receive 5 KRM (requires Level 1 completion).</p>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
 
-            <div class="faq-item">
-                <div class="faq-question" onclick="toggleFaq(this)">
-                    <span>What is the max supply?</span>
-                    <i class="fa-solid fa-chevron-down text-green-400 transition-transform"></i>
+<!-- ===== FOOTER ===== -->
+<footer class="border-t border-white/5 bg-black/50 backdrop-blur-xl py-16 mt-20">
+    <div class="max-w-7xl mx-auto px-6">
+        <div class="grid md:grid-cols-4 gap-12">
+            <div class="col-span-1 md:col-span-2">
+                <div class="flex items-center gap-3 mb-6">
+                    <svg viewBox="0 0 100 100" class="w-12 h-12">
+                        <path d="M20 10 V90" stroke="#4ade80" stroke-width="8"/>
+                        <path d="M80 10 L20 50 L80 90" stroke="#4ade80" stroke-width="8"/>
+                    </svg>
+                    <span class="text-2xl font-bold tracking-[0.2em] text-white font-display">KARCHAIN</span>
                 </div>
-                <div class="faq-answer">
-                    <p>Maximum supply of KRM is 1,000,000,000 tokens. No inflation after mainnet launch.</p>
-                </div>
+                <p class="text-gray-500 text-sm max-w-xs leading-relaxed">The sovereign consensus layer for the decentralized future.</p>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-6 uppercase tracking-widest text-sm">Ecosystem</h4>
+                <ul class="space-y-3 text-sm">
+                    <li><a href="#" class="text-gray-400 hover:text-green-400 transition-colors">Explorer</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-green-400 transition-colors">Governance</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-6 uppercase tracking-widest text-sm">Developers</h4>
+                <ul class="space-y-3 text-sm">
+                    <li><a href="#" class="text-gray-400 hover:text-green-400 transition-colors">Documentation</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-green-400 transition-colors">GitHub</a></li>
+                </ul>
             </div>
         </div>
-    </main>
-
-    <!-- Footer -->
-    <footer class="border-t border-white/5 bg-[#0a0f0a] py-16">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="grid md:grid-cols-4 gap-12">
-                <div class="col-span-1 md:col-span-2">
-                    <div class="flex items-center gap-3 mb-6">
-                        <svg viewBox="0 0 100 100" class="w-12 h-12">
-                            <path d="M20 10 V90" stroke="#4ade80" stroke-width="8"/>
-                            <path d="M80 10 L20 50 L80 90" stroke="#4ade80" stroke-width="8"/>
-                        </svg>
-                        <span class="text-2xl font-bold">KARCHAIN</span>
-                    </div>
-                    <p class="text-gray-500 text-sm max-w-xs">
-                        The sovereign consensus layer for the decentralized future.
-                    </p>
-                </div>
-                
-                <div>
-                    <h4 class="font-bold mb-6">Ecosystem</h4>
-                    <ul class="space-y-3 text-sm text-gray-400">
-                        <li><a href="#" class="hover:text-green-400 transition-colors">Explorer</a></li>
-                        <li><a href="#" class="hover:text-green-400 transition-colors">Governance</a></li>
-                        <li><a href="#" class="hover:text-green-400 transition-colors">Bridge</a></li>
-                    </ul>
-                </div>
-                
-                <div>
-                    <h4 class="font-bold mb-6">Developers</h4>
-                    <ul class="space-y-3 text-sm text-gray-400">
-                        <li><a href="#" class="hover:text-green-400 transition-colors">Documentation</a></li>
-                        <li><a href="#" class="hover:text-green-400 transition-colors">GitHub</a></li>
-                        <li><a href="#" class="hover:text-green-400 transition-colors">Audits</a></li>
-                    </ul>
-                </div>
-            </div>
-            
-            <div class="mt-12 pt-8 border-t border-white/5 text-center text-sm text-gray-600">
-                © 2026 KarChain Foundation. All rights reserved.
-            </div>
+        <div class="mt-16 pt-8 border-t border-white/5 text-center text-xs text-gray-600">
+            © 2026 KarChain Foundation. All rights reserved.
         </div>
-    </footer>
+    </div>
+</footer>
 
-    <!-- Scroll to Top -->
-    <button id="scrollTop" onclick="window.scrollTo({top: 0, behavior: 'smooth'})" 
-            class="fixed bottom-8 right-8 w-14 h-14 bg-green-500 rounded-full flex items-center justify-center text-white shadow-lg opacity-0 pointer-events-none transition-opacity">
-        <i class="fa-solid fa-chevron-up"></i>
-    </button>
+<!-- ===== КНОПКА ВВЕРХ ===== -->
+<button id="scrollToTopBtn" class="fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white z-40 transition-all hover:shadow-xl">
+    <i class="fa-solid fa-chevron-up text-xl"></i>
+</button>
 
-    <script>
-        // ==================== CONFIGURATION ====================
-        const CONFIG = {
-            chainId: 1337,
-            chainIdHex: '0x539',
-            rpcUrl: 'https://relationless-improperly-nettie.ngrok-free.dev',
-            faucetAddress: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
-            chainName: 'KarChain Testnet',
-            currencySymbol: 'KRM',
-            explorer: 'https://explorer.karchain.network'
+<script>
+// ==================== КОНФІГУРАЦІЯ ====================
+const Config = {
+    chain: {
+        id: 1337,
+        hex: '0x539',
+        name: 'KarChain Testnet',
+        rpc: 'https://relationless-improperly-nettie.ngrok-free.dev',
+        symbol: 'KRM',
+        decimals: 18,
+        explorer: 'https://explorer.karchain.network'
+    },
+    faucet: {
+        level1: { amount: 1, cooldownHours: 24 },
+        level2: { amount: 5, paymentEth: '0.005', paymentAddress: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e' }
+    }
+};
+
+// ==================== СХОВИЩЕ ====================
+const STORAGE_KEYS = {
+    WALLET_CONNECTED: 'karchain_wallet_connected',
+    WALLET_ADDRESS: 'karchain_wallet_address',
+    WALLET_BALANCE: 'karchain_wallet_balance',
+    TRANSACTIONS: 'karchain_transactions',
+    LAST_FAUCET_CLAIM_LEVEL1: 'karchain_last_faucet_claim_level1_',
+    TASK_SELF_COMPLETED: 'karchain_task_self_completed_',
+    TASK_FAUCET1_COMPLETED: 'karchain_task_faucet1_completed_',
+    TASK_FAUCET2_COMPLETED: 'karchain_task_faucet2_completed_'
+};
+
+// ==================== UI ОБ'ЄКТ ====================
+const UI = {
+    init: function() {
+        this.initParticles(40);
+        this.initWaterDrops(25);
+        this.initMobileMenu();
+        this.initFAQ();
+        this.initScrollToTop();
+        this.setupDropdownToggle();
+        this.checkSavedConnection();
+        this.startFaucetTimers();
+        this.animateCounters();
+        setInterval(() => this.startFaucetTimers(), 1000);
+        this.initAnimations();
+    },
+    
+    initParticles: function(count) {
+        const canvas = document.getElementById('webgl-canvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        
+        const resize = () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
         };
-
-        // ==================== STATE ====================
-        let provider = null;
-        let signer = null;
-        let userAddress = null;
-        let krmBalance = 0;
-        let transactions = JSON.parse(localStorage.getItem('karchain_txs') || '[]');
-        let refreshInterval = null;
-
-        // ==================== INITIALIZATION ====================
-        document.addEventListener('DOMContentLoaded', () => {
-            initializeApp();
-            startStatsSimulation();
-            checkSavedConnection();
-            setupScrollListener();
-        });
-
-        function initializeApp() {
-            loadTransactionHistory();
-            updateFaucetUI();
-            animateElements();
-            
-            // Set initial stats
-            document.getElementById('statBlocks').textContent = '12,492';
-            document.getElementById('statTxs').textContent = '15.8K';
-            document.getElementById('statValidators').textContent = '138';
-            document.getElementById('statTPS').textContent = '4,892';
+        
+        window.addEventListener('resize', resize);
+        resize();
+        
+        for (let i = 0; i < count; i++) {
+            particles.push({
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                size: Math.random() * 2.5 + 1,
+                speed: Math.random() * 0.4 + 0.1,
+                alpha: Math.random() * 0.25 + 0.1
+            });
         }
-
-        // ==================== ANIMATIONS ====================
-        function animateElements() {
-            if (typeof gsap !== 'undefined') {
-                gsap.from('.feature-card', {
-                    scrollTrigger: {
-                        trigger: '.feature-card',
-                        start: 'top 80%'
-                    },
-                    y: 50,
-                    opacity: 0,
-                    duration: 0.8,
-                    stagger: 0.2
+        
+        function animate() {
+            if (!ctx || !canvas) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.y -= p.speed;
+                if (p.y < 0) {
+                    p.y = canvas.height;
+                    p.x = Math.random() * canvas.width;
+                }
+                ctx.fillStyle = `rgba(74, 222, 128, ${p.alpha})`;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            requestAnimationFrame(animate);
+        }
+        
+        animate();
+    },
+    
+    initWaterDrops: function(count) {
+        const container = document.getElementById('water-drops');
+        if (!container) return;
+        container.innerHTML = '';
+        for (let i = 0; i < count; i++) {
+            const drop = document.createElement('div');
+            drop.className = 'water-drop';
+            drop.style.left = Math.random() * 100 + '%';
+            drop.style.animationDelay = Math.random() * 8 + 's';
+            drop.style.height = (20 + Math.random() * 100) + 'px';
+            drop.style.animationDuration = (5 + Math.random() * 10) + 's';
+            drop.style.opacity = Math.random() * 0.5 + 0.1;
+            container.appendChild(drop);
+        }
+    },
+    
+    initMobileMenu: function() {
+        const hamburger = document.getElementById('hamburgerBtn');
+        const menu = document.getElementById('mobileMenu');
+        const backdrop = document.getElementById('mobileBackdrop');
+        
+        if (hamburger && menu && backdrop) {
+            hamburger.addEventListener('click', (e) => {
+                e.preventDefault();
+                menu.classList.toggle('active');
+                backdrop.classList.toggle('active');
+                hamburger.classList.toggle('active');
+                document.body.style.overflow = menu.classList.contains('active') ? 'hidden' : '';
+            });
+            backdrop.addEventListener('click', () => this.closeMobileMenu());
+        }
+    },
+    
+    closeMobileMenu: function() {
+        const menu = document.getElementById('mobileMenu');
+        const backdrop = document.getElementById('mobileBackdrop');
+        const hamburger = document.getElementById('hamburgerBtn');
+        if (menu) menu.classList.remove('active');
+        if (backdrop) backdrop.classList.remove('active');
+        if (hamburger) hamburger.classList.remove('active');
+        document.body.style.overflow = '';
+    },
+    
+    initFAQ: function() {
+        document.querySelectorAll('.faq-toggle').forEach(toggle => {
+            toggle.addEventListener('click', function() {
+                const content = this.nextElementSibling;
+                content.classList.toggle('open');
+                this.classList.toggle('open');
+            });
+        });
+    },
+    
+    initScrollToTop: function() {
+        const btn = document.getElementById('scrollToTopBtn');
+        if (!btn) return;
+        window.addEventListener('scroll', () => {
+            btn.classList.toggle('visible', window.scrollY > 300);
+        });
+        btn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    },
+    
+    initAnimations: function() {
+        if (typeof gsap === 'undefined') return;
+        gsap.registerPlugin(ScrollTrigger);
+        
+        gsap.utils.toArray('.fade-in-up, .fade-in-left, .fade-in-right').forEach(el => {
+            gsap.from(el, {
+                scrollTrigger: { trigger: el, start: 'top 85%' },
+                y: 50,
+                opacity: 0,
+                duration: 1,
+                ease: 'power2.out'
+            });
+        });
+    },
+    
+    animateCounters: function() {
+        const counters = [
+            { element: document.getElementById('stat-blocks'), target: 12492 },
+            { element: document.getElementById('stat-blocktime'), target: 0.4 },
+            { element: document.getElementById('stat-txs'), target: 15892 },
+            { element: document.getElementById('stat-validators'), target: 138 }
+        ];
+        
+        if (typeof gsap === 'undefined') return;
+        
+        counters.forEach(counter => {
+            if (counter.element) {
+                gsap.to(counter.element, {
+                    scrollTrigger: { trigger: counter.element, start: 'top 80%' },
+                    innerHTML: counter.target,
+                    duration: 2,
+                    snap: { innerHTML: 1 },
+                    onUpdate: function() {
+                        if (counter.target % 1 !== 0) {
+                            this.targets()[0].innerHTML = (Math.floor(this.targets()[0].innerHTML) / 10).toFixed(1);
+                        }
+                    }
                 });
             }
+        });
+    },
+    
+    setupDropdownToggle: function() {
+        const connectBtn = document.getElementById('connectBtn');
+        const dropdown = document.getElementById('userDropdown');
+        
+        if (!connectBtn || !dropdown) return;
+        
+        connectBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (App.state.address) {
+                dropdown.classList.toggle('hidden');
+            } else {
+                this.openModal();
+            }
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (dropdown && !dropdown.contains(e.target) && !connectBtn.contains(e.target)) {
+                dropdown.classList.add('hidden');
+            }
+        });
+    },
+    
+    openModal: function() {
+        const modal = document.getElementById('connect-modal');
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        if (typeof gsap !== 'undefined') {
+            gsap.fromTo('#modal-content', 
+                { scale: 0.95, opacity: 0 }, 
+                { scale: 1, opacity: 1, duration: 0.4, ease: 'power2.out' }
+            );
         }
-
-        // ==================== STATS SIMULATION ====================
-        function startStatsSimulation() {
-            setInterval(() => {
-                if (document.getElementById('home-page').classList.contains('active')) {
-                    const blocks = parseInt(document.getElementById('statBlocks').textContent.replace(/,/g, '')) + 1;
-                    document.getElementById('statBlocks').textContent = blocks.toLocaleString();
-                    
-                    const txs = Math.floor(Math.random() * 100) + 15800;
-                    document.getElementById('statTxs').textContent = (txs / 1000).toFixed(1) + 'K';
+        document.body.style.overflow = 'hidden';
+        this.closeMobileMenu();
+    },
+    
+    closeModal: function() {
+        if (typeof gsap !== 'undefined') {
+            gsap.to('#modal-content', {
+                scale: 0.95,
+                opacity: 0,
+                duration: 0.3,
+                ease: 'power2.in',
+                onComplete: () => {
+                    document.getElementById('connect-modal').classList.add('hidden');
+                    document.getElementById('connect-modal').classList.remove('flex');
+                    document.body.style.overflow = '';
                 }
-            }, 5000);
+            });
+        } else {
+            document.getElementById('connect-modal').classList.add('hidden');
+            document.getElementById('connect-modal').classList.remove('flex');
+            document.body.style.overflow = '';
         }
+    },
+    
+    showNotification: function(message, type = 'info') {
+        document.querySelectorAll('.notification').forEach(n => n.remove());
+        
+        const notification = document.createElement('div');
+        notification.className = `notification fixed top-24 right-4 glass-panel px-6 py-4 rounded-xl z-[1000] max-w-sm ${
+            type === 'success' ? 'border-green-500/30 bg-green-900/20' :
+            type === 'error' ? 'border-red-500/30 bg-red-900/20' :
+            'border-blue-500/30 bg-blue-900/20'
+        }`;
+        
+        const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle';
+        const color = type === 'success' ? 'text-green-400' : type === 'error' ? 'text-red-400' : 'text-blue-400';
+        
+        notification.innerHTML = `
+            <div class="flex items-start gap-3">
+                <i class="fas ${icon} ${color} text-xl mt-0.5"></i>
+                <div>
+                    <p class="text-white font-bold mb-1">${type.charAt(0).toUpperCase() + type.slice(1)}</p>
+                    <p class="text-gray-300 text-sm">${message}</p>
+                </div>
+                <button onclick="this.parentElement.parentElement.remove()" class="text-gray-500 hover:text-white ml-4">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+        `;
+        
+        document.body.appendChild(notification);
+        setTimeout(() => notification.remove(), 5000);
+    },
+    
+    checkSavedConnection: function() {
+        const connected = localStorage.getItem(STORAGE_KEYS.WALLET_CONNECTED) === 'true';
+        const address = localStorage.getItem(STORAGE_KEYS.WALLET_ADDRESS);
+        const balance = localStorage.getItem(STORAGE_KEYS.WALLET_BALANCE) || '0.00';
+        
+        if (connected && address) {
+            App.state.address = address;
+            App.state.krmBalance = balance;
+            this.setConnectedState(address, balance);
+            App.tasks.updateTaskStatus();
+        }
+    },
+    
+    setConnectedState: function(address, balance) {
+        const short = address.substring(0, 6) + '...' + address.substring(address.length - 4);
+        const connectBtn = document.getElementById('connectBtn');
+        
+        if (connectBtn) {
+            connectBtn.innerHTML = `<div class="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-2"></div>${short}`;
+        }
+        
+        document.getElementById('dropdownAddress').innerText = short;
+        document.getElementById('dropdownBalance').innerText = parseFloat(balance).toFixed(4) + ' KRM';
+        document.getElementById('mobileWalletAddress').innerText = short;
+        document.getElementById('mobileWalletBalance').innerText = parseFloat(balance).toFixed(4) + ' KRM';
+        document.getElementById('mobileWalletInfo').classList.remove('hidden');
+        document.getElementById('view-locked').classList.add('hidden');
+        document.getElementById('view-active').classList.remove('hidden');
+        document.getElementById('walletAddrDisp').innerText = address;
+        document.getElementById('balanceVal').innerText = parseFloat(balance).toFixed(4);
+        
+        this.startFaucetTimers();
+    },
+    
+    updateBalance: function(balance) {
+        const formatted = parseFloat(balance).toFixed(4);
+        document.getElementById('balanceVal').innerText = formatted;
+        document.getElementById('dropdownBalance').innerText = formatted + ' KRM';
+        document.getElementById('mobileWalletBalance').innerText = formatted + ' KRM';
+        localStorage.setItem(STORAGE_KEYS.WALLET_BALANCE, formatted);
+    },
+    
+    loadTransactionHistory: function() {
+        const transactions = JSON.parse(localStorage.getItem(STORAGE_KEYS.TRANSACTIONS) || '[]');
+        const historySection = document.getElementById('transaction-history');
+        const noTransactions = document.getElementById('no-transactions');
+        const transactionsList = document.getElementById('transactions-list');
+        
+        if (transactions.length > 0) {
+            historySection.classList.remove('hidden');
+            noTransactions.style.display = 'none';
+            transactionsList.innerHTML = transactions.slice(-5).reverse().map(tx => `
+                <div class="transaction-item flex justify-between items-center p-4 bg-white/5 rounded-xl">
+                    <div class="flex items-center gap-3">
+                        <i class="fa-solid ${tx.status === 'success' ? 'fa-check-circle text-green-400' : 'fa-times-circle text-red-400'}"></i>
+                        <div>
+                            <p class="text-sm font-bold text-white">${tx.value} KRM</p>
+                            <p class="text-xs text-gray-500 font-mono">${tx.hash.substring(0, 10)}...</p>
+                        </div>
+                    </div>
+                    <p class="text-xs text-gray-500">${new Date(tx.timestamp).toLocaleTimeString()}</p>
+                </div>
+            `).join('');
+        } else {
+            historySection.classList.add('hidden');
+            noTransactions.style.display = 'block';
+        }
+    },
+    
+    startFaucetTimers: function() {
+        if (!App.state.address) return;
+        this.startLevel1FaucetTimer();
+        this.startLevel2FaucetTimer();
+    },
+    
+    startLevel1FaucetTimer: function() {
+        const container = document.getElementById('faucet-level1-state');
+        if (!container) return;
+        
+        const lastClaimKey = STORAGE_KEYS.LAST_FAUCET_CLAIM_LEVEL1 + App.state.address;
+        const lastClaim = localStorage.getItem(lastClaimKey);
+        const now = Date.now();
+        const cooldown = Config.faucet.level1.cooldownHours * 60 * 60 * 1000;
+        
+        if (!lastClaim || now - parseInt(lastClaim) >= cooldown) {
+            container.innerHTML = `
+                <button onclick="App.faucet.claimLevel1()" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white rounded-lg font-bold transition-all">
+                    <i class="fa-solid fa-droplet mr-2"></i>CLAIM 1 KRM
+                </button>
+            `;
+        } else {
+            const timeLeft = cooldown - (now - parseInt(lastClaim));
+            const hours = Math.floor(timeLeft / (60 * 60 * 1000));
+            const mins = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
+            const secs = Math.floor((timeLeft % (60 * 1000)) / 1000);
+            
+            container.innerHTML = `
+                <div class="text-center">
+                    <div class="flex items-center justify-center gap-1 text-sm">
+                        <span class="timer-flip text-lg">${hours.toString().padStart(2, '0')}</span>
+                        <span class="text-green-400">:</span>
+                        <span class="timer-flip text-lg">${mins.toString().padStart(2, '0')}</span>
+                        <span class="text-green-400">:</span>
+                        <span class="timer-flip text-lg">${secs.toString().padStart(2, '0')}</span>
+                    </div>
+                </div>
+            `;
+        }
+    },
+    
+    startLevel2FaucetTimer: function() {
+        const container = document.getElementById('faucet-level2-state');
+        if (!container) return;
+        
+        const lastClaimKey = STORAGE_KEYS.LAST_FAUCET_CLAIM_LEVEL1 + App.state.address;
+        const lastClaim = localStorage.getItem(lastClaimKey);
+        const taskFaucet2Completed = localStorage.getItem(STORAGE_KEYS.TASK_FAUCET2_COMPLETED + App.state.address) === 'true';
+        
+        if (!lastClaim) {
+            container.innerHTML = `
+                <div class="text-center py-2">
+                    <i class="fa-solid fa-lock text-purple-400"></i>
+                    <span class="text-xs text-gray-400 ml-2">Complete Level 1 first</span>
+                </div>
+            `;
+        } else if (taskFaucet2Completed) {
+            container.innerHTML = `
+                <div class="text-center py-2 text-green-400">
+                    <i class="fa-solid fa-check-circle"></i>
+                    <span class="text-xs ml-2">Completed</span>
+                </div>
+            `;
+        } else {
+            container.innerHTML = `
+                <button onclick="App.faucet.claimLevel2()" class="w-full py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-bold transition-all">
+                    <i class="fa-brands fa-ethereum mr-2"></i>CLAIM 5 KRM
+                </button>
+            `;
+        }
+    }
+};
 
-        // ==================== NAVIGATION ====================
-        function navigateTo(page) {
-            // Hide all pages
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+// ==================== ОСНОВНИЙ ДОДАТОК ====================
+const App = {
+    state: {
+        address: null,
+        provider: null,
+        signer: null,
+        krmBalance: '0.00'
+    },
+    
+    router: {
+        navigate: function(page) {
+            document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
+            document.getElementById('page-' + page).classList.add('active');
             
-            // Show selected page
-            document.getElementById(page + '-page').classList.add('active');
-            
-            // Update navigation links
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('text-white');
                 link.classList.add('text-gray-400');
             });
             
-            // Find and highlight active link
-            const activeLinks = Array.from(document.querySelectorAll('.nav-link')).filter(
-                link => link.textContent.toLowerCase().includes(page)
-            );
-            activeLinks.forEach(link => {
-                link.classList.remove('text-gray-400');
-                link.classList.add('text-white');
-            });
+            const activeLink = document.getElementById('nav-' + page);
+            if (activeLink) {
+                activeLink.classList.remove('text-gray-400');
+                activeLink.classList.add('text-white');
+            }
             
-            // Close mobile menu
-            closeMobileMenu();
-            
-            // Scroll to top
+            UI.closeMobileMenu();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-
-        // ==================== MOBILE MENU ====================
-        function toggleMobileMenu() {
-            const menu = document.getElementById('mobileMenu');
-            const hamburger = document.getElementById('hamburger');
-            menu.classList.toggle('open');
-            hamburger.classList.toggle('open');
-        }
-
-        function closeMobileMenu() {
-            document.getElementById('mobileMenu').classList.remove('open');
-            document.getElementById('hamburger').classList.remove('open');
-        }
-
-        // ==================== MODAL ====================
-        function openModal() {
-            document.getElementById('modalBackdrop').classList.add('show');
-            document.getElementById('walletModal').classList.add('show');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeModal() {
-            document.getElementById('modalBackdrop').classList.remove('show');
-            document.getElementById('walletModal').classList.remove('show');
-            document.body.style.overflow = '';
-        }
-
-        // ==================== TOAST ====================
-        function showToast(message, type = 'info') {
-            const toast = document.getElementById('toast');
-            const icon = document.getElementById('toastIcon');
-            const title = document.getElementById('toastTitle');
-            const msg = document.getElementById('toastMessage');
-            
-            // Set colors based on type
-            const colors = {
-                success: { icon: 'fa-check-circle', color: 'text-green-400', title: 'Success' },
-                error: { icon: 'fa-exclamation-circle', color: 'text-red-400', title: 'Error' },
-                info: { icon: 'fa-info-circle', color: 'text-blue-400', title: 'Info' }
-            };
-            
-            const config = colors[type] || colors.info;
-            
-            icon.className = `fa-solid ${config.icon} ${config.color} text-xl`;
-            title.textContent = config.title;
-            msg.textContent = message;
-            
-            toast.classList.add('show');
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 5000);
-        }
-
-        // ==================== WALLET CONNECTION ====================
-        async function connectWallet(walletType) {
-            closeModal();
+    },
+    
+    wallet: {
+        connect: async function(type) {
+            const connectBtn = document.getElementById('connectBtn');
+            const originalText = connectBtn.innerHTML;
             
             try {
+                connectBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Connecting...';
+                
                 if (!window.ethereum) {
                     window.open('https://metamask.io/download/', '_blank');
                     throw new Error('Please install MetaMask');
                 }
                 
-                showToast('Connecting wallet...', 'info');
-                
-                // Request accounts
-                provider = new ethers.providers.Web3Provider(window.ethereum);
+                const provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
                 await provider.send('eth_requestAccounts', []);
-                signer = provider.getSigner();
-                userAddress = await signer.getAddress();
+                const signer = provider.getSigner();
+                const address = await signer.getAddress();
                 
-                // Switch to KarChain network
-                await switchNetwork();
-                
-                // Update UI
-                await updateBalance();
-                
-                // Save connection
-                localStorage.setItem('karchain_wallet', JSON.stringify({
-                    address: userAddress,
-                    connected: true,
-                    timestamp: Date.now()
-                }));
-                
-                // Update button
-                const shortAddress = userAddress.substring(0, 6) + '...' + userAddress.substring(38);
-                document.getElementById('walletButton').innerHTML = `
-                    <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-2"></div>
-                    <span>${shortAddress}</span>
-                `;
-                
-                // Show dashboard
-                document.getElementById('lockedView').classList.add('hidden');
-                document.getElementById('activeView').classList.remove('hidden');
-                
-                // Update wallet info
-                document.getElementById('walletAddress').textContent = shortAddress;
-                document.getElementById('mobileAddress').textContent = userAddress;
-                document.getElementById('mobileBalance').textContent = parseFloat(krmBalance).toFixed(4) + ' KRM';
-                document.getElementById('mobileWalletInfo').classList.remove('hidden');
-                
-                // Setup event listeners
-                window.ethereum.on('accountsChanged', handleAccountsChanged);
-                window.ethereum.on('chainChanged', () => window.location.reload());
-                
-                // Start balance refresh
-                if (refreshInterval) clearInterval(refreshInterval);
-                refreshInterval = setInterval(updateBalance, 15000);
-                
-                showToast('Wallet connected successfully!', 'success');
-                
-                // Load transactions
-                loadTransactionHistory();
-                
-            } catch (error) {
-                console.error(error);
-                showToast(error.message, 'error');
-            }
-        }
-
-        async function switchNetwork() {
-            try {
-                await window.ethereum.request({
-                    method: 'wallet_switchEthereumChain',
-                    params: [{ chainId: CONFIG.chainIdHex }]
-                });
-            } catch (switchError) {
-                // Chain not added, add it
-                if (switchError.code === 4902) {
-                    try {
+                // Switch network
+                try {
+                    await window.ethereum.request({
+                        method: 'wallet_switchEthereumChain',
+                        params: [{ chainId: Config.chain.hex }]
+                    });
+                } catch (switchError) {
+                    if (switchError.code === 4902) {
                         await window.ethereum.request({
                             method: 'wallet_addEthereumChain',
                             params: [{
-                                chainId: CONFIG.chainIdHex,
-                                chainName: CONFIG.chainName,
-                                rpcUrls: [CONFIG.rpcUrl],
+                                chainId: Config.chain.hex,
+                                chainName: Config.chain.name,
+                                rpcUrls: [Config.chain.rpc],
                                 nativeCurrency: {
                                     name: 'KarChain',
-                                    symbol: CONFIG.currencySymbol,
-                                    decimals: 18
-                                },
-                                blockExplorerUrls: [CONFIG.explorer]
+                                    symbol: Config.chain.symbol,
+                                    decimals: Config.chain.decimals
+                                }
                             }]
                         });
-                    } catch (addError) {
-                        throw new Error('Failed to add KarChain network');
                     }
                 }
-            }
-        }
-
-        function handleAccountsChanged(accounts) {
-            if (accounts.length === 0) {
-                disconnectWallet();
-            } else if (accounts[0] !== userAddress) {
-                userAddress = accounts[0];
-                updateBalance();
-            }
-        }
-
-        function disconnectWallet() {
-            userAddress = null;
-            provider = null;
-            signer = null;
-            krmBalance = 0;
-            
-            localStorage.removeItem('karchain_wallet');
-            
-            document.getElementById('walletButton').innerHTML = `
-                <i class="fa-solid fa-wallet"></i>
-                <span>Connect Wallet</span>
-            `;
-            
-            document.getElementById('lockedView').classList.remove('hidden');
-            document.getElementById('activeView').classList.add('hidden');
-            document.getElementById('mobileWalletInfo').classList.add('hidden');
-            
-            if (refreshInterval) {
-                clearInterval(refreshInterval);
-                refreshInterval = null;
-            }
-            
-            showToast('Wallet disconnected', 'info');
-        }
-
-        function checkSavedConnection() {
-            const saved = localStorage.getItem('karchain_wallet');
-            if (saved) {
-                try {
-                    const data = JSON.parse(saved);
-                    if (data.connected && data.address) {
-                        setTimeout(() => connectWallet('saved'), 1000);
-                    }
-                } catch (e) {
-                    console.error('Error parsing saved wallet');
-                }
-            }
-        }
-
-        // ==================== BALANCE ====================
-        async function updateBalance() {
-            if (!provider || !userAddress) return;
-            
-            try {
-                const balance = await provider.getBalance(userAddress);
-                krmBalance = ethers.utils.formatEther(balance);
-                document.getElementById('krmBalance').textContent = parseFloat(krmBalance).toFixed(4);
-                document.getElementById('mobileBalance').textContent = parseFloat(krmBalance).toFixed(4) + ' KRM';
+                
+                const balance = await provider.getBalance(address);
+                const formattedBalance = ethers.utils.formatEther(balance);
+                
+                App.state.address = address;
+                App.state.provider = provider;
+                App.state.signer = signer;
+                App.state.krmBalance = formattedBalance;
+                
+                localStorage.setItem(STORAGE_KEYS.WALLET_CONNECTED, 'true');
+                localStorage.setItem(STORAGE_KEYS.WALLET_ADDRESS, address);
+                localStorage.setItem(STORAGE_KEYS.WALLET_BALANCE, formattedBalance);
+                
+                UI.closeModal();
+                UI.setConnectedState(address, formattedBalance);
+                UI.showNotification('Wallet connected successfully!', 'success');
+                App.tasks.updateTaskStatus();
+                
             } catch (error) {
-                console.error('Balance update failed:', error);
+                console.error(error);
+                UI.showNotification(error.message, 'error');
+                connectBtn.innerHTML = originalText;
             }
+        },
+        
+        disconnect: function() {
+            App.state.address = null;
+            App.state.provider = null;
+            App.state.signer = null;
+            App.state.krmBalance = '0.00';
+            
+            localStorage.removeItem(STORAGE_KEYS.WALLET_CONNECTED);
+            localStorage.removeItem(STORAGE_KEYS.WALLET_ADDRESS);
+            
+            document.getElementById('connectBtn').innerHTML = '<i class="fa-solid fa-wallet"></i> <span>Connect Wallet</span>';
+            document.getElementById('view-locked').classList.remove('hidden');
+            document.getElementById('view-active').classList.add('hidden');
+            document.getElementById('mobileWalletInfo').classList.add('hidden');
+            document.getElementById('userDropdown').classList.add('hidden');
+            
+            UI.showNotification('Wallet disconnected', 'success');
+        },
+        
+        refreshBalance: async function() {
+            if (!App.state.provider || !App.state.address) return;
+            const balance = await App.state.provider.getBalance(App.state.address);
+            const formatted = ethers.utils.formatEther(balance);
+            App.state.krmBalance = formatted;
+            UI.updateBalance(formatted);
+            UI.showNotification('Balance updated', 'success');
         }
-
-        function refreshBalance() {
-            updateBalance();
-            showToast('Balance updated', 'success');
-        }
-
-        // ==================== TRANSACTIONS ====================
-        async function sendToSelf() {
-            if (!signer || !userAddress) {
-                showToast('Please connect wallet first', 'error');
-                openModal();
+    },
+    
+    tasks: {
+        sendToSelf: async function() {
+            if (!App.state.signer || !App.state.address) {
+                UI.showNotification('Please connect wallet first', 'error');
+                UI.openModal();
+                return;
+            }
+            
+            const taskSelfCompleted = localStorage.getItem(STORAGE_KEYS.TASK_SELF_COMPLETED + App.state.address) === 'true';
+            if (taskSelfCompleted) {
+                UI.showNotification('Task already completed!', 'info');
                 return;
             }
             
             try {
-                showToast('Sending transaction...', 'info');
-                
-                const tx = await signer.sendTransaction({
-                    to: userAddress,
+                const tx = await App.state.signer.sendTransaction({
+                    to: App.state.address,
                     value: ethers.utils.parseEther('0.001')
                 });
                 
-                showToast(`Transaction sent: ${tx.hash.substring(0, 10)}...`, 'success');
-                
+                UI.showNotification(`Transaction sent! Waiting for confirmation...`, 'info');
                 const receipt = await tx.wait();
                 
-                const txData = {
-                    hash: tx.hash,
-                    from: userAddress,
-                    to: userAddress,
-                    value: '0.001',
-                    status: receipt.status === 1 ? 'success' : 'failed',
-                    timestamp: Date.now()
-                };
-                
-                transactions.push(txData);
-                localStorage.setItem('karchain_txs', JSON.stringify(transactions));
-                
-                await updateBalance();
-                loadTransactionHistory();
-                
-                showToast('Transaction confirmed!', 'success');
-                
+                if (receipt.status === 1) {
+                    localStorage.setItem(STORAGE_KEYS.TASK_SELF_COMPLETED + App.state.address, 'true');
+                    
+                    // Add reward
+                    const currentBalance = parseFloat(App.state.krmBalance) + 0.01;
+                    App.state.krmBalance = currentBalance.toString();
+                    UI.updateBalance(currentBalance);
+                    
+                    // Save transaction
+                    const transactions = JSON.parse(localStorage.getItem(STORAGE_KEYS.TRANSACTIONS) || '[]');
+                    transactions.push({
+                        hash: tx.hash,
+                        from: App.state.address,
+                        to: App.state.address,
+                        value: '0.001',
+                        status: 'success',
+                        timestamp: Date.now()
+                    });
+                    localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(transactions));
+                    
+                    UI.loadTransactionHistory();
+                    this.updateTaskStatus();
+                    UI.showNotification('Task completed! +0.01 KRM', 'success');
+                }
             } catch (error) {
                 console.error(error);
-                showToast(error.message, 'error');
+                UI.showNotification(error.message, 'error');
             }
+        },
+        
+        updateTaskStatus: function() {
+            if (!App.state.address) return;
+            
+            const taskSelfCompleted = localStorage.getItem(STORAGE_KEYS.TASK_SELF_COMPLETED + App.state.address) === 'true';
+            const taskFaucet1Completed = localStorage.getItem(STORAGE_KEYS.TASK_FAUCET1_COMPLETED + App.state.address) === 'true';
+            const taskFaucet2Completed = localStorage.getItem(STORAGE_KEYS.TASK_FAUCET2_COMPLETED + App.state.address) === 'true';
+            
+            // Update Task 1
+            const taskSelf = document.getElementById('task-self');
+            const taskSelfBadge = document.getElementById('task-self-badge');
+            const taskSelfBtn = document.getElementById('task-self-btn');
+            
+            if (taskSelfCompleted) {
+                taskSelf.classList.add('completed');
+                taskSelfBadge.textContent = 'COMPLETED';
+                taskSelfBadge.style.background = 'rgba(74, 222, 128, 0.3)';
+                if (taskSelfBtn) taskSelfBtn.disabled = true;
+            } else {
+                taskSelf.classList.remove('completed');
+                taskSelfBadge.textContent = 'PENDING';
+            }
+            
+            // Update Task 2
+            const taskFaucet1 = document.getElementById('task-faucet1');
+            const taskFaucet1Badge = document.getElementById('task-faucet1-badge');
+            
+            if (taskFaucet1Completed) {
+                taskFaucet1.classList.add('completed');
+                taskFaucet1Badge.textContent = 'COMPLETED';
+            } else {
+                taskFaucet1.classList.remove('completed');
+                taskFaucet1Badge.textContent = 'PENDING';
+            }
+            
+            // Update Task 3
+            const taskFaucet2 = document.getElementById('task-faucet2');
+            const taskFaucet2Badge = document.getElementById('task-faucet2-badge');
+            
+            if (!taskFaucet1Completed) {
+                taskFaucet2.classList.add('locked');
+                taskFaucet2Badge.textContent = 'LOCKED';
+            } else if (taskFaucet2Completed) {
+                taskFaucet2.classList.remove('locked');
+                taskFaucet2.classList.add('completed');
+                taskFaucet2Badge.textContent = 'COMPLETED';
+            } else {
+                taskFaucet2.classList.remove('locked', 'completed');
+                taskFaucet2Badge.textContent = 'PENDING';
+            }
+            
+            // Update progress
+            const completedCount = [taskSelfCompleted, taskFaucet1Completed, taskFaucet2Completed].filter(Boolean).length;
+            document.getElementById('task-progress').textContent = `${completedCount}/3 Completed`;
+            document.getElementById('task-progress-bar').style.width = `${(completedCount / 3) * 100}%`;
         }
-
-        async function sendTransaction() {
-            if (!signer || !userAddress) {
-                showToast('Please connect wallet first', 'error');
-                openModal();
+    },
+    
+    faucet: {
+        claimLevel1: function() {
+            if (!App.state.address) {
+                UI.showNotification('Please connect wallet first', 'error');
                 return;
             }
             
-            const recipient = document.getElementById('recipientAddress').value.trim();
-            const amount = document.getElementById('sendAmount').value;
-            
-            if (!recipient || !ethers.utils.isAddress(recipient)) {
-                showToast('Invalid recipient address', 'error');
-                return;
-            }
-            
-            if (!amount || parseFloat(amount) <= 0) {
-                showToast('Invalid amount', 'error');
-                return;
-            }
-            
-            try {
-                showToast('Sending transaction...', 'info');
-                
-                const tx = await signer.sendTransaction({
-                    to: recipient,
-                    value: ethers.utils.parseEther(amount)
-                });
-                
-                showToast(`Transaction sent: ${tx.hash.substring(0, 10)}...`, 'success');
-                
-                const receipt = await tx.wait();
-                
-                const txData = {
-                    hash: tx.hash,
-                    from: userAddress,
-                    to: recipient,
-                    value: amount,
-                    status: receipt.status === 1 ? 'success' : 'failed',
-                    timestamp: Date.now()
-                };
-                
-                transactions.push(txData);
-                localStorage.setItem('karchain_txs', JSON.stringify(transactions));
-                
-                await updateBalance();
-                loadTransactionHistory();
-                
-                document.getElementById('recipientAddress').value = '';
-                document.getElementById('sendAmount').value = '';
-                
-                showToast('Transaction confirmed!', 'success');
-                
-            } catch (error) {
-                console.error(error);
-                showToast(error.message, 'error');
-            }
-        }
-
-        function loadTransactionHistory() {
-            const list = document.getElementById('transactionList');
-            const noTx = document.getElementById('noTransactions');
-            
-            if (!transactions || transactions.length === 0) {
-                list.innerHTML = '';
-                noTx.classList.remove('hidden');
-                return;
-            }
-            
-            noTx.classList.add('hidden');
-            
-            // Get last 10 transactions
-            const recentTxs = [...transactions].reverse().slice(0, 10);
-            
-            list.innerHTML = recentTxs.map(tx => `
-                <div class="transaction-item flex justify-between items-center">
-                    <div class="flex items-center gap-3">
-                        <i class="fa-solid ${tx.status === 'success' ? 'fa-check-circle text-green-400' : 'fa-times-circle text-red-400'}"></i>
-                        <div>
-                            <p class="font-bold">${tx.value} KRM</p>
-                            <p class="text-xs text-gray-500 font-mono">
-                                ${tx.hash.substring(0, 10)}...${tx.hash.substring(58)}
-                            </p>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-xs text-gray-400">${new Date(tx.timestamp).toLocaleDateString()}</p>
-                        <p class="text-xs text-gray-500">${new Date(tx.timestamp).toLocaleTimeString()}</p>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // ==================== FAUCET ====================
-        function updateFaucetUI() {
-            if (!userAddress) return;
-            
-            const level1Div = document.getElementById('faucetLevel1');
-            const level2Div = document.getElementById('faucetLevel2');
-            const level2Card = document.getElementById('level2Card');
-            
-            const lastClaim1 = localStorage.getItem(`faucet1_${userAddress}`);
+            const lastClaimKey = STORAGE_KEYS.LAST_FAUCET_CLAIM_LEVEL1 + App.state.address;
+            const lastClaim = localStorage.getItem(lastClaimKey);
             const now = Date.now();
-            const cooldown = 24 * 60 * 60 * 1000;
+            const cooldown = Config.faucet.level1.cooldownHours * 60 * 60 * 1000;
             
-            // Level 1
-            if (!lastClaim1 || now - parseInt(lastClaim1) >= cooldown) {
-                level1Div.innerHTML = `
-                    <button onclick="claimLevel1()" class="w-full py-4 bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 rounded-xl font-bold transition-all">
-                        <i class="fa-solid fa-droplet mr-2"></i>
-                        CLAIM 1 KRM
-                    </button>
-                `;
-            } else {
-                const timeLeft = cooldown - (now - parseInt(lastClaim1));
-                const hours = Math.floor(timeLeft / (60 * 60 * 1000));
-                const mins = Math.floor((timeLeft % (60 * 60 * 1000)) / (60 * 1000));
-                const secs = Math.floor((timeLeft % (60 * 1000)) / 1000);
-                
-                level1Div.innerHTML = `
-                    <div class="text-center">
-                        <p class="text-sm text-gray-400 mb-3">Next claim available in</p>
-                        <div class="flex justify-center gap-2">
-                            <span class="timer-flip">${hours.toString().padStart(2, '0')}</span>
-                            <span class="text-green-400 text-2xl">:</span>
-                            <span class="timer-flip">${mins.toString().padStart(2, '0')}</span>
-                            <span class="text-green-400 text-2xl">:</span>
-                            <span class="timer-flip">${secs.toString().padStart(2, '0')}</span>
-                        </div>
-                    </div>
-                `;
-                
-                // Update every second
-                setTimeout(updateFaucetUI, 1000);
-            }
-            
-            // Level 2
-            const level1Completed = lastClaim1 !== null;
-            
-            if (level1Completed) {
-                level2Card.classList.remove('opacity-50');
-                level2Div.innerHTML = `
-                    <button onclick="claimLevel2()" class="w-full py-4 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 rounded-xl font-bold transition-all">
-                        <i class="fa-brands fa-ethereum mr-2"></i>
-                        SEND 0.005 ETH FOR 5 KRM
-                    </button>
-                `;
-            } else {
-                level2Card.classList.add('opacity-50');
-                level2Div.innerHTML = `
-                    <div class="text-center py-4">
-                        <i class="fa-solid fa-lock text-purple-400 text-2xl mb-2"></i>
-                        <p class="text-sm text-gray-400">Complete Level 1 to unlock</p>
-                    </div>
-                `;
-            }
-        }
-
-        function claimLevel1() {
-            if (!userAddress) {
-                showToast('Please connect wallet first', 'error');
+            if (lastClaim && now - parseInt(lastClaim) < cooldown) {
+                UI.showNotification('Please wait 24 hours between claims', 'error');
                 return;
             }
             
-            const newBalance = parseFloat(krmBalance || 0) + 1;
-            krmBalance = newBalance.toString();
+            const currentBalance = parseFloat(App.state.krmBalance) + Config.faucet.level1.amount;
+            App.state.krmBalance = currentBalance.toString();
+            UI.updateBalance(currentBalance);
             
-            document.getElementById('krmBalance').textContent = newBalance.toFixed(4);
+            localStorage.setItem(lastClaimKey, now.toString());
+            localStorage.setItem(STORAGE_KEYS.TASK_FAUCET1_COMPLETED + App.state.address, 'true');
             
-            localStorage.setItem(`faucet1_${userAddress}`, Date.now().toString());
+            UI.showNotification(`Claimed ${Config.faucet.level1.amount} KRM!`, 'success');
+            UI.startFaucetTimers();
+            App.tasks.updateTaskStatus();
+        },
+        
+        claimLevel2: async function() {
+            if (!App.state.signer || !App.state.address) {
+                UI.showNotification('Please connect wallet first', 'error');
+                return;
+            }
             
-            showToast('Claimed 1 KRM!', 'success');
-            updateFaucetUI();
-        }
-
-        async function claimLevel2() {
-            if (!signer || !userAddress) {
-                showToast('Please connect wallet first', 'error');
+            const taskFaucet2Completed = localStorage.getItem(STORAGE_KEYS.TASK_FAUCET2_COMPLETED + App.state.address) === 'true';
+            if (taskFaucet2Completed) {
+                UI.showNotification('Task already completed!', 'info');
                 return;
             }
             
             try {
-                showToast('Preparing transaction...', 'info');
+                UI.showNotification('Switching to Ethereum Mainnet...', 'info');
                 
-                // Switch to Ethereum mainnet
                 await window.ethereum.request({
                     method: 'wallet_switchEthereumChain',
                     params: [{ chainId: '0x1' }]
                 });
                 
-                // Update provider
-                provider = new ethers.providers.Web3Provider(window.ethereum);
-                signer = provider.getSigner();
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                const signer = provider.getSigner();
                 
                 const tx = await signer.sendTransaction({
-                    to: CONFIG.faucetAddress,
-                    value: ethers.utils.parseEther('0.005')
+                    to: Config.faucet.level2.paymentAddress,
+                    value: ethers.utils.parseEther(Config.faucet.level2.paymentEth)
                 });
                 
-                showToast('Payment sent! Waiting for confirmation...', 'info');
-                
+                UI.showNotification('Payment sent! Waiting for confirmation...', 'info');
                 await tx.wait();
                 
-                // Add KRM
-                const newBalance = parseFloat(krmBalance || 0) + 5;
-                krmBalance = newBalance.toString();
-                document.getElementById('krmBalance').textContent = newBalance.toFixed(4);
+                const currentBalance = parseFloat(App.state.krmBalance) + Config.faucet.level2.amount;
+                App.state.krmBalance = currentBalance.toString();
+                UI.updateBalance(currentBalance);
                 
-                showToast('Received 5 KRM!', 'success');
+                localStorage.setItem(STORAGE_KEYS.TASK_FAUCET2_COMPLETED + App.state.address, 'true');
                 
-                // Switch back
+                UI.showNotification(`Received ${Config.faucet.level2.amount} KRM!`, 'success');
+                App.tasks.updateTaskStatus();
+                
                 await window.ethereum.request({
                     method: 'wallet_switchEthereumChain',
-                    params: [{ chainId: CONFIG.chainIdHex }]
+                    params: [{ chainId: Config.chain.hex }]
                 });
-                
-                // Update provider again
-                provider = new ethers.providers.Web3Provider(window.ethereum);
-                signer = provider.getSigner();
                 
             } catch (error) {
                 console.error(error);
-                showToast(error.message, 'error');
+                UI.showNotification(error.message, 'error');
             }
         }
-
-        // ==================== FAQ ====================
-        function toggleFaq(element) {
-            const answer = element.nextElementSibling;
-            const icon = element.querySelector('i');
+    },
+    
+    transactions: {
+        send: async function() {
+            if (!App.state.signer || !App.state.address) {
+                UI.showNotification('Please connect wallet first', 'error');
+                UI.openModal();
+                return;
+            }
             
-            answer.classList.toggle('open');
-            icon.style.transform = answer.classList.contains('open') ? 'rotate(180deg)' : '';
-        }
-
-        // ==================== SCROLL TO TOP ====================
-        function setupScrollListener() {
-            const scrollBtn = document.getElementById('scrollTop');
+            const recipient = document.getElementById('tx-recipient').value.trim();
+            const amount = document.getElementById('tx-amount').value;
             
-            window.addEventListener('scroll', () => {
-                if (window.scrollY > 300) {
-                    scrollBtn.style.opacity = '1';
-                    scrollBtn.style.pointerEvents = 'all';
-                } else {
-                    scrollBtn.style.opacity = '0';
-                    scrollBtn.style.pointerEvents = 'none';
-                }
-            });
+            if (!recipient || !ethers.utils.isAddress(recipient)) {
+                UI.showNotification('Invalid recipient address', 'error');
+                return;
+            }
+            
+            if (!amount || parseFloat(amount) <= 0) {
+                UI.showNotification('Invalid amount', 'error');
+                return;
+            }
+            
+            try {
+                const tx = await App.state.signer.sendTransaction({
+                    to: recipient,
+                    value: ethers.utils.parseEther(amount)
+                });
+                
+                UI.showNotification(`Transaction sent!`, 'success');
+                
+                const receipt = await tx.wait();
+                
+                const transactions = JSON.parse(localStorage.getItem(STORAGE_KEYS.TRANSACTIONS) || '[]');
+                transactions.push({
+                    hash: tx.hash,
+                    from: App.state.address,
+                    to: recipient,
+                    value: amount,
+                    status: receipt.status === 1 ? 'success' : 'failed',
+                    timestamp: Date.now()
+                });
+                localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(transactions));
+                
+                UI.loadTransactionHistory();
+                App.wallet.refreshBalance();
+                
+                document.getElementById('tx-recipient').value = '';
+                document.getElementById('tx-amount').value = '';
+                
+            } catch (error) {
+                console.error(error);
+                UI.showNotification(error.message, 'error');
+            }
+        },
+        
+        loadFromBlockchain: async function() {
+            if (!App.state.provider || !App.state.address) return;
+            UI.showNotification('Loading transactions...', 'info');
+            // In a real app, you would fetch from blockchain here
+            UI.loadTransactionHistory();
         }
+    }
+};
 
-        // ==================== EXPOSE GLOBALLY ====================
-        window.navigateTo = navigateTo;
-        window.openModal = openModal;
-        window.closeModal = closeModal;
-        window.connectWallet = connectWallet;
-        window.disconnectWallet = disconnectWallet;
-        window.sendToSelf = sendToSelf;
-        window.sendTransaction = sendTransaction;
-        window.refreshBalance = refreshBalance;
-        window.claimLevel1 = claimLevel1;
-        window.claimLevel2 = claimLevel2;
-        window.toggleMobileMenu = toggleMobileMenu;
-        window.toggleFaq = toggleFaq;
-        window.loadTransactionHistory = loadTransactionHistory;
-    </script>
+// ==================== ІНІЦІАЛІЗАЦІЯ ====================
+window.addEventListener('load', () => {
+    UI.init();
+    
+    // Авто-підключення
+    if (localStorage.getItem(STORAGE_KEYS.WALLET_CONNECTED) === 'true') {
+        setTimeout(() => {
+            App.wallet.connect('saved');
+        }, 1000);
+    }
+});
+
+// Експорт в глобальний об'єкт
+window.App = App;
+window.UI = UI;
+</script>
 </body>
 </html>
