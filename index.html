@@ -275,6 +275,31 @@ nav#navbar {
     animation: wave 20s linear infinite;
 }
 
+.water-wave-2 {
+    position: fixed;
+    bottom: 50px;
+    left: 0;
+    width: 300%;
+    height: 100px;
+    background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.08) 25%, rgba(74, 222, 128, 0.03) 50%, transparent 75%);
+    z-index: -6;
+    opacity: 0.2;
+    pointer-events: none;
+    animation: wave 25s linear infinite reverse;
+}
+
+.page-wave {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 300%;
+    height: 120px;
+    background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.06) 20%, rgba(74, 222, 128, 0.03) 40%, transparent 60%);
+    opacity: 0.25;
+    pointer-events: none;
+    animation: wave 18s linear infinite;
+}
+
 .gradient-text {
     background: linear-gradient(90deg, #ffffff, #4ade80, #22c55e, #4ade80, #ffffff);
     background-size: 300% 300%;
@@ -431,6 +456,7 @@ nav#navbar {
 <!-- Background Elements -->
 <div class="grid-overlay"></div>
 <div class="water-wave"></div>
+<div class="water-wave-2"></div>
 <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-green-500/5 rounded-full blur-[150px] -z-5 pointer-events-none animate-pulse-slow"></div>
 
 <!-- Navigation -->
@@ -526,22 +552,6 @@ nav#navbar {
                 </div>
             </div>
             
-            <!-- Phantom Wallet -->
-            <div onclick="App.wallet.connect('Phantom')" class="wallet-option group border border-white/10 p-5 rounded-xl bg-white/5 cursor-pointer transition-all hover:border-purple-500/50 hover:bg-white/10 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)]">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center gap-4">
-                        <div class="w-14 h-14 rounded-xl bg-[#AB9FF2]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                            <i class="fa-solid fa-ghost text-3xl text-[#AB9FF2]"></i>
-                        </div>
-                        <div>
-                            <div class="font-bold text-white text-lg group-hover:text-[#AB9FF2] transition-colors">Phantom</div>
-                            <div class="text-xs text-gray-500 font-mono mt-1">Solana & EVM</div>
-                        </div>
-                    </div>
-                    <div class="w-3 h-3 rounded-full bg-purple-500/50 group-hover:bg-purple-400 group-hover:shadow-[0_0_15px_#a855f7] transition-all"></div>
-                </div>
-            </div>
-            
             <!-- Trust Wallet -->
             <div onclick="App.wallet.connect('Trust')" class="wallet-option group border border-white/10 p-5 rounded-xl bg-white/5 cursor-pointer transition-all hover:border-blue-500/50 hover:bg-white/10 hover:shadow-[0_0_30px_rgba(59,130,246,0.15)]">
                 <div class="flex items-center justify-between">
@@ -582,7 +592,8 @@ nav#navbar {
 </div>
 
 <!-- Home Page -->
-<div id="page-home" class="page-content active pt-28 pb-20 px-4">
+<div id="page-home" class="page-content active pt-28 pb-20 px-4 relative overflow-hidden">
+    <div class="page-wave"></div>
     <div class="max-w-7xl mx-auto">
         <!-- Hero Section -->
         <div class="text-center mb-20 fade-in-up">
@@ -782,8 +793,9 @@ nav#navbar {
     </div>
 </div>
 
-<!-- Vision, Ecosystem, Support Pages (same structure as before) -->
-<div id="page-vision" class="page-content pt-28 pb-20 px-4 max-w-7xl mx-auto">
+<!-- Vision Page -->
+<div id="page-vision" class="page-content pt-28 pb-20 px-4 max-w-7xl mx-auto relative overflow-hidden">
+    <div class="page-wave"></div>
     <div class="text-center mb-20 fade-in-up">
         <div class="inline-block px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold uppercase tracking-widest mb-6">
             <i class="fa-solid fa-compass mr-2"></i>Our Vision
@@ -791,6 +803,7 @@ nav#navbar {
         <h2 class="text-5xl md:text-7xl font-bold text-white mb-6">THE <span class="gradient-text">MANIFESTO</span></h2>
         <p class="text-xl text-gray-400 font-light max-w-3xl mx-auto">Re-engineering the fundamental substrate of human coordination for the 22nd century.</p>
     </div>
+    
     <div class="grid lg:grid-cols-2 gap-20 items-center mb-32">
         <div class="space-y-12 fade-in-left">
             <div class="border-l-4 border-green-500 pl-8 transition-all hover:pl-10">
@@ -800,6 +813,11 @@ nav#navbar {
                     Asynchronous Finality
                 </h3>
                 <p class="text-gray-300 leading-relaxed mb-4">KarChain introduces a paradigm shift with <span class="text-green-400 font-bold">Hyper-Graph Sharding</span>. Unlike linear blockchains, our state is partitioned into thousands of concurrent execution threads.</p>
+                <p class="text-gray-400 leading-relaxed">Using <span class="text-green-400">Proof-of-Synchrony</span>, we achieve mathematical finality in sub-second timeframes, eliminating the need for probabilistic confirmations found in Nakamoto Consensus.</p>
+                <a href="https://docs.karchain.network/technical/consensus" target="_blank" class="inline-block mt-6 text-green-400 hover:text-green-300 text-sm font-bold transition-colors group">
+                    <span class="border-b border-green-500/30 group-hover:border-green-400 pb-1">Read Technical Documentation</span>
+                    <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                </a>
             </div>
             <div class="border-l-4 border-white/10 pl-8 transition-all hover:pl-10 hover:border-green-500/50">
                 <h3 class="text-3xl text-green-400 font-bold mb-4 font-mono flex items-center gap-3">
@@ -807,7 +825,11 @@ nav#navbar {
                     <span class="text-gray-400 text-sm font-normal">//</span>
                     Post-Quantum Security
                 </h3>
-                <p class="text-gray-300 leading-relaxed mb-4">The era of elliptic curve cryptography is ending. KarChain is built as a <span class="text-green-400 font-bold">Quantum Fortress</span>, utilizing Lattice-based signatures.</p>
+                <p class="text-gray-300 leading-relaxed mb-4">The era of elliptic curve cryptography is ending. KarChain is built as a <span class="text-green-400 font-bold">Quantum Fortress</span>, utilizing Lattice-based signatures (Kyber/Dilithium) to secure assets against future quantum decryption threats.</p>
+                <a href="https://docs.karchain.network/security/quantum-resistance" target="_blank" class="inline-block mt-6 text-green-400 hover:text-green-300 text-sm font-bold transition-colors group">
+                    <span class="border-b border-green-500/30 group-hover:border-green-400 pb-1">Security Whitepaper</span>
+                    <i class="fa-solid fa-arrow-right ml-2 group-hover:translate-x-1 transition-transform"></i>
+                </a>
             </div>
         </div>
         <div class="flex justify-center relative h-[500px] items-center fade-in-right">
@@ -821,9 +843,43 @@ nav#navbar {
             </div>
         </div>
     </div>
+    
+    <!-- Roadmap -->
+    <div class="glass-panel p-12 rounded-3xl fade-in-up mb-20">
+        <h3 class="text-3xl text-white font-bold mb-12 text-center font-display">Strategic Roadmap</h3>
+        <div class="grid md:grid-cols-4 gap-8 relative">
+            <div class="relative text-center group">
+                <div class="w-8 h-8 bg-green-500 rounded-full border-4 border-black mb-4 mx-auto relative z-10 animate-pulse group-hover:scale-125 transition-transform"></div>
+                <div class="absolute top-4 left-1/2 w-full h-0.5 bg-gradient-to-r from-green-500 to-transparent hidden md:block"></div>
+                <h4 class="text-green-400 font-bold mb-2">PHASE 1</h4>
+                <p class="text-white font-bold text-lg mb-2">Genesis</p>
+                <p class="text-gray-500 text-xs">Testnet launch, Faucet activation, Initial Validator onboarding.</p>
+            </div>
+            <div class="relative text-center group opacity-70">
+                <div class="w-8 h-8 bg-gray-700 rounded-full border-4 border-black mb-4 mx-auto relative z-10 group-hover:bg-gray-600 transition-colors"></div>
+                <h4 class="text-gray-400 font-bold mb-2">PHASE 2</h4>
+                <p class="text-white font-bold text-lg mb-2">Incentivized</p>
+                <p class="text-gray-500 text-xs">Public stress testing, Bug bounties, Cross-chain bridge beta.</p>
+            </div>
+            <div class="relative text-center group opacity-50">
+                <div class="w-8 h-8 bg-gray-700 rounded-full border-4 border-black mb-4 mx-auto relative z-10"></div>
+                <h4 class="text-gray-400 font-bold mb-2">PHASE 3</h4>
+                <p class="text-white font-bold text-lg mb-2">Ignition</p>
+                <p class="text-gray-500 text-xs">Mainnet launch, TGE, Governance DAO activation.</p>
+            </div>
+            <div class="relative text-center group opacity-30">
+                <div class="w-8 h-8 bg-gray-700 rounded-full border-4 border-black mb-4 mx-auto relative z-10"></div>
+                <h4 class="text-gray-400 font-bold mb-2">PHASE 4</h4>
+                <p class="text-white font-bold text-lg mb-2">Singularity</p>
+                <p class="text-gray-500 text-xs">Global settlement layer, Interplanetary file system.</p>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div id="page-ecosystem" class="page-content pt-28 pb-20 px-4 max-w-7xl mx-auto">
+<!-- Ecosystem Page -->
+<div id="page-ecosystem" class="page-content pt-28 pb-20 px-4 max-w-7xl mx-auto relative overflow-hidden">
+    <div class="page-wave"></div>
     <div class="text-center mb-16 fade-in-up">
         <div class="inline-block px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold uppercase tracking-widest mb-6">
             <i class="fa-solid fa-cubes mr-2"></i>Ecosystem
@@ -831,6 +887,7 @@ nav#navbar {
         <h2 class="text-5xl font-bold text-white mb-6">BUILDING THE FUTURE</h2>
         <p class="text-gray-400 max-w-2xl mx-auto">Explore the growing ecosystem of dApps and protocols being built on KarChain.</p>
     </div>
+    
     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
         <div class="glass-card p-8 rounded-xl group cursor-pointer hover:border-purple-500/30 transition-all">
             <div class="w-16 h-16 bg-purple-500/20 rounded-xl flex items-center justify-center mb-6 text-3xl text-purple-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
@@ -841,10 +898,99 @@ nav#navbar {
                 <i class="fa-solid fa-arrow-right text-gray-600 group-hover:text-purple-400 transition-colors"></i>
             </div>
         </div>
+        
+        <div class="glass-card p-8 rounded-xl group cursor-pointer hover:border-blue-500/30 transition-all">
+            <div class="w-16 h-16 bg-blue-500/20 rounded-xl flex items-center justify-center mb-6 text-3xl text-blue-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-vault"></i></div>
+            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">KarVault Lending</h3>
+            <p class="text-sm text-gray-400 mb-4">Cross-chain lending protocol with undercollateralized loans powered by reputation scores.</p>
+            <div class="flex items-center justify-between">
+                <span class="text-xs px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full">Coming Q2 2025</span>
+                <i class="fa-solid fa-arrow-right text-gray-600 group-hover:text-blue-400 transition-colors"></i>
+            </div>
+        </div>
+        
+        <div class="glass-card p-8 rounded-xl group cursor-pointer hover:border-emerald-500/30 transition-all">
+            <div class="w-16 h-16 bg-emerald-500/20 rounded-xl flex items-center justify-center mb-6 text-3xl text-emerald-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-shield-halved"></i></div>
+            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors">KarSafe</h3>
+            <p class="text-sm text-gray-400 mb-4">Multi-sig institutional wallet with MPC technology for DAO treasury management.</p>
+            <div class="flex items-center justify-between">
+                <span class="text-xs px-3 py-1 bg-green-500/20 text-green-400 rounded-full">Audited</span>
+                <i class="fa-solid fa-arrow-right text-gray-600 group-hover:text-emerald-400 transition-colors"></i>
+            </div>
+        </div>
+        
+        <div class="glass-card p-8 rounded-xl group cursor-pointer hover:border-cyan-500/30 transition-all">
+            <div class="w-16 h-16 bg-cyan-500/20 rounded-xl flex items-center justify-center mb-6 text-3xl text-cyan-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-bridge"></i></div>
+            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-cyan-400 transition-colors">KarBridge</h3>
+            <p class="text-sm text-gray-400 mb-4">Universal cross-chain bridge with ZK-proofs for secure asset transfers between networks.</p>
+            <div class="flex items-center justify-between">
+                <span class="text-xs px-3 py-1 bg-orange-500/20 text-orange-400 rounded-full">In Development</span>
+                <i class="fa-solid fa-arrow-right text-gray-600 group-hover:text-cyan-400 transition-colors"></i>
+            </div>
+        </div>
+        
+        <div class="glass-card p-8 rounded-xl group cursor-pointer hover:border-yellow-500/30 transition-all">
+            <div class="w-16 h-16 bg-yellow-500/20 rounded-xl flex items-center justify-center mb-6 text-3xl text-yellow-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-chart-line"></i></div>
+            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-yellow-400 transition-colors">KarOracle</h3>
+            <p class="text-sm text-gray-400 mb-4">Decentralized oracle network providing tamper-proof data feeds for DeFi applications.</p>
+            <div class="flex items-center justify-between">
+                <span class="text-xs px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full">Testnet</span>
+                <i class="fa-solid fa-arrow-right text-gray-600 group-hover:text-yellow-400 transition-colors"></i>
+            </div>
+        </div>
+        
+        <div class="glass-card p-8 rounded-xl group cursor-pointer hover:border-pink-500/30 transition-all">
+            <div class="w-16 h-16 bg-pink-500/20 rounded-xl flex items-center justify-center mb-6 text-3xl text-pink-400 group-hover:scale-110 transition-transform"><i class="fa-solid fa-rocket"></i></div>
+            <h3 class="text-xl font-bold text-white mb-2 group-hover:text-pink-400 transition-colors">KarLaunch</h3>
+            <p class="text-sm text-gray-400 mb-4">Fair launch platform for new projects with anti-snipe protection and vesting schedules.</p>
+            <div class="flex items-center justify-between">
+                <span class="text-xs px-3 py-1 bg-blue-500/20 text-blue-400 rounded-full">Q3 2025</span>
+                <i class="fa-solid fa-arrow-right text-gray-600 group-hover:text-pink-400 transition-colors"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Partners -->
+    <div class="mt-24 fade-in-up">
+        <h3 class="text-2xl font-bold text-white mb-8 text-center">Strategic Partners & Integrations</h3>
+        <div class="glass-panel p-10 rounded-3xl">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 items-center">
+                <div class="text-center group">
+                    <div class="w-20 h-20 mx-auto bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform border border-white/10">
+                        <i class="fa-solid fa-server text-blue-400 text-3xl"></i>
+                    </div>
+                    <p class="text-sm font-bold text-white">Infrastructure</p>
+                    <p class="text-xs text-gray-500">Node Providers</p>
+                </div>
+                <div class="text-center group">
+                    <div class="w-20 h-20 mx-auto bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform border border-white/10">
+                        <i class="fa-solid fa-shield text-green-400 text-3xl"></i>
+                    </div>
+                    <p class="text-sm font-bold text-white">Security</p>
+                    <p class="text-xs text-gray-500">Audit Firms</p>
+                </div>
+                <div class="text-center group">
+                    <div class="w-20 h-20 mx-auto bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform border border-white/10">
+                        <i class="fa-solid fa-users text-orange-400 text-3xl"></i>
+                    </div>
+                    <p class="text-sm font-bold text-white">Community</p>
+                    <p class="text-xs text-gray-500">Developer DAOs</p>
+                </div>
+                <div class="text-center group">
+                    <div class="w-20 h-20 mx-auto bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform border border-white/10">
+                        <i class="fa-solid fa-code text-purple-400 text-3xl"></i>
+                    </div>
+                    <p class="text-sm font-bold text-white">Tooling</p>
+                    <p class="text-xs text-gray-500">SDK Partners</p>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<div id="page-support" class="page-content pt-28 pb-20 px-4 max-w-5xl mx-auto">
+<!-- Support Page -->
+<div id="page-support" class="page-content pt-28 pb-20 px-4 max-w-5xl mx-auto relative overflow-hidden">
+    <div class="page-wave"></div>
     <div class="text-center mb-20 fade-in-up">
         <div class="inline-block px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold uppercase tracking-widest mb-6">
             <i class="fa-solid fa-headset mr-2"></i>Support
@@ -852,6 +998,7 @@ nav#navbar {
         <h2 class="text-5xl font-bold text-white mb-6">COMMUNITY HUB</h2>
         <p class="text-gray-400 text-lg">Get support, report bugs, and connect with the team.</p>
     </div>
+    
     <div class="grid md:grid-cols-2 gap-8 mb-16">
         <a href="https://t.me/tgkarim1" target="_blank" class="glass-panel p-8 rounded-3xl block group hover:border-blue-500/30 transition-all">
             <div class="flex items-center gap-6 mb-6">
@@ -860,6 +1007,10 @@ nav#navbar {
                     <h3 class="text-2xl font-bold text-white mb-1">Telegram Community</h3>
                     <p class="text-gray-400">Join 50,000+ members. Direct access to core team.</p>
                 </div>
+            </div>
+            <div class="flex justify-between items-center">
+                <span class="text-blue-400 text-sm font-mono">@KarChainOfficial</span>
+                <span class="px-6 py-3 bg-white/5 rounded-xl text-white font-bold text-sm group-hover:bg-blue-500/20 transition-all flex items-center gap-2">Join Now<i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i></span>
             </div>
         </a>
         <a href="mailto:support@karchain.io" class="glass-panel p-8 rounded-3xl block group hover:border-green-500/30 transition-all">
@@ -870,12 +1021,59 @@ nav#navbar {
                     <p class="text-gray-400">Technical support. 24-48h response time.</p>
                 </div>
             </div>
+            <div class="flex justify-between items-center">
+                <span class="text-green-400 text-sm font-mono">support@karchain.io</span>
+                <span class="px-6 py-3 bg-white/5 rounded-xl text-white font-bold text-sm group-hover:bg-green-500/20 transition-all flex items-center gap-2">Send Email<i class="fa-solid fa-arrow-right group-hover:translate-x-1 transition-transform"></i></span>
+            </div>
         </a>
+    </div>
+    
+    <!-- FAQ Section -->
+    <div class="space-y-4 fade-in-up">
+        <h3 class="text-2xl font-bold text-white mb-6 pl-4 border-l-4 border-green-500">Frequently Asked Questions</h3>
+        
+        <div class="glass-panel rounded-xl overflow-hidden">
+            <button class="faq-toggle w-full p-6 text-left flex justify-between items-center text-white font-bold hover:bg-white/5 transition-colors">
+                <span>How to add KarChain to MetaMask?</span>
+                <i class="fa-solid fa-chevron-down text-green-400 transition-transform"></i>
+            </button>
+            <div class="faq-content border-t border-white/5">
+                <div class="px-6 pb-6 text-gray-400 text-sm leading-relaxed">
+                    <p>The easiest way is to click "Connect Wallet" on our dashboard. The site will automatically prompt you to add the network.</p>
+                    <br>
+                    <div class="bg-white/5 p-4 rounded-xl font-mono text-xs">
+                        <p><strong class="text-green-400">Network Name:</strong> KarChain Testnet</p>
+                        <p><strong class="text-green-400">RPC URL:</strong> https://relationless-improperly-nettie.ngrok-free.dev</p>
+                        <p><strong class="text-green-400">Chain ID:</strong> 1337</p>
+                        <p><strong class="text-green-400">Currency Symbol:</strong> KRM</p>
+                        <p><strong class="text-green-400">Explorer:</strong> https://explorer.karchain.network</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="glass-panel rounded-xl overflow-hidden">
+            <button class="faq-toggle w-full p-6 text-left flex justify-between items-center text-white font-bold hover:bg-white/5 transition-colors">
+                <span>How does the Daily Faucet work?</span>
+                <i class="fa-solid fa-chevron-down text-green-400 transition-transform"></i>
+            </button>
+            <div class="faq-content border-t border-white/5">
+                <div class="px-6 pb-6 text-gray-400 text-sm leading-relaxed">
+                    <p>Once you connect your wallet, you'll see two faucet levels in your dashboard:</p>
+                    <ul class="list-disc list-inside mt-3 space-y-2">
+                        <li><span class="text-green-400 font-bold">Level 1 (Free):</span> Claim 1 KRM every 24 hours</li>
+                        <li><span class="text-purple-400 font-bold">Level 2 (Premium):</span> Send 0.005 ETH and receive 5 KRM</li>
+                        <li>Level 1 must be completed before Level 2 becomes available</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
 <!-- Footer -->
-<footer class="border-t border-white/5 bg-black/50 backdrop-blur-xl py-16 mt-20">
+<footer class="border-t border-white/5 bg-black/50 backdrop-blur-xl py-16 mt-20 relative overflow-hidden">
+    <div class="page-wave" style="top: 0; bottom: auto; animation-direction: reverse;"></div>
     <div class="max-w-7xl mx-auto px-6">
         <div class="grid md:grid-cols-4 gap-12">
             <div class="col-span-1 md:col-span-2">
@@ -889,11 +1087,33 @@ nav#navbar {
                     </svg>
                     <span class="text-2xl font-bold tracking-[0.2em] text-white font-display">KARCHAIN</span>
                 </div>
-                <p class="text-gray-500 text-sm max-w-xs leading-relaxed">The sovereign consensus layer for the decentralized future.</p>
+                <p class="text-gray-500 text-sm max-w-xs leading-relaxed">The sovereign consensus layer for the decentralized future. Built for speed, security, and sustainability.</p>
+                <div class="mt-6">
+                    <p class="text-sm text-gray-400 mb-2">Email Support:</p>
+                    <a href="mailto:support@karchain.io" class="text-green-400 hover:text-green-300 font-bold transition-colors text-lg">support@karchain.io</a>
+                </div>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-6 uppercase tracking-widest text-sm">Ecosystem</h4>
+                <ul class="space-y-3 text-sm">
+                    <li><a href="#" class="text-gray-400 hover:text-green-400 transition-colors flex items-center gap-2"><i class="fa-solid fa-compass text-xs"></i> Explorer</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-green-400 transition-colors flex items-center gap-2"><i class="fa-solid fa-vote-yea text-xs"></i> Governance</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-green-400 transition-colors flex items-center gap-2"><i class="fa-solid fa-bridge text-xs"></i> Bridge</a></li>
+                    <li><a href="#" onclick="App.faucet.claimLevel1()" class="text-gray-400 hover:text-green-400 transition-colors flex items-center gap-2"><i class="fa-solid fa-faucet text-xs"></i> Faucet</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-white font-bold mb-6 uppercase tracking-widest text-sm">Developers</h4>
+                <ul class="space-y-3 text-sm">
+                    <li><a href="https://docs.karchain.network" target="_blank" class="text-gray-400 hover:text-green-400 transition-colors flex items-center gap-2"><i class="fa-solid fa-book text-xs"></i> Documentation</a></li>
+                    <li><a href="https://github.com/KarChain" target="_blank" class="text-gray-400 hover:text-green-400 transition-colors flex items-center gap-2"><i class="fa-brands fa-github text-xs"></i> GitHub</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-green-400 transition-colors flex items-center gap-2"><i class="fa-solid fa-shield-halved text-xs"></i> Audits</a></li>
+                    <li><a href="#" class="text-gray-400 hover:text-green-400 transition-colors flex items-center gap-2"><i class="fa-solid fa-bug text-xs"></i> Bug Bounty</a></li>
+                </ul>
             </div>
         </div>
         <div class="mt-16 pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center">
-            <p class="text-xs text-gray-600 font-mono">© 2025 KarChain Foundation. All rights reserved.</p>
+            <p class="text-xs text-gray-600 font-mono">© 2026 KarChain Foundation. All rights reserved.</p>
             <div class="flex gap-6 mt-4 md:mt-0">
                 <a href="https://x.com/karim7652117665" target="_blank" class="text-gray-500 hover:text-white transition-colors text-xl"><i class="fa-brands fa-x-twitter"></i></a>
                 <a href="https://t.me/tgkarim1" target="_blank" class="text-gray-500 hover:text-white transition-colors text-xl"><i class="fa-brands fa-telegram"></i></a>
@@ -1466,7 +1686,7 @@ const App = {
                     }
                 }
                 
-                // Desktop - use browser extensions
+                // Desktop - use browser extensions (MetaMask or Trust ONLY)
                 let provider, accounts;
                 
                 if (type === 'MetaMask') {
@@ -1477,16 +1697,8 @@ const App = {
                     provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
                     accounts = await provider.send('eth_requestAccounts', []);
                 }
-                else if (type === 'Phantom') {
-                    if (!window.phantom || !window.phantom.ethereum) {
-                        window.open('https://phantom.app/', '_blank');
-                        throw new Error('Phantom not found. Please install the extension.');
-                    }
-                    provider = new ethers.providers.Web3Provider(window.phantom.ethereum, 'any');
-                    accounts = await window.phantom.ethereum.request({ method: 'eth_requestAccounts' });
-                }
                 else if (type === 'Trust') {
-                    if (!window.ethereum || !window.ethereum.isTrust) {
+                    if (!window.ethereum) {
                         window.open('https://trustwallet.com/', '_blank');
                         throw new Error('Trust Wallet not found. Please install the extension.');
                     }
@@ -1517,8 +1729,6 @@ const App = {
             
             if (type === 'MetaMask') {
                 deepLink = `https://metamask.app.link/dapp/${url}`;
-            } else if (type === 'Phantom') {
-                deepLink = `https://phantom.app/ul/browse/${encodeURIComponent(url)}`;
             } else if (type === 'Trust') {
                 deepLink = `https://link.trustwallet.com/open_url?url=${encodeURIComponent(url)}`;
             }
@@ -1592,7 +1802,7 @@ const App = {
         },
         
         switchNetwork: async function(chainConfig) {
-            const provider = window.phantom?.ethereum || window.ethereum;
+            const provider = window.ethereum;
             
             if (!provider) return false;
             
@@ -1665,7 +1875,7 @@ const App = {
         },
         
         setupEventListeners: function() {
-            const provider = window.phantom?.ethereum || window.ethereum;
+            const provider = window.ethereum;
             
             if (provider) {
                 provider.on('accountsChanged', (accounts) => {
@@ -1690,15 +1900,14 @@ const App = {
     
     transactions: {
         send: async function() {
-            // FIXED: Proper wallet connection check
+            const recipientInput = document.getElementById('tx-recipient');
+            const amountInput = document.getElementById('tx-amount');
+            
             if (!App.state.address || !App.state.signer) {
-                UI.showNotification('Please connect your wallet first', 'error');
+                UI.showNotification('Please connect wallet first', 'error');
                 UI.openModal();
                 return;
             }
-            
-            const recipientInput = document.getElementById('tx-recipient');
-            const amountInput = document.getElementById('tx-amount');
             
             const recipient = recipientInput.value.trim();
             const amount = amountInput.value;
@@ -1768,10 +1977,7 @@ const App = {
             UI.showNotification('Loading transactions from blockchain...', 'info');
             
             try {
-                // Get transaction count
                 const txCount = await App.state.provider.getTransactionCount(App.state.address);
-                
-                // Load recent transactions (last 10)
                 const transactions = [];
                 const startBlock = Math.max(0, txCount - 10);
                 
@@ -1822,7 +2028,6 @@ const App = {
                 return;
             }
             
-            // Simulate faucet claim (in production, this would call a smart contract)
             const currentBalance = parseFloat(App.state.krmBalance || 0);
             const newBalance = (currentBalance + Config.faucet.level1.amount).toFixed(4);
             App.state.krmBalance = newBalance;
@@ -1854,7 +2059,7 @@ const App = {
                         return;
                     }
                     await new Promise(resolve => setTimeout(resolve, 1000));
-                    App.state.provider = new ethers.providers.Web3Provider(window.ethereum || window.phantom?.ethereum);
+                    App.state.provider = new ethers.providers.Web3Provider(window.ethereum);
                     App.state.signer = App.state.provider.getSigner();
                 }
                 
@@ -1875,7 +2080,6 @@ const App = {
                 UI.showNotification(`Transaction sent! Waiting for confirmation...`, 'info');
                 await tx.wait();
                 
-                // Add KRM to balance
                 const currentBalance = parseFloat(App.state.krmBalance || 0);
                 const newBalance = (currentBalance + Config.faucet.level2.amount).toFixed(4);
                 App.state.krmBalance = newBalance;
