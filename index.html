@@ -50,6 +50,7 @@ tailwind.config = {
                 'spin-slow': 'spin 20s linear infinite',
                 'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
                 'float': 'float 6s ease-in-out infinite',
+                'water-drop': 'waterDrop 8s linear infinite',
                 'wave': 'wave 20s linear infinite',
                 'gradient': 'gradient 8s ease infinite',
                 'shimmer': 'shimmer 2s infinite',
@@ -60,6 +61,12 @@ tailwind.config = {
                 float: {
                     '0%, 100%': { transform: 'translateY(0)' },
                     '50%': { transform: 'translateY(-20px)' },
+                },
+                waterDrop: {
+                    '0%': { transform: 'translateY(-100px)', opacity: '0' },
+                    '10%': { opacity: '1' },
+                    '90%': { opacity: '1' },
+                    '100%': { transform: 'translateY(100vh)', opacity: '0' },
                 },
                 wave: {
                     '0%': { transform: 'translateX(0) translateY(0)' },
@@ -232,14 +239,17 @@ nav#navbar {
     border: 2px solid rgba(2, 4, 2, 0.9);
 }
 
-#particles-container {
+/* ========== PARTICLES & BACKGROUND ANIMATIONS ========== */
+#webgl-canvas {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
     z-index: -10;
+    opacity: 0.35;
     pointer-events: none;
+    will-change: transform;
 }
 
 .grid-overlay {
@@ -250,7 +260,9 @@ nav#navbar {
     height: 100%;
     z-index: -9;
     pointer-events: none;
-    background-image: linear-gradient(rgba(74, 222, 128, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(74, 222, 128, 0.03) 1px, transparent 1px);
+    background-image:
+        linear-gradient(rgba(74, 222, 128, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(74, 222, 128, 0.03) 1px, transparent 1px);
     background-size: 60px 60px;
     mask-image: radial-gradient(circle at center, black 40%, transparent 70%);
     -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 70%);
@@ -262,42 +274,31 @@ nav#navbar {
     100% { transform: translateY(60px) translateX(60px); }
 }
 
+.water-drop {
+    position: absolute;
+    width: 2px;
+    background: linear-gradient(to bottom, transparent, rgba(74, 222, 128, 0.4));
+    border-radius: 0 0 1px 1px;
+    z-index: -8;
+    pointer-events: none;
+    animation: waterDrop 8s linear infinite;
+}
+
 .water-wave {
     position: fixed;
     bottom: 0;
     left: 0;
     width: 300%;
     height: 150px;
-    background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.1) 20%, rgba(74, 222, 128, 0.05) 40%, transparent 60%);
+    background: linear-gradient(90deg,
+        transparent,
+        rgba(74, 222, 128, 0.1) 20%,
+        rgba(74, 222, 128, 0.05) 40%,
+        transparent 60%);
     z-index: -7;
     opacity: 0.3;
     pointer-events: none;
     animation: wave 20s linear infinite;
-}
-
-.water-wave-2 {
-    position: fixed;
-    bottom: 50px;
-    left: 0;
-    width: 300%;
-    height: 100px;
-    background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.08) 25%, rgba(74, 222, 128, 0.03) 50%, transparent 75%);
-    z-index: -6;
-    opacity: 0.2;
-    pointer-events: none;
-    animation: wave 25s linear infinite reverse;
-}
-
-.page-wave {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 300%;
-    height: 120px;
-    background: linear-gradient(90deg, transparent, rgba(74, 222, 128, 0.06) 20%, rgba(74, 222, 128, 0.03) 40%, transparent 60%);
-    opacity: 0.25;
-    pointer-events: none;
-    animation: wave 18s linear infinite;
 }
 
 .gradient-text {
@@ -331,87 +332,333 @@ nav#navbar {
 .hover-lift { transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
 .hover-lift:hover { transform: translateY(-8px); }
 
-.gyro-wrapper { perspective: 1000px; width: 300px; height: 300px; position: relative; }
-.gyro { position: absolute; top: 50%; left: 50%; transform-style: preserve-3d; animation: rotate3d 20s linear infinite; }
-@keyframes rotate3d { 0% { transform: rotateX(0) rotateY(0) rotateZ(0); } 100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(180deg); } }
-.gyro-ring { position: absolute; top: 50%; left: 50%; border-radius: 50%; border: 2px solid rgba(74, 222, 128, 0.6); box-shadow: 0 0 20px rgba(74, 222, 128, 0.3); animation: pulseRing 4s ease-in-out infinite; }
-@keyframes pulseRing { 0%, 100% { border-color: rgba(74, 222, 128, 0.6); box-shadow: 0 0 20px rgba(74, 222, 128, 0.3); } 50% { border-color: rgba(74, 222, 128, 1); box-shadow: 0 0 40px rgba(74, 222, 128, 0.6); } }
-.gr-1 { width: 200px; height: 200px; margin: -100px; animation: rotate1 10s linear infinite; border-left-color: transparent; }
-.gr-2 { width: 160px; height: 160px; margin: -80px; animation: rotate2 8s linear infinite; border-top-color: transparent; border-width: 2px; }
-.gr-3 { width: 120px; height: 120px; margin: -60px; animation: rotate3 6s linear infinite; border-right-color: transparent; }
-@keyframes rotate1 { 0% { transform: rotateX(0) rotateY(0); } 100% { transform: rotateX(360deg) rotateY(360deg); } }
-@keyframes rotate2 { 0% { transform: rotateX(0) rotateY(0); } 100% { transform: rotateX(-360deg) rotateY(180deg); } }
-@keyframes rotate3 { 0% { transform: rotateX(0) rotateY(0); } 100% { transform: rotateX(180deg) rotateY(-360deg); } }
+/* ========== GYRO ANIMATION ========== */
+.gyro-wrapper {
+    perspective: 1000px;
+    width: 300px;
+    height: 300px;
+    position: relative;
+}
 
-.mobile-menu { position: fixed; top: 0; right: -100%; width: 80%; max-width: 400px; height: 100vh; background: rgba(2, 4, 2, 0.98); backdrop-filter: blur(20px); z-index: 10000; transition: right 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); padding-top: 100px; overflow-y: auto; border-left: 1px solid rgba(74, 222, 128, 0.1); }
+.gyro {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform-style: preserve-3d;
+    animation: rotate3d 20s linear infinite;
+}
+
+@keyframes rotate3d {
+    0% { transform: rotateX(0) rotateY(0) rotateZ(0); }
+    100% { transform: rotateX(360deg) rotateY(360deg) rotateZ(180deg); }
+}
+
+.gyro-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    border-radius: 50%;
+    border: 2px solid rgba(74, 222, 128, 0.6);
+    box-shadow: 0 0 20px rgba(74, 222, 128, 0.3);
+    animation: pulseRing 4s ease-in-out infinite;
+}
+
+@keyframes pulseRing {
+    0%, 100% {
+        border-color: rgba(74, 222, 128, 0.6);
+        box-shadow: 0 0 20px rgba(74, 222, 128, 0.3);
+    }
+    50% {
+        border-color: rgba(74, 222, 128, 1);
+        box-shadow: 0 0 40px rgba(74, 222, 128, 0.6);
+    }
+}
+
+.gr-1 {
+    width: 200px;
+    height: 200px;
+    margin: -100px;
+    animation: rotate1 10s linear infinite;
+    border-left-color: transparent;
+}
+
+.gr-2 {
+    width: 160px;
+    height: 160px;
+    margin: -80px;
+    animation: rotate2 8s linear infinite;
+    border-top-color: transparent;
+    border-width: 2px;
+}
+
+.gr-3 {
+    width: 120px;
+    height: 120px;
+    margin: -60px;
+    animation: rotate3 6s linear infinite;
+    border-right-color: transparent;
+}
+
+@keyframes rotate1 {
+    0% { transform: rotateX(0) rotateY(0); }
+    100% { transform: rotateX(360deg) rotateY(360deg); }
+}
+
+@keyframes rotate2 {
+    0% { transform: rotateX(0) rotateY(0); }
+    100% { transform: rotateX(-360deg) rotateY(180deg); }
+}
+
+@keyframes rotate3 {
+    0% { transform: rotateX(0) rotateY(0); }
+    100% { transform: rotateX(180deg) rotateY(-360deg); }
+}
+
+/* ========== MOBILE MENU ========== */
+.mobile-menu {
+    position: fixed;
+    top: 0;
+    right: -100%;
+    width: 80%;
+    max-width: 400px;
+    height: 100vh;
+    background: rgba(2, 4, 2, 0.98);
+    backdrop-filter: blur(20px) saturate(200%);
+    -webkit-backdrop-filter: blur(20px) saturate(200%);
+    z-index: 10000;
+    transition: right 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    padding-top: 100px;
+    overflow-y: auto;
+    border-left: 1px solid rgba(74, 222, 128, 0.1);
+}
+
 .mobile-menu.active { right: 0; }
-.mobile-menu-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px); z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+
+.mobile-menu-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 9999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
 .mobile-menu-backdrop.active { opacity: 1; pointer-events: all; }
 
-.hamburger { display: none; flex-direction: column; justify-content: space-between; width: 30px; height: 21px; background: transparent; border: none; cursor: pointer; padding: 0; z-index: 10001; }
-.hamburger span { width: 100%; height: 3px; background: #4ade80; border-radius: 2px; transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
+.hamburger {
+    display: none;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 30px;
+    height: 21px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    z-index: 10001;
+    transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.hamburger span {
+    width: 100%;
+    height: 3px;
+    background: #4ade80;
+    border-radius: 2px;
+    transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+    transform-origin: center;
+}
+
 .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(6px, 6px); }
-.hamburger.active span:nth-child(2) { opacity: 0; }
+.hamburger.active span:nth-child(2) { opacity: 0; transform: scaleX(0); }
 .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(7px, -7px); }
 
-@media (max-width: 1024px) { .desktop-nav { display: none !important; } .hamburger { display: flex; } }
+@media (max-width: 1024px) {
+    .desktop-nav { display: none !important; }
+    .hamburger { display: flex; }
+    nav .max-w-7xl { padding-left: 20px !important; padding-right: 20px !important; }
+    .page-content { padding-left: 20px !important; padding-right: 20px !important; }
+}
 
-.notification { animation: slideIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; max-width: 350px; width: 90%; }
-@keyframes slideIn { from { transform: translateX(100%) translateY(-20px); opacity: 0; } to { transform: translateX(0) translateY(0); opacity: 1; } }
+@media (max-width: 768px) {
+    nav .h-20 { height: 70px !important; }
+    .page-content.pt-28 { padding-top: 90px !important; }
+    .stat-value { font-size: 24px; }
+}
 
-.faq-content { max-height: 0; opacity: 0; overflow: hidden; transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
-.faq-content.open { max-height: 500px; opacity: 1; padding-top: 1rem; padding-bottom: 1rem; }
+@media (max-width: 480px) {
+    #connectBtn span { display: none; }
+    #connectBtn {
+        width: 40px;
+        height: 40px;
+        padding: 0 !important;
+        border-radius: 50% !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
+        min-width: auto;
+    }
+    #connectBtn i { margin: 0 !important; font-size: 16px !important; }
+}
+
+/* ========== NOTIFICATIONS ========== */
+.notification {
+    animation: slideIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+    max-width: 350px;
+    width: 90%;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%) translateY(-20px); opacity: 0; }
+    to { transform: translateX(0) translateY(0); opacity: 1; }
+}
+
+/* ========== FAQ ========== */
+.faq-content {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+    transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.faq-content.open {
+    max-height: 500px;
+    opacity: 1;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+}
+
 .faq-toggle i { transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
 .faq-toggle.open i { transform: rotate(180deg); }
 
-.task-locked { pointer-events: none; opacity: 0.5; filter: grayscale(0.8); position: relative; }
-.task-locked::after { content: '\f023'; font-family: "Font Awesome 6 Free"; font-weight: 900; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 32px; color: rgba(255, 255, 255, 0.9); background: rgba(0, 0, 0, 0.8); padding: 20px; border-radius: 50%; z-index: 10; }
+/* ========== TASKS ========== */
+.task-locked {
+    pointer-events: none;
+    opacity: 0.5;
+    filter: grayscale(0.8);
+    position: relative;
+    transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
 
-.timer-flip { font-variant-numeric: tabular-nums; background: rgba(0, 0, 0, 0.3); padding: 0.5rem 1rem; border-radius: 0.5rem; border: 1px solid rgba(74, 222, 128, 0.3); box-shadow: 0 0 20px rgba(74, 222, 128, 0.2); }
+.task-locked::after {
+    content: '\f023';
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 32px;
+    color: rgba(255, 255, 255, 0.9);
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 50%;
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    animation: pulse 2s ease-in-out infinite;
+    z-index: 10;
+}
 
-#scrollToTopBtn { box-shadow: 0 4px 20px rgba(74, 222, 128, 0.3); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); opacity: 0; transform: translateY(20px); pointer-events: none; }
-#scrollToTopBtn.visible { opacity: 1; transform: translateY(0); pointer-events: all; }
+@keyframes pulse {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+    50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.8; }
+}
 
-#userDropdown { transition: opacity 0.3s ease, transform 0.3s ease; transform-origin: top right; }
+/* ========== UTILITIES ========== */
+.counter { font-variant-numeric: tabular-nums; }
 
-.level-card { background: linear-gradient(145deg, rgba(74, 222, 128, 0.05) 0%, rgba(74, 222, 128, 0.01) 100%); border: 1px solid rgba(74, 222, 128, 0.1); border-radius: 16px; padding: 20px; transition: all 0.4s ease; }
-.level-card:hover { transform: translateY(-4px); border-color: rgba(74, 222, 128, 0.3); box-shadow: 0 20px 40px -20px rgba(74, 222, 128, 0.3); }
+.timer-flip {
+    font-variant-numeric: tabular-nums;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    border: 1px solid rgba(74, 222, 128, 0.3);
+    box-shadow: 0 0 20px rgba(74, 222, 128, 0.2);
+}
+
+#scrollToTopBtn {
+    box-shadow: 0 4px 20px rgba(74, 222, 128, 0.3);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+}
+
+#scrollToTopBtn.visible {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: all;
+}
+
+#scrollToTopBtn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(74, 222, 128, 0.5);
+}
+
+#userDropdown {
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform-origin: top right;
+}
+
+input[type="number"] { -moz-appearance: textfield; }
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.level-card {
+    background: linear-gradient(145deg, rgba(74, 222, 128, 0.05) 0%, rgba(74, 222, 128, 0.01) 100%);
+    border: 1px solid rgba(74, 222, 128, 0.1);
+    border-radius: 16px;
+    padding: 20px;
+    transition: all 0.4s ease;
+}
+
+.level-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(74, 222, 128, 0.3);
+    box-shadow: 0 20px 40px -20px rgba(74, 222, 128, 0.3);
+}
+
 .level-card.locked { opacity: 0.7; filter: grayscale(0.7); pointer-events: none; }
 .level-card.active { border-color: #4ade80; box-shadow: 0 0 30px rgba(74, 222, 128, 0.2); }
-.level-badge { position: absolute; top: 12px; right: 12px; padding: 4px 12px; border-radius: 20px; font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px; }
+
+.level-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.progress-ring {
+    transition: stroke-dashoffset 0.5s;
+    transform: rotate(-90deg);
+    transform-origin: 50% 50%;
+}
 
 .will-change-transform { will-change: transform; }
 .will-change-opacity { will-change: opacity; }
 
-.fix-chrome { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
-
-.tx-input {
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    padding: 12px 16px;
-    color: white;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 14px;
-    transition: all 0.3s ease;
-}
-
-.tx-input:focus {
-    outline: none;
-    border-color: rgba(74, 222, 128, 0.5);
-    box-shadow: 0 0 20px rgba(74, 222, 128, 0.2);
-}
-
-.tx-input::placeholder {
-    color: rgba(255, 255, 255, 0.4);
+.fix-chrome {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
 }
 </style>
 </head>
 
 <body class="antialiased selection:bg-green-500 selection:text-white fix-chrome">
-<!-- Particles Container -->
-<div id="particles-container"></div>
-
 <!-- Mobile Menu -->
 <div class="mobile-menu-backdrop" id="mobileBackdrop"></div>
 <div class="mobile-menu" id="mobileMenu">
@@ -455,8 +702,9 @@ nav#navbar {
 
 <!-- Background Elements -->
 <div class="grid-overlay"></div>
+<canvas id="webgl-canvas"></canvas>
+<div id="water-drops" class="fixed inset-0 pointer-events-none z-[-8]"></div>
 <div class="water-wave"></div>
-<div class="water-wave-2"></div>
 <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-green-500/5 rounded-full blur-[150px] -z-5 pointer-events-none animate-pulse-slow"></div>
 
 <!-- Navigation -->
@@ -592,8 +840,7 @@ nav#navbar {
 </div>
 
 <!-- Home Page -->
-<div id="page-home" class="page-content active pt-28 pb-20 px-4 relative overflow-hidden">
-    <div class="page-wave"></div>
+<div id="page-home" class="page-content active pt-28 pb-20 px-4">
     <div class="max-w-7xl mx-auto">
         <!-- Hero Section -->
         <div class="text-center mb-20 fade-in-up">
@@ -696,28 +943,6 @@ nav#navbar {
                             </div>
                         </div>
                         
-                        <!-- Send Transaction Section -->
-                        <div class="mb-8 p-6 bg-white/5 rounded-2xl border border-white/10">
-                            <h3 class="text-xl font-bold text-white mb-4 flex items-center gap-3">
-                                <i class="fa-solid fa-paper-plane text-green-400"></i>
-                                Send Transaction
-                            </h3>
-                            <div class="space-y-4">
-                                <div>
-                                    <label class="text-sm text-gray-400 mb-2 block">Recipient Address</label>
-                                    <input type="text" id="tx-recipient" class="tx-input w-full" placeholder="0x...">
-                                </div>
-                                <div>
-                                    <label class="text-sm text-gray-400 mb-2 block">Amount (KRM)</label>
-                                    <input type="number" id="tx-amount" class="tx-input w-full" placeholder="0.001" step="0.001" min="0.001">
-                                </div>
-                                <button onclick="App.transactions.send()" class="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-3">
-                                    <i class="fa-solid fa-bolt"></i>
-                                    SEND TRANSACTION
-                                </button>
-                            </div>
-                        </div>
-                        
                         <!-- Faucet Levels -->
                         <div class="mb-8">
                             <h3 class="text-2xl font-bold text-white mb-4 flex items-center gap-3">
@@ -772,7 +997,7 @@ nav#navbar {
                         </div>
                         
                         <!-- Transaction History -->
-                        <div id="transaction-history" class="mt-12 pt-8 border-t border-white/10">
+                        <div id="transaction-history" class="mt-12 pt-8 border-t border-white/10 hidden">
                             <h4 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
                                 <i class="fa-solid fa-clock-rotate-left text-green-400"></i>
                                 Recent Transactions
@@ -794,8 +1019,7 @@ nav#navbar {
 </div>
 
 <!-- Vision Page -->
-<div id="page-vision" class="page-content pt-28 pb-20 px-4 max-w-7xl mx-auto relative overflow-hidden">
-    <div class="page-wave"></div>
+<div id="page-vision" class="page-content pt-28 pb-20 px-4 max-w-7xl mx-auto">
     <div class="text-center mb-20 fade-in-up">
         <div class="inline-block px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold uppercase tracking-widest mb-6">
             <i class="fa-solid fa-compass mr-2"></i>Our Vision
@@ -845,7 +1069,7 @@ nav#navbar {
     </div>
     
     <!-- Roadmap -->
-    <div class="glass-panel p-12 rounded-3xl fade-in-up mb-20">
+    <div class="glass-panel p-12 rounded-3xl fade-in-up">
         <h3 class="text-3xl text-white font-bold mb-12 text-center font-display">Strategic Roadmap</h3>
         <div class="grid md:grid-cols-4 gap-8 relative">
             <div class="relative text-center group">
@@ -878,8 +1102,7 @@ nav#navbar {
 </div>
 
 <!-- Ecosystem Page -->
-<div id="page-ecosystem" class="page-content pt-28 pb-20 px-4 max-w-7xl mx-auto relative overflow-hidden">
-    <div class="page-wave"></div>
+<div id="page-ecosystem" class="page-content pt-28 pb-20 px-4 max-w-7xl mx-auto">
     <div class="text-center mb-16 fade-in-up">
         <div class="inline-block px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold uppercase tracking-widest mb-6">
             <i class="fa-solid fa-cubes mr-2"></i>Ecosystem
@@ -989,8 +1212,7 @@ nav#navbar {
 </div>
 
 <!-- Support Page -->
-<div id="page-support" class="page-content pt-28 pb-20 px-4 max-w-5xl mx-auto relative overflow-hidden">
-    <div class="page-wave"></div>
+<div id="page-support" class="page-content pt-28 pb-20 px-4 max-w-5xl mx-auto">
     <div class="text-center mb-20 fade-in-up">
         <div class="inline-block px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold uppercase tracking-widest mb-6">
             <i class="fa-solid fa-headset mr-2"></i>Support
@@ -1072,8 +1294,7 @@ nav#navbar {
 </div>
 
 <!-- Footer -->
-<footer class="border-t border-white/5 bg-black/50 backdrop-blur-xl py-16 mt-20 relative overflow-hidden">
-    <div class="page-wave" style="top: 0; bottom: auto; animation-direction: reverse;"></div>
+<footer class="border-t border-white/5 bg-black/50 backdrop-blur-xl py-16 mt-20">
     <div class="max-w-7xl mx-auto px-6">
         <div class="grid md:grid-cols-4 gap-12">
             <div class="col-span-1 md:col-span-2">
@@ -1173,7 +1394,8 @@ const STORAGE_KEYS = {
 // ==================== UI OBJECT ====================
 const UI = {
     init: function() {
-        this.initParticles();
+        this.initParticles(40);
+        this.initWaterDrops(25);
         this.initMobileMenu();
         this.initFAQ();
         this.initScrollToTop();
@@ -1198,15 +1420,9 @@ const UI = {
         }
     },
     
-    initParticles: function() {
-        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-        const particleCount = isMobile ? 50 : 100;
-        
-        const canvas = document.createElement('canvas');
-        canvas.id = 'particles-canvas';
-        canvas.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;z-index:-10;pointer-events:none;opacity:0.3;';
-        document.getElementById('particles-container').appendChild(canvas);
-        
+    initParticles: function(count) {
+        const canvas = document.getElementById('webgl-canvas');
+        if (!canvas) return;
         const ctx = canvas.getContext('2d');
         let particles = [];
         let animationFrame;
@@ -1219,13 +1435,13 @@ const UI = {
         window.addEventListener('resize', resize);
         resize();
         
-        for (let i = 0; i < particleCount; i++) {
+        for (let i = 0; i < count; i++) {
             particles.push({
                 x: Math.random() * canvas.width,
                 y: Math.random() * canvas.height,
-                size: Math.random() * 2 + 1,
-                speed: Math.random() * 0.3 + 0.1,
-                alpha: Math.random() * 0.2 + 0.1
+                size: Math.random() * 2.5 + 1,
+                speed: Math.random() * 0.4 + 0.1,
+                alpha: Math.random() * 0.25 + 0.1
             });
         }
         
@@ -1247,6 +1463,22 @@ const UI = {
         }
         
         animate();
+    },
+    
+    initWaterDrops: function(count) {
+        const container = document.getElementById('water-drops');
+        if (!container) return;
+        container.innerHTML = '';
+        for (let i = 0; i < count; i++) {
+            const drop = document.createElement('div');
+            drop.className = 'water-drop';
+            drop.style.left = Math.random() * 100 + '%';
+            drop.style.animationDelay = Math.random() * 8 + 's';
+            drop.style.height = (20 + Math.random() * 100) + 'px';
+            drop.style.animationDuration = (5 + Math.random() * 10) + 's';
+            drop.style.opacity = Math.random() * 0.5 + 0.1;
+            container.appendChild(drop);
+        }
     },
     
     initMobileMenu: function() {
@@ -1284,6 +1516,19 @@ const UI = {
                 const icon = this.querySelector('i');
                 content.classList.toggle('open');
                 this.classList.toggle('open');
+                if (content.classList.contains('open')) {
+                    if (typeof gsap !== 'undefined') {
+                        gsap.to(content, { maxHeight: '500px', opacity: 1, paddingTop: '1rem', paddingBottom: '1rem', duration: 0.5, ease: 'power2.out' });
+                    } else {
+                        content.style.maxHeight = '500px'; content.style.opacity = '1'; content.style.paddingTop = '1rem'; content.style.paddingBottom = '1rem';
+                    }
+                } else {
+                    if (typeof gsap !== 'undefined') {
+                        gsap.to(content, { maxHeight: 0, opacity: 0, paddingTop: 0, paddingBottom: 0, duration: 0.5, ease: 'power2.out' });
+                    } else {
+                        content.style.maxHeight = '0'; content.style.opacity = '0'; content.style.paddingTop = '0'; content.style.paddingBottom = '0';
+                    }
+                }
             });
         });
     },
@@ -1317,6 +1562,15 @@ const UI = {
             gsap.from(el, {
                 scrollTrigger: { trigger: el, start: 'top 85%', toggleActions: 'play none none reverse' },
                 y: 50, opacity: 0, duration: 1, ease: 'power2.out'
+            });
+        });
+        
+        gsap.utils.toArray('.glass-card, .glass-panel').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                gsap.to(card, { scale: 1.02, duration: 0.3, ease: 'power2.out' });
+            });
+            card.addEventListener('mouseleave', () => {
+                gsap.to(card, { scale: 1, duration: 0.3, ease: 'power2.out' });
             });
         });
     },
@@ -1359,6 +1613,9 @@ const UI = {
             e.stopPropagation();
             if (App.state.address) {
                 dropdown.classList.toggle('hidden');
+                if (!dropdown.classList.contains('hidden') && typeof gsap !== 'undefined') {
+                    gsap.fromTo(dropdown, { opacity: 0, y: -20, scale: 0.95 }, { opacity: 1, y: 0, scale: 1, duration: 0.3, ease: 'power2.out' });
+                }
             } else {
                 this.openModal();
             }
@@ -1428,7 +1685,17 @@ const UI = {
         
         document.body.appendChild(notification);
         
-        setTimeout(() => { notification.remove(); }, 5000);
+        if (typeof gsap !== 'undefined') {
+            gsap.fromTo(notification, { x: 100, opacity: 0 }, { x: 0, opacity: 1, duration: 0.4, ease: 'power2.out' });
+        }
+        
+        setTimeout(() => {
+            if (typeof gsap !== 'undefined') {
+                gsap.to(notification, { x: 100, opacity: 0, duration: 0.3, ease: 'power2.in', onComplete: () => notification.remove() });
+            } else {
+                notification.remove();
+            }
+        }, 5000);
     },
     
     checkSavedConnection: function() {
@@ -1676,7 +1943,6 @@ const App = {
             }
             
             try {
-                // Mobile - use WalletConnect or deep links
                 if (App.state.isMobile) {
                     if (type === 'WalletConnect') {
                         await this.connectWalletConnect();
@@ -1686,7 +1952,6 @@ const App = {
                     }
                 }
                 
-                // Desktop - use browser extensions (MetaMask or Trust ONLY)
                 let provider, accounts;
                 
                 if (type === 'MetaMask') {
@@ -1778,13 +2043,10 @@ const App = {
             
             UI.closeModal();
             
-            // Switch to KarChain network
             await this.switchNetwork(Config.chain);
             
-            // Load balance from blockchain
             const balance = await this.loadTokenBalance();
             
-            // Save to localStorage
             localStorage.setItem(STORAGE_KEYS.WALLET_CONNECTED, 'true');
             localStorage.setItem(STORAGE_KEYS.WALLET_ADDRESS, address);
             localStorage.setItem(STORAGE_KEYS.WALLET_TYPE, type);
@@ -1795,7 +2057,6 @@ const App = {
             
             this.setupEventListeners();
             
-            // Load transactions from blockchain
             setTimeout(() => {
                 App.transactions.loadFromBlockchain();
             }, 1000);
@@ -1900,14 +2161,14 @@ const App = {
     
     transactions: {
         send: async function() {
-            const recipientInput = document.getElementById('tx-recipient');
-            const amountInput = document.getElementById('tx-amount');
-            
             if (!App.state.address || !App.state.signer) {
                 UI.showNotification('Please connect wallet first', 'error');
                 UI.openModal();
                 return;
             }
+            
+            const recipientInput = document.getElementById('tx-recipient');
+            const amountInput = document.getElementById('tx-amount');
             
             const recipient = recipientInput.value.trim();
             const amount = amountInput.value;
@@ -1930,10 +2191,8 @@ const App = {
                 
                 UI.showNotification(`Transaction sent! Hash: ${tx.hash.substring(0, 10)}...`, 'success');
                 
-                // Wait for confirmation
                 const receipt = await tx.wait();
                 
-                // Save transaction
                 const txData = {
                     hash: tx.hash,
                     from: App.state.address,
@@ -1945,20 +2204,14 @@ const App = {
                     blockNumber: receipt.blockNumber
                 };
                 
-                // Save to localStorage
                 const transactions = JSON.parse(localStorage.getItem(STORAGE_KEYS.TRANSACTIONS) || '[]');
                 transactions.push(txData);
                 localStorage.setItem(STORAGE_KEYS.TRANSACTIONS, JSON.stringify(transactions));
                 
                 UI.showNotification('Transaction confirmed!', 'success');
-                
-                // Update UI
                 UI.loadTransactionHistory();
-                
-                // Refresh balance
                 App.wallet.loadTokenBalance();
                 
-                // Clear inputs
                 recipientInput.value = '';
                 amountInput.value = '';
                 
@@ -2112,7 +2365,6 @@ window.addEventListener('load', () => {
     }
 });
 
-// Prevent scroll when modal/menu is open
 window.addEventListener('wheel', (e) => {
     const modal = document.getElementById('connect-modal');
     const mobileMenu = document.getElementById('mobileMenu');
