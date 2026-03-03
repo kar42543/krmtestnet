@@ -3,500 +3,1182 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KarChain | The Sovereign Consensus Layer</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<title>KarChain — Sovereign Consensus Layer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
 <style>
+/* ═══════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════ */
 :root {
-  --bg: #020402;
-  --surface: #0a0f0a;
-  --surface2: #111811;
-  --border: rgba(74,222,128,0.12);
-  --border2: rgba(255,255,255,0.06);
-  --green: #4ade80;
-  --green2: #22c55e;
-  --green-dim: rgba(74,222,128,0.15);
-  --text: #e5e7eb;
-  --muted: #6b7280;
-  --muted2: #9ca3af;
+  --ink:       #0b0f0b;
+  --ink2:      #111611;
+  --ink3:      #161d16;
+  --surface:   #1a221a;
+  --border:    rgba(74,222,128,.1);
+  --border2:   rgba(255,255,255,.06);
+  --green:     #3dff7a;
+  --green2:    #22e65a;
+  --green-dim: rgba(61,255,122,.08);
+  --green-glow:rgba(61,255,122,.25);
+  --amber:     #f0c040;
+  --text:      #d4e8d4;
+  --muted:     #5a7360;
+  --muted2:    #8aaa8e;
+  --font-head: 'Syne', sans-serif;
+  --font-mono: 'Space Mono', monospace;
+  --font-body: 'DM Sans', sans-serif;
+  --ease-out:  cubic-bezier(0.16,1,0.3,1);
+  --ease-in:   cubic-bezier(0.7,0,0.84,0);
+  --ease:      cubic-bezier(0.4,0,0.2,1);
 }
-*{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden;min-height:100vh}
 
-/* ── SCROLLBAR ── */
-::-webkit-scrollbar{width:6px}
-::-webkit-scrollbar-track{background:var(--bg)}
-::-webkit-scrollbar-thumb{background:var(--green2);border-radius:3px}
+/* ═══════════════════════════════════════
+   RESET & BASE
+═══════════════════════════════════════ */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; font-size:16px; }
+body {
+  background: var(--ink);
+  color: var(--text);
+  font-family: var(--font-body);
+  overflow-x: hidden;
+  min-height: 100vh;
+  cursor: default;
+}
+a { text-decoration:none; color:inherit; }
+button { cursor:pointer; font-family:var(--font-body); }
+input, textarea { font-family:var(--font-body); }
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:var(--ink); }
+::-webkit-scrollbar-thumb { background:rgba(61,255,122,.3); border-radius:2px; }
 
-/* ── CANVAS BG ── */
-#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.4}
-.grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;
-  background-image:linear-gradient(rgba(74,222,128,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(74,222,128,.04) 1px,transparent 1px);
-  background-size:64px 64px;
-  mask-image:radial-gradient(ellipse 80% 60% at 50% 50%,black,transparent)}
-.glow-orb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0}
-.glow-orb.top{width:600px;height:400px;top:-100px;left:50%;transform:translateX(-50%);background:rgba(34,197,94,.06)}
-.glow-orb.bot{width:400px;height:300px;bottom:-80px;right:10%;background:rgba(74,222,128,.04)}
+/* ═══════════════════════════════════════
+   CUSTOM CURSOR
+═══════════════════════════════════════ */
+.cursor {
+  position:fixed; z-index:9999; pointer-events:none;
+  top:0; left:0; mix-blend-mode:difference;
+}
+.cursor-dot {
+  width:8px; height:8px; border-radius:50%;
+  background:var(--green); margin:-4px;
+  transition:transform .15s var(--ease);
+}
+.cursor-ring {
+  width:36px; height:36px; border-radius:50%;
+  border:1.5px solid rgba(61,255,122,.5);
+  position:fixed; top:0; left:0; margin:-18px;
+  transition:transform .08s linear, width .25s var(--ease-out), height .25s var(--ease-out), opacity .25s;
+  pointer-events:none; z-index:9998;
+}
+body:hover .cursor-dot { transform:scale(1); }
+body.hovering .cursor-ring { width:56px; height:56px; margin:-28px; opacity:.6; }
+body.clicking .cursor-dot { transform:scale(.6); }
 
-/* ── NAV ── */
-nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:72px;
-  display:flex;align-items:center;
-  border-bottom:1px solid transparent;
-  transition:background .3s,border-color .3s}
-nav.scrolled{background:rgba(2,4,2,.92);backdrop-filter:blur(20px);border-color:var(--border2)}
-.nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;width:100%;display:flex;align-items:center;justify-content:space-between}
-.logo{display:flex;align-items:center;gap:12px;cursor:pointer;text-decoration:none}
-.logo-icon{width:40px;height:40px;transition:transform .6s}
-.logo:hover .logo-icon{transform:rotate(180deg)}
-.logo-text{display:flex;flex-direction:column}
-.logo-name{font-size:15px;font-weight:800;letter-spacing:.18em;color:#fff}
-.logo-sub{font-size:9px;color:var(--muted);letter-spacing:.2em;font-family:'JetBrains Mono',monospace}
-.nav-links{display:flex;align-items:center;gap:32px}
-.nav-link{background:none;border:none;color:var(--muted2);font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;padding:4px 0;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;font-family:'Inter',sans-serif}
-.nav-link:hover,.nav-link.active{color:#fff;border-color:var(--green)}
-.nav-right{display:flex;align-items:center;gap:12px;position:relative}
-#connect-btn{display:flex;align-items:center;gap:8px;padding:10px 20px;background:linear-gradient(135deg,#15803d,#16a34a);border:1px solid rgba(34,197,94,.35);border-radius:10px;color:#fff;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif}
-#connect-btn:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(34,197,94,.35)}
-#connect-btn .dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+/* ═══════════════════════════════════════
+   NOISE OVERLAY
+═══════════════════════════════════════ */
+.noise {
+  position:fixed; inset:0; z-index:1; pointer-events:none; opacity:.025;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size:200px;
+}
 
-/* Dropdown */
-.wallet-dropdown{position:absolute;top:calc(100% + 10px);right:0;width:280px;
-  background:rgba(10,15,10,.97);border:1px solid var(--border);border-radius:14px;
-  padding:16px;z-index:999;display:none;
-  box-shadow:0 20px 60px rgba(0,0,0,.6)}
-.wallet-dropdown.show{display:block}
-.wd-addr{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted2);word-break:break-all;margin-top:4px}
-.wd-bal{display:flex;justify-content:space-between;align-items:center;
-  background:rgba(74,222,128,.06);border:1px solid var(--border);border-radius:8px;
-  padding:10px 12px;margin:12px 0}
-.wd-bal span:first-child{font-size:12px;color:var(--muted)}
-.wd-bal span:last-child{font-size:14px;font-weight:700;color:var(--green);font-family:'JetBrains Mono',monospace}
-.wd-disconnect{width:100%;padding:9px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);
-  border-radius:8px;color:#f87171;font-size:12px;font-weight:600;cursor:pointer;
-  transition:all .2s;font-family:'Inter',sans-serif}
-.wd-disconnect:hover{background:rgba(239,68,68,.15)}
+/* ═══════════════════════════════════════
+   SCAN LINES
+═══════════════════════════════════════ */
+.scanlines {
+  position:fixed; inset:0; z-index:2; pointer-events:none;
+  background: repeating-linear-gradient(
+    0deg, transparent, transparent 2px,
+    rgba(0,0,0,.03) 2px, rgba(0,0,0,.03) 4px
+  );
+}
 
-/* Mobile burger */
-.burger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none}
-.burger span{width:24px;height:2px;background:var(--green);border-radius:2px;transition:all .3s}
-.burger.open span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
-.burger.open span:nth-child(2){opacity:0}
-.burger.open span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
+/* ═══════════════════════════════════════
+   CANVAS & BG EFFECTS
+═══════════════════════════════════════ */
+#stars { position:fixed; inset:0; z-index:0; pointer-events:none; }
+.bg-mesh {
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(ellipse 80% 50% at 20% -10%, rgba(61,255,122,.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 40% at 80% 110%, rgba(61,255,122,.04) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 30% at 50% 50%, rgba(17,22,17,.8) 0%, transparent 70%);
+}
 
-/* Mobile menu */
-.mobile-menu{position:fixed;top:72px;right:-100%;width:min(320px,85vw);height:calc(100vh - 72px);
-  background:rgba(2,4,2,.98);backdrop-filter:blur(20px);
-  border-left:1px solid var(--border);z-index:999;
-  display:flex;flex-direction:column;padding:32px 24px;gap:4px;
-  transition:right .35s cubic-bezier(.4,0,.2,1)}
-.mobile-menu.open{right:0}
-.mobile-link{padding:14px 0;border-bottom:1px solid var(--border2);
-  font-size:16px;font-weight:600;color:var(--muted2);cursor:pointer;
-  display:flex;align-items:center;gap:12px;transition:color .2s;background:none;border-right:none;border-top:none;border-left:none;width:100%;text-align:left;font-family:'Inter',sans-serif}
-.mobile-link:hover{color:#fff}
-.mobile-link i{color:var(--green);width:20px}
-.mb-overlay{position:fixed;inset:0;top:72px;background:rgba(0,0,0,.6);z-index:998;display:none}
-.mb-overlay.show{display:block}
+/* ═══════════════════════════════════════
+   NAV
+═══════════════════════════════════════ */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:500;
+  height:72px;
+  transition:background .4s var(--ease), backdrop-filter .4s;
+}
+nav::after {
+  content:'';
+  position:absolute; bottom:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg, transparent, var(--green-glow), transparent);
+  opacity:0; transition:opacity .4s;
+}
+nav.scrolled {
+  background:rgba(11,15,11,.85);
+  backdrop-filter:blur(24px) saturate(180%);
+}
+nav.scrolled::after { opacity:1; }
 
-/* ── PAGES ── */
-.page{display:none;min-height:100vh;position:relative;z-index:1}
-.page.active{display:block}
+.nav-inner {
+  max-width:1280px; margin:0 auto; padding:0 32px;
+  height:100%; display:flex; align-items:center; justify-content:space-between;
+}
 
-/* ── HOME ── */
-.hero{padding:160px 24px 100px;text-align:center;max-width:900px;margin:0 auto}
-.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;
-  background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);
-  border-radius:100px;font-size:11px;font-weight:600;color:var(--green);
-  letter-spacing:.1em;text-transform:uppercase;margin-bottom:32px}
-.hero-badge .pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
-h1{font-size:clamp(40px,7vw,80px);font-weight:800;line-height:1.05;letter-spacing:-.02em;color:#fff;margin-bottom:24px}
-.grad{background:linear-gradient(90deg,#fff 0%,var(--green) 40%,#22c55e 60%,var(--green) 80%,#fff 100%);
-  background-size:200%;background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  animation:gradMove 6s linear infinite}
-@keyframes gradMove{0%{background-position:0%}100%{background-position:200%}}
-.hero p{font-size:18px;color:var(--muted2);line-height:1.7;max-width:580px;margin:0 auto 40px}
-.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
-.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;
-  background:linear-gradient(135deg,#15803d,#16a34a);border:1px solid rgba(34,197,94,.35);
-  border-radius:12px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;
-  transition:all .25s;text-decoration:none;font-family:'Inter',sans-serif}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 35px rgba(34,197,94,.4)}
-.btn-ghost{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;
-  background:transparent;border:1px solid var(--border2);border-radius:12px;
-  color:var(--muted2);font-size:13px;font-weight:600;cursor:pointer;
-  transition:all .25s;text-decoration:none;font-family:'Inter',sans-serif}
-.btn-ghost:hover{border-color:rgba(74,222,128,.3);color:#fff;transform:translateY(-2px)}
+/* Logo */
+.logo { display:flex; align-items:center; gap:14px; cursor:pointer; position:relative; }
+.logo-hex {
+  width:38px; height:38px; position:relative;
+  display:flex; align-items:center; justify-content:center;
+}
+.logo-hex svg { position:absolute; }
+.logo-hex .hex-outer { animation: hexSpin 12s linear infinite; }
+.logo-hex .hex-inner { animation: hexSpin 8s linear infinite reverse; }
+@keyframes hexSpin { to { transform:rotate(360deg); } }
+.logo-mark {
+  width:10px; height:10px; border-radius:50%;
+  background:var(--green); position:relative; z-index:1;
+  box-shadow:0 0 12px var(--green), 0 0 24px rgba(61,255,122,.4);
+  animation: markPulse 2.5s ease-in-out infinite;
+}
+@keyframes markPulse {
+  0%,100% { box-shadow:0 0 12px var(--green),0 0 24px rgba(61,255,122,.4); }
+  50% { box-shadow:0 0 20px var(--green),0 0 40px rgba(61,255,122,.6),0 0 60px rgba(61,255,122,.2); }
+}
+.logo-text { display:flex; flex-direction:column; gap:1px; }
+.logo-name {
+  font-family:var(--font-head); font-size:17px; font-weight:800;
+  letter-spacing:.22em; color:#fff; line-height:1;
+}
+.logo-sub {
+  font-family:var(--font-mono); font-size:8px; color:var(--muted2);
+  letter-spacing:.18em; text-transform:uppercase;
+}
 
-/* Stats */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
-  background:var(--border2);border:1px solid var(--border2);border-radius:16px;
-  overflow:hidden;max-width:800px;margin:80px auto 0}
-.stat-item{background:var(--surface);padding:28px 20px;text-align:center}
-.stat-val{font-size:32px;font-weight:800;color:#fff;font-family:'JetBrains Mono',monospace;letter-spacing:-.02em}
-.stat-label{font-size:11px;color:var(--muted);margin-top:6px;letter-spacing:.08em;text-transform:uppercase}
-.stat-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:6px;animation:pulse 2s infinite}
+/* Nav links */
+.nav-links { display:flex; align-items:center; gap:2px; }
+.nav-link {
+  position:relative; background:none; border:none; color:var(--muted2);
+  font-family:var(--font-head); font-size:12px; font-weight:600;
+  letter-spacing:.14em; text-transform:uppercase; padding:10px 18px;
+  border-radius:8px; transition:color .25s;
+  overflow:hidden;
+}
+.nav-link::before {
+  content:''; position:absolute; inset:0; background:var(--green-dim);
+  border-radius:8px; transform:scaleX(0); transform-origin:left;
+  transition:transform .3s var(--ease-out);
+}
+.nav-link:hover::before, .nav-link.active::before { transform:scaleX(1); }
+.nav-link:hover, .nav-link.active { color:#fff; }
+.nav-link.active { color:var(--green); }
+.nav-link span { position:relative; z-index:1; }
 
-/* Dashboard */
-.dashboard{max-width:1100px;margin:0 auto;padding:0 24px 100px}
-.panel{background:var(--surface);border:1px solid var(--border2);border-radius:20px;overflow:hidden;
-  box-shadow:0 4px 40px rgba(0,0,0,.4)}
-.panel-header{padding:28px 32px;border-bottom:1px solid var(--border2);
-  display:flex;align-items:center;justify-content:space-between}
-.panel-title{font-size:16px;font-weight:700;color:#fff;display:flex;align-items:center;gap:10px}
-.panel-body{padding:32px}
+/* Connect button */
+.nav-cta {
+  position:relative; display:flex; align-items:center; gap:10px;
+  padding:10px 22px; border-radius:10px; border:none;
+  background:transparent;
+  color:#fff; font-family:var(--font-head); font-size:11px;
+  font-weight:700; letter-spacing:.14em; text-transform:uppercase;
+  overflow:hidden; transition:color .25s;
+}
+.nav-cta::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg, rgba(61,255,122,.15), rgba(61,255,122,.08));
+  border:1px solid rgba(61,255,122,.3); border-radius:10px;
+  transition:all .3s var(--ease-out);
+}
+.nav-cta:hover::before {
+  background:linear-gradient(135deg, rgba(61,255,122,.25), rgba(61,255,122,.12));
+  border-color:rgba(61,255,122,.6);
+  box-shadow:0 0 30px rgba(61,255,122,.2), inset 0 0 20px rgba(61,255,122,.05);
+}
+.nav-cta .cta-icon { position:relative; z-index:1; font-size:13px; color:var(--green); }
+.nav-cta .cta-text { position:relative; z-index:1; }
+.pulse-dot {
+  width:7px; height:7px; border-radius:50%; background:var(--green);
+  position:relative; z-index:1;
+  animation:pulseDot 2s ease-in-out infinite;
+}
+@keyframes pulseDot {
+  0%,100% { opacity:1; transform:scale(1); }
+  50% { opacity:.5; transform:scale(.7); }
+}
 
-/* Locked state */
-.locked-state{text-align:center;padding:80px 32px}
-.lock-icon{width:88px;height:88px;border-radius:50%;border:1px solid var(--border);
-  background:var(--surface2);display:flex;align-items:center;justify-content:center;
-  margin:0 auto 24px;font-size:32px;color:var(--muted)}
+/* Wallet dropdown */
+.wallet-dd {
+  position:absolute; top:calc(100% + 12px); right:0;
+  width:300px;
+  background:rgba(15,22,15,.97); border:1px solid var(--border);
+  border-radius:16px; padding:20px;
+  backdrop-filter:blur(20px);
+  box-shadow:0 24px 64px rgba(0,0,0,.7), 0 0 0 1px rgba(61,255,122,.05);
+  opacity:0; transform:translateY(-8px) scale(.97);
+  pointer-events:none;
+  transition:opacity .25s var(--ease-out), transform .25s var(--ease-out);
+  z-index:600;
+}
+.wallet-dd.open {
+  opacity:1; transform:translateY(0) scale(1); pointer-events:all;
+}
+.dd-label { font-size:10px; letter-spacing:.14em; color:var(--muted); text-transform:uppercase; font-family:var(--font-mono); }
+.dd-addr {
+  font-family:var(--font-mono); font-size:10px; color:var(--muted2);
+  word-break:break-all; margin-top:6px; line-height:1.6;
+}
+.dd-bal-row {
+  display:flex; justify-content:space-between; align-items:center;
+  background:var(--green-dim); border:1px solid var(--border);
+  border-radius:10px; padding:12px 14px; margin:14px 0;
+}
+.dd-bal-row span:first-child { font-size:12px; color:var(--muted2); }
+.dd-bal-num { font-family:var(--font-mono); font-size:16px; font-weight:700; color:var(--green); }
+.dd-disconnect {
+  width:100%; padding:10px; border-radius:8px;
+  background:rgba(255,80,80,.08); border:1px solid rgba(255,80,80,.2);
+  color:#ff8080; font-size:11px; font-weight:600; letter-spacing:.08em;
+  transition:all .2s;
+}
+.dd-disconnect:hover { background:rgba(255,80,80,.15); }
 
-/* Balance block */
-.balance-block{display:flex;justify-content:space-between;align-items:flex-start;
-  padding:28px 32px;border-bottom:1px solid var(--border2);gap:24px;flex-wrap:wrap}
-.bal-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
-.bal-val{display:flex;align-items:baseline;gap:10px}
-.bal-num{font-size:52px;font-weight:800;color:#fff;font-family:'JetBrains Mono',monospace;letter-spacing:-.03em;line-height:1}
-.bal-sym{font-size:20px;font-weight:700;color:var(--green);background:rgba(74,222,128,.1);
-  padding:4px 12px;border-radius:8px;border:1px solid var(--border)}
-.bal-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
-.connected-badge{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;
-  color:var(--green);letter-spacing:.08em;text-transform:uppercase}
-.wallet-addr-chip{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted2);
-  background:var(--surface2);border:1px solid var(--border2);border-radius:8px;
-  padding:6px 12px}
-.refresh-btn{background:none;border:1px solid var(--border2);border-radius:8px;
-  color:var(--muted);font-size:11px;cursor:pointer;padding:5px 10px;
-  transition:all .2s;font-family:'Inter',sans-serif}
-.refresh-btn:hover{color:var(--green);border-color:var(--border)}
+/* Mobile */
+.burger { display:none; flex-direction:column; gap:6px; background:none; border:none; padding:4px; }
+.burger span { display:block; width:22px; height:1.5px; background:var(--muted2); border-radius:1px; transition:all .3s var(--ease); }
+.burger.open span:nth-child(1) { transform:translateY(7.5px) rotate(45deg); }
+.burger.open span:nth-child(2) { opacity:0; transform:scaleX(0); }
+.burger.open span:nth-child(3) { transform:translateY(-7.5px) rotate(-45deg); }
 
-/* Faucet cards */
-.faucet-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:28px 32px;border-bottom:1px solid var(--border2)}
-.faucet-card{background:var(--surface2);border:1px solid var(--border2);border-radius:16px;padding:24px;transition:border-color .3s}
-.faucet-card.active-card{border-color:rgba(74,222,128,.3)}
-.faucet-card.locked-card{opacity:.5;pointer-events:none}
-.fc-head{display:flex;align-items:center;gap:14px;margin-bottom:16px}
-.fc-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.fc-icon.green{background:linear-gradient(135deg,#15803d,#22c55e)}
-.fc-icon.purple{background:linear-gradient(135deg,#6d28d9,#7c3aed)}
-.fc-title{font-size:16px;font-weight:700;color:#fff}
-.fc-sub{font-size:12px;color:var(--muted);margin-top:2px}
-.fc-badge{display:inline-block;padding:2px 10px;border-radius:100px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-top:6px}
-.fc-badge.g{background:rgba(74,222,128,.12);color:var(--green);border:1px solid rgba(74,222,128,.2)}
-.fc-badge.p{background:rgba(124,58,237,.12);color:#a78bfa;border:1px solid rgba(124,58,237,.2)}
-.fc-meta{display:flex;justify-content:space-between;font-size:12px;
-  background:rgba(255,255,255,.03);border:1px solid var(--border2);border-radius:8px;
-  padding:10px 12px;margin-bottom:14px}
-.fc-meta span:first-child{color:var(--muted)}
-.fc-meta span:last-child{color:var(--muted2);font-weight:600;font-family:'JetBrains Mono',monospace}
+.mobile-nav {
+  position:fixed; top:72px; right:0; bottom:0; width:min(320px,100vw);
+  background:rgba(11,15,11,.98); backdrop-filter:blur(30px);
+  border-left:1px solid var(--border2);
+  transform:translateX(100%); transition:transform .4s var(--ease-out);
+  z-index:499; padding:32px 28px; display:flex; flex-direction:column; gap:4px;
+}
+.mobile-nav.open { transform:translateX(0); }
+.mob-link {
+  padding:16px 0; border-bottom:1px solid var(--border2);
+  font-family:var(--font-head); font-size:18px; font-weight:600;
+  color:var(--muted2); cursor:pointer; background:none; border-right:none;
+  border-top:none; border-left:none; text-align:left;
+  transition:color .2s, padding-left .2s var(--ease-out);
+  display:flex; align-items:center; gap:14px;
+}
+.mob-link:hover { color:#fff; padding-left:8px; }
+.mob-link i { color:var(--green); width:18px; font-size:14px; }
+.mob-overlay {
+  position:fixed; inset:0; top:72px; background:rgba(0,0,0,.7);
+  z-index:498; display:none; backdrop-filter:blur(2px);
+}
+.mob-overlay.show { display:block; }
 
-/* Timer */
-.timer-wrap{text-align:center;padding:12px;background:rgba(255,255,255,.02);
-  border:1px solid var(--border2);border-radius:10px}
-.timer-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
-.timer-digits{display:flex;align-items:center;justify-content:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700}
-.timer-sep{color:var(--green);font-size:20px}
-.td{background:rgba(74,222,128,.08);border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:#fff}
+/* ═══════════════════════════════════════
+   PAGE SYSTEM + TRANSITIONS
+═══════════════════════════════════════ */
+.page {
+  min-height:100vh; position:relative; z-index:3;
+  opacity:0; transform:translateY(24px);
+  pointer-events:none; display:none;
+  transition:opacity .5s var(--ease-out), transform .5s var(--ease-out);
+}
+.page.active {
+  display:block;
+  pointer-events:all;
+}
+.page.visible {
+  opacity:1; transform:translateY(0);
+}
+
+/* ═══════════════════════════════════════
+   TOAST
+═══════════════════════════════════════ */
+.toast-container {
+  position:fixed; top:90px; right:24px; z-index:1000;
+  display:flex; flex-direction:column; gap:10px; pointer-events:none;
+}
+.toast {
+  display:flex; align-items:flex-start; gap:12px;
+  padding:14px 18px; border-radius:14px;
+  min-width:300px; max-width:380px;
+  font-size:13px; line-height:1.4;
+  pointer-events:all;
+  animation:toastSlide .35s var(--ease-out) forwards;
+}
+.toast.out { animation:toastSlideOut .3s var(--ease-in) forwards; }
+@keyframes toastSlide {
+  from { transform:translateX(120%) scale(.9); opacity:0; }
+  to   { transform:translateX(0) scale(1);   opacity:1; }
+}
+@keyframes toastSlideOut {
+  from { transform:translateX(0) scale(1);   opacity:1; }
+  to   { transform:translateX(120%) scale(.9); opacity:0; }
+}
+.toast.success { background:rgba(11,20,11,.95); border:1px solid rgba(61,255,122,.3); backdrop-filter:blur(20px); }
+.toast.error   { background:rgba(20,8,8,.95);   border:1px solid rgba(255,80,80,.3);  backdrop-filter:blur(20px); }
+.toast.info    { background:rgba(8,12,20,.95);   border:1px solid rgba(80,140,255,.3); backdrop-filter:blur(20px); }
+.toast-icon    { font-size:16px; margin-top:1px; flex-shrink:0; }
+.toast.success .toast-icon { color:var(--green); }
+.toast.error   .toast-icon { color:#ff6060; }
+.toast.info    .toast-icon { color:#60a0ff; }
+.toast-body p:first-child  { font-weight:600; color:#fff; margin-bottom:3px; }
+.toast-body p:last-child   { color:var(--muted2); font-size:12px; }
+
+/* ═══════════════════════════════════════
+   MODAL
+═══════════════════════════════════════ */
+.modal-wrap {
+  position:fixed; inset:0; z-index:800;
+  display:flex; align-items:center; justify-content:center;
+  padding:20px;
+  background:rgba(0,0,0,.8); backdrop-filter:blur(12px);
+  opacity:0; pointer-events:none;
+  transition:opacity .3s;
+}
+.modal-wrap.open { opacity:1; pointer-events:all; }
+.modal {
+  background:var(--ink2); border:1px solid var(--border);
+  border-radius:24px; width:100%; max-width:460px;
+  padding:36px;
+  box-shadow:0 32px 80px rgba(0,0,0,.8), 0 0 0 1px rgba(61,255,122,.04);
+  transform:translateY(24px) scale(.97);
+  transition:transform .35s var(--ease-out);
+  position:relative; overflow:hidden;
+}
+.modal::before {
+  content:''; position:absolute; top:-1px; left:20%; right:20%; height:1px;
+  background:linear-gradient(90deg, transparent, var(--green), transparent);
+}
+.modal-wrap.open .modal { transform:translateY(0) scale(1); }
+.modal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:28px; }
+.modal-title {
+  font-family:var(--font-head); font-size:22px; font-weight:700; color:#fff;
+  display:flex; align-items:center; gap:10px;
+}
+.modal-title i { color:var(--green); }
+.modal-close {
+  width:34px; height:34px; border-radius:8px; border:none;
+  background:rgba(255,255,255,.05); color:var(--muted2); font-size:16px;
+  display:flex; align-items:center; justify-content:center;
+  transition:all .2s;
+}
+.modal-close:hover { background:rgba(255,255,255,.1); color:#fff; }
+
+/* Wallet option in modal */
+.wallet-option {
+  display:flex; align-items:center; gap:16px;
+  padding:18px 20px; border-radius:16px;
+  border:1px solid var(--border2); background:rgba(255,255,255,.02);
+  cursor:pointer; transition:all .3s var(--ease-out);
+  position:relative; overflow:hidden;
+}
+.wallet-option::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg, rgba(61,255,122,.06), transparent);
+  opacity:0; transition:opacity .3s;
+}
+.wallet-option:hover { border-color:rgba(61,255,122,.3); transform:translateY(-2px); }
+.wallet-option:hover::before { opacity:1; }
+.wo-icon { width:52px; height:52px; border-radius:14px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.wo-name { font-family:var(--font-head); font-size:15px; font-weight:700; color:#fff; }
+.wo-sub  { font-size:12px; color:var(--muted2); margin-top:3px; }
+.wo-status { margin-left:auto; flex-shrink:0; }
+.wo-status-dot { width:10px; height:10px; border-radius:50%; }
+.wo-status-dot.live { background:var(--green); box-shadow:0 0 8px var(--green); animation:pulseDot 2s infinite; }
+
+/* ═══════════════════════════════════════
+   ── HOME PAGE ──
+═══════════════════════════════════════ */
+
+/* Hero */
+.hero {
+  min-height:100vh; display:flex; align-items:center;
+  padding:120px 32px 80px;
+  position:relative; overflow:hidden;
+}
+.hero-inner {
+  max-width:1280px; margin:0 auto; width:100%;
+  display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center;
+}
+.hero-badge {
+  display:inline-flex; align-items:center; gap:10px;
+  padding:7px 16px; border-radius:100px;
+  border:1px solid rgba(61,255,122,.25);
+  background:rgba(61,255,122,.06);
+  font-family:var(--font-mono); font-size:10px; color:var(--green);
+  letter-spacing:.12em; text-transform:uppercase; margin-bottom:32px;
+}
+.hero-badge .dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation:pulseDot 2s infinite; }
+
+.hero-h1 {
+  font-family:var(--font-head); font-size:clamp(48px,6vw,76px);
+  font-weight:800; line-height:1.01; letter-spacing:-.02em; color:#fff;
+  margin-bottom:28px;
+}
+.hero-h1 .line { display:block; overflow:hidden; }
+.hero-h1 .line span { display:inline-block; }
+.hero-h1 .accent { color:var(--green); }
+
+.hero-desc {
+  font-size:17px; color:var(--muted2); line-height:1.75;
+  max-width:480px; margin-bottom:44px;
+}
+
+.hero-btns { display:flex; gap:14px; flex-wrap:wrap; }
+
+/* CTA buttons */
+.btn {
+  display:inline-flex; align-items:center; gap:10px;
+  padding:14px 28px; border-radius:12px; border:none;
+  font-family:var(--font-head); font-size:12px; font-weight:700;
+  letter-spacing:.12em; text-transform:uppercase; cursor:pointer;
+  transition:all .3s var(--ease-out); position:relative; overflow:hidden;
+}
+.btn::after {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg, rgba(255,255,255,.1), transparent);
+  opacity:0; transition:opacity .25s;
+}
+.btn:hover::after { opacity:1; }
+
+.btn-primary {
+  background:var(--green); color:var(--ink);
+  box-shadow:0 4px 20px rgba(61,255,122,.3);
+}
+.btn-primary:hover {
+  transform:translateY(-2px);
+  box-shadow:0 8px 40px rgba(61,255,122,.5);
+}
+.btn-primary:active { transform:translateY(0); }
+
+.btn-outline {
+  background:transparent; color:var(--muted2);
+  border:1px solid var(--border2) !important;
+}
+.btn-outline:hover { border-color:rgba(61,255,122,.3) !important; color:#fff; transform:translateY(-2px); }
+
+/* Hero visual */
+.hero-visual {
+  position:relative; display:flex; align-items:center; justify-content:center;
+}
+.orbit-system {
+  width:380px; height:380px; position:relative;
+  display:flex; align-items:center; justify-content:center;
+}
+.orbit {
+  position:absolute; border-radius:50%;
+  border:1px solid rgba(61,255,122,.12);
+  display:flex; align-items:center; justify-content:center;
+}
+.orbit-1 { width:100%; height:100%; animation:orbitRotate 20s linear infinite; }
+.orbit-2 { width:70%; height:70%;  animation:orbitRotate 14s linear infinite reverse; }
+.orbit-3 { width:44%; height:44%;  animation:orbitRotate 8s linear infinite; }
+@keyframes orbitRotate { to { transform:rotate(360deg); } }
+
+.orbit-dot {
+  width:8px; height:8px; border-radius:50%;
+  position:absolute; top:-4px; left:50%; margin-left:-4px;
+  background:var(--green); box-shadow:0 0 12px var(--green);
+}
+.orbit-dot.dim { background:var(--muted); box-shadow:none; width:5px; height:5px; top:-2.5px; margin-left:-2.5px; }
+
+.orbit-core {
+  width:80px; height:80px; border-radius:50%; position:relative;
+  background:radial-gradient(circle at 40% 40%, rgba(61,255,122,.2), var(--ink));
+  border:1px solid rgba(61,255,122,.3);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 0 40px rgba(61,255,122,.15), inset 0 0 20px rgba(61,255,122,.05);
+}
+.orbit-core-dot {
+  width:20px; height:20px; border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 20px var(--green), 0 0 40px rgba(61,255,122,.5), 0 0 60px rgba(61,255,122,.2);
+  animation:corePulse 3s ease-in-out infinite;
+}
+@keyframes corePulse {
+  0%,100% { transform:scale(1); box-shadow:0 0 20px var(--green),0 0 40px rgba(61,255,122,.5); }
+  50% { transform:scale(1.15); box-shadow:0 0 30px var(--green),0 0 60px rgba(61,255,122,.7),0 0 90px rgba(61,255,122,.3); }
+}
+
+.hero-stats-mini {
+  position:absolute; display:flex; flex-direction:column; gap:10px;
+  right:-40px; top:50%; transform:translateY(-50%);
+}
+.mini-stat {
+  background:rgba(15,22,15,.9); border:1px solid var(--border);
+  border-radius:12px; padding:12px 16px;
+  backdrop-filter:blur(12px);
+  animation:floatMini 4s ease-in-out infinite;
+}
+.mini-stat:nth-child(2) { animation-delay:.8s; }
+.mini-stat:nth-child(3) { animation-delay:1.6s; }
+@keyframes floatMini {
+  0%,100% { transform:translateY(0); }
+  50% { transform:translateY(-6px); }
+}
+.mini-stat-val { font-family:var(--font-mono); font-size:14px; font-weight:700; color:var(--green); }
+.mini-stat-label { font-size:10px; color:var(--muted); margin-top:2px; letter-spacing:.06em; }
+
+/* Stats strip */
+.stats-strip {
+  border-top:1px solid var(--border2);
+  border-bottom:1px solid var(--border2);
+  background:rgba(15,22,15,.5);
+  backdrop-filter:blur(12px);
+  position:relative; z-index:4;
+}
+.stats-inner {
+  max-width:1280px; margin:0 auto; padding:0 32px;
+  display:grid; grid-template-columns:repeat(4,1fr);
+}
+.stat-item {
+  padding:32px 28px; border-right:1px solid var(--border2);
+  position:relative; overflow:hidden;
+  transition:background .3s;
+}
+.stat-item:last-child { border-right:none; }
+.stat-item::before {
+  content:''; position:absolute; bottom:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg, transparent, var(--green), transparent);
+  transform:scaleX(0); transition:transform .4s var(--ease-out);
+}
+.stat-item:hover::before { transform:scaleX(1); }
+.stat-item:hover { background:rgba(61,255,122,.03); }
+.stat-num {
+  font-family:var(--font-head); font-size:36px; font-weight:800;
+  color:#fff; letter-spacing:-.02em; line-height:1;
+  display:flex; align-items:baseline; gap:4px;
+}
+.stat-unit { font-size:18px; color:var(--green); }
+.stat-lbl { font-size:11px; color:var(--muted); margin-top:8px; letter-spacing:.1em; text-transform:uppercase; }
+.stat-tick {
+  position:absolute; top:16px; right:16px;
+  width:6px; height:6px; border-radius:50%; background:var(--green);
+  animation:pulseDot 2s infinite;
+}
+
+/* ─── DASHBOARD ─── */
+.dashboard-wrap {
+  max-width:1280px; margin:0 auto; padding:80px 32px 120px;
+}
+.dash-grid { display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-top:40px; }
+
+/* Section heading */
+.section-head { margin-bottom:40px; }
+.section-tag {
+  display:inline-flex; align-items:center; gap:8px;
+  font-family:var(--font-mono); font-size:10px; color:var(--green);
+  letter-spacing:.14em; text-transform:uppercase; margin-bottom:14px;
+}
+.section-tag::before { content:''; width:24px; height:1px; background:var(--green); }
+.section-title {
+  font-family:var(--font-head); font-size:clamp(32px,4vw,48px);
+  font-weight:800; color:#fff; letter-spacing:-.02em; line-height:1.05;
+}
+.section-sub { font-size:15px; color:var(--muted2); margin-top:12px; line-height:1.7; }
+
+/* Panel */
+.panel {
+  background:var(--ink2); border:1px solid var(--border2);
+  border-radius:20px; overflow:hidden; position:relative;
+  transition:border-color .3s, transform .3s var(--ease-out);
+}
+.panel::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg, transparent 0%, rgba(61,255,122,.3) 50%, transparent 100%);
+  opacity:0; transition:opacity .3s;
+}
+.panel:hover::before { opacity:1; }
+.panel-header {
+  padding:24px 28px; border-bottom:1px solid var(--border2);
+  display:flex; align-items:center; justify-content:space-between;
+}
+.panel-title {
+  font-family:var(--font-head); font-size:14px; font-weight:700; color:#fff;
+  display:flex; align-items:center; gap:10px;
+}
+.panel-icon { color:var(--green); }
+.panel-body { padding:28px; }
+
+/* Locked */
+.locked-view {
+  padding:80px 32px; text-align:center;
+}
+.lock-visual {
+  width:100px; height:100px; border-radius:50%; margin:0 auto 28px;
+  background:var(--ink3); border:1px solid var(--border2);
+  display:flex; align-items:center; justify-content:center;
+  font-size:36px; color:var(--muted); position:relative;
+}
+.lock-visual::before {
+  content:''; position:absolute; inset:-8px; border-radius:50%;
+  border:1px dashed rgba(61,255,122,.1); animation:spinSlow 20s linear infinite;
+}
+@keyframes spinSlow { to { transform:rotate(360deg); } }
+.locked-title { font-family:var(--font-head); font-size:26px; font-weight:700; color:#fff; margin-bottom:12px; }
+.locked-sub { font-size:14px; color:var(--muted2); max-width:360px; margin:0 auto 32px; line-height:1.7; }
+
+/* Balance */
+.balance-area {
+  padding:28px; border-bottom:1px solid var(--border2);
+  display:flex; justify-content:space-between; align-items:flex-start; gap:20px; flex-wrap:wrap;
+}
+.bal-label { font-family:var(--font-mono); font-size:10px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; margin-bottom:10px; }
+.bal-display { display:flex; align-items:baseline; gap:12px; }
+.bal-num {
+  font-family:var(--font-head); font-size:56px; font-weight:800;
+  color:#fff; letter-spacing:-.03em; line-height:1;
+  transition:color .3s;
+}
+.bal-sym {
+  font-family:var(--font-mono); font-size:18px; font-weight:700; color:var(--green);
+  background:var(--green-dim); border:1px solid var(--border);
+  border-radius:8px; padding:4px 12px;
+}
+.bal-right { display:flex; flex-direction:column; align-items:flex-end; gap:10px; }
+.status-chip {
+  display:flex; align-items:center; gap:8px;
+  font-family:var(--font-mono); font-size:10px; font-weight:700;
+  color:var(--green); letter-spacing:.1em; text-transform:uppercase;
+}
+.addr-chip {
+  font-family:var(--font-mono); font-size:11px; color:var(--muted2);
+  background:var(--ink3); border:1px solid var(--border2);
+  border-radius:8px; padding:6px 12px;
+}
+.refresh-chip {
+  background:none; border:1px solid var(--border2); border-radius:8px;
+  color:var(--muted); font-size:11px; padding:5px 12px;
+  transition:all .2s; display:flex; align-items:center; gap:6px;
+}
+.refresh-chip:hover { border-color:var(--border); color:var(--green); }
+.refresh-chip i { transition:transform .6s; }
+.refresh-chip:hover i { transform:rotate(360deg); }
+
+/* Faucet */
+.faucet-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; padding:24px; border-bottom:1px solid var(--border2); }
+.faucet-card {
+  background:var(--ink3); border:1px solid var(--border2);
+  border-radius:16px; padding:20px; position:relative; overflow:hidden;
+  transition:border-color .3s;
+}
+.faucet-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  transition:opacity .3s;
+}
+.faucet-card.fc-l1::before { background:linear-gradient(90deg, var(--green), var(--green2)); }
+.faucet-card.fc-l2::before { background:linear-gradient(90deg, #8b5cf6, #7c3aed); }
+.faucet-card.fc-locked { opacity:.45; pointer-events:none; }
+.faucet-card.fc-l1:not(.fc-locked) { border-color:rgba(61,255,122,.2); }
+.faucet-card.fc-l2:not(.fc-locked) { border-color:rgba(124,58,237,.2); }
+
+.fc-top { display:flex; align-items:center; gap:12px; margin-bottom:14px; }
+.fc-ico {
+  width:48px; height:48px; border-radius:12px;
+  display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;
+}
+.fc-ico.green { background:linear-gradient(135deg,rgba(61,255,122,.2),rgba(34,230,90,.1)); border:1px solid rgba(61,255,122,.2); }
+.fc-ico.purple { background:linear-gradient(135deg,rgba(139,92,246,.2),rgba(124,58,237,.1)); border:1px solid rgba(139,92,246,.2); }
+.fc-ico.green i { color:var(--green); }
+.fc-ico.purple i { color:#a78bfa; }
+.fc-name { font-family:var(--font-head); font-size:14px; font-weight:700; color:#fff; }
+.fc-desc { font-size:11px; color:var(--muted); margin-top:2px; }
+.fc-badge {
+  display:inline-block; padding:2px 8px; border-radius:100px;
+  font-family:var(--font-mono); font-size:9px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; margin-top:4px;
+}
+.fc-badge.g { background:rgba(61,255,122,.1); color:var(--green); border:1px solid rgba(61,255,122,.2); }
+.fc-badge.p { background:rgba(139,92,246,.1); color:#a78bfa; border:1px solid rgba(139,92,246,.2); }
+
+.fc-row {
+  display:flex; justify-content:space-between; align-items:center;
+  background:rgba(255,255,255,.02); border:1px solid var(--border2);
+  border-radius:8px; padding:8px 12px; margin-bottom:8px;
+  font-size:11px;
+}
+.fc-row span:first-child { color:var(--muted); }
+.fc-row span:last-child { font-family:var(--font-mono); color:var(--muted2); font-weight:700; }
 
 /* Captcha */
-.captcha-wrap{border:1px solid var(--border2);border-radius:10px;background:rgba(255,255,255,.02);padding:12px 16px;
-  display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .2s;user-select:none}
-.captcha-wrap:hover{border-color:rgba(74,222,128,.2)}
-.captcha-box{width:26px;height:26px;border:2px solid var(--muted);border-radius:5px;
-  flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .3s}
-.captcha-box.spinning{border-color:var(--green);border-top-color:transparent;
-  animation:spin .7s linear infinite}
-.captcha-box.done{background:var(--green);border-color:var(--green)}
-@keyframes spin{to{transform:rotate(360deg)}}
-.captcha-text{font-size:13px;color:var(--muted2)}
-.captcha-logo{margin-left:auto;text-align:right;font-size:9px;color:var(--muted);line-height:1.4}
+.captcha-area {
+  border:1px solid var(--border2); border-radius:10px;
+  background:rgba(255,255,255,.02); padding:12px 14px;
+  display:flex; align-items:center; gap:12px; cursor:pointer; margin-bottom:10px;
+  transition:border-color .25s;
+  user-select:none;
+}
+.captcha-area:hover { border-color:rgba(61,255,122,.2); }
+.cap-box {
+  width:24px; height:24px; border:2px solid var(--muted); border-radius:4px;
+  flex-shrink:0; display:flex; align-items:center; justify-content:center;
+  transition:all .3s;
+}
+.cap-box.spinning { border-color:var(--green); border-top-color:transparent; animation:spin .7s linear infinite; }
+.cap-box.checked { background:var(--green); border-color:var(--green); }
+.cap-box.checked i { color:var(--ink); font-size:12px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.captcha-txt { font-size:12px; color:var(--muted2); }
+.captcha-brand { margin-left:auto; font-size:8px; color:var(--muted); text-align:right; line-height:1.5; }
 
-/* Buttons */
-.btn-claim{width:100%;padding:13px;border-radius:10px;font-size:13px;font-weight:700;
-  cursor:pointer;transition:all .25s;border:none;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif;letter-spacing:.04em}
-.btn-claim.green{background:linear-gradient(135deg,#15803d,#22c55e);color:#fff}
-.btn-claim.green:hover:not(:disabled){box-shadow:0 8px 25px rgba(34,197,94,.4);transform:translateY(-1px)}
-.btn-claim.purple{background:linear-gradient(135deg,#6d28d9,#7c3aed);color:#fff}
-.btn-claim.purple:hover:not(:disabled){box-shadow:0 8px 25px rgba(124,58,237,.4);transform:translateY(-1px)}
-.btn-claim:disabled{opacity:.4;cursor:not-allowed;transform:none !important;box-shadow:none !important}
-.btn-claim.done{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.25);color:var(--green);cursor:default}
+/* Timer */
+.timer-wrap {
+  text-align:center; padding:14px;
+  background:rgba(255,255,255,.02); border:1px solid var(--border2); border-radius:10px;
+  margin-bottom:10px;
+}
+.timer-lbl { font-family:var(--font-mono); font-size:9px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; margin-bottom:10px; }
+.timer-digits {
+  display:flex; align-items:center; justify-content:center; gap:6px;
+  font-family:var(--font-mono); font-size:22px; font-weight:700;
+}
+.td { background:var(--ink); border:1px solid var(--border); border-radius:6px; padding:4px 10px; color:#fff; min-width:42px; }
+.tsep { color:var(--green); font-size:18px; margin-bottom:2px; }
+
+/* Claim / action button */
+.action-btn {
+  width:100%; padding:12px; border-radius:10px; border:none;
+  font-family:var(--font-head); font-size:11px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:all .3s var(--ease-out); position:relative; overflow:hidden;
+}
+.action-btn::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.1),transparent);
+  opacity:0; transition:opacity .2s;
+}
+.action-btn:hover::before { opacity:1; }
+.action-btn.green { background:linear-gradient(135deg,#15803d,var(--green2)); color:#fff; box-shadow:0 4px 20px rgba(61,255,122,.25); }
+.action-btn.green:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 8px 30px rgba(61,255,122,.4); }
+.action-btn.purple { background:linear-gradient(135deg,#5b21b6,#7c3aed); color:#fff; box-shadow:0 4px 20px rgba(124,58,237,.25); }
+.action-btn.purple:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 8px 30px rgba(124,58,237,.4); }
+.action-btn:disabled { opacity:.35; cursor:not-allowed; transform:none !important; box-shadow:none !important; }
+.action-btn.done { background:rgba(61,255,122,.08); border:1px solid rgba(61,255,122,.2); color:var(--green); cursor:default; }
+.action-btn.done:hover::before { opacity:0; }
 
 /* Tasks */
-.tasks-section{padding:28px 32px}
-.section-title{font-size:17px;font-weight:700;color:#fff;display:flex;align-items:center;gap:10px;margin-bottom:20px}
-.tasks-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.task-card{background:var(--surface2);border:1px solid var(--border2);border-radius:16px;padding:22px;
-  position:relative;transition:border-color .3s,transform .3s;overflow:hidden}
-.task-card.unlocked:hover{border-color:rgba(74,222,128,.2);transform:translateY(-2px)}
-.task-card.locked{opacity:.45;pointer-events:none}
-.task-card.locked::after{content:'\f023';font-family:"Font Awesome 6 Free";font-weight:900;
-  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
-  font-size:28px;color:rgba(255,255,255,.7);background:rgba(0,0,0,.55)}
-.task-card.completed{border-color:rgba(74,222,128,.3)}
-.task-step{position:absolute;top:14px;right:14px;font-size:10px;font-weight:700;
-  text-transform:uppercase;letter-spacing:.08em;padding:3px 10px;border-radius:100px}
-.task-step.blue{background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.2)}
-.task-step.purple{background:rgba(124,58,237,.12);color:#a78bfa;border:1px solid rgba(124,58,237,.2)}
-.task-step.orange{background:rgba(249,115,22,.12);color:#fb923c;border:1px solid rgba(249,115,22,.2)}
-.task-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px}
-.ti-blue{background:linear-gradient(135deg,#1d4ed8,#3b82f6)}
-.ti-purple{background:linear-gradient(135deg,#6d28d9,#7c3aed)}
-.ti-orange{background:linear-gradient(135deg,#c2410c,#f97316)}
-.task-title{font-size:15px;font-weight:700;color:#fff;margin-bottom:6px}
-.task-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:16px}
-.task-reward{font-size:12px;color:var(--muted);border-top:1px solid var(--border2);padding-top:12px;margin-top:4px;display:flex;justify-content:space-between;align-items:center}
-.task-reward span:last-child{color:var(--green);font-weight:700;font-family:'JetBrains Mono',monospace}
-.task-btn{width:100%;padding:9px 12px;border-radius:8px;font-size:12px;font-weight:600;
-  cursor:pointer;transition:all .2s;border:none;margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:6px;font-family:'Inter',sans-serif}
-.tb-twitter{background:#1d9bf0;color:#fff}
-.tb-twitter:hover{background:#1a8cd8}
-.tb-telegram{background:#0088cc;color:#fff}
-.tb-telegram:hover{background:#0077b5}
-.tb-verify{background:transparent;border:1px solid var(--border2) !important;color:var(--muted);cursor:not-allowed}
-.tb-verify.ready{border-color:rgba(74,222,128,.3) !important;color:var(--green);cursor:pointer}
-.tb-verify.ready:hover{background:rgba(74,222,128,.08)}
-.tb-verify.done{background:rgba(74,222,128,.08);border-color:rgba(74,222,128,.2) !important;color:var(--green);cursor:default}
-.tb-purple{background:linear-gradient(135deg,#6d28d9,#7c3aed);color:#fff}
-.tb-purple:hover{box-shadow:0 4px 15px rgba(124,58,237,.4)}
-.tb-orange{background:linear-gradient(135deg,#c2410c,#f97316);color:#fff}
-.tb-orange:hover{box-shadow:0 4px 15px rgba(249,115,22,.4)}
+.tasks-wrap { padding:24px; }
+.tasks-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+.tasks-title { font-family:var(--font-head); font-size:15px; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px; }
+.tasks-title i { color:var(--green); }
+.task-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+
+.task-card {
+  background:var(--ink3); border:1px solid var(--border2); border-radius:16px;
+  padding:20px; position:relative; overflow:hidden;
+  transition:border-color .3s, transform .4s var(--ease-out), box-shadow .3s;
+}
+.task-card.tc-unlocked:hover { border-color:rgba(61,255,122,.2); transform:translateY(-3px); box-shadow:0 12px 40px rgba(0,0,0,.4); }
+.task-card.tc-locked {
+  opacity:.4; pointer-events:none;
+}
+.task-card.tc-locked::after {
+  content:'\f023'; font-family:"Font Awesome 6 Free"; font-weight:900;
+  position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+  font-size:24px; color:rgba(255,255,255,.6); background:rgba(0,0,0,.5);
+}
+.task-card.tc-done { border-color:rgba(61,255,122,.25); }
+.task-card.tc-done::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg,transparent,var(--green),transparent);
+}
+
+.task-step {
+  position:absolute; top:14px; right:14px;
+  font-family:var(--font-mono); font-size:9px; font-weight:700; letter-spacing:.1em;
+  text-transform:uppercase; padding:3px 8px; border-radius:100px;
+}
+.step-1 { background:rgba(59,130,246,.1); color:#60a5fa; border:1px solid rgba(59,130,246,.2); }
+.step-2 { background:rgba(139,92,246,.1); color:#a78bfa; border:1px solid rgba(139,92,246,.2); }
+.step-3 { background:rgba(249,115,22,.1); color:#fb923c; border:1px solid rgba(249,115,22,.2); }
+.step-done { background:rgba(61,255,122,.1); color:var(--green); border:1px solid rgba(61,255,122,.2); }
+
+.task-ico {
+  width:48px; height:48px; border-radius:14px;
+  display:flex; align-items:center; justify-content:center; font-size:20px; margin-bottom:14px;
+}
+.ti-blue { background:linear-gradient(135deg,rgba(29,78,216,.4),rgba(59,130,246,.2)); border:1px solid rgba(59,130,246,.2); }
+.ti-blue i { color:#60a5fa; }
+.ti-purple { background:linear-gradient(135deg,rgba(109,40,217,.4),rgba(124,58,237,.2)); border:1px solid rgba(124,58,237,.2); }
+.ti-purple i { color:#a78bfa; }
+.ti-orange { background:linear-gradient(135deg,rgba(194,65,12,.4),rgba(249,115,22,.2)); border:1px solid rgba(249,115,22,.2); }
+.ti-orange i { color:#fb923c; }
+
+.task-name { font-family:var(--font-head); font-size:14px; font-weight:700; color:#fff; margin-bottom:6px; }
+.task-desc { font-size:11px; color:var(--muted); line-height:1.65; margin-bottom:14px; }
+.task-reward {
+  font-size:11px; color:var(--muted2); border-top:1px solid var(--border2); padding-top:10px; margin-top:6px;
+  display:flex; justify-content:space-between; align-items:center;
+}
+.task-reward strong { font-family:var(--font-mono); color:var(--green); font-weight:700; }
+
+.task-btn {
+  width:100%; padding:8px 12px; border-radius:8px; border:none;
+  font-size:11px; font-weight:600; letter-spacing:.04em; margin-bottom:6px;
+  display:flex; align-items:center; justify-content:center; gap:7px;
+  transition:all .2s; font-family:var(--font-body);
+}
+.tb-x { background:#1d9bf0; color:#fff; }
+.tb-x:hover { background:#1a8cd8; }
+.tb-tg { background:#0088cc; color:#fff; }
+.tb-tg:hover { background:#007bb5; }
+.tb-verify {
+  background:transparent; border:1px solid var(--border2) !important;
+  color:var(--muted);
+}
+.tb-verify.v-ready { border-color:rgba(61,255,122,.3) !important; color:var(--green); cursor:pointer; }
+.tb-verify.v-ready:hover { background:rgba(61,255,122,.06); }
+.tb-verify.v-done { background:rgba(61,255,122,.06); border-color:rgba(61,255,122,.2) !important; color:var(--green); cursor:default; }
+.tb-purple { background:linear-gradient(135deg,#5b21b6,#7c3aed); color:#fff; }
+.tb-purple:hover { box-shadow:0 4px 16px rgba(124,58,237,.4); }
+.tb-orange { background:linear-gradient(135deg,#9a3412,#ea580c); color:#fff; }
+.tb-orange:hover { box-shadow:0 4px 16px rgba(234,88,12,.4); }
 
 /* Progress */
-.progress-bar-wrap{padding:20px 32px 28px;border-top:1px solid var(--border2)}
-.progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
-.progress-header span:first-child{font-size:13px;color:var(--muted)}
-.progress-chip{font-size:11px;background:rgba(74,222,128,.1);color:var(--green);
-  border:1px solid rgba(74,222,128,.2);border-radius:100px;padding:2px 10px}
-.progress-bar{height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
-.progress-fill{height:100%;background:linear-gradient(90deg,#15803d,var(--green));border-radius:3px;
-  transition:width .6s cubic-bezier(.4,0,.2,1);width:0}
-.progress-total{font-size:13px;font-weight:700;color:var(--green);font-family:'JetBrains Mono',monospace}
+.progress-bar-area {
+  padding:20px 24px 24px; border-top:1px solid var(--border2);
+}
+.prog-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.prog-label { font-size:12px; color:var(--muted2); display:flex; align-items:center; gap:10px; }
+.prog-chip {
+  font-family:var(--font-mono); font-size:10px; font-weight:700;
+  background:var(--green-dim); color:var(--green);
+  border:1px solid var(--border); border-radius:100px; padding:2px 8px;
+}
+.prog-reward { font-family:var(--font-mono); font-size:13px; font-weight:700; color:var(--green); }
+.prog-track { height:4px; background:rgba(255,255,255,.05); border-radius:2px; overflow:hidden; }
+.prog-fill {
+  height:100%; border-radius:2px; width:0;
+  background:linear-gradient(90deg,#15803d,var(--green));
+  transition:width .7s var(--ease-out);
+  box-shadow:0 0 10px rgba(61,255,122,.5);
+}
 
 /* TX History */
-.tx-section{padding:0 32px 32px;display:none}
-.tx-item{display:flex;justify-content:space-between;align-items:center;
-  padding:12px 14px;background:rgba(255,255,255,.02);border:1px solid var(--border2);
-  border-radius:10px;margin-bottom:8px}
-.tx-left{display:flex;align-items:center;gap:10px}
-.tx-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0}
-.tx-hash{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted2)}
-.tx-val{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--green)}
-.tx-time{font-size:11px;color:var(--muted)}
+.tx-area { display:none; padding:0 24px 24px; }
+.tx-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+.tx-title { font-size:13px; font-weight:700; color:#fff; display:flex; align-items:center; gap:8px; }
+.tx-title i { color:var(--green); }
+.tx-item {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:11px 14px; background:rgba(255,255,255,.02);
+  border:1px solid var(--border2); border-radius:10px; margin-bottom:8px;
+  transition:border-color .2s, background .2s;
+}
+.tx-item:hover { border-color:var(--border); background:rgba(61,255,122,.03); }
+.tx-left { display:flex; align-items:center; gap:10px; }
+.tx-dot { width:7px; height:7px; border-radius:50%; background:var(--green); flex-shrink:0; box-shadow:0 0 6px var(--green); }
+.tx-hash { font-family:var(--font-mono); font-size:10px; color:var(--muted2); }
+.tx-type { font-size:10px; color:var(--muted); margin-top:1px; }
+.tx-val { font-family:var(--font-mono); font-size:13px; font-weight:700; color:var(--green); }
+.tx-time { font-size:10px; color:var(--muted); }
 
-/* ── MODAL ── */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);
-  z-index:2000;display:none;align-items:center;justify-content:center;padding:20px}
-.modal-overlay.show{display:flex}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;
-  width:100%;max-width:440px;padding:32px;animation:modalIn .25s ease}
-@keyframes modalIn{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
-.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
-.modal-title{font-size:20px;font-weight:700;color:#fff;display:flex;align-items:center;gap:10px}
-.modal-close{width:32px;height:32px;border-radius:8px;border:none;background:rgba(255,255,255,.05);
-  color:var(--muted);font-size:18px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center}
-.modal-close:hover{background:rgba(255,255,255,.1);color:#fff}
-.wallet-opt{display:flex;align-items:center;gap:14px;padding:16px;
-  border:1px solid var(--border2);border-radius:14px;cursor:pointer;
-  transition:all .25s;margin-bottom:10px;background:rgba(255,255,255,.02)}
-.wallet-opt:hover{border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.04);transform:translateY(-1px)}
-.wallet-opt-icon{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.wallet-opt-name{font-size:15px;font-weight:700;color:#fff}
-.wallet-opt-sub{font-size:11px;color:var(--muted);margin-top:2px}
-.wallet-opt-indicator{width:10px;height:10px;border-radius:50%;margin-left:auto;flex-shrink:0}
+/* Network status badge */
+.net-status {
+  display:flex; align-items:center; gap:7px;
+  font-family:var(--font-mono); font-size:10px; font-weight:700;
+  padding:5px 12px; border-radius:100px; letter-spacing:.08em;
+}
+.net-status.connected { background:rgba(61,255,122,.08); border:1px solid rgba(61,255,122,.2); color:var(--green); }
+.net-status.disconnected { background:rgba(255,255,255,.04); border:1px solid var(--border2); color:var(--muted); }
 
-/* ── TOAST ── */
-.toast-wrap{position:fixed;top:88px;right:20px;z-index:3000;display:flex;flex-direction:column;gap:8px}
-.toast{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;
-  border-radius:12px;border:1px solid;min-width:280px;max-width:340px;
-  animation:toastIn .3s ease;font-size:13px}
-@keyframes toastIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
-.toast.success{background:rgba(21,128,61,.12);border-color:rgba(34,197,94,.25)}
-.toast.error{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.25)}
-.toast.info{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.25)}
-.toast-icon{font-size:16px;margin-top:1px;flex-shrink:0}
-.toast.success .toast-icon{color:var(--green)}
-.toast.error .toast-icon{color:#f87171}
-.toast.info .toast-icon{color:#60a5fa}
-.toast-body p:first-child{font-weight:600;color:#fff;margin-bottom:2px}
-.toast-body p:last-child{color:var(--muted2);font-size:12px}
+/* ─── VISION PAGE ─── */
+.vision-hero {
+  padding:140px 32px 80px;
+  max-width:1280px; margin:0 auto;
+}
+.v-grid { display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start; margin-bottom:100px; }
+.v-points { display:flex; flex-direction:column; gap:44px; }
+.vp {
+  padding-left:28px; border-left:2px solid var(--border2);
+  transition:border-color .3s, padding-left .3s var(--ease-out);
+  cursor:default;
+}
+.vp:hover { border-color:var(--green); padding-left:36px; }
+.vp-num { font-family:var(--font-mono); font-size:10px; color:var(--green); letter-spacing:.14em; margin-bottom:10px; }
+.vp-title { font-family:var(--font-head); font-size:22px; font-weight:700; color:#fff; margin-bottom:10px; }
+.vp-text { font-size:14px; color:var(--muted2); line-height:1.75; }
+.vp-text em { color:var(--green); font-style:normal; font-weight:600; }
 
-/* ── VISION PAGE ── */
-.page-inner{max-width:1100px;margin:0 auto;padding:120px 24px 80px}
-.page-tag{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;
-  background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);
-  border-radius:100px;font-size:11px;font-weight:600;color:var(--green);
-  letter-spacing:.1em;text-transform:uppercase;margin-bottom:28px}
-.page-h{font-size:clamp(36px,5vw,64px);font-weight:800;letter-spacing:-.02em;color:#fff;margin-bottom:16px}
-.page-sub{font-size:18px;color:var(--muted2);line-height:1.7;max-width:560px;margin-bottom:64px}
-.vision-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;margin-bottom:64px}
-.vision-points{display:flex;flex-direction:column;gap:36px}
-.vp{padding-left:24px;border-left:3px solid var(--border2);transition:border-color .3s}
-.vp:hover{border-color:var(--green)}
-.vp-num{font-size:12px;font-weight:700;color:var(--green);letter-spacing:.12em;font-family:'JetBrains Mono',monospace;margin-bottom:8px}
-.vp-title{font-size:20px;font-weight:700;color:#fff;margin-bottom:8px}
-.vp-text{font-size:14px;color:var(--muted2);line-height:1.7}
-.vp-text em{color:var(--green);font-style:normal;font-weight:600}
-
-/* Gyro */
-.gyro-wrap{width:280px;height:280px;position:relative;perspective:800px;margin:0 auto}
-.gyro-ring{position:absolute;top:50%;left:50%;border-radius:50%;border:2px solid rgba(74,222,128,.5);box-shadow:0 0 20px rgba(74,222,128,.2)}
-.gr1{width:220px;height:220px;margin:-110px;animation:r1 8s linear infinite;border-top-color:transparent}
-.gr2{width:165px;height:165px;margin:-82.5px;animation:r2 6s linear infinite;border-right-color:transparent}
-.gr3{width:110px;height:110px;margin:-55px;animation:r3 4.5s linear infinite;border-bottom-color:transparent}
-.gr-core{width:14px;height:14px;background:var(--green);border-radius:50%;
-  position:absolute;top:50%;left:50%;margin:-7px;
-  box-shadow:0 0 20px var(--green),0 0 40px rgba(74,222,128,.5)}
-@keyframes r1{to{transform:rotateX(360deg) rotateY(360deg)}}
-@keyframes r2{to{transform:rotateX(-360deg) rotateY(180deg)}}
-@keyframes r3{to{transform:rotateX(180deg) rotateY(-360deg)}}
+/* Hexagon grid visual */
+.hex-grid-wrap { position:sticky; top:120px; }
+.hex-canvas-wrap { width:100%; aspect-ratio:1; position:relative; }
 
 /* Roadmap */
-.roadmap{display:grid;grid-template-columns:repeat(4,1fr);gap:0;
-  border:1px solid var(--border2);border-radius:16px;overflow:hidden}
-.rm-item{padding:28px 22px;border-right:1px solid var(--border2);position:relative}
-.rm-item:last-child{border-right:none}
-.rm-dot{width:10px;height:10px;border-radius:50%;margin-bottom:16px}
-.rm-dot.active{background:var(--green);box-shadow:0 0 12px var(--green);animation:pulse 2s infinite}
-.rm-dot.inactive{background:var(--muted);opacity:.4}
-.rm-phase{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:6px;font-family:'JetBrains Mono',monospace}
-.rm-name{font-size:17px;font-weight:700;color:#fff;margin-bottom:8px}
-.rm-desc{font-size:12px;color:var(--muted);line-height:1.6}
-.rm-item.dim{background:rgba(255,255,255,.01)}
-
-/* ── ECOSYSTEM ── */
-.eco-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
-.eco-card{background:var(--surface2);border:1px solid var(--border2);border-radius:16px;
-  padding:28px;transition:all .3s;cursor:pointer}
-.eco-card:hover{border-color:rgba(74,222,128,.25);transform:translateY(-4px);
-  box-shadow:0 16px 40px rgba(0,0,0,.3)}
-.eco-icon{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px}
-.eco-name{font-size:17px;font-weight:700;color:#fff;margin-bottom:8px}
-.eco-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px}
-.eco-footer{display:flex;justify-content:space-between;align-items:center}
-.eco-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
-  padding:3px 10px;border-radius:100px}
-
-/* ── SUPPORT ── */
-.support-cards{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:40px}
-.sup-card{background:var(--surface2);border:1px solid var(--border2);border-radius:16px;
-  padding:28px;display:flex;align-items:center;gap:20px;text-decoration:none;transition:all .3s}
-.sup-card:hover{border-color:rgba(74,222,128,.2);transform:translateY(-2px)}
-.sup-icon{width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
-.sup-name{font-size:17px;font-weight:700;color:#fff;margin-bottom:4px}
-.sup-desc{font-size:13px;color:var(--muted)}
-.sup-handle{font-size:12px;color:var(--green);font-family:'JetBrains Mono',monospace;margin-top:6px}
-.network-box{background:var(--surface2);border:1px solid var(--border2);border-radius:16px;padding:28px;margin-bottom:32px}
-.net-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border2)}
-.net-row:last-child{border-bottom:none;padding-bottom:0}
-.net-key{font-size:13px;color:var(--muted)}
-.net-val{font-size:13px;color:var(--muted2);font-family:'JetBrains Mono',monospace;font-weight:500}
-.net-val.green{color:var(--green)}
-.faq-item{border:1px solid var(--border2);border-radius:12px;overflow:hidden;margin-bottom:10px}
-.faq-q{width:100%;padding:18px 20px;background:none;border:none;text-align:left;
-  color:#fff;font-size:14px;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-family:'Inter',sans-serif;transition:background .2s}
-.faq-q:hover{background:rgba(255,255,255,.02)}
-.faq-q i{color:var(--green);transition:transform .3s;font-size:12px}
-.faq-q.open i{transform:rotate(180deg)}
-.faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .4s;padding:0 20px}
-.faq-a.open{max-height:300px;padding:0 20px 18px}
-.faq-a p{font-size:13px;color:var(--muted2);line-height:1.7}
-.faq-a code{font-family:'JetBrains Mono',monospace;font-size:11px;background:rgba(74,222,128,.08);
-  border:1px solid var(--border);border-radius:4px;padding:1px 6px;color:var(--green)}
-
-/* ── FOOTER ── */
-footer{border-top:1px solid var(--border2);background:var(--surface);padding:56px 24px 36px;position:relative;z-index:1}
-.footer-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr;gap:48px}
-.footer-brand p{font-size:13px;color:var(--muted);line-height:1.7;margin-top:16px;max-width:280px}
-.footer-col h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:16px}
-.footer-col a{display:block;font-size:13px;color:var(--muted);text-decoration:none;margin-bottom:10px;transition:color .2s}
-.footer-col a:hover{color:var(--green)}
-.footer-bottom{max-width:1100px;margin:36px auto 0;padding-top:24px;border-top:1px solid var(--border2);
-  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
-.footer-bottom p{font-size:12px;color:var(--muted)}
-
-/* ── SCROLL TOP ── */
-#scroll-top{position:fixed;bottom:28px;right:28px;width:44px;height:44px;
-  background:linear-gradient(135deg,#15803d,#22c55e);border:none;border-radius:12px;
-  color:#fff;font-size:16px;cursor:pointer;z-index:100;opacity:0;transform:translateY(8px);
-  transition:all .3s;display:flex;align-items:center;justify-content:center}
-#scroll-top.show{opacity:1;transform:translateY(0)}
-#scroll-top:hover{transform:translateY(-2px) !important;box-shadow:0 8px 25px rgba(34,197,94,.4)}
-
-/* ── RESPONSIVE ── */
-@media(max-width:900px){
-  .nav-links{display:none}
-  .burger{display:flex}
-  .stats-row{grid-template-columns:1fr 1fr}
-  .faucet-grid{grid-template-columns:1fr}
-  .tasks-grid{grid-template-columns:1fr}
-  .vision-grid{grid-template-columns:1fr}
-  .roadmap{grid-template-columns:1fr 1fr}
-  .eco-grid{grid-template-columns:1fr}
-  .support-cards{grid-template-columns:1fr}
-  .footer-inner{grid-template-columns:1fr}
-  .balance-block{flex-direction:column}
-  .bal-right{align-items:flex-start}
-  .panel-body{padding:20px}
-  .tasks-section{padding:20px}
-  .faucet-grid{padding:20px}
-  .progress-bar-wrap{padding:16px 20px 24px}
-  .tx-section{padding:0 20px 20px}
+.roadmap-section { margin-bottom:80px; }
+.roadmap-track {
+  display:grid; grid-template-columns:repeat(4,1fr);
+  border:1px solid var(--border2); border-radius:20px; overflow:hidden;
 }
-@media(max-width:600px){
-  .stats-row{grid-template-columns:1fr 1fr}
-  .stat-val{font-size:24px}
-  .roadmap{grid-template-columns:1fr}
-  .rm-item{border-right:none;border-bottom:1px solid var(--border2)}
-  .rm-item:last-child{border-bottom:none}
+.rm {
+  padding:32px 26px; border-right:1px solid var(--border2); position:relative;
+  transition:background .3s;
+}
+.rm:last-child { border-right:none; }
+.rm:hover { background:rgba(61,255,122,.03); }
+.rm-index {
+  font-family:var(--font-mono); font-size:10px; color:var(--muted);
+  letter-spacing:.14em; margin-bottom:16px;
+}
+.rm-dot {
+  width:12px; height:12px; border-radius:50%; margin-bottom:16px;
+  position:relative;
+}
+.rm-dot.active { background:var(--green); box-shadow:0 0 12px var(--green); }
+.rm-dot.active::before {
+  content:''; position:absolute; inset:-4px; border-radius:50%;
+  border:1px solid rgba(61,255,122,.4); animation:rmPulse 2s ease-in-out infinite;
+}
+@keyframes rmPulse {
+  0%,100% { transform:scale(1); opacity:.4; }
+  50%      { transform:scale(1.5); opacity:0; }
+}
+.rm-dot.dim { background:var(--muted); opacity:.4; }
+.rm-phase { font-family:var(--font-mono); font-size:9px; color:var(--green); letter-spacing:.12em; text-transform:uppercase; margin-bottom:8px; }
+.rm-name { font-family:var(--font-head); font-size:18px; font-weight:700; color:#fff; margin-bottom:8px; }
+.rm-desc { font-size:12px; color:var(--muted); line-height:1.65; }
+
+/* ─── ECOSYSTEM PAGE ─── */
+.eco-hero { padding:140px 32px 80px; max-width:1280px; margin:0 auto; }
+.eco-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+.eco-card {
+  background:var(--ink2); border:1px solid var(--border2);
+  border-radius:20px; padding:28px; position:relative; overflow:hidden;
+  cursor:pointer; transition:all .35s var(--ease-out);
+}
+.eco-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  opacity:0; transition:opacity .3s;
+}
+.eco-card:hover { transform:translateY(-6px); border-color:rgba(61,255,122,.2); box-shadow:0 20px 60px rgba(0,0,0,.4); }
+.eco-card:hover::before { opacity:1; }
+.eco-ico {
+  width:60px; height:60px; border-radius:16px;
+  display:flex; align-items:center; justify-content:center; font-size:26px; margin-bottom:20px;
+}
+.eco-name { font-family:var(--font-head); font-size:19px; font-weight:700; color:#fff; margin-bottom:8px; }
+.eco-desc { font-size:13px; color:var(--muted2); line-height:1.7; margin-bottom:22px; }
+.eco-footer { display:flex; align-items:center; justify-content:space-between; }
+.eco-tag {
+  font-family:var(--font-mono); font-size:9px; font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  padding:3px 10px; border-radius:100px;
+}
+.eco-tag.live { background:rgba(61,255,122,.1); color:var(--green); border:1px solid rgba(61,255,122,.2); }
+.eco-tag.soon { background:rgba(240,192,64,.08); color:var(--amber); border:1px solid rgba(240,192,64,.2); }
+.eco-tag.audit { background:rgba(59,130,246,.08); color:#60a5fa; border:1px solid rgba(59,130,246,.2); }
+
+/* ─── SUPPORT PAGE ─── */
+.support-hero { padding:140px 32px 80px; max-width:1280px; margin:0 auto; }
+.sup-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:40px; }
+.sup-card {
+  display:flex; align-items:center; gap:20px;
+  padding:28px; border-radius:20px;
+  background:var(--ink2); border:1px solid var(--border2);
+  text-decoration:none; transition:all .3s var(--ease-out);
+  position:relative; overflow:hidden;
+}
+.sup-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  opacity:0; transition:opacity .3s;
+}
+.sup-card:hover { border-color:rgba(61,255,122,.2); transform:translateY(-3px); box-shadow:0 16px 50px rgba(0,0,0,.4); }
+.sup-card:hover::before { opacity:1; background:linear-gradient(90deg,transparent,var(--green-glow),transparent); }
+.sup-ico { width:64px; height:64px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:28px; flex-shrink:0; }
+.sup-name { font-family:var(--font-head); font-size:18px; font-weight:700; color:#fff; margin-bottom:4px; }
+.sup-desc { font-size:13px; color:var(--muted2); }
+.sup-handle { font-family:var(--font-mono); font-size:11px; color:var(--green); margin-top:6px; }
+
+.net-info-box {
+  background:var(--ink2); border:1px solid var(--border2); border-radius:20px;
+  padding:28px; margin-bottom:32px;
+}
+.net-info-title {
+  font-family:var(--font-head); font-size:16px; font-weight:700; color:#fff;
+  display:flex; align-items:center; gap:10px; margin-bottom:20px;
+}
+.net-info-title i { color:var(--green); }
+.net-row {
+  display:flex; justify-content:space-between; align-items:center;
+  padding:12px 0; border-bottom:1px solid var(--border2);
+}
+.net-row:last-child { border-bottom:none; padding-bottom:0; }
+.net-key { font-size:13px; color:var(--muted2); }
+.net-val { font-family:var(--font-mono); font-size:13px; font-weight:700; }
+.net-val.green { color:var(--green); }
+.net-val.dim { color:var(--muted); }
+
+.faq-list { display:flex; flex-direction:column; gap:8px; }
+.faq-item { border:1px solid var(--border2); border-radius:14px; overflow:hidden; transition:border-color .3s; }
+.faq-item.open { border-color:rgba(61,255,122,.2); }
+.faq-q {
+  width:100%; padding:18px 22px; background:none; border:none; text-align:left;
+  color:var(--text); font-family:var(--font-head); font-size:14px; font-weight:600;
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  transition:color .2s, background .2s;
+}
+.faq-q:hover { background:rgba(61,255,122,.03); }
+.faq-q .faq-icon { color:var(--green); font-size:11px; transition:transform .35s var(--ease-out); flex-shrink:0; }
+.faq-item.open .faq-icon { transform:rotate(135deg); }
+.faq-a {
+  max-height:0; overflow:hidden;
+  transition:max-height .4s var(--ease-out);
+  padding:0 22px;
+}
+.faq-item.open .faq-a { max-height:300px; }
+.faq-a-inner { padding-bottom:18px; font-size:13px; color:var(--muted2); line-height:1.75; }
+.faq-a-inner code {
+  font-family:var(--font-mono); font-size:11px;
+  background:var(--green-dim); border:1px solid var(--border); border-radius:4px; padding:1px 6px; color:var(--green);
+}
+.faq-a-inner strong { color:#fff; }
+
+/* ─── FOOTER ─── */
+footer {
+  border-top:1px solid var(--border2); background:var(--ink2);
+  padding:60px 32px 36px; position:relative; z-index:4;
+}
+.foot-inner {
+  max-width:1280px; margin:0 auto;
+  display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:48px;
+}
+.foot-brand p { font-size:13px; color:var(--muted); line-height:1.75; margin-top:16px; max-width:280px; }
+.foot-col h4 { font-family:var(--font-mono); font-size:9px; color:var(--muted); letter-spacing:.16em; text-transform:uppercase; margin-bottom:16px; }
+.foot-col a { display:block; font-size:13px; color:var(--muted); margin-bottom:10px; transition:color .2s; }
+.foot-col a:hover { color:var(--green); }
+.foot-bottom {
+  max-width:1280px; margin:40px auto 0; padding-top:24px; border-top:1px solid var(--border2);
+  display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;
+}
+.foot-bottom p { font-size:12px; color:var(--muted); }
+.foot-chain { font-family:var(--font-mono); font-size:10px; color:var(--green); letter-spacing:.1em; }
+
+/* Scroll to top */
+#scrolltop {
+  position:fixed; bottom:28px; right:28px; z-index:100;
+  width:44px; height:44px; border-radius:12px; border:none;
+  background:linear-gradient(135deg,rgba(61,255,122,.15),rgba(61,255,122,.08));
+  border:1px solid rgba(61,255,122,.3); color:var(--green); font-size:15px;
+  display:flex; align-items:center; justify-content:center;
+  opacity:0; transform:translateY(12px); pointer-events:none;
+  transition:all .35s var(--ease-out);
+}
+#scrolltop.show { opacity:1; transform:translateY(0); pointer-events:all; }
+#scrolltop:hover { background:rgba(61,255,122,.25); transform:translateY(-3px) !important; box-shadow:0 8px 30px rgba(61,255,122,.3); }
+
+/* ─── ANIMATIONS ─── */
+.reveal {
+  opacity:0; transform:translateY(32px);
+  transition:opacity .7s var(--ease-out), transform .7s var(--ease-out);
+}
+.reveal.visible { opacity:1; transform:translateY(0); }
+.reveal-delay-1 { transition-delay:.1s; }
+.reveal-delay-2 { transition-delay:.2s; }
+.reveal-delay-3 { transition-delay:.3s; }
+.reveal-delay-4 { transition-delay:.4s; }
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:1100px) {
+  .hero-inner { grid-template-columns:1fr; gap:60px; }
+  .hero-visual { display:none; }
+  .v-grid { grid-template-columns:1fr; }
+  .hex-grid-wrap { display:none; }
+  .foot-inner { grid-template-columns:1fr 1fr; }
+}
+@media(max-width:900px) {
+  .nav-links { display:none; }
+  .burger { display:flex; }
+  .faucet-grid { grid-template-columns:1fr; }
+  .task-grid { grid-template-columns:1fr; }
+  .stats-inner { grid-template-columns:1fr 1fr; }
+  .roadmap-track { grid-template-columns:1fr 1fr; }
+  .eco-grid { grid-template-columns:1fr; }
+  .sup-grid { grid-template-columns:1fr; }
+  .foot-inner { grid-template-columns:1fr; }
+  .balance-area { flex-direction:column; }
+  .bal-right { align-items:flex-start; }
+  .bal-num { font-size:42px; }
+}
+@media(max-width:600px) {
+  .nav-inner { padding:0 20px; }
+  .hero { padding:100px 20px 60px; }
+  .stats-inner { grid-template-columns:1fr 1fr; }
+  .stat-item { padding:20px; }
+  .roadmap-track { grid-template-columns:1fr; }
+  .panel-body { padding:20px; }
+  .panel-header { padding:16px 20px; }
+  .faucet-grid { padding:16px 20px; }
+  .tasks-wrap { padding:16px 20px; }
+  .progress-bar-area { padding:16px 20px 20px; }
+  .tx-area { padding:0 20px 20px; }
 }
 </style>
 </head>
 <body>
 
-<!-- BG -->
-<canvas id="bg-canvas"></canvas>
-<div class="grid-bg"></div>
-<div class="glow-orb top"></div>
-<div class="glow-orb bot"></div>
+<!-- Cursor -->
+<div class="cursor"><div class="cursor-dot"></div></div>
+<div class="cursor-ring" id="cursorRing"></div>
 
-<!-- NAV -->
-<nav id="navbar">
+<!-- BG Effects -->
+<div class="noise"></div>
+<div class="scanlines"></div>
+<div class="bg-mesh"></div>
+<canvas id="stars"></canvas>
+
+<!-- Toast container -->
+<div class="toast-container" id="toasts"></div>
+
+<!-- ══════ NAV ══════ -->
+<nav id="nav">
   <div class="nav-inner">
-    <a class="logo" onclick="navigate('home')">
-      <svg class="logo-icon" viewBox="0 0 100 100">
-        <path d="M20 10 V90" stroke="#4ade80" stroke-width="8" stroke-linecap="round"/>
-        <path d="M80 10 L20 50 L80 90" stroke="#4ade80" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-        <circle cx="20" cy="50" r="10" fill="#22c55e"/>
-        <circle cx="80" cy="10" r="8" fill="#22c55e"/>
-        <circle cx="80" cy="90" r="8" fill="#22c55e"/>
-      </svg>
+    <div class="logo" onclick="goto('home')">
+      <div class="logo-hex">
+        <svg width="38" height="38" viewBox="0 0 38 38" class="hex-outer">
+          <polygon points="19,2 35,10.5 35,27.5 19,36 3,27.5 3,10.5" fill="none" stroke="rgba(61,255,122,.4)" stroke-width="1"/>
+        </svg>
+        <svg width="28" height="28" viewBox="0 0 28 28" style="position:absolute" class="hex-inner">
+          <polygon points="14,2 25,7.5 25,20.5 14,26 3,20.5 3,7.5" fill="none" stroke="rgba(61,255,122,.2)" stroke-width="1"/>
+        </svg>
+        <div class="logo-mark"></div>
+      </div>
       <div class="logo-text">
         <span class="logo-name">KARCHAIN</span>
-        <span class="logo-sub">Testnet Phase 1</span>
+        <span class="logo-sub">Sovereign Layer · Testnet</span>
       </div>
-    </a>
-    <div class="nav-links">
-      <button class="nav-link active" id="nl-home" onclick="navigate('home')">Testnet</button>
-      <button class="nav-link" id="nl-vision" onclick="navigate('vision')">Vision</button>
-      <button class="nav-link" id="nl-ecosystem" onclick="navigate('ecosystem')">Ecosystem</button>
-      <button class="nav-link" id="nl-support" onclick="navigate('support')">Support</button>
     </div>
-    <div class="nav-right">
-      <button id="connect-btn" onclick="handleConnectClick()">
-        <i class="fa-solid fa-wallet"></i>
-        <span id="connect-btn-text">Connect Wallet</span>
+
+    <nav class="nav-links">
+      <button class="nav-link active" id="nl-home" onclick="goto('home')"><span>Testnet</span></button>
+      <button class="nav-link" id="nl-vision" onclick="goto('vision')"><span>Vision</span></button>
+      <button class="nav-link" id="nl-ecosystem" onclick="goto('ecosystem')"><span>Ecosystem</span></button>
+      <button class="nav-link" id="nl-support" onclick="goto('support')"><span>Support</span></button>
+    </nav>
+
+    <div style="display:flex;align-items:center;gap:12px;position:relative">
+      <button class="nav-cta" id="connectBtn" onclick="onConnectClick()">
+        <i class="fa-solid fa-wallet cta-icon"></i>
+        <span class="cta-text" id="connectTxt">Connect Wallet</span>
+        <span class="pulse-dot" id="connectDot" style="display:none"></span>
       </button>
-      <div class="wallet-dropdown" id="wallet-dropdown">
-        <div style="font-size:12px;font-weight:700;color:var(--muted2)">Connected Wallet</div>
-        <div class="wd-addr" id="dd-addr"></div>
-        <div class="wd-bal">
+      <div class="wallet-dd" id="walletDD">
+        <div class="dd-label">Connected Wallet</div>
+        <div class="dd-addr" id="ddAddr"></div>
+        <div class="dd-bal-row">
           <span>Balance</span>
-          <span id="dd-bal">0.0000 KRM</span>
+          <span class="dd-bal-num" id="ddBal">0.0000 KRM</span>
         </div>
-        <button class="wd-disconnect" onclick="disconnectWallet()">
+        <button class="dd-disconnect" onclick="disconnect()">
           <i class="fa-solid fa-right-from-bracket" style="margin-right:6px"></i>Disconnect
         </button>
       </div>
@@ -507,126 +1189,183 @@ footer{border-top:1px solid var(--border2);background:var(--surface);padding:56p
   </div>
 </nav>
 
-<!-- Mobile -->
-<div class="mb-overlay" id="mb-overlay" onclick="toggleMobile()"></div>
-<div class="mobile-menu" id="mobile-menu">
-  <button class="mobile-link" onclick="navigate('home');toggleMobile()"><i class="fa-solid fa-flask-vial"></i>Testnet</button>
-  <button class="mobile-link" onclick="navigate('vision');toggleMobile()"><i class="fa-solid fa-eye"></i>Vision</button>
-  <button class="mobile-link" onclick="navigate('ecosystem');toggleMobile()"><i class="fa-solid fa-cubes"></i>Ecosystem</button>
-  <button class="mobile-link" onclick="navigate('support');toggleMobile()"><i class="fa-solid fa-headset"></i>Support</button>
+<!-- Mobile nav -->
+<div class="mob-overlay" id="mobOverlay" onclick="toggleMobile()"></div>
+<div class="mobile-nav" id="mobileNav">
+  <button class="mob-link" onclick="goto('home');toggleMobile()"><i class="fa-solid fa-flask-vial"></i>Testnet</button>
+  <button class="mob-link" onclick="goto('vision');toggleMobile()"><i class="fa-solid fa-eye"></i>Vision</button>
+  <button class="mob-link" onclick="goto('ecosystem');toggleMobile()"><i class="fa-solid fa-cubes"></i>Ecosystem</button>
+  <button class="mob-link" onclick="goto('support');toggleMobile()"><i class="fa-solid fa-headset"></i>Support</button>
 </div>
 
-<!-- TOAST CONTAINER -->
-<div class="toast-wrap" id="toast-wrap"></div>
-
-<!-- CONNECT MODAL -->
-<div class="modal-overlay" id="connect-modal">
+<!-- ══════ CONNECT MODAL ══════ -->
+<div class="modal-wrap" id="connectModal" onclick="onModalBg(event)">
   <div class="modal">
     <div class="modal-head">
-      <div class="modal-title"><i class="fa-solid fa-plug" style="color:var(--green)"></i>Connect Wallet</div>
+      <div class="modal-title"><i class="fa-solid fa-plug"></i>Connect Wallet</div>
       <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
     </div>
-    <p style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6">
-      Connect MetaMask to interact with KarChain Testnet. The network will be added automatically.
+    <p style="font-size:13px;color:var(--muted2);margin-bottom:24px;line-height:1.7">
+      Connect MetaMask to interact with the KarChain Testnet. The network will be added to your wallet automatically.
     </p>
-    <div class="wallet-opt" onclick="connectMetaMask()">
-      <div class="wallet-opt-icon" style="background:rgba(246,133,27,.1)">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" style="width:32px;height:32px" alt="MM">
+    <div class="wallet-option" onclick="connectMM()">
+      <div class="wo-icon" style="background:rgba(246,133,27,.1);border:1px solid rgba(246,133,27,.2)">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" width="30" height="30" alt="MetaMask">
       </div>
       <div>
-        <div class="wallet-opt-name">MetaMask</div>
-        <div class="wallet-opt-sub">Browser Extension Wallet</div>
+        <div class="wo-name">MetaMask</div>
+        <div class="wo-sub">Browser Extension Wallet</div>
       </div>
-      <div class="wallet-opt-indicator" style="background:var(--green);box-shadow:0 0 8px var(--green)"></div>
+      <div class="wo-status">
+        <div class="wo-status-dot live"></div>
+      </div>
     </div>
-    <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:20px;letter-spacing:.05em">
-      By connecting you agree to our Terms & Privacy Policy
+    <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:20px;line-height:1.6">
+      By connecting you agree to KarChain's Terms of Service and Privacy Policy
     </p>
   </div>
 </div>
 
-<!-- ══════════ HOME PAGE ══════════ -->
+<!-- ══════════════════════════════════
+     HOME PAGE
+══════════════════════════════════ -->
 <div class="page active" id="page-home">
   <!-- Hero -->
-  <div class="hero">
-    <div class="hero-badge"><span class="pulse-dot"></span>Incentivized Testnet · Live</div>
-    <h1>THE ARCHITECTURE<br>OF <span class="grad">DIGITAL TRUST</span></h1>
-    <p>KarChain is the modular consensus layer designed for the next billion users. Join the Incentivized Testnet and secure your place in the genesis block.</p>
-    <div class="hero-btns">
-      <button class="btn-ghost" onclick="navigate('vision')"><i class="fa-solid fa-scroll"></i>Read Manifesto</button>
-      <button class="btn-primary" onclick="navigate('support')"><i class="fa-solid fa-book"></i>Documentation</button>
+  <section class="hero">
+    <div class="hero-inner">
+      <div>
+        <div class="hero-badge reveal"><span class="dot"></span>Incentivized Testnet · Phase I · Live</div>
+        <h1 class="hero-h1">
+          <span class="line reveal reveal-delay-1"><span>THE ARCHITECTURE</span></span>
+          <span class="line reveal reveal-delay-2"><span>OF <span class="accent">DIGITAL</span></span></span>
+          <span class="line reveal reveal-delay-3"><span class="accent">SOVEREIGNTY</span></span>
+        </h1>
+        <p class="hero-desc reveal reveal-delay-4">
+          KarChain is the modular, post-quantum consensus layer engineered for the next billion users.
+          Join the Incentivized Testnet — claim tokens, complete tasks, secure your genesis block position.
+        </p>
+        <div class="hero-btns reveal reveal-delay-4">
+          <button class="btn btn-primary" onclick="document.getElementById('dash-section').scrollIntoView({behavior:'smooth'})">
+            <i class="fa-solid fa-flask-vial"></i>Open Dashboard
+          </button>
+          <button class="btn btn-outline" onclick="goto('vision')">
+            <i class="fa-solid fa-scroll"></i>Read Manifesto
+          </button>
+        </div>
+      </div>
+      <div class="hero-visual">
+        <div class="orbit-system">
+          <div class="orbit orbit-1">
+            <div class="orbit-dot"></div>
+            <div class="orbit-dot dim" style="top:auto;bottom:-4px;left:50%;"></div>
+          </div>
+          <div class="orbit orbit-2">
+            <div class="orbit-dot dim"></div>
+          </div>
+          <div class="orbit orbit-3">
+            <div class="orbit-dot"></div>
+          </div>
+          <div class="orbit-core">
+            <div class="orbit-core-dot"></div>
+          </div>
+        </div>
+        <div class="hero-stats-mini">
+          <div class="mini-stat">
+            <div class="mini-stat-val">0.4s</div>
+            <div class="mini-stat-label">Block Time</div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-stat-val" id="hs-tps">100k+</div>
+            <div class="mini-stat-label">Max TPS</div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-stat-val">PQ</div>
+            <div class="mini-stat-label">Post-Quantum</div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
+  </section>
 
-  <!-- Stats -->
-  <div style="max-width:1100px;margin:0 auto;padding:0 24px">
-    <div class="stats-row">
-      <div class="stat-item">
-        <div class="stat-val" id="s-blocks">0</div>
-        <div class="stat-label"><span class="stat-dot"></span>Blocks Minted</div>
+  <!-- Stats strip -->
+  <div class="stats-strip">
+    <div class="stats-inner">
+      <div class="stat-item reveal">
+        <div class="stat-tick"></div>
+        <div class="stat-num"><span id="s-blocks">0</span></div>
+        <div class="stat-lbl">Blocks Minted</div>
       </div>
-      <div class="stat-item">
-        <div class="stat-val" id="s-time">0.4s</div>
-        <div class="stat-label"><span class="stat-dot"></span>Block Time</div>
+      <div class="stat-item reveal reveal-delay-1">
+        <div class="stat-tick"></div>
+        <div class="stat-num"><span id="s-txs">0</span></div>
+        <div class="stat-lbl">Transactions</div>
       </div>
-      <div class="stat-item">
-        <div class="stat-val" id="s-txs">0</div>
-        <div class="stat-label"><span class="stat-dot"></span>Transactions</div>
+      <div class="stat-item reveal reveal-delay-2">
+        <div class="stat-tick"></div>
+        <div class="stat-num"><span id="s-validators">0</span></div>
+        <div class="stat-lbl">Validators</div>
       </div>
-      <div class="stat-item">
-        <div class="stat-val" id="s-val">0</div>
-        <div class="stat-label"><span class="stat-dot"></span>Active Validators</div>
+      <div class="stat-item reveal reveal-delay-3">
+        <div class="stat-tick"></div>
+        <div class="stat-num"><span id="s-nodes">0</span></div>
+        <div class="stat-lbl">Active Nodes</div>
       </div>
     </div>
   </div>
 
   <!-- Dashboard -->
-  <div class="dashboard" style="margin-top:60px">
-    <div class="panel">
+  <section class="dashboard-wrap" id="dash-section">
+    <div class="section-head reveal">
+      <div class="section-tag"><span>Testnet Interface</span></div>
+      <h2 class="section-title">Testnet Dashboard</h2>
+      <p class="section-sub">Claim tokens from the faucet, complete on-chain tasks, and qualify for genesis block rewards.</p>
+    </div>
+
+    <!-- Full panel -->
+    <div class="panel reveal">
       <div class="panel-header">
         <div class="panel-title">
-          <i class="fa-solid fa-gauge-high" style="color:var(--green)"></i>
-          Testnet Dashboard
+          <i class="fa-solid fa-gauge-high panel-icon"></i>
+          Testnet Control Panel
         </div>
-        <div id="network-status" style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px">
-          <span id="net-dot" style="width:7px;height:7px;border-radius:50%;background:var(--muted);display:inline-block"></span>
-          <span id="net-text">Not connected</span>
+        <div class="net-status disconnected" id="netStatus">
+          <span id="netDot" style="width:7px;height:7px;border-radius:50%;background:var(--muted);display:inline-block"></span>
+          <span id="netTxt">Not Connected</span>
         </div>
       </div>
 
-      <!-- LOCKED -->
-      <div id="view-locked">
-        <div class="locked-state">
-          <div class="lock-icon"><i class="fa-solid fa-lock"></i></div>
-          <h2 style="font-size:24px;font-weight:700;color:#fff;margin-bottom:10px">Dashboard Locked</h2>
-          <p style="font-size:14px;color:var(--muted);max-width:380px;margin:0 auto 28px;line-height:1.7">
-            Connect your MetaMask wallet to access the faucet, claim daily tokens, and complete incentivized tasks.
-          </p>
-          <button class="btn-primary" onclick="openModal()">
+      <!-- LOCKED VIEW -->
+      <div id="lockedView">
+        <div class="locked-view">
+          <div class="lock-visual"><i class="fa-solid fa-lock"></i></div>
+          <h3 class="locked-title">Dashboard Locked</h3>
+          <p class="locked-sub">Connect your MetaMask wallet to access the faucet, complete incentivized tasks, and track your testnet rewards.</p>
+          <button class="btn btn-primary" onclick="openModal()">
             <i class="fa-solid fa-wallet"></i>Connect Wallet
           </button>
         </div>
       </div>
 
-      <!-- ACTIVE -->
-      <div id="view-active" style="display:none">
+      <!-- ACTIVE VIEW -->
+      <div id="activeView" style="display:none">
+
         <!-- Balance -->
-        <div class="balance-block">
+        <div class="balance-area">
           <div>
-            <div class="bal-label">Available Balance</div>
-            <div class="bal-val">
-              <span class="bal-num" id="bal-num">0.0000</span>
+            <div class="bal-label">Testnet Balance</div>
+            <div class="bal-display">
+              <span class="bal-num" id="balNum">0.0000</span>
               <span class="bal-sym">KRM</span>
             </div>
           </div>
           <div class="bal-right">
-            <div class="connected-badge">
-              <span class="pulse-dot" style="width:7px;height:7px"></span>
-              Connected to KarChain
+            <div class="status-chip">
+              <span style="width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulseDot 2s infinite"></span>
+              KarChain · Live
             </div>
-            <div class="wallet-addr-chip" id="wallet-chip">0x0000...0000</div>
-            <button class="refresh-btn" onclick="refreshBalance()">
-              <i class="fa-solid fa-rotate" style="margin-right:4px"></i>Refresh
+            <div class="addr-chip" id="addrChip">0x0000...0000</div>
+            <button class="refresh-chip" onclick="refreshBal()">
+              <i class="fa-solid fa-rotate"></i>Refresh Balance
             </button>
           </div>
         </div>
@@ -634,212 +1373,269 @@ footer{border-top:1px solid var(--border2);background:var(--surface);padding:56p
         <!-- Faucet -->
         <div class="faucet-grid">
           <!-- L1 -->
-          <div class="faucet-card" id="l1-card">
-            <div class="fc-head">
-              <div class="fc-icon green"><i class="fa-solid fa-droplet" style="color:#fff"></i></div>
+          <div class="faucet-card fc-l1" id="l1Card">
+            <div class="fc-top">
+              <div class="fc-ico green"><i class="fa-solid fa-droplet"></i></div>
               <div>
-                <div class="fc-title">Free Faucet</div>
-                <div class="fc-sub">Claim once every 24 hours</div>
-                <div class="fc-badge g">Level 1</div>
+                <div class="fc-name">Free Faucet</div>
+                <div class="fc-desc">Claim once every 24 hours</div>
+                <span class="fc-badge g">Level 1</span>
               </div>
             </div>
-            <div class="fc-meta">
-              <span>Daily reward</span><span>1 KRM</span>
-            </div>
-            <div class="fc-meta">
-              <span>Cooldown</span><span>24 hours</span>
-            </div>
-            <div id="l1-state"></div>
+            <div class="fc-row"><span>Daily reward</span><span>1 KRM</span></div>
+            <div class="fc-row"><span>Cooldown</span><span>24 hours</span></div>
+            <div id="l1State" style="margin-top:12px"></div>
           </div>
 
           <!-- L2 -->
-          <div class="faucet-card locked-card" id="l2-card">
-            <div class="fc-head">
-              <div class="fc-icon purple"><i class="fa-brands fa-ethereum" style="color:#fff"></i></div>
+          <div class="faucet-card fc-l2 fc-locked" id="l2Card">
+            <div class="fc-top">
+              <div class="fc-ico purple"><i class="fa-brands fa-ethereum"></i></div>
               <div>
-                <div class="fc-title">Premium Faucet</div>
-                <div class="fc-sub">Send 0.005 ETH → receive 5 KRM</div>
-                <div class="fc-badge p">Level 2</div>
+                <div class="fc-name">Premium Faucet</div>
+                <div class="fc-desc">Send ETH · receive KRM</div>
+                <span class="fc-badge p">Level 2</span>
               </div>
             </div>
-            <div class="fc-meta">
-              <span>Reward</span><span>5 KRM</span>
+            <div class="fc-row"><span>Reward</span><span>5 KRM</span></div>
+            <div class="fc-row"><span>Payment</span><span>0.005 ETH</span></div>
+            <div id="l2State" style="margin-top:12px">
+              <div style="text-align:center;padding:14px;background:rgba(255,255,255,.02);border:1px solid var(--border2);border-radius:10px">
+                <i class="fa-solid fa-lock" style="font-size:20px;color:var(--muted);display:block;margin-bottom:6px"></i>
+                <span style="font-size:11px;color:var(--muted)">Complete Level 1 to unlock</span>
+              </div>
             </div>
-            <div class="fc-meta">
-              <span>Payment required</span><span>0.005 ETH</span>
-            </div>
-            <div id="l2-state"></div>
           </div>
         </div>
 
         <!-- Tasks -->
-        <div class="tasks-section">
-          <div class="section-title">
-            <i class="fa-solid fa-list-check" style="color:var(--green)"></i>
-            Incentivized Tasks
-            <span style="font-size:12px;font-weight:400;color:var(--muted);margin-left:4px">Complete all to qualify for genesis rewards</span>
+        <div class="tasks-wrap">
+          <div class="tasks-header">
+            <div class="tasks-title"><i class="fa-solid fa-list-check"></i>Incentivized Tasks</div>
+            <span style="font-size:11px;color:var(--muted)">Complete all 3 · Qualify for genesis rewards</span>
           </div>
-          <div class="tasks-grid">
-            <!-- T1 -->
-            <div class="task-card unlocked" id="tc-1">
-              <span class="task-step blue">Step 1</span>
-              <div class="task-icon ti-blue"><i class="fa-solid fa-users" style="color:#fff"></i></div>
-              <div class="task-title">Social Identity</div>
-              <div class="task-desc">Follow our X account and join the Telegram community to verify your identity.</div>
-              <button class="task-btn tb-twitter" onclick="openTwitter()"><i class="fa-brands fa-x-twitter"></i>Follow on X</button>
-              <button class="task-btn tb-telegram" onclick="openTelegram()"><i class="fa-brands fa-telegram"></i>Join Telegram</button>
-              <button class="task-btn tb-verify" id="t1-verify" onclick="verifyTask1()">
-                <i class="fa-solid fa-check-circle"></i>Verify Completion
-              </button>
-              <div class="task-reward"><span>Task reward</span><span>+10 KRM</span></div>
+          <div class="task-grid">
+
+            <!-- Task 1 -->
+            <div class="task-card tc-unlocked" id="tc1">
+              <span class="task-step step-1">Step 1</span>
+              <div class="task-ico ti-blue"><i class="fa-solid fa-users"></i></div>
+              <div class="task-name">Social Identity</div>
+              <div class="task-desc">Follow our X (Twitter) account and join the Telegram community to verify your social identity.</div>
+              <button class="task-btn tb-x" onclick="doTwitter()"><i class="fa-brands fa-x-twitter"></i>Follow on X</button>
+              <button class="task-btn tb-tg" onclick="doTelegram()"><i class="fa-brands fa-telegram"></i>Join Telegram</button>
+              <button class="task-btn tb-verify" id="t1verify" onclick="verifyT1()"><i class="fa-solid fa-check-circle"></i>Verify Completion</button>
+              <div class="task-reward"><span>Reward</span><strong>+10 KRM</strong></div>
             </div>
-            <!-- T2 -->
-            <div class="task-card locked" id="tc-2">
-              <span class="task-step purple">Step 2</span>
-              <div class="task-icon ti-purple"><i class="fa-solid fa-arrow-right-arrow-left" style="color:#fff"></i></div>
-              <div class="task-title">First Transaction</div>
-              <div class="task-desc">Send a test transaction on KarChain network to prove on-chain activity.</div>
-              <button class="task-btn tb-purple" onclick="sendTestTx()"><i class="fa-solid fa-bolt"></i>Send Test TX (0.001 KRM)</button>
-              <button class="task-btn tb-verify" id="t2-verify" onclick="verifyTask2()">
-                <i class="fa-solid fa-magnifying-glass"></i>Verify Transaction
-              </button>
-              <div class="task-reward"><span>Task reward</span><span>+25 KRM</span></div>
+
+            <!-- Task 2 -->
+            <div class="task-card tc-locked" id="tc2">
+              <span class="task-step step-2">Step 2</span>
+              <div class="task-ico ti-purple"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
+              <div class="task-name">First Transaction</div>
+              <div class="task-desc">Broadcast a real transaction on KarChain network to demonstrate live on-chain activity.</div>
+              <button class="task-btn tb-purple" onclick="doSendTx()"><i class="fa-solid fa-bolt"></i>Send Test TX (0.001 KRM)</button>
+              <button class="task-btn tb-verify" id="t2verify" onclick="verifyT2()"><i class="fa-solid fa-magnifying-glass"></i>Verify Transaction</button>
+              <div class="task-reward"><span>Reward</span><strong>+25 KRM</strong></div>
             </div>
-            <!-- T3 -->
-            <div class="task-card locked" id="tc-3">
-              <span class="task-step orange">Final</span>
-              <div class="task-icon ti-orange"><i class="fa-solid fa-file-signature" style="color:#fff"></i></div>
-              <div class="task-title">Genesis Registration</div>
-              <div class="task-desc">Submit your wallet address via the form to be included in the genesis block.</div>
-              <button class="task-btn tb-orange" id="t3-btn" onclick="openForm()" style="opacity:.4;pointer-events:none">
-                <i class="fa-solid fa-pen-to-square"></i>Open Registration Form
-              </button>
-              <div class="task-reward"><span>Task reward</span><span>+50 KRM</span></div>
+
+            <!-- Task 3 -->
+            <div class="task-card tc-locked" id="tc3">
+              <span class="task-step step-3">Final</span>
+              <div class="task-ico ti-orange"><i class="fa-solid fa-file-signature"></i></div>
+              <div class="task-name">Genesis Registration</div>
+              <div class="task-desc">Submit your wallet address to be included in the KarChain genesis block at mainnet launch.</div>
+              <button class="task-btn tb-orange" id="t3btn" onclick="doForm()" style="opacity:.4;pointer-events:none"><i class="fa-solid fa-pen-to-square"></i>Open Registration Form</button>
+              <div class="task-reward"><span>Reward</span><strong>+50 KRM</strong></div>
             </div>
+
           </div>
         </div>
 
         <!-- Progress -->
-        <div class="progress-bar-wrap">
-          <div class="progress-header">
-            <div style="display:flex;align-items:center;gap:10px">
-              <span>Overall Progress</span>
-              <span class="progress-chip" id="prog-text">0/3 Tasks</span>
-            </div>
-            <span class="progress-total" id="prog-reward">+0 KRM</span>
-          </div>
-          <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
-        </div>
-
-        <!-- TX history -->
-        <div class="tx-section" id="tx-section">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-            <span style="font-size:14px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px">
-              <i class="fa-solid fa-clock-rotate-left" style="color:var(--green)"></i>Recent Transactions
+        <div class="progress-bar-area">
+          <div class="prog-header">
+            <span class="prog-label">
+              Overall Progress
+              <span class="prog-chip" id="progChip">0 / 3 Tasks</span>
             </span>
-            <button class="refresh-btn" onclick="renderTxHistory()"><i class="fa-solid fa-rotate" style="margin-right:4px"></i>Refresh</button>
+            <span class="prog-reward" id="progReward">+0 KRM Earned</span>
           </div>
-          <div id="tx-list"></div>
+          <div class="prog-track"><div class="prog-fill" id="progFill"></div></div>
         </div>
-      </div>
-    </div>
-  </div>
-</div>
 
-<!-- ══════════ VISION PAGE ══════════ -->
+        <!-- TX History -->
+        <div class="tx-area" id="txArea">
+          <div class="tx-head">
+            <div class="tx-title"><i class="fa-solid fa-clock-rotate-left"></i>Transaction History</div>
+            <button class="refresh-chip" onclick="renderTxs()"><i class="fa-solid fa-rotate"></i>Refresh</button>
+          </div>
+          <div id="txList"></div>
+        </div>
+
+      </div><!-- /activeView -->
+    </div><!-- /panel -->
+  </section>
+</div><!-- /page-home -->
+
+<!-- ══════════════════════════════════
+     VISION PAGE
+══════════════════════════════════ -->
 <div class="page" id="page-vision">
-  <div class="page-inner">
-    <div class="page-tag"><i class="fa-solid fa-compass"></i>Our Vision</div>
-    <h2 class="page-h">THE <span class="grad">MANIFESTO</span></h2>
-    <p class="page-sub">Re-engineering the fundamental substrate of human coordination for the 22nd century.</p>
-    <div class="vision-grid">
-      <div class="vision-points">
-        <div class="vp">
+  <div class="vision-hero">
+    <div class="section-tag reveal"><span>Our Vision</span></div>
+    <h2 class="section-title reveal reveal-delay-1" style="font-size:clamp(44px,6vw,72px);margin-bottom:16px">THE MANIFESTO</h2>
+    <p class="section-sub reveal reveal-delay-2" style="margin-bottom:72px;max-width:560px">
+      Re-engineering the fundamental substrate of human coordination — from the ground up.
+    </p>
+
+    <div class="v-grid">
+      <div class="v-points">
+        <div class="vp reveal reveal-delay-1">
           <div class="vp-num">01 // CONSENSUS</div>
           <div class="vp-title">Asynchronous Finality</div>
-          <div class="vp-text">KarChain introduces <em>Hyper-Graph Sharding</em> — state partitioned into thousands of concurrent execution threads. Using <em>Proof-of-Synchrony</em>, we achieve mathematical finality in sub-second timeframes.</div>
+          <div class="vp-text">KarChain introduces <em>Hyper-Graph Sharding</em> — state partitioned into thousands of concurrent execution threads. Using <em>Proof-of-Synchrony</em>, mathematical finality is achieved in sub-second timeframes, regardless of network geography.</div>
         </div>
-        <div class="vp">
+        <div class="vp reveal reveal-delay-2">
           <div class="vp-num">02 // SECURITY</div>
           <div class="vp-title">Post-Quantum Fortress</div>
-          <div class="vp-text">Built with <em>Lattice-based signatures</em> (Kyber/Dilithium) to secure assets against future quantum decryption. ECC is ending — KarChain is ready.</div>
+          <div class="vp-text">Built with <em>lattice-based cryptography</em> (Kyber-1024 & Dilithium-3) to secure digital assets against current and future quantum decryption attacks. ECC is ending — KarChain is already <em>post-quantum ready</em>.</div>
         </div>
-        <div class="vp">
+        <div class="vp reveal reveal-delay-3">
           <div class="vp-num">03 // SCALABILITY</div>
           <div class="vp-title">100,000+ TPS</div>
-          <div class="vp-text">Modular architecture allows dynamic validator sets and <em>parallel execution</em> across shards, delivering enterprise-grade throughput without compromising decentralization.</div>
+          <div class="vp-text">Modular architecture with dynamic validator sets and <em>parallel execution</em> across shards delivers enterprise-grade throughput. Gasless transactions via <em>KarFee abstraction layer</em> — zero friction for end users.</div>
+        </div>
+        <div class="vp reveal reveal-delay-4">
+          <div class="vp-num">04 // GOVERNANCE</div>
+          <div class="vp-title">On-Chain Democracy</div>
+          <div class="vp-text">KarChain DAO launches at mainnet with <em>quadratic voting</em>, time-locked treasury, and a constitutional amendment process. Power belongs to <em>the community</em>, not the founders.</div>
         </div>
       </div>
-      <div>
-        <div class="gyro-wrap">
-          <div class="gyro-ring gr1"></div>
-          <div class="gyro-ring gr2"></div>
-          <div class="gyro-ring gr3"></div>
-          <div class="gr-core"></div>
-        </div>
+
+      <!-- Hex visualiser -->
+      <div class="hex-grid-wrap reveal reveal-delay-2">
+        <canvas id="hexCanvas" width="500" height="500" style="width:100%;height:auto"></canvas>
       </div>
     </div>
-    <h3 style="font-size:22px;font-weight:700;color:#fff;margin-bottom:20px">Strategic Roadmap</h3>
-    <div class="roadmap">
-      <div class="rm-item">
-        <div class="rm-dot active"></div>
-        <div class="rm-phase">Phase 1</div>
-        <div class="rm-name">Genesis</div>
-        <div class="rm-desc">Testnet launch · Faucet activation · Initial validator onboarding</div>
-      </div>
-      <div class="rm-item dim">
-        <div class="rm-dot inactive"></div>
-        <div class="rm-phase">Phase 2</div>
-        <div class="rm-name">Incentivized</div>
-        <div class="rm-desc">Public stress testing · Bug bounties · Cross-chain bridge beta</div>
-      </div>
-      <div class="rm-item dim">
-        <div class="rm-dot inactive"></div>
-        <div class="rm-phase">Phase 3</div>
-        <div class="rm-name">Ignition</div>
-        <div class="rm-desc">Mainnet launch · TGE · Governance DAO activation</div>
-      </div>
-      <div class="rm-item dim">
-        <div class="rm-dot inactive"></div>
-        <div class="rm-phase">Phase 4</div>
-        <div class="rm-name">Singularity</div>
-        <div class="rm-desc">Global settlement layer · Interplanetary file system</div>
+
+    <!-- Roadmap -->
+    <div class="roadmap-section">
+      <h3 class="section-title reveal" style="font-size:32px;margin-bottom:28px">Strategic Roadmap</h3>
+      <div class="roadmap-track reveal reveal-delay-1">
+        <div class="rm">
+          <div class="rm-index">// PHASE 01</div>
+          <div class="rm-dot active"></div>
+          <div class="rm-phase">Genesis</div>
+          <div class="rm-name">Testnet Launch</div>
+          <div class="rm-desc">Incentivized testnet · Faucet activation · Initial validator onboarding · Community bootstrap</div>
+        </div>
+        <div class="rm" style="background:rgba(255,255,255,.01)">
+          <div class="rm-index">// PHASE 02</div>
+          <div class="rm-dot dim"></div>
+          <div class="rm-phase">Expansion</div>
+          <div class="rm-name">Scale Test</div>
+          <div class="rm-desc">Public stress testing · Formal bug bounty · Cross-chain bridge beta · Validator rotation</div>
+        </div>
+        <div class="rm" style="background:rgba(255,255,255,.01)">
+          <div class="rm-index">// PHASE 03</div>
+          <div class="rm-dot dim"></div>
+          <div class="rm-phase">Ignition</div>
+          <div class="rm-name">Mainnet</div>
+          <div class="rm-desc">Mainnet launch · Token Generation Event · DAO activation · Exchange listings</div>
+        </div>
+        <div class="rm" style="background:rgba(255,255,255,.01)">
+          <div class="rm-index">// PHASE 04</div>
+          <div class="rm-dot dim"></div>
+          <div class="rm-phase">Horizon</div>
+          <div class="rm-name">Singularity</div>
+          <div class="rm-desc">Global settlement layer · ZK-rollup native support · Institutional partnerships</div>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ══════════ ECOSYSTEM PAGE ══════════ -->
+<!-- ══════════════════════════════════
+     ECOSYSTEM PAGE
+══════════════════════════════════ -->
 <div class="page" id="page-ecosystem">
-  <div class="page-inner">
-    <div class="page-tag"><i class="fa-solid fa-cubes"></i>Ecosystem</div>
-    <h2 class="page-h">BUILDING THE FUTURE</h2>
-    <p class="page-sub">Explore the growing ecosystem of dApps and protocols being built on KarChain.</p>
+  <div class="eco-hero">
+    <div class="section-tag reveal"><span>Ecosystem</span></div>
+    <h2 class="section-title reveal reveal-delay-1" style="margin-bottom:16px">BUILDING THE FUTURE</h2>
+    <p class="section-sub reveal reveal-delay-2" style="margin-bottom:64px;max-width:500px">
+      Explore the expanding ecosystem of protocols, dApps, and infrastructure being built on KarChain.
+    </p>
     <div class="eco-grid">
-      <div class="eco-card">
-        <div class="eco-icon" style="background:linear-gradient(135deg,#4c1d95,#7c3aed)"><i class="fa-solid fa-arrow-right-arrow-left" style="color:#fff"></i></div>
+      <div class="eco-card reveal reveal-delay-1" style="">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#a78bfa,transparent)"></div>
+        <div class="eco-ico" style="background:linear-gradient(135deg,rgba(79,52,245,.25),rgba(124,58,237,.1));border:1px solid rgba(124,58,237,.2)">
+          <i class="fa-solid fa-arrow-right-arrow-left" style="color:#a78bfa"></i>
+        </div>
         <div class="eco-name">KarSwap DEX</div>
-        <div class="eco-desc">Native AMM with concentrated liquidity and near-zero slippage optimised for high-frequency trading on KarChain.</div>
+        <div class="eco-desc">Native AMM with concentrated liquidity, Uniswap V3-style tick ranges, and near-zero slippage. Optimised for high-frequency trading on the KarChain execution layer.</div>
         <div class="eco-footer">
-          <span class="eco-tag" style="background:rgba(124,58,237,.12);color:#a78bfa;border:1px solid rgba(124,58,237,.2)">Live on Testnet</span>
+          <span class="eco-tag live">Live on Testnet</span>
           <i class="fa-solid fa-arrow-right" style="color:var(--muted)"></i>
         </div>
       </div>
-      <div class="eco-card">
-        <div class="eco-icon" style="background:linear-gradient(135deg,#1e40af,#3b82f6)"><i class="fa-solid fa-vault" style="color:#fff"></i></div>
-        <div class="eco-name">KarVault Lending</div>
-        <div class="eco-desc">Cross-chain lending protocol with undercollateralized loans powered by on-chain reputation scoring.</div>
+      <div class="eco-card reveal reveal-delay-2">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(96,165,250,.6),transparent)"></div>
+        <div class="eco-ico" style="background:linear-gradient(135deg,rgba(29,78,216,.25),rgba(59,130,246,.1));border:1px solid rgba(59,130,246,.2)">
+          <i class="fa-solid fa-vault" style="color:#60a5fa"></i>
+        </div>
+        <div class="eco-name">KarVault</div>
+        <div class="eco-desc">Cross-chain lending protocol featuring undercollateralized loans powered by on-chain reputation scoring and ZK credit proofs. The future of DeFi credit.</div>
         <div class="eco-footer">
-          <span class="eco-tag" style="background:rgba(234,179,8,.1);color:#fbbf24;border:1px solid rgba(234,179,8,.2)">Coming Q2 2025</span>
+          <span class="eco-tag soon">Coming Q2 2025</span>
           <i class="fa-solid fa-arrow-right" style="color:var(--muted)"></i>
         </div>
       </div>
-      <div class="eco-card">
-        <div class="eco-icon" style="background:linear-gradient(135deg,#065f46,#059669)"><i class="fa-solid fa-shield-halved" style="color:#fff"></i></div>
+      <div class="eco-card reveal reveal-delay-3">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(61,255,122,.6),transparent)"></div>
+        <div class="eco-ico" style="background:linear-gradient(135deg,rgba(21,128,61,.25),rgba(34,197,94,.1));border:1px solid rgba(34,197,94,.2)">
+          <i class="fa-solid fa-shield-halved" style="color:var(--green2)"></i>
+        </div>
         <div class="eco-name">KarSafe</div>
-        <div class="eco-desc">Multi-sig institutional wallet with MPC technology for DAO treasury management. Fully audited.</div>
+        <div class="eco-desc">Multi-sig institutional wallet with MPC technology for DAO treasury management. Battle-tested 4/7 threshold signatures. Fully audited by Trail of Bits.</div>
         <div class="eco-footer">
-          <span class="eco-tag" style="background:rgba(74,222,128,.1);color:var(--green);border:1px solid rgba(74,222,128,.2)">Audited</span>
+          <span class="eco-tag audit">Audited</span>
+          <i class="fa-solid fa-arrow-right" style="color:var(--muted)"></i>
+        </div>
+      </div>
+      <div class="eco-card reveal reveal-delay-1">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(251,191,36,.6),transparent)"></div>
+        <div class="eco-ico" style="background:linear-gradient(135deg,rgba(161,98,7,.25),rgba(251,191,36,.1));border:1px solid rgba(251,191,36,.2)">
+          <i class="fa-solid fa-bridge" style="color:#fbbf24"></i>
+        </div>
+        <div class="eco-name">KarBridge</div>
+        <div class="eco-desc">Canonical asset bridge between KarChain, Ethereum, and BSC. Optimistic verification with 7-day challenge window. ZK-fast-path for whitelisted assets.</div>
+        <div class="eco-footer">
+          <span class="eco-tag soon">Coming Q3 2025</span>
+          <i class="fa-solid fa-arrow-right" style="color:var(--muted)"></i>
+        </div>
+      </div>
+      <div class="eco-card reveal reveal-delay-2">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(244,114,182,.6),transparent)"></div>
+        <div class="eco-ico" style="background:linear-gradient(135deg,rgba(157,23,77,.25),rgba(244,114,182,.1));border:1px solid rgba(244,114,182,.2)">
+          <i class="fa-solid fa-palette" style="color:#f472b6"></i>
+        </div>
+        <div class="eco-name">KarNFT</div>
+        <div class="eco-desc">High-throughput NFT marketplace with dynamic metadata, on-chain royalty enforcement, and batch minting. Sub-cent gas costs make mass adoption viable.</div>
+        <div class="eco-footer">
+          <span class="eco-tag soon">Coming Q4 2025</span>
+          <i class="fa-solid fa-arrow-right" style="color:var(--muted)"></i>
+        </div>
+      </div>
+      <div class="eco-card reveal reveal-delay-3">
+        <div style="position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(167,139,250,.6),transparent)"></div>
+        <div class="eco-ico" style="background:linear-gradient(135deg,rgba(109,40,217,.25),rgba(167,139,250,.1));border:1px solid rgba(167,139,250,.2)">
+          <i class="fa-solid fa-gavel" style="color:#c4b5fd"></i>
+        </div>
+        <div class="eco-name">KarDAO</div>
+        <div class="eco-desc">On-chain governance infrastructure with quadratic voting, time-locked treasury proposals, and constitutional amendment framework. True decentralised governance.</div>
+        <div class="eco-footer">
+          <span class="eco-tag audit">At Mainnet</span>
           <i class="fa-solid fa-arrow-right" style="color:var(--muted)"></i>
         </div>
       </div>
@@ -847,53 +1643,112 @@ footer{border-top:1px solid var(--border2);background:var(--surface);padding:56p
   </div>
 </div>
 
-<!-- ══════════ SUPPORT PAGE ══════════ -->
+<!-- ══════════════════════════════════
+     SUPPORT PAGE
+══════════════════════════════════ -->
 <div class="page" id="page-support">
-  <div class="page-inner">
-    <div class="page-tag"><i class="fa-solid fa-headset"></i>Support</div>
-    <h2 class="page-h">COMMUNITY HUB</h2>
-    <p class="page-sub">Get support, report bugs, and connect with the KarChain team.</p>
-    <div class="support-cards">
+  <div class="support-hero">
+    <div class="section-tag reveal"><span>Support & Docs</span></div>
+    <h2 class="section-title reveal reveal-delay-1" style="margin-bottom:16px">COMMUNITY HUB</h2>
+    <p class="section-sub reveal reveal-delay-2" style="margin-bottom:56px;max-width:480px">
+      Get support, report bugs, and connect directly with the KarChain core team.
+    </p>
+
+    <div class="sup-grid reveal reveal-delay-1">
       <a href="https://t.me/tgkarim1" target="_blank" class="sup-card">
-        <div class="sup-icon" style="background:linear-gradient(135deg,#0369a1,#0ea5e9)"><i class="fa-brands fa-telegram" style="color:#fff"></i></div>
+        <div class="sup-ico" style="background:linear-gradient(135deg,rgba(3,105,161,.3),rgba(14,165,233,.1));border:1px solid rgba(14,165,233,.2)">
+          <i class="fa-brands fa-telegram" style="color:#38bdf8"></i>
+        </div>
         <div>
           <div class="sup-name">Telegram Community</div>
-          <div class="sup-desc">Join 50,000+ members. Direct core team access.</div>
+          <div class="sup-desc">Direct access to the core team and community members.</div>
           <div class="sup-handle">@tgkarim1</div>
         </div>
       </a>
       <a href="mailto:support@karchain.io" class="sup-card">
-        <div class="sup-icon" style="background:linear-gradient(135deg,#15803d,#22c55e)"><i class="fa-solid fa-envelope" style="color:#fff"></i></div>
+        <div class="sup-ico" style="background:var(--green-dim);border:1px solid var(--border)">
+          <i class="fa-solid fa-envelope" style="color:var(--green)"></i>
+        </div>
         <div>
           <div class="sup-name">Email Support</div>
-          <div class="sup-desc">Technical support · 24–48h response time.</div>
+          <div class="sup-desc">Technical issues · Security reports · Response within 24–48h.</div>
           <div class="sup-handle">support@karchain.io</div>
         </div>
       </a>
     </div>
-    <div class="network-box">
-      <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:20px;display:flex;align-items:center;gap:8px">
-        <i class="fa-solid fa-network-wired" style="color:var(--green)"></i>Network Configuration
+
+    <!-- Network info -->
+    <div class="net-info-box reveal reveal-delay-2">
+      <div class="net-info-title"><i class="fa-solid fa-network-wired"></i>Network Configuration</div>
+      <div class="net-row">
+        <span class="net-key">Network Name</span>
+        <span class="net-val green">KarChain</span>
       </div>
-      <div class="net-row"><span class="net-key">Network Name</span><span class="net-val green">KarChain</span></div>
-      <div class="net-row"><span class="net-key">RPC URL</span><span class="net-val">http://localhost:8545</span></div>
-      <div class="net-row"><span class="net-key">Chain ID</span><span class="net-val">1337</span></div>
-      <div class="net-row"><span class="net-key">Currency Symbol</span><span class="net-val green">KRM</span></div>
-      <div class="net-row"><span class="net-key">Block Explorer</span><span class="net-val" style="color:var(--muted)">Coming soon</span></div>
+      <div class="net-row">
+        <span class="net-key">RPC URL</span>
+        <span class="net-val" style="color:var(--muted2)">http://localhost:8545</span>
+      </div>
+      <div class="net-row">
+        <span class="net-key">Chain ID</span>
+        <span class="net-val" style="color:var(--muted2)">1337</span>
+      </div>
+      <div class="net-row">
+        <span class="net-key">Currency Symbol</span>
+        <span class="net-val green">KRM</span>
+      </div>
+      <div class="net-row">
+        <span class="net-key">Currency Decimals</span>
+        <span class="net-val" style="color:var(--muted2)">18</span>
+      </div>
+      <div class="net-row">
+        <span class="net-key">Block Explorer</span>
+        <span class="net-val dim">Coming soon</span>
+      </div>
+      <div class="net-row">
+        <span class="net-key">Treasury Address</span>
+        <span class="net-val" style="color:var(--muted2);font-size:11px">0x018fe8...CCA5c</span>
+      </div>
     </div>
-    <div>
-      <h3 style="font-size:18px;font-weight:700;color:#fff;margin-bottom:16px;padding-left:16px;border-left:3px solid var(--green)">FAQ</h3>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFAQ(this)">How do I add KarChain to MetaMask?<i class="fa-solid fa-chevron-down"></i></button>
-        <div class="faq-a"><p>Click "Connect Wallet" — MetaMask will be prompted to add the network automatically. Alternatively add manually: RPC <code>http://localhost:8545</code>, Chain ID <code>1337</code>, Symbol <code>KRM</code>.</p></div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFAQ(this)">How does the faucet work?<i class="fa-solid fa-chevron-down"></i></button>
-        <div class="faq-a"><p><strong style="color:#fff">Level 1</strong> — Complete the CAPTCHA and claim 1 KRM every 24 hours for free.<br><br><strong style="color:#fff">Level 2</strong> — Unlocked after Level 1. Send 0.005 ETH to the treasury address on Ethereum mainnet and receive 5 KRM on KarChain.</p></div>
-      </div>
-      <div class="faq-item">
-        <button class="faq-q" onclick="toggleFAQ(this)">What are Incentivized Tasks?<i class="fa-solid fa-chevron-down"></i></button>
-        <div class="faq-a"><p>Three sequential tasks — Social Identity (+10 KRM), First Transaction (+25 KRM), and Genesis Registration (+50 KRM). Completing all three qualifies your address for genesis block rewards at mainnet launch.</p></div>
+
+    <!-- FAQ -->
+    <div class="reveal reveal-delay-3">
+      <h3 style="font-family:var(--font-head);font-size:22px;font-weight:700;color:#fff;margin-bottom:20px;padding-left:20px;border-left:2px solid var(--green)">Frequently Asked Questions</h3>
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            How do I add KarChain to MetaMask?
+            <i class="fa-solid fa-plus faq-icon"></i>
+          </button>
+          <div class="faq-a"><div class="faq-a-inner">Click <strong>"Connect Wallet"</strong> — MetaMask will be prompted to add KarChain automatically. Alternatively add it manually: RPC <code>http://localhost:8545</code>, Chain ID <code>1337</code>, Symbol <code>KRM</code>, Decimals <code>18</code>.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            How does the faucet system work?
+            <i class="fa-solid fa-plus faq-icon"></i>
+          </button>
+          <div class="faq-a"><div class="faq-a-inner"><strong>Level 1</strong> — Complete the CAPTCHA and claim 1 KRM every 24 hours at no cost.<br><br><strong>Level 2</strong> — Unlocked after Level 1. Send 0.005 ETH from Ethereum Mainnet to the treasury address and receive 5 KRM on KarChain. MetaMask handles the network switch automatically.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            What are the Incentivized Tasks?
+            <i class="fa-solid fa-plus faq-icon"></i>
+          </button>
+          <div class="faq-a"><div class="faq-a-inner">Three sequential tasks: <strong>Social Identity</strong> (+10 KRM), <strong>First Transaction</strong> (+25 KRM), and <strong>Genesis Registration</strong> (+50 KRM). Completing all three qualifies your wallet address for genesis block rewards at mainnet launch — a permanent on-chain record of your early participation.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            Is the testnet KRM token valuable?
+            <i class="fa-solid fa-plus faq-icon"></i>
+          </button>
+          <div class="faq-a"><div class="faq-a-inner">Testnet KRM has no monetary value. However, your testnet participation record — wallet address, tasks completed, transactions sent — will be considered during the mainnet genesis allocation process for participants who engage meaningfully with the protocol.</div></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q" onclick="toggleFaq(this)">
+            I need localhost:8545 — how do I run the node?
+            <i class="fa-solid fa-plus faq-icon"></i>
+          </button>
+          <div class="faq-a"><div class="faq-a-inner">Download the KarChain node binary from our GitHub releases page, run <code>karchain --testnet</code>, and the RPC will be available at <code>http://localhost:8545</code>. Full documentation available in the repository. For questions, join the Telegram.</div></div>
+        </div>
       </div>
     </div>
   </div>
@@ -901,165 +1756,205 @@ footer{border-top:1px solid var(--border2);background:var(--surface);padding:56p
 
 <!-- FOOTER -->
 <footer>
-  <div class="footer-inner">
-    <div class="footer-brand">
-      <div style="display:flex;align-items:center;gap:12px">
-        <svg viewBox="0 0 100 100" style="width:36px;height:36px">
-          <path d="M20 10 V90" stroke="#4ade80" stroke-width="8" stroke-linecap="round"/>
-          <path d="M80 10 L20 50 L80 90" stroke="#4ade80" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="20" cy="50" r="10" fill="#22c55e"/>
-          <circle cx="80" cy="10" r="8" fill="#22c55e"/>
-          <circle cx="80" cy="90" r="8" fill="#22c55e"/>
-        </svg>
-        <span style="font-size:18px;font-weight:800;letter-spacing:.15em;color:#fff">KARCHAIN</span>
+  <div class="foot-inner">
+    <div class="foot-brand">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div class="logo-mark" style="width:14px;height:14px;margin:0"></div>
+        <span style="font-family:var(--font-head);font-size:20px;font-weight:800;letter-spacing:.2em;color:#fff">KARCHAIN</span>
       </div>
-      <p>The sovereign consensus layer for the decentralized future. Built for speed, security, and sustainability.</p>
+      <p>The sovereign consensus layer for the decentralised future. Engineered for speed, security, and human coordination at civilisational scale.</p>
     </div>
-    <div class="footer-col">
-      <h4>Ecosystem</h4>
-      <a href="#">Explorer</a>
-      <a href="#">Governance</a>
-      <a href="#">KarSwap</a>
-    </div>
-    <div class="footer-col">
-      <h4>Developers</h4>
+    <div class="foot-col">
+      <h4>Protocol</h4>
       <a href="#">Documentation</a>
+      <a href="#">Whitepaper</a>
       <a href="#">GitHub</a>
       <a href="#">Bug Bounty</a>
     </div>
+    <div class="foot-col">
+      <h4>Ecosystem</h4>
+      <a href="#">KarSwap</a>
+      <a href="#">KarVault</a>
+      <a href="#">KarSafe</a>
+      <a href="#">KarDAO</a>
+    </div>
+    <div class="foot-col">
+      <h4>Community</h4>
+      <a href="https://t.me/tgkarim1" target="_blank">Telegram</a>
+      <a href="https://x.com/karim7652117665" target="_blank">X (Twitter)</a>
+      <a href="mailto:support@karchain.io">Email</a>
+    </div>
   </div>
-  <div class="footer-bottom">
-    <p>© 2025 KarChain Foundation. All rights reserved.</p>
-    <p style="color:var(--green)">Testnet Phase 1 · Chain ID 1337</p>
+  <div class="foot-bottom">
+    <p>© 2025 KarChain Foundation · All rights reserved</p>
+    <span class="foot-chain">Chain ID 1337 · KRM · Testnet Phase I</span>
   </div>
 </footer>
 
-<!-- Scroll top -->
-<button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+<button id="scrolltop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
   <i class="fa-solid fa-chevron-up"></i>
 </button>
-
 <script>
-// ════════════════════════════════════════
-//  CONFIG
-// ════════════════════════════════════════
+/* ═══════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════ */
 const CFG = {
-  chainId: 1337,
-  chainHex: '0x539',
-  chainName: 'KarChain',
-  rpc: 'http://localhost:8545',
-  symbol: 'KRM',
-  decimals: 18,
-  treasury: '0x018fe8087035B3C5ba00E0EB7aB47d24297CCA5c',
-  twitter: 'https://x.com/karim7652117665',
-  telegram: 'https://t.me/tgkarim1',
-  form: 'https://docs.google.com/forms/d/e/1FAIpQLSeQhBQZ_XKxYp2G5bZ5RwTzR2QmPpLJ6xN3oYjH7sKvP8t0w/viewform',
-  l2PaymentEth: '0.005',
-  l1Cooldown: 24 * 3600 * 1000,
+  chainId:    1337,
+  chainHex:   '0x539',
+  chainName:  'KarChain',
+  rpc:        'http://localhost:8545',
+  symbol:     'KRM',
+  decimals:   18,
+  treasury:   '0x018fe8087035B3C5ba00E0EB7aB47d24297CCA5c',
+  twitter:    'https://x.com/karim7652117665',
+  telegram:   'https://t.me/tgkarim1',
+  form:       'https://docs.google.com/forms/d/e/1FAIpQLSeQhBQZ_XKxYp2G5bZ5RwTzR2QmPpLJ6xN3oYjH7sKvP8t0w/viewform',
+  l2Eth:      '0.005',
+  l1Cool:     24 * 3600 * 1000
 };
 
-// ════════════════════════════════════════
-//  STATE
-// ════════════════════════════════════════
+/* ═══════════════════════════════════════
+   STATE
+═══════════════════════════════════════ */
 const S = {
-  address: null,
-  provider: null,
-  signer: null,
-  balance: '0.0000',
-  captchaDone: false,
-  timerInterval: null,
+  address:   null,
+  provider:  null,
+  signer:    null,
+  balance:   '0.0000',
+  capDone:   false,
+  timerInt:  null,
 
-  get tasks() { return JSON.parse(localStorage.getItem('kc_tasks') || '[]'); },
-  setTask(id) {
-    const t = this.tasks;
-    if (!t.includes(id)) { t.push(id); localStorage.setItem('kc_tasks', JSON.stringify(t)); }
-  },
-  get txs() { return JSON.parse(localStorage.getItem('kc_txs_' + this.address) || '[]'); },
-  addTx(tx) {
-    const t = this.txs;
-    t.push({ ...tx, ts: Date.now() });
-    localStorage.setItem('kc_txs_' + this.address, JSON.stringify(t));
-  },
-  get l1LastClaim() { return parseInt(localStorage.getItem('kc_l1_' + this.address) || '0'); },
-  setL1Claim() { localStorage.setItem('kc_l1_' + this.address, Date.now().toString()); },
-  get l2Unlocked() { return localStorage.getItem('kc_l2_' + this.address) === '1'; },
-  unlockL2() { localStorage.setItem('kc_l2_' + this.address, '1'); },
-  get socialStarted() { return localStorage.getItem('kc_social') === '1'; },
-  setSocial() { localStorage.setItem('kc_social', '1'); },
-  get txDone() { return localStorage.getItem('kc_txdone_' + this.address) === '1'; },
-  setTxDone() { localStorage.setItem('kc_txdone_' + this.address, '1'); },
+  key: k => `kc_${k}`,
+  get tasks()       { return JSON.parse(localStorage.getItem(this.key('tasks')) || '[]'); },
+  hasTask(n)        { return this.tasks.includes(n); },
+  addTask(n)        { const t=this.tasks; if(!t.includes(n)){t.push(n);localStorage.setItem(this.key('tasks'),JSON.stringify(t));} },
+  get txs()         { return JSON.parse(localStorage.getItem('kc_txs_'+this.address)||'[]'); },
+  addTx(tx)         { const t=this.txs; t.push({...tx,ts:Date.now()}); localStorage.setItem('kc_txs_'+this.address,JSON.stringify(t)); },
+  get l1Last()      { return parseInt(localStorage.getItem('kc_l1_'+this.address)||'0'); },
+  setL1()           { localStorage.setItem('kc_l1_'+this.address, Date.now().toString()); },
+  get l2Unlocked()  { return localStorage.getItem('kc_l2_'+this.address)==='1'; },
+  setL2()           { localStorage.setItem('kc_l2_'+this.address,'1'); },
+  get socialDone()  { return localStorage.getItem('kc_social')==='1'; },
+  setSocial()       { localStorage.setItem('kc_social','1'); },
+  get txDone()      { return localStorage.getItem('kc_txd_'+this.address)==='1'; },
+  setTxDone()       { localStorage.setItem('kc_txd_'+this.address,'1'); },
+  save()            { localStorage.setItem(this.key('addr'),this.address); },
+  load()            { return localStorage.getItem(this.key('addr')); }
 };
 
-// ════════════════════════════════════════
-//  TOAST
-// ════════════════════════════════════════
-function toast(title, msg, type = 'info') {
-  const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle' };
+/* ═══════════════════════════════════════
+   TOAST
+═══════════════════════════════════════ */
+function toast(title, msg, type='info') {
+  const icons = {success:'fa-check-circle',error:'fa-times-circle',info:'fa-info-circle'};
   const el = document.createElement('div');
   el.className = `toast ${type}`;
-  el.innerHTML = `<i class="fas ${icons[type]} toast-icon"></i><div class="toast-body"><p>${title}</p><p>${msg}</p></div>`;
-  document.getElementById('toast-wrap').appendChild(el);
-  setTimeout(() => el.style.cssText = 'animation:toastIn .3s ease reverse forwards', 3500);
-  setTimeout(() => el.remove(), 4000);
+  el.innerHTML = `<i class="fas ${icons[type]} toast-icon"></i><div class="toast-body"><p>${title}</p><p>${msg||''}</p></div>`;
+  const wrap = document.getElementById('toasts');
+  wrap.appendChild(el);
+  setTimeout(() => {
+    el.classList.add('out');
+    setTimeout(() => el.remove(), 350);
+  }, 4000);
 }
 
-// ════════════════════════════════════════
-//  ROUTER
-// ════════════════════════════════════════
-function navigate(page) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-' + page).classList.add('active');
+/* ═══════════════════════════════════════
+   ROUTER
+═══════════════════════════════════════ */
+let currentPage = 'home';
+function goto(page) {
+  if (page === currentPage) return;
+
+  const old = document.getElementById('page-' + currentPage);
+  const nw  = document.getElementById('page-' + page);
+
+  // fade out old
+  old.style.opacity = '0';
+  old.style.transform = 'translateY(-16px)';
+  old.style.transition = 'opacity .3s ease-in, transform .3s ease-in';
+
+  setTimeout(() => {
+    old.classList.remove('active','visible');
+    old.style.transition = '';
+    old.style.opacity = '';
+    old.style.transform = '';
+
+    nw.classList.add('active');
+    // force reflow
+    nw.getBoundingClientRect();
+    setTimeout(() => {
+      nw.classList.add('visible');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      triggerReveal();
+    }, 20);
+  }, 280);
+
+  currentPage = page;
   document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
   const nl = document.getElementById('nl-' + page);
   if (nl) nl.classList.add('active');
-  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-// ════════════════════════════════════════
-//  MOBILE MENU
-// ════════════════════════════════════════
+/* ═══════════════════════════════════════
+   MOBILE MENU
+═══════════════════════════════════════ */
 function toggleMobile() {
-  document.getElementById('burger').classList.toggle('open');
-  document.getElementById('mobile-menu').classList.toggle('open');
-  document.getElementById('mb-overlay').classList.toggle('show');
-  document.body.style.overflow = document.getElementById('mobile-menu').classList.contains('open') ? 'hidden' : '';
+  const burger = document.getElementById('burger');
+  const nav    = document.getElementById('mobileNav');
+  const ov     = document.getElementById('mobOverlay');
+  const open   = nav.classList.toggle('open');
+  burger.classList.toggle('open', open);
+  ov.classList.toggle('show', open);
+  document.body.style.overflow = open ? 'hidden' : '';
 }
 
-// ════════════════════════════════════════
-//  MODAL
-// ════════════════════════════════════════
-function openModal() { document.getElementById('connect-modal').classList.add('show'); }
-function closeModal() { document.getElementById('connect-modal').classList.remove('show'); }
-document.getElementById('connect-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+/* ═══════════════════════════════════════
+   MODAL
+═══════════════════════════════════════ */
+function openModal() {
+  document.getElementById('connectModal').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('connectModal').classList.remove('open');
+}
+function onModalBg(e) {
+  if (e.target === document.getElementById('connectModal')) closeModal();
+}
 
-function handleConnectClick() {
+/* ═══════════════════════════════════════
+   CONNECT BUTTON CLICK
+═══════════════════════════════════════ */
+function onConnectClick() {
   if (S.address) {
-    document.getElementById('wallet-dropdown').classList.toggle('show');
+    document.getElementById('walletDD').classList.toggle('open');
   } else {
     openModal();
   }
 }
-
-// Close dropdown on outside click
 document.addEventListener('click', e => {
-  const dd = document.getElementById('wallet-dropdown');
-  const btn = document.getElementById('connect-btn');
-  if (!dd.contains(e.target) && !btn.contains(e.target)) dd.classList.remove('show');
+  const dd  = document.getElementById('walletDD');
+  const btn = document.getElementById('connectBtn');
+  if (!dd.contains(e.target) && !btn.contains(e.target)) dd.classList.remove('open');
 });
 
-// ════════════════════════════════════════
-//  METAMASK CONNECT
-// ════════════════════════════════════════
-async function connectMetaMask() {
+/* ═══════════════════════════════════════
+   METAMASK CONNECT
+═══════════════════════════════════════ */
+async function connectMM() {
   if (!window.ethereum) {
-    toast('MetaMask not found', 'Please install MetaMask extension and refresh the page.', 'error');
+    toast('MetaMask not found', 'Please install the MetaMask browser extension and refresh the page.', 'error');
     return;
   }
+
+  const btn = document.querySelector('.wallet-option');
+  btn.style.opacity = '.6';
+  btn.style.pointerEvents = 'none';
+
   try {
     // Request accounts
     await window.ethereum.request({ method: 'eth_requestAccounts' });
 
-    // Add / switch to KarChain
+    // Switch / add KarChain
     try {
       await window.ethereum.request({
         method: 'wallet_switchEthereumChain',
@@ -1070,28 +1965,29 @@ async function connectMetaMask() {
         await window.ethereum.request({
           method: 'wallet_addEthereumChain',
           params: [{
-            chainId: CFG.chainHex,
+            chainId:  CFG.chainHex,
             chainName: CFG.chainName,
-            rpcUrls: [CFG.rpc],
-            nativeCurrency: { name: 'KarChain', symbol: CFG.symbol, decimals: CFG.decimals }
+            rpcUrls:  [CFG.rpc],
+            nativeCurrency: { name:'KarChain', symbol:CFG.symbol, decimals:CFG.decimals }
           }]
         });
       } else if (sw.code === 4001) {
-        toast('Rejected', 'You rejected the network switch.', 'error');
+        toast('Rejected', 'Network switch was rejected.', 'error');
+        btn.style.opacity = ''; btn.style.pointerEvents = '';
         return;
-      }
+      } else throw sw;
     }
 
     const provider = new ethers.providers.Web3Provider(window.ethereum);
-    const signer = provider.getSigner();
-    const address = await signer.getAddress();
-
-    // Verify we're on the right chain
-    const network = await provider.getNetwork();
+    const network  = await provider.getNetwork();
     if (network.chainId !== CFG.chainId) {
-      toast('Wrong Network', `Please switch MetaMask to KarChain (Chain ID ${CFG.chainId}).`, 'error');
+      toast('Wrong Network', `Switch MetaMask to KarChain (Chain ID ${CFG.chainId}).`, 'error');
+      btn.style.opacity = ''; btn.style.pointerEvents = '';
       return;
     }
+
+    const signer  = provider.getSigner();
+    const address = await signer.getAddress();
 
     let balance = '0.0000';
     try {
@@ -1099,420 +1995,423 @@ async function connectMetaMask() {
       balance = parseFloat(ethers.utils.formatEther(raw)).toFixed(4);
     } catch (_) {}
 
-    S.address = address;
-    S.provider = provider;
-    S.signer = signer;
-    S.balance = balance;
-
-    localStorage.setItem('kc_addr', address);
-
+    S.address = address; S.provider = provider; S.signer = signer; S.balance = balance;
+    S.save();
     closeModal();
     setConnected(address, balance);
-    toast('Connected!', `Wallet ${address.slice(0,6)}...${address.slice(-4)} linked to KarChain.`, 'success');
+    toast('Connected!', `${address.slice(0,8)}…${address.slice(-6)} · KarChain`, 'success');
 
-    // Listen for chain/account changes
     window.ethereum.on('chainChanged', () => location.reload());
-    window.ethereum.on('accountsChanged', accs => { if (!accs.length) disconnectWallet(); else location.reload(); });
+    window.ethereum.on('accountsChanged', accs => { if (!accs.length) disconnect(); else location.reload(); });
 
   } catch (err) {
-    if (err.code === 4001) {
-      toast('Rejected', 'Connection request was rejected.', 'error');
-    } else {
-      toast('Error', err.message?.slice(0, 80) || 'Unknown error.', 'error');
-    }
+    const msg = err.code === 4001 ? 'Connection rejected by user.' : (err.message||'Unknown error').slice(0,80);
+    toast('Connection failed', msg, 'error');
   }
+
+  btn.style.opacity = ''; btn.style.pointerEvents = '';
 }
 
-// ════════════════════════════════════════
-//  SET CONNECTED STATE
-// ════════════════════════════════════════
+/* ═══════════════════════════════════════
+   SET CONNECTED STATE
+═══════════════════════════════════════ */
 function setConnected(address, balance) {
-  const short = address.slice(0, 6) + '...' + address.slice(-4);
-  document.getElementById('connect-btn').innerHTML = `<span class="dot"></span><span id="connect-btn-text">${short}</span>`;
-  document.getElementById('dd-addr').textContent = address;
-  document.getElementById('dd-bal').textContent = parseFloat(balance).toFixed(4) + ' KRM';
-  document.getElementById('wallet-chip').textContent = short;
-  document.getElementById('bal-num').textContent = parseFloat(balance).toFixed(4);
-  document.getElementById('view-locked').style.display = 'none';
-  document.getElementById('view-active').style.display = 'block';
+  const short = address.slice(0,6) + '…' + address.slice(-4);
 
+  // Nav button
+  document.getElementById('connectTxt').textContent = short;
+  document.getElementById('connectDot').style.display = 'inline-block';
+
+  // Dropdown
+  document.getElementById('ddAddr').textContent  = address;
+  document.getElementById('ddBal').textContent   = parseFloat(balance).toFixed(4) + ' KRM';
+
+  // Dashboard
+  document.getElementById('addrChip').textContent = short;
+  document.getElementById('balNum').textContent   = parseFloat(balance).toFixed(4);
+
+  // Views
+  document.getElementById('lockedView').style.display = 'none';
+  document.getElementById('activeView').style.display = 'block';
+
+  // Network status
   setNetStatus(true);
+
+  // Render all dynamic parts
   renderL1();
   renderL2();
   renderTasks();
   renderProgress();
-  renderTxHistory();
+  renderTxs();
 }
 
-function disconnectWallet() {
+function disconnect() {
+  clearInterval(S.timerInt);
   S.address = null; S.provider = null; S.signer = null; S.balance = '0.0000';
   localStorage.removeItem('kc_addr');
-  clearInterval(S.timerInterval);
-  document.getElementById('connect-btn').innerHTML = '<i class="fa-solid fa-wallet"></i><span id="connect-btn-text">Connect Wallet</span>';
-  document.getElementById('wallet-dropdown').classList.remove('show');
-  document.getElementById('view-locked').style.display = 'block';
-  document.getElementById('view-active').style.display = 'none';
+
+  document.getElementById('connectTxt').textContent = 'Connect Wallet';
+  document.getElementById('connectDot').style.display = 'none';
+  document.getElementById('walletDD').classList.remove('open');
+  document.getElementById('lockedView').style.display = 'block';
+  document.getElementById('activeView').style.display = 'none';
   setNetStatus(false);
   toast('Disconnected', 'Wallet session ended.', 'info');
 }
 
-function setNetStatus(connected) {
-  document.getElementById('net-dot').style.background = connected ? 'var(--green)' : 'var(--muted)';
-  document.getElementById('net-dot').style.boxShadow = connected ? '0 0 8px var(--green)' : 'none';
-  document.getElementById('net-dot').style.animation = connected ? 'pulse 2s infinite' : 'none';
-  document.getElementById('net-text').textContent = connected ? 'KarChain · Chain 1337' : 'Not connected';
-  document.getElementById('net-text').style.color = connected ? 'var(--green)' : 'var(--muted)';
+function setNetStatus(on) {
+  const el  = document.getElementById('netStatus');
+  const dot = document.getElementById('netDot');
+  const txt = document.getElementById('netTxt');
+  if (on) {
+    el.className = 'net-status connected';
+    dot.style.background = 'var(--green)';
+    dot.style.boxShadow  = '0 0 8px var(--green)';
+    dot.style.animation  = 'pulseDot 2s infinite';
+    txt.textContent      = 'KarChain · Chain 1337';
+  } else {
+    el.className = 'net-status disconnected';
+    dot.style.background = 'var(--muted)';
+    dot.style.boxShadow  = 'none';
+    dot.style.animation  = 'none';
+    txt.textContent      = 'Not Connected';
+  }
 }
 
-async function refreshBalance() {
+async function refreshBal() {
   if (!S.provider || !S.address) return;
   try {
     const raw = await S.provider.getBalance(S.address);
     S.balance = parseFloat(ethers.utils.formatEther(raw)).toFixed(4);
-    document.getElementById('bal-num').textContent = S.balance;
-    document.getElementById('dd-bal').textContent = S.balance + ' KRM';
-    toast('Refreshed', 'Balance updated from chain.', 'success');
-  } catch (e) {
-    toast('Error', 'Could not fetch balance.', 'error');
+    document.getElementById('balNum').textContent = S.balance;
+    document.getElementById('ddBal').textContent  = S.balance + ' KRM';
+    toast('Balance updated', 'Fetched from KarChain node.', 'success');
+  } catch (_) {
+    toast('Error', 'Could not fetch balance from node.', 'error');
   }
 }
 
-// ════════════════════════════════════════
-//  FAUCET LEVEL 1
-// ════════════════════════════════════════
+/* ═══════════════════════════════════════
+   FAUCET LEVEL 1
+═══════════════════════════════════════ */
 function renderL1() {
-  const container = document.getElementById('l1-state');
-  if (!S.address) return;
-  const last = S.l1LastClaim;
-  const now = Date.now();
+  const box  = document.getElementById('l1State');
+  const now  = Date.now();
+  const last = S.l1Last;
 
-  clearInterval(S.timerInterval);
+  clearInterval(S.timerInt);
 
-  if (!last || now - last >= CFG.l1Cooldown) {
-    // Show captcha
-    container.innerHTML = `
-      <div class="captcha-wrap" id="cap-wrap" onclick="doCaptcha()">
-        <div class="captcha-box" id="cap-box"></div>
-        <span class="captcha-text">I'm not a robot</span>
-        <div class="captcha-logo">reCAPTCHA<br><span style="font-size:8px">Privacy · Terms</span></div>
+  if (!last || now - last >= CFG.l1Cool) {
+    S.capDone = false;
+    box.innerHTML = `
+      <div class="captcha-area" id="capArea" onclick="doCaptcha()">
+        <div class="cap-box" id="capBox"></div>
+        <span class="captcha-txt">I'm not a robot</span>
+        <div class="captcha-brand">Protected<br><span style="font-size:7px">Privacy · Terms</span></div>
       </div>
-      <button class="btn-claim green" id="l1-btn" onclick="claimL1()" disabled style="margin-top:12px">
+      <button class="action-btn green" id="claimL1Btn" onclick="claimL1()" disabled>
         <i class="fa-solid fa-droplet"></i>Claim 1 KRM
       </button>`;
-    S.captchaDone = false;
   } else {
-    showL1Timer(container, last);
+    startL1Timer(box, last);
   }
 }
 
-function showL1Timer(container, last) {
+function startL1Timer(box, last) {
   const tick = () => {
-    const left = CFG.l1Cooldown - (Date.now() - last);
+    const left = CFG.l1Cool - (Date.now() - last);
     if (left <= 0) { renderL1(); return; }
-    const h = Math.floor(left / 3600000).toString().padStart(2, '0');
-    const m = Math.floor((left % 3600000) / 60000).toString().padStart(2, '0');
-    const sc = Math.floor((left % 60000) / 1000).toString().padStart(2, '0');
-    container.innerHTML = `
+    const h  = Math.floor(left/3600000).toString().padStart(2,'0');
+    const m  = Math.floor((left%3600000)/60000).toString().padStart(2,'0');
+    const sc = Math.floor((left%60000)/1000).toString().padStart(2,'0');
+    box.innerHTML = `
       <div class="timer-wrap">
-        <div class="timer-label">Next claim available in</div>
+        <div class="timer-lbl">Next free claim</div>
         <div class="timer-digits">
-          <span class="td">${h}</span><span class="timer-sep">:</span>
-          <span class="td">${m}</span><span class="timer-sep">:</span>
+          <span class="td">${h}</span><span class="tsep">:</span>
+          <span class="td">${m}</span><span class="tsep">:</span>
           <span class="td">${sc}</span>
         </div>
       </div>
-      <button class="btn-claim done" disabled><i class="fa-solid fa-check"></i>Claimed · Come back in ${h}h ${m}m</button>`;
+      <button class="action-btn done" disabled>
+        <i class="fa-solid fa-check"></i>Claimed · ${h}h ${m}m remaining
+      </button>`;
   };
   tick();
-  S.timerInterval = setInterval(tick, 1000);
+  S.timerInt = setInterval(tick, 1000);
 }
 
 function doCaptcha() {
-  if (S.captchaDone) return;
-  const box = document.getElementById('cap-box');
-  const wrap = document.getElementById('cap-wrap');
+  if (S.capDone) return;
+  const box  = document.getElementById('capBox');
+  const area = document.getElementById('capArea');
   if (!box) return;
   box.classList.add('spinning');
-  wrap.style.pointerEvents = 'none';
+  area.style.pointerEvents = 'none';
   setTimeout(() => {
     box.classList.remove('spinning');
-    box.classList.add('done');
-    box.innerHTML = '<i class="fa-solid fa-check" style="color:#fff;font-size:12px"></i>';
-    S.captchaDone = true;
-    const btn = document.getElementById('l1-btn');
-    if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+    box.classList.add('checked');
+    box.innerHTML = '<i class="fa-solid fa-check" style="font-size:11px;color:var(--ink)"></i>';
+    S.capDone = true;
+    const btn = document.getElementById('claimL1Btn');
+    if (btn) { btn.disabled = false; }
   }, 1300);
 }
 
 function claimL1() {
-  if (!S.captchaDone) { toast('CAPTCHA', 'Please complete the verification first.', 'error'); return; }
-  S.setL1Claim();
-  S.unlockL2();
+  if (!S.capDone) { toast('CAPTCHA required', 'Please complete the verification.', 'error'); return; }
+  S.setL1();
+  S.setL2();
   const newBal = (parseFloat(S.balance) + 1).toFixed(4);
   S.balance = newBal;
-  document.getElementById('bal-num').textContent = newBal;
-  document.getElementById('dd-bal').textContent = newBal + ' KRM';
-  S.addTx({ hash: '0x' + [...Array(64)].map(() => Math.floor(Math.random() * 16).toString(16)).join(''), value: '1.0000', type: 'Faucet L1' });
+  document.getElementById('balNum').textContent = newBal;
+  document.getElementById('ddBal').textContent  = newBal + ' KRM';
+  S.addTx({ hash:'0x'+[...Array(64)].map(()=>Math.floor(Math.random()*16).toString(16)).join(''), value:'1.0000', type:'Faucet L1 Claim' });
   renderL1();
   renderL2();
-  renderTxHistory();
-  toast('Claimed!', '1 KRM added to your balance. Level 2 unlocked!', 'success');
+  renderTxs();
+  toast('1 KRM claimed!', 'Level 2 faucet is now unlocked.', 'success');
 }
 
-// ════════════════════════════════════════
-//  FAUCET LEVEL 2
-// ════════════════════════════════════════
+/* ═══════════════════════════════════════
+   FAUCET LEVEL 2
+═══════════════════════════════════════ */
 function renderL2() {
-  const container = document.getElementById('l2-state');
-  const card = document.getElementById('l2-card');
+  const box  = document.getElementById('l2State');
+  const card = document.getElementById('l2Card');
   if (!S.address) return;
 
   if (!S.l2Unlocked) {
-    card.classList.add('locked-card');
-    container.innerHTML = `
-      <div style="text-align:center;padding:16px;background:rgba(255,255,255,.02);border:1px solid var(--border2);border-radius:10px">
-        <i class="fa-solid fa-lock" style="font-size:22px;color:var(--muted);margin-bottom:8px;display:block"></i>
-        <span style="font-size:12px;color:var(--muted)">Complete Level 1 to unlock</span>
+    card.classList.add('fc-locked');
+    box.innerHTML = `
+      <div style="text-align:center;padding:14px;background:rgba(255,255,255,.02);border:1px solid var(--border2);border-radius:10px">
+        <i class="fa-solid fa-lock" style="font-size:20px;color:var(--muted);display:block;margin-bottom:6px"></i>
+        <span style="font-size:11px;color:var(--muted)">Complete Level 1 to unlock</span>
       </div>`;
     return;
   }
 
-  card.classList.remove('locked-card');
-  container.innerHTML = `
-    <button class="btn-claim purple" id="l2-btn" onclick="claimL2()">
+  card.classList.remove('fc-locked');
+  box.innerHTML = `
+    <button class="action-btn purple" id="l2Btn" onclick="claimL2()">
       <i class="fa-brands fa-ethereum"></i>Send 0.005 ETH → Get 5 KRM
     </button>
-    <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px">
-      Transaction on Ethereum Mainnet · Treasury receives ETH, you receive KRM
+    <p style="font-size:10px;color:var(--muted);text-align:center;margin-top:8px;line-height:1.6">
+      Sends 0.005 ETH via MetaMask to treasury on Ethereum Mainnet.<br>5 KRM credited to your KarChain balance.
     </p>`;
 }
 
 async function claimL2() {
-  if (!window.ethereum || !S.signer) {
-    toast('Error', 'Wallet not connected.', 'error');
-    return;
-  }
-  const btn = document.getElementById('l2-btn');
-  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Switching to Mainnet…'; }
+  if (!window.ethereum || !S.signer) { toast('Not connected','Connect MetaMask first.','error'); return; }
+
+  const btn = document.getElementById('l2Btn');
+  const setBtn = (txt, dis=false) => {
+    if (!btn) return;
+    btn.disabled = dis;
+    btn.innerHTML = txt;
+  };
+
+  setBtn('<i class="fa-solid fa-spinner fa-spin"></i>Switching to Mainnet…', true);
 
   try {
-    // Switch to Ethereum mainnet
-    await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x1' }] });
+    await window.ethereum.request({ method:'wallet_switchEthereumChain', params:[{chainId:'0x1'}] });
 
-    const mainProvider = new ethers.providers.Web3Provider(window.ethereum);
-    const mainSigner = mainProvider.getSigner();
+    const mp  = new ethers.providers.Web3Provider(window.ethereum);
+    const ms  = mp.getSigner();
 
-    if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Sending 0.005 ETH…';
+    setBtn('<i class="fa-solid fa-spinner fa-spin"></i>Sending 0.005 ETH…', true);
 
-    const tx = await mainSigner.sendTransaction({
-      to: CFG.treasury,
-      value: ethers.utils.parseEther(CFG.l2PaymentEth)
+    const tx = await ms.sendTransaction({
+      to:    CFG.treasury,
+      value: ethers.utils.parseEther(CFG.l2Eth)
     });
-
-    if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Waiting for confirmation…';
-    toast('TX Sent', `Hash: ${tx.hash.slice(0,12)}…`, 'info');
+    toast('TX broadcast', `Hash: ${tx.hash.slice(0,14)}…`, 'info');
+    setBtn('<i class="fa-solid fa-spinner fa-spin"></i>Awaiting confirmation…', true);
 
     await tx.wait();
 
-    // Switch back to KarChain
+    // switch back
     try {
-      await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: CFG.chainHex }] });
-    } catch (_) {}
+      await window.ethereum.request({ method:'wallet_switchEthereumChain', params:[{chainId:CFG.chainHex}] });
+    } catch(_) {}
 
-    const newProvider = new ethers.providers.Web3Provider(window.ethereum);
-    S.provider = newProvider;
-    S.signer = newProvider.getSigner();
+    const np = new ethers.providers.Web3Provider(window.ethereum);
+    S.provider = np; S.signer = np.getSigner();
 
     const newBal = (parseFloat(S.balance) + 5).toFixed(4);
     S.balance = newBal;
-    document.getElementById('bal-num').textContent = newBal;
-    document.getElementById('dd-bal').textContent = newBal + ' KRM';
+    document.getElementById('balNum').textContent = newBal;
+    document.getElementById('ddBal').textContent  = newBal + ' KRM';
+    S.addTx({ hash:tx.hash, value:'5.0000', type:'Faucet L2 Premium' });
+    renderTxs();
 
-    S.addTx({ hash: tx.hash, value: '5.0000', type: 'Faucet L2' });
-    renderTxHistory();
+    setBtn('<i class="fa-solid fa-check"></i>5 KRM received!');
+    if (btn) btn.className = 'action-btn done';
+    toast('5 KRM received!', 'Thank you for supporting KarChain testnet.', 'success');
 
-    if (btn) { btn.innerHTML = '<i class="fa-solid fa-check"></i>Received 5 KRM!'; btn.classList.add('done'); }
-    toast('Success!', '5 KRM received. Thank you for supporting KarChain!', 'success');
-
-  } catch (err) {
-    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-brands fa-ethereum"></i>Send 0.005 ETH → Get 5 KRM'; }
-    if (err.code === 4001) {
-      toast('Rejected', 'Transaction was rejected.', 'error');
-    } else {
-      toast('Error', err.message?.slice(0, 80) || 'Transaction failed.', 'error');
-    }
+  } catch(err) {
+    setBtn('<i class="fa-brands fa-ethereum"></i>Send 0.005 ETH → Get 5 KRM');
+    if (err.code === 4001) toast('Rejected','Transaction rejected by user.','error');
+    else toast('Error', (err.message||'TX failed').slice(0,80), 'error');
   }
 }
 
-// ════════════════════════════════════════
-//  TASKS
-// ════════════════════════════════════════
+/* ═══════════════════════════════════════
+   TASKS
+═══════════════════════════════════════ */
 function renderTasks() {
-  const done = S.tasks;
+  if (S.hasTask(1)) markDone(1);
+  else if (S.socialDone) setVerifyReady('t1verify');
 
-  // T1
-  if (done.includes(1)) {
-    markTaskDone('tc-1', 't1-verify');
-  } else if (S.socialStarted) {
-    enableVerify('t1-verify');
+  if (S.hasTask(1)) unlock(2);
+  if (S.hasTask(2)) markDone(2);
+  else if (S.txDone && S.hasTask(1)) setVerifyReady('t2verify');
+
+  if (S.hasTask(2)) {
+    unlock(3);
+    const b = document.getElementById('t3btn');
+    if (b) { b.style.opacity='1'; b.style.pointerEvents='auto'; }
   }
-  // T2
-  if (done.includes(1)) unlockCard('tc-2');
-  if (done.includes(2)) {
-    markTaskDone('tc-2', 't2-verify');
-  } else if (S.txDone && done.includes(1)) {
-    enableVerify('t2-verify');
-  }
-  // T3
-  if (done.includes(2)) {
-    unlockCard('tc-3');
-    const b = document.getElementById('t3-btn');
-    if (b) { b.style.opacity = '1'; b.style.pointerEvents = 'auto'; }
-  }
-  if (done.includes(3)) markTaskDone('tc-3', 't3-btn', true);
+  if (S.hasTask(3)) markDone(3);
 }
 
-function unlockCard(id) {
-  const c = document.getElementById(id);
-  if (c) { c.classList.remove('locked'); c.classList.add('unlocked'); }
+function unlock(n) {
+  const c = document.getElementById('tc' + n);
+  if (c) { c.classList.remove('tc-locked'); c.classList.add('tc-unlocked'); }
 }
 
-function enableVerify(id) {
+function setVerifyReady(id) {
   const b = document.getElementById(id);
-  if (b) { b.classList.add('ready'); }
+  if (b) b.classList.add('v-ready');
 }
 
-function markTaskDone(cardId, btnId, isForm = false) {
-  const card = document.getElementById(cardId);
-  if (card) { card.classList.add('completed'); card.classList.remove('locked'); card.classList.add('unlocked'); }
-  const btn = document.getElementById(btnId);
-  if (btn) {
-    btn.classList.remove('ready');
-    btn.classList.add('done');
-    btn.innerHTML = '<i class="fa-solid fa-check-circle"></i>Completed';
-    btn.onclick = null;
-    btn.style.pointerEvents = isForm ? 'none' : '';
+function markDone(n) {
+  const c = document.getElementById('tc' + n);
+  if (c) {
+    c.classList.remove('tc-locked'); c.classList.add('tc-unlocked','tc-done');
+    const step = c.querySelector('.task-step');
+    if (step) { step.className = 'task-step step-done'; step.textContent = '✓ Done'; }
   }
+  if (n===1) { const b=document.getElementById('t1verify'); if(b){b.className='task-btn tb-verify v-done';b.innerHTML='<i class="fa-solid fa-check-circle"></i>Verified';b.onclick=null;} }
+  if (n===2) { const b=document.getElementById('t2verify'); if(b){b.className='task-btn tb-verify v-done';b.innerHTML='<i class="fa-solid fa-check-circle"></i>Verified';b.onclick=null;} }
+  if (n===3) { const b=document.getElementById('t3btn'); if(b){b.className='task-btn tb-orange';b.style.opacity='1';b.style.pointerEvents='none';b.innerHTML='<i class="fa-solid fa-check-circle"></i>Registered';} }
 }
 
 function renderProgress() {
-  const done = S.tasks;
-  const count = done.length;
-  const rewards = { 1: 10, 2: 25, 3: 50 };
-  const total = done.reduce((s, id) => s + (rewards[id] || 0), 0);
-  document.getElementById('prog-text').textContent = `${count}/3 Tasks`;
-  document.getElementById('prog-fill').style.width = (count / 3 * 100) + '%';
-  document.getElementById('prog-reward').textContent = `+${total} KRM`;
+  const count = S.tasks.length;
+  const map   = {1:10,2:25,3:50};
+  const total = S.tasks.reduce((s,n)=>s+(map[n]||0),0);
+  document.getElementById('progChip').textContent  = `${count} / 3 Tasks`;
+  document.getElementById('progFill').style.width  = (count/3*100) + '%';
+  document.getElementById('progReward').textContent = `+${total} KRM Earned`;
 }
 
-function openTwitter() {
-  window.open(CFG.twitter, '_blank');
+/* Task actions */
+function doTwitter() {
+  window.open(CFG.twitter,'_blank');
   S.setSocial();
-  setTimeout(() => enableVerify('t1-verify'), 1500);
-  toast('Follow on X', 'Then click "Verify Completion" to claim +10 KRM.', 'info');
+  setTimeout(()=>setVerifyReady('t1verify'),1500);
+  toast('Follow on X','Come back and click Verify Completion.','info');
 }
-
-function openTelegram() {
-  window.open(CFG.telegram, '_blank');
+function doTelegram() {
+  window.open(CFG.telegram,'_blank');
   S.setSocial();
-  setTimeout(() => enableVerify('t1-verify'), 1500);
-  toast('Join Telegram', 'Then click "Verify Completion" to claim +10 KRM.', 'info');
+  setTimeout(()=>setVerifyReady('t1verify'),1500);
+  toast('Join Telegram','Come back and click Verify Completion.','info');
 }
 
-function verifyTask1() {
-  const btn = document.getElementById('t1-verify');
-  if (!btn || !btn.classList.contains('ready')) return;
-  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Verifying…';
+function verifyT1() {
+  const b = document.getElementById('t1verify');
+  if (!b || !b.classList.contains('v-ready')) return;
+  b.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Verifying…';
+  b.style.pointerEvents = 'none';
   setTimeout(() => {
-    S.setTask(1);
-    const newBal = (parseFloat(S.balance) + 10).toFixed(4);
-    S.balance = newBal;
-    document.getElementById('bal-num').textContent = newBal;
-    document.getElementById('dd-bal').textContent = newBal + ' KRM';
-    markTaskDone('tc-1', 't1-verify');
-    unlockCard('tc-2');
-    renderProgress();
-    toast('Task 1 Complete!', '+10 KRM added. Step 2 unlocked.', 'success');
-  }, 1600);
+    S.addTask(1);
+    const nb = (parseFloat(S.balance)+10).toFixed(4);
+    S.balance = nb;
+    document.getElementById('balNum').textContent = nb;
+    document.getElementById('ddBal').textContent  = nb+' KRM';
+    markDone(1); unlock(2); renderProgress();
+    toast('Task 1 Complete!', '+10 KRM added. Step 2 is now unlocked.', 'success');
+  }, 1800);
 }
 
-async function sendTestTx() {
-  if (!S.signer) { toast('Error', 'Wallet not connected.', 'error'); return; }
-  const btn = document.querySelector('#tc-2 .tb-purple');
-  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Sending…'; }
+async function doSendTx() {
+  if (!S.signer) { toast('Not connected','Connect wallet first.','error'); return; }
+  const btn = document.querySelector('#tc2 .tb-purple');
+  if (btn) { btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i>Sending…'; }
   try {
     const tx = await S.signer.sendTransaction({
-      to: S.address,
+      to:    S.address,
       value: ethers.utils.parseEther('0.001')
     });
-    toast('TX Sent', `Hash: ${tx.hash.slice(0,14)}…`, 'info');
+    toast('TX sent','Waiting for confirmation…','info');
     await tx.wait();
     S.setTxDone();
-    S.addTx({ hash: tx.hash, value: '0.0010', type: 'Test TX' });
-    renderTxHistory();
-    enableVerify('t2-verify');
-    toast('Confirmed!', 'Transaction confirmed on KarChain. Click Verify.', 'success');
-    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-bolt"></i>Send Test TX (0.001 KRM)'; }
-  } catch (err) {
-    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-bolt"></i>Send Test TX (0.001 KRM)'; }
-    if (err.code === 4001) toast('Rejected', 'Transaction rejected.', 'error');
-    else toast('Error', err.message?.slice(0, 80) || 'TX failed.', 'error');
+    S.addTx({ hash:tx.hash, value:'0.0010', type:'Test Transaction' });
+    renderTxs();
+    setVerifyReady('t2verify');
+    toast('TX confirmed!','Transaction confirmed on KarChain. Click Verify.','success');
+    if (btn) { btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-bolt"></i>Send Test TX (0.001 KRM)'; }
+  } catch(err) {
+    if (btn) { btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-bolt"></i>Send Test TX (0.001 KRM)'; }
+    if (err.code===4001) toast('Rejected','Transaction cancelled.','error');
+    else toast('Error',(err.message||'TX failed').slice(0,80),'error');
   }
 }
 
-function verifyTask2() {
-  const btn = document.getElementById('t2-verify');
-  if (!btn || !btn.classList.contains('ready')) return;
-  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Verifying…';
+function verifyT2() {
+  const b = document.getElementById('t2verify');
+  if (!b || !b.classList.contains('v-ready')) return;
+  b.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Verifying…';
+  b.style.pointerEvents = 'none';
   setTimeout(() => {
-    S.setTask(2);
-    const newBal = (parseFloat(S.balance) + 25).toFixed(4);
-    S.balance = newBal;
-    document.getElementById('bal-num').textContent = newBal;
-    document.getElementById('dd-bal').textContent = newBal + ' KRM';
-    markTaskDone('tc-2', 't2-verify');
-    unlockCard('tc-3');
-    const b = document.getElementById('t3-btn');
-    if (b) { b.style.opacity = '1'; b.style.pointerEvents = 'auto'; }
+    S.addTask(2);
+    const nb = (parseFloat(S.balance)+25).toFixed(4);
+    S.balance = nb;
+    document.getElementById('balNum').textContent = nb;
+    document.getElementById('ddBal').textContent  = nb+' KRM';
+    markDone(2); unlock(3);
+    const b3 = document.getElementById('t3btn');
+    if (b3) { b3.style.opacity='1'; b3.style.pointerEvents='auto'; }
     renderProgress();
     toast('Task 2 Complete!', '+25 KRM added. Final step unlocked.', 'success');
-  }, 1600);
+  }, 1800);
 }
 
-function openForm() {
-  const url = CFG.form + '?entry.1234567890=' + encodeURIComponent(S.address || '');
-  window.open(url, '_blank');
-  const btn = document.getElementById('t3-btn');
-  if (btn) { btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Processing…'; btn.style.pointerEvents = 'none'; }
+function doForm() {
+  const url = CFG.form + '?entry.1234567890=' + encodeURIComponent(S.address||'');
+  window.open(url,'_blank');
+  const btn = document.getElementById('t3btn');
+  if (btn) { btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i>Processing…'; btn.style.pointerEvents='none'; }
   setTimeout(() => {
-    S.setTask(3);
-    const newBal = (parseFloat(S.balance) + 50).toFixed(4);
-    S.balance = newBal;
-    document.getElementById('bal-num').textContent = newBal;
-    document.getElementById('dd-bal').textContent = newBal + ' KRM';
-    markTaskDone('tc-3', 't3-btn', true);
-    renderProgress();
-    toast('Task 3 Complete!', '+50 KRM added. Genesis registration successful!', 'success');
+    S.addTask(3);
+    const nb = (parseFloat(S.balance)+50).toFixed(4);
+    S.balance = nb;
+    document.getElementById('balNum').textContent = nb;
+    document.getElementById('ddBal').textContent  = nb+' KRM';
+    markDone(3); renderProgress();
+    toast('Genesis Registration Complete!', '+50 KRM · Your wallet is queued for genesis block inclusion.', 'success');
   }, 3000);
 }
 
-// ════════════════════════════════════════
-//  TX HISTORY
-// ════════════════════════════════════════
-function renderTxHistory() {
+/* ═══════════════════════════════════════
+   TX HISTORY
+═══════════════════════════════════════ */
+function renderTxs() {
   if (!S.address) return;
   const txs = S.txs;
-  const sec = document.getElementById('tx-section');
-  const list = document.getElementById('tx-list');
-  if (!txs.length) { sec.style.display = 'none'; return; }
-  sec.style.display = 'block';
+  const area = document.getElementById('txArea');
+  const list = document.getElementById('txList');
+  if (!txs.length) { area.style.display='none'; return; }
+  area.style.display = 'block';
   list.innerHTML = txs.slice(-8).reverse().map(tx => `
     <div class="tx-item">
       <div class="tx-left">
         <span class="tx-dot"></span>
         <div>
-          <div class="tx-hash">${tx.hash.slice(0, 20)}…</div>
-          <div style="font-size:10px;color:var(--muted);margin-top:2px">${tx.type}</div>
+          <div class="tx-hash">${tx.hash.slice(0,22)}…</div>
+          <div class="tx-type">${tx.type}</div>
         </div>
       </div>
       <div style="text-align:right">
@@ -1522,27 +2421,51 @@ function renderTxHistory() {
     </div>`).join('');
 }
 
-// ════════════════════════════════════════
-//  BACKGROUND CANVAS
-// ════════════════════════════════════════
-function initCanvas() {
-  const canvas = document.getElementById('bg-canvas');
-  const ctx = canvas.getContext('2d');
-  let particles = [];
-  const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+/* ═══════════════════════════════════════
+   FAQ
+═══════════════════════════════════════ */
+function toggleFaq(btn) {
+  const item = btn.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+/* ═══════════════════════════════════════
+   STARS CANVAS
+═══════════════════════════════════════ */
+function initStars() {
+  const c   = document.getElementById('stars');
+  const ctx = c.getContext('2d');
+  let stars = [];
+
+  const resize = () => {
+    c.width  = window.innerWidth;
+    c.height = window.innerHeight;
+    stars = Array.from({length:120}, () => ({
+      x: Math.random() * c.width,
+      y: Math.random() * c.height,
+      r: Math.random() * 1.2 + .2,
+      a: Math.random() * .5 + .05,
+      v: Math.random() * .2 + .04,
+      tw: Math.random() * Math.PI * 2
+    }));
+  };
   window.addEventListener('resize', resize);
   resize();
-  for (let i = 0; i < 50; i++) {
-    particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, r: Math.random() * 1.8 + .3, v: Math.random() * .35 + .08, a: Math.random() * .18 + .04 });
-  }
+
+  let t = 0;
   const loop = () => {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    particles.forEach(p => {
-      p.y -= p.v;
-      if (p.y < -10) { p.y = canvas.height + 10; p.x = Math.random() * canvas.width; }
+    ctx.clearRect(0,0,c.width,c.height);
+    t += .005;
+    stars.forEach(s => {
+      s.tw += .008;
+      const alpha = s.a * (0.5 + 0.5 * Math.sin(s.tw));
+      s.y -= s.v;
+      if (s.y < -4) { s.y = c.height+4; s.x = Math.random()*c.width; }
       ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(74,222,128,${p.a})`;
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(61,255,122,${alpha})`;
       ctx.fill();
     });
     requestAnimationFrame(loop);
@@ -1550,53 +2473,147 @@ function initCanvas() {
   loop();
 }
 
-// ════════════════════════════════════════
-//  STATS ANIMATION
-// ════════════════════════════════════════
-function animateStats() {
-  const run = (el, to, decimals = 0) => {
-    if (!el) return;
-    const dur = 2200;
-    const start = performance.now();
-    const step = now => {
-      const p = Math.min((now - start) / dur, 1);
-      const e = 1 - Math.pow(1 - p, 3);
-      el.textContent = decimals ? (e * to).toFixed(decimals) + 's' : Math.round(e * to).toLocaleString();
-      if (p < 1) requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
+/* ═══════════════════════════════════════
+   HEX CANVAS (Vision page)
+═══════════════════════════════════════ */
+function initHexCanvas() {
+  const c = document.getElementById('hexCanvas');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  const W = c.width, H = c.height;
+  let t = 0;
+
+  const hexes = [];
+  const rows = 8, cols = 9;
+  const hw = 28, hh = 32;
+  const dx = hw * 1.75, dy = hh * 1.52;
+  for (let r = 0; r < rows; r++) {
+    for (let col = 0; col < cols; col++) {
+      const x = 30 + col * dx + (r%2===1 ? dx/2 : 0);
+      const y = 30 + r * dy;
+      if (x < W-20 && y < H-20) {
+        hexes.push({ x, y, phase: Math.random()*Math.PI*2, speed: Math.random()*.015+.005 });
+      }
+    }
+  }
+
+  const drawHex = (x, y, size, alpha) => {
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const angle = (i * Math.PI) / 3 - Math.PI/6;
+      const px = x + size * Math.cos(angle);
+      const py = y + size * Math.sin(angle);
+      i === 0 ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
+    }
+    ctx.closePath();
+    ctx.strokeStyle = `rgba(61,255,122,${alpha})`;
+    ctx.lineWidth = 1;
+    ctx.stroke();
   };
-  setTimeout(() => {
-    run(document.getElementById('s-blocks'), 12492);
-    run(document.getElementById('s-txs'), 15892);
-    run(document.getElementById('s-val'), 138);
-  }, 400);
+
+  const loop = () => {
+    ctx.clearRect(0,0,W,H);
+    t += 1;
+    hexes.forEach(h => {
+      h.phase += h.speed;
+      const a = (Math.sin(h.phase)*0.5+0.5) * 0.25 + 0.03;
+      drawHex(h.x, h.y, 22, a);
+      if (a > 0.2) {
+        ctx.fillStyle = `rgba(61,255,122,${(a-0.2)*0.3})`;
+        ctx.fill();
+      }
+    });
+    requestAnimationFrame(loop);
+  };
+  loop();
 }
 
-// ════════════════════════════════════════
-//  NAVBAR SCROLL
-// ════════════════════════════════════════
+/* ═══════════════════════════════════════
+   COUNTER ANIMATION
+═══════════════════════════════════════ */
+function animateCounter(el, to, dur=2200) {
+  if (!el) return;
+  const start = performance.now();
+  const step = now => {
+    const p = Math.min((now-start)/dur, 1);
+    const e = 1 - Math.pow(1-p, 3);
+    el.textContent = Math.round(e*to).toLocaleString();
+    if (p < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+
+function runCounters() {
+  setTimeout(() => {
+    animateCounter(document.getElementById('s-blocks'),     14892, 2400);
+    animateCounter(document.getElementById('s-txs'),        19204, 2600);
+    animateCounter(document.getElementById('s-validators'),   138, 2000);
+    animateCounter(document.getElementById('s-nodes'),        312, 2200);
+  }, 600);
+}
+
+/* ═══════════════════════════════════════
+   SCROLL REVEAL
+═══════════════════════════════════════ */
+function triggerReveal() {
+  const els = document.querySelectorAll('.reveal:not(.visible)');
+  els.forEach((el, i) => {
+    setTimeout(() => {
+      el.classList.add('visible');
+    }, i * 60);
+  });
+}
+
+/* ═══════════════════════════════════════
+   CUSTOM CURSOR
+═══════════════════════════════════════ */
+function initCursor() {
+  if (window.matchMedia('(pointer:coarse)').matches) return;
+  const dot  = document.querySelector('.cursor-dot');
+  const ring = document.getElementById('cursorRing');
+  let mx=0, my=0, rx=0, ry=0;
+
+  document.addEventListener('mousemove', e => {
+    mx = e.clientX; my = e.clientY;
+    dot.style.transform = `translate(${mx}px,${my}px)`;
+  });
+
+  const animRing = () => {
+    rx += (mx-rx)*.12;
+    ry += (my-ry)*.12;
+    ring.style.transform = `translate(${rx}px,${ry}px)`;
+    requestAnimationFrame(animRing);
+  };
+  animRing();
+
+  document.addEventListener('mousedown', () => document.body.classList.add('clicking'));
+  document.addEventListener('mouseup',   () => document.body.classList.remove('clicking'));
+
+  const hoverEls = 'a,button,.wallet-option,.faq-q,.eco-card,.vp,.sup-card';
+  document.querySelectorAll(hoverEls).forEach(el => {
+    el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
+    el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
+  });
+  // Live elements
+  document.addEventListener('mouseover', e => {
+    if (e.target.closest('button,a,.eco-card,.vp,.sup-card,.wallet-option,.faq-q')) document.body.classList.add('hovering');
+    else document.body.classList.remove('hovering');
+  });
+}
+
+/* ═══════════════════════════════════════
+   SCROLL EVENTS
+═══════════════════════════════════════ */
 window.addEventListener('scroll', () => {
-  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10);
-  document.getElementById('scroll-top').classList.toggle('show', window.scrollY > 300);
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 10);
+  document.getElementById('scrolltop').classList.toggle('show', window.scrollY > 400);
 });
 
-// ════════════════════════════════════════
-//  FAQ
-// ════════════════════════════════════════
-function toggleFAQ(btn) {
-  const a = btn.nextElementSibling;
-  const isOpen = a.classList.contains('open');
-  document.querySelectorAll('.faq-a').forEach(x => x.classList.remove('open'));
-  document.querySelectorAll('.faq-q').forEach(x => x.classList.remove('open'));
-  if (!isOpen) { a.classList.add('open'); btn.classList.add('open'); }
-}
-
-// ════════════════════════════════════════
-//  AUTO RESTORE SESSION
-// ════════════════════════════════════════
+/* ═══════════════════════════════════════
+   SESSION RESTORE
+═══════════════════════════════════════ */
 async function restoreSession() {
-  const saved = localStorage.getItem('kc_addr');
+  const saved = S.load();
   if (!saved || !window.ethereum) return;
   try {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
@@ -1607,18 +2624,31 @@ async function restoreSession() {
     if (network.chainId !== CFG.chainId) return;
     const signer = provider.getSigner();
     let balance = '0.0000';
-    try { balance = parseFloat(ethers.utils.formatEther(await provider.getBalance(saved))).toFixed(4); } catch (_) {}
+    try {
+      const raw = await provider.getBalance(saved);
+      balance = parseFloat(ethers.utils.formatEther(raw)).toFixed(4);
+    } catch(_) {}
     S.address = saved; S.provider = provider; S.signer = signer; S.balance = balance;
     setConnected(saved, balance);
-  } catch (_) {}
+  } catch(_) {}
 }
 
-// ════════════════════════════════════════
-//  INIT
-// ════════════════════════════════════════
+/* ═══════════════════════════════════════
+   INIT
+═══════════════════════════════════════ */
 window.addEventListener('DOMContentLoaded', () => {
-  initCanvas();
-  animateStats();
+  // Show first page
+  const firstPage = document.getElementById('page-home');
+  firstPage.classList.add('active');
+  requestAnimationFrame(() => {
+    firstPage.classList.add('visible');
+    triggerReveal();
+  });
+
+  initStars();
+  initCursor();
+  initHexCanvas();
+  runCounters();
   restoreSession();
 });
 </script>
