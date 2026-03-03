@@ -1,1776 +1,1626 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#020402">
-    <title>KarChain | The Sovereign Consensus Layer</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>KarChain | The Sovereign Consensus Layer</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+<style>
+:root {
+  --bg: #020402;
+  --surface: #0a0f0a;
+  --surface2: #111811;
+  --border: rgba(74,222,128,0.12);
+  --border2: rgba(255,255,255,0.06);
+  --green: #4ade80;
+  --green2: #22c55e;
+  --green-dim: rgba(74,222,128,0.15);
+  --text: #e5e7eb;
+  --muted: #6b7280;
+  --muted2: #9ca3af;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;overflow-x:hidden;min-height:100vh}
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@200;300;400;500;600;700;800&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--green2);border-radius:3px}
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'k-black': '#020402',
-                        'k-dark': '#050a05',
-                        'k-green': '#4ade80',
-                        'k-green-dark': '#15803d',
-                        'k-gray': '#a3a3a3',
-                        'k-border': 'rgba(255, 255, 255, 0.08)',
-                    },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                        display: ['Space Grotesk', 'sans-serif'],
-                    },
-                    animation: {
-                        'spin-slow': 'spin 20s linear infinite',
-                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
-                        'float': 'float 6s ease-in-out infinite',
-                        'water-drop': 'waterDrop 8s linear infinite',
-                        'wave': 'wave 20s linear infinite',
-                        'gradient': 'gradient 8s ease infinite',
-                        'shimmer': 'shimmer 2s infinite',
-                        'glow': 'glow 2s ease-in-out infinite',
-                        'border-pulse': 'borderPulse 2s ease-in-out infinite',
-                    },
-                    keyframes: {
-                        float: { '0%, 100%': { transform: 'translateY(0)' }, '50%': { transform: 'translateY(-20px)' } },
-                        waterDrop: { '0%': { transform: 'translateY(-100px)', opacity: '0' }, '10%': { opacity: '1' }, '90%': { opacity: '1' }, '100%': { transform: 'translateY(100vh)', opacity: '0' } },
-                        wave: { '0%': { transform: 'translateX(0) translateY(0)' }, '50%': { transform: 'translateX(-50px) translateY(10px)' }, '100%': { transform: 'translateX(0) translateY(0)' } },
-                        gradient: { '0%, 100%': { 'background-position': '0% 50%' }, '50%': { 'background-position': '100% 50%' } },
-                        shimmer: { '0%': { transform: 'translateX(-100%)' }, '100%': { transform: 'translateX(100%)' } },
-                        glow: { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0.5' } },
-                        borderPulse: { '0%, 100%': { borderColor: 'rgba(74, 222, 128, 0.3)' }, '50%': { borderColor: 'rgba(74, 222, 128, 0.8)' } }
-                    }
-                }
-            }
-        }
-    </script>
+/* ── CANVAS BG ── */
+#bg-canvas{position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.4}
+.grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(74,222,128,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(74,222,128,.04) 1px,transparent 1px);
+  background-size:64px 64px;
+  mask-image:radial-gradient(ellipse 80% 60% at 50% 50%,black,transparent)}
+.glow-orb{position:fixed;border-radius:50%;filter:blur(120px);pointer-events:none;z-index:0}
+.glow-orb.top{width:600px;height:400px;top:-100px;left:50%;transform:translateX(-50%);background:rgba(34,197,94,.06)}
+.glow-orb.bot{width:400px;height:300px;bottom:-80px;right:10%;background:rgba(74,222,128,.04)}
 
-    <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:1000;height:72px;
+  display:flex;align-items:center;
+  border-bottom:1px solid transparent;
+  transition:background .3s,border-color .3s}
+nav.scrolled{background:rgba(2,4,2,.92);backdrop-filter:blur(20px);border-color:var(--border2)}
+.nav-inner{max-width:1200px;margin:0 auto;padding:0 24px;width:100%;display:flex;align-items:center;justify-content:space-between}
+.logo{display:flex;align-items:center;gap:12px;cursor:pointer;text-decoration:none}
+.logo-icon{width:40px;height:40px;transition:transform .6s}
+.logo:hover .logo-icon{transform:rotate(180deg)}
+.logo-text{display:flex;flex-direction:column}
+.logo-name{font-size:15px;font-weight:800;letter-spacing:.18em;color:#fff}
+.logo-sub{font-size:9px;color:var(--muted);letter-spacing:.2em;font-family:'JetBrains Mono',monospace}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-link{background:none;border:none;color:var(--muted2);font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;padding:4px 0;border-bottom:2px solid transparent;transition:color .2s,border-color .2s;font-family:'Inter',sans-serif}
+.nav-link:hover,.nav-link.active{color:#fff;border-color:var(--green)}
+.nav-right{display:flex;align-items:center;gap:12px;position:relative}
+#connect-btn{display:flex;align-items:center;gap:8px;padding:10px 20px;background:linear-gradient(135deg,#15803d,#16a34a);border:1px solid rgba(34,197,94,.35);border-radius:10px;color:#fff;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;transition:all .25s;font-family:'Inter',sans-serif}
+#connect-btn:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(34,197,94,.35)}
+#connect-btn .dot{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
 
-        body {
-            background-color: #020402;
-            color: #e5e5e5;
-            overflow-x: hidden;
-            -webkit-font-smoothing: antialiased;
-            opacity: 0;
-            animation: fadeInBody 1s ease-out forwards;
-            min-height: 100vh;
-            font-family: 'Inter', sans-serif;
-        }
+/* Dropdown */
+.wallet-dropdown{position:absolute;top:calc(100% + 10px);right:0;width:280px;
+  background:rgba(10,15,10,.97);border:1px solid var(--border);border-radius:14px;
+  padding:16px;z-index:999;display:none;
+  box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.wallet-dropdown.show{display:block}
+.wd-addr{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted2);word-break:break-all;margin-top:4px}
+.wd-bal{display:flex;justify-content:space-between;align-items:center;
+  background:rgba(74,222,128,.06);border:1px solid var(--border);border-radius:8px;
+  padding:10px 12px;margin:12px 0}
+.wd-bal span:first-child{font-size:12px;color:var(--muted)}
+.wd-bal span:last-child{font-size:14px;font-weight:700;color:var(--green);font-family:'JetBrains Mono',monospace}
+.wd-disconnect{width:100%;padding:9px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);
+  border-radius:8px;color:#f87171;font-size:12px;font-weight:600;cursor:pointer;
+  transition:all .2s;font-family:'Inter',sans-serif}
+.wd-disconnect:hover{background:rgba(239,68,68,.15)}
 
-        @keyframes fadeInBody { to { opacity: 1; } }
-        html { scroll-behavior: smooth; overflow-x: hidden; }
+/* Mobile burger */
+.burger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px;background:none;border:none}
+.burger span{width:24px;height:2px;background:var(--green);border-radius:2px;transition:all .3s}
+.burger.open span:nth-child(1){transform:rotate(45deg) translate(5px,5px)}
+.burger.open span:nth-child(2){opacity:0}
+.burger.open span:nth-child(3){transform:rotate(-45deg) translate(5px,-5px)}
 
-        .glass-panel {
-            background: rgba(15, 15, 15, 0.7);
-            backdrop-filter: blur(20px) saturate(200%);
-            -webkit-backdrop-filter: blur(20px) saturate(200%);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 10px 40px rgba(0,0,0,0.4), 0 0 0 1px rgba(74,222,128,0.05);
-            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
+/* Mobile menu */
+.mobile-menu{position:fixed;top:72px;right:-100%;width:min(320px,85vw);height:calc(100vh - 72px);
+  background:rgba(2,4,2,.98);backdrop-filter:blur(20px);
+  border-left:1px solid var(--border);z-index:999;
+  display:flex;flex-direction:column;padding:32px 24px;gap:4px;
+  transition:right .35s cubic-bezier(.4,0,.2,1)}
+.mobile-menu.open{right:0}
+.mobile-link{padding:14px 0;border-bottom:1px solid var(--border2);
+  font-size:16px;font-weight:600;color:var(--muted2);cursor:pointer;
+  display:flex;align-items:center;gap:12px;transition:color .2s;background:none;border-right:none;border-top:none;border-left:none;width:100%;text-align:left;font-family:'Inter',sans-serif}
+.mobile-link:hover{color:#fff}
+.mobile-link i{color:var(--green);width:20px}
+.mb-overlay{position:fixed;inset:0;top:72px;background:rgba(0,0,0,.6);z-index:998;display:none}
+.mb-overlay.show{display:block}
 
-        .glass-panel:hover {
-            border-color: rgba(74, 222, 128, 0.2);
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(74,222,128,0.15);
-            transform: translateY(-2px);
-        }
+/* ── PAGES ── */
+.page{display:none;min-height:100vh;position:relative;z-index:1}
+.page.active{display:block}
 
-        .glass-card {
-            background: linear-gradient(145deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
-            border: 1px solid rgba(255,255,255,0.05);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
+/* ── HOME ── */
+.hero{padding:160px 24px 100px;text-align:center;max-width:900px;margin:0 auto}
+.hero-badge{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;
+  background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);
+  border-radius:100px;font-size:11px;font-weight:600;color:var(--green);
+  letter-spacing:.1em;text-transform:uppercase;margin-bottom:32px}
+.hero-badge .pulse-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+h1{font-size:clamp(40px,7vw,80px);font-weight:800;line-height:1.05;letter-spacing:-.02em;color:#fff;margin-bottom:24px}
+.grad{background:linear-gradient(90deg,#fff 0%,var(--green) 40%,#22c55e 60%,var(--green) 80%,#fff 100%);
+  background-size:200%;background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  animation:gradMove 6s linear infinite}
+@keyframes gradMove{0%{background-position:0%}100%{background-position:200%}}
+.hero p{font-size:18px;color:var(--muted2);line-height:1.7;max-width:580px;margin:0 auto 40px}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.btn-primary{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;
+  background:linear-gradient(135deg,#15803d,#16a34a);border:1px solid rgba(34,197,94,.35);
+  border-radius:12px;color:#fff;font-size:13px;font-weight:700;cursor:pointer;
+  transition:all .25s;text-decoration:none;font-family:'Inter',sans-serif}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 35px rgba(34,197,94,.4)}
+.btn-ghost{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;
+  background:transparent;border:1px solid var(--border2);border-radius:12px;
+  color:var(--muted2);font-size:13px;font-weight:600;cursor:pointer;
+  transition:all .25s;text-decoration:none;font-family:'Inter',sans-serif}
+.btn-ghost:hover{border-color:rgba(74,222,128,.3);color:#fff;transform:translateY(-2px)}
 
-        .glass-card:hover {
-            border-color: rgba(74, 222, 128, 0.25);
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 30px 80px -20px rgba(74,222,128,0.2);
-        }
+/* Stats */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+  background:var(--border2);border:1px solid var(--border2);border-radius:16px;
+  overflow:hidden;max-width:800px;margin:80px auto 0}
+.stat-item{background:var(--surface);padding:28px 20px;text-align:center}
+.stat-val{font-size:32px;font-weight:800;color:#fff;font-family:'JetBrains Mono',monospace;letter-spacing:-.02em}
+.stat-label{font-size:11px;color:var(--muted);margin-top:6px;letter-spacing:.08em;text-transform:uppercase}
+.stat-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);margin-right:6px;animation:pulse 2s infinite}
 
-        .btn-primary {
-            background: linear-gradient(135deg, #15803d 0%, #16a34a 100%);
-            color: white;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-            border: 1px solid rgba(34, 197, 94, 0.3);
-            box-shadow: 0 4px 20px rgba(34,197,94,0.2);
-        }
+/* Dashboard */
+.dashboard{max-width:1100px;margin:0 auto;padding:0 24px 100px}
+.panel{background:var(--surface);border:1px solid var(--border2);border-radius:20px;overflow:hidden;
+  box-shadow:0 4px 40px rgba(0,0,0,.4)}
+.panel-header{padding:28px 32px;border-bottom:1px solid var(--border2);
+  display:flex;align-items:center;justify-content:space-between}
+.panel-title{font-size:16px;font-weight:700;color:#fff;display:flex;align-items:center;gap:10px}
+.panel-body{padding:32px}
 
-        .btn-primary::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.6s ease;
-        }
+/* Locked state */
+.locked-state{text-align:center;padding:80px 32px}
+.lock-icon{width:88px;height:88px;border-radius:50%;border:1px solid var(--border);
+  background:var(--surface2);display:flex;align-items:center;justify-content:center;
+  margin:0 auto 24px;font-size:32px;color:var(--muted)}
 
-        .btn-primary:hover::before { left: 100%; }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 10px 40px rgba(34,197,94,0.4); border-color: #4ade80; }
+/* Balance block */
+.balance-block{display:flex;justify-content:space-between;align-items:flex-start;
+  padding:28px 32px;border-bottom:1px solid var(--border2);gap:24px;flex-wrap:wrap}
+.bal-label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+.bal-val{display:flex;align-items:baseline;gap:10px}
+.bal-num{font-size:52px;font-weight:800;color:#fff;font-family:'JetBrains Mono',monospace;letter-spacing:-.03em;line-height:1}
+.bal-sym{font-size:20px;font-weight:700;color:var(--green);background:rgba(74,222,128,.1);
+  padding:4px 12px;border-radius:8px;border:1px solid var(--border)}
+.bal-right{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.connected-badge{display:flex;align-items:center;gap:8px;font-size:11px;font-weight:600;
+  color:var(--green);letter-spacing:.08em;text-transform:uppercase}
+.wallet-addr-chip{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted2);
+  background:var(--surface2);border:1px solid var(--border2);border-radius:8px;
+  padding:6px 12px}
+.refresh-btn{background:none;border:1px solid var(--border2);border-radius:8px;
+  color:var(--muted);font-size:11px;cursor:pointer;padding:5px 10px;
+  transition:all .2s;font-family:'Inter',sans-serif}
+.refresh-btn:hover{color:var(--green);border-color:var(--border)}
 
-        .btn-secondary {
-            background: transparent;
-            color: white;
-            border: 1px solid rgba(255,255,255,0.1);
-            transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-        }
-        .btn-secondary:hover { background: rgba(255,255,255,0.05); border-color: rgba(74,222,128,0.3); transform: translateY(-2px); }
+/* Faucet cards */
+.faucet-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:28px 32px;border-bottom:1px solid var(--border2)}
+.faucet-card{background:var(--surface2);border:1px solid var(--border2);border-radius:16px;padding:24px;transition:border-color .3s}
+.faucet-card.active-card{border-color:rgba(74,222,128,.3)}
+.faucet-card.locked-card{opacity:.5;pointer-events:none}
+.fc-head{display:flex;align-items:center;gap:14px;margin-bottom:16px}
+.fc-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.fc-icon.green{background:linear-gradient(135deg,#15803d,#22c55e)}
+.fc-icon.purple{background:linear-gradient(135deg,#6d28d9,#7c3aed)}
+.fc-title{font-size:16px;font-weight:700;color:#fff}
+.fc-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.fc-badge{display:inline-block;padding:2px 10px;border-radius:100px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-top:6px}
+.fc-badge.g{background:rgba(74,222,128,.12);color:var(--green);border:1px solid rgba(74,222,128,.2)}
+.fc-badge.p{background:rgba(124,58,237,.12);color:#a78bfa;border:1px solid rgba(124,58,237,.2)}
+.fc-meta{display:flex;justify-content:space-between;font-size:12px;
+  background:rgba(255,255,255,.03);border:1px solid var(--border2);border-radius:8px;
+  padding:10px 12px;margin-bottom:14px}
+.fc-meta span:first-child{color:var(--muted)}
+.fc-meta span:last-child{color:var(--muted2);font-weight:600;font-family:'JetBrains Mono',monospace}
 
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: rgba(2,4,2,0.9); }
-        ::-webkit-scrollbar-thumb { background: linear-gradient(to bottom, #15803d, #4ade80); border-radius: 6px; }
+/* Timer */
+.timer-wrap{text-align:center;padding:12px;background:rgba(255,255,255,.02);
+  border:1px solid var(--border2);border-radius:10px}
+.timer-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin-bottom:8px}
+.timer-digits{display:flex;align-items:center;justify-content:center;gap:6px;font-family:'JetBrains Mono',monospace;font-size:24px;font-weight:700}
+.timer-sep{color:var(--green);font-size:20px}
+.td{background:rgba(74,222,128,.08);border:1px solid var(--border);border-radius:6px;padding:4px 10px;color:#fff}
 
-        #webgl-canvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -10; opacity: 0.35; pointer-events: none; }
+/* Captcha */
+.captcha-wrap{border:1px solid var(--border2);border-radius:10px;background:rgba(255,255,255,.02);padding:12px 16px;
+  display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .2s;user-select:none}
+.captcha-wrap:hover{border-color:rgba(74,222,128,.2)}
+.captcha-box{width:26px;height:26px;border:2px solid var(--muted);border-radius:5px;
+  flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .3s}
+.captcha-box.spinning{border-color:var(--green);border-top-color:transparent;
+  animation:spin .7s linear infinite}
+.captcha-box.done{background:var(--green);border-color:var(--green)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.captcha-text{font-size:13px;color:var(--muted2)}
+.captcha-logo{margin-left:auto;text-align:right;font-size:9px;color:var(--muted);line-height:1.4}
 
-        .grid-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -9; pointer-events: none;
-            background-image: linear-gradient(rgba(74,222,128,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(74,222,128,0.03) 1px, transparent 1px);
-            background-size: 60px 60px;
-            mask-image: radial-gradient(circle at center, black 40%, transparent 70%);
-            -webkit-mask-image: radial-gradient(circle at center, black 40%, transparent 70%);
-            animation: gridFlow 20s linear infinite;
-        }
+/* Buttons */
+.btn-claim{width:100%;padding:13px;border-radius:10px;font-size:13px;font-weight:700;
+  cursor:pointer;transition:all .25s;border:none;display:flex;align-items:center;justify-content:center;gap:8px;font-family:'Inter',sans-serif;letter-spacing:.04em}
+.btn-claim.green{background:linear-gradient(135deg,#15803d,#22c55e);color:#fff}
+.btn-claim.green:hover:not(:disabled){box-shadow:0 8px 25px rgba(34,197,94,.4);transform:translateY(-1px)}
+.btn-claim.purple{background:linear-gradient(135deg,#6d28d9,#7c3aed);color:#fff}
+.btn-claim.purple:hover:not(:disabled){box-shadow:0 8px 25px rgba(124,58,237,.4);transform:translateY(-1px)}
+.btn-claim:disabled{opacity:.4;cursor:not-allowed;transform:none !important;box-shadow:none !important}
+.btn-claim.done{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.25);color:var(--green);cursor:default}
 
-        @keyframes gridFlow { 0% { transform: translateY(0) translateX(0); } 100% { transform: translateY(60px) translateX(60px); } }
+/* Tasks */
+.tasks-section{padding:28px 32px}
+.section-title{font-size:17px;font-weight:700;color:#fff;display:flex;align-items:center;gap:10px;margin-bottom:20px}
+.tasks-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.task-card{background:var(--surface2);border:1px solid var(--border2);border-radius:16px;padding:22px;
+  position:relative;transition:border-color .3s,transform .3s;overflow:hidden}
+.task-card.unlocked:hover{border-color:rgba(74,222,128,.2);transform:translateY(-2px)}
+.task-card.locked{opacity:.45;pointer-events:none}
+.task-card.locked::after{content:'\f023';font-family:"Font Awesome 6 Free";font-weight:900;
+  position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:28px;color:rgba(255,255,255,.7);background:rgba(0,0,0,.55)}
+.task-card.completed{border-color:rgba(74,222,128,.3)}
+.task-step{position:absolute;top:14px;right:14px;font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:.08em;padding:3px 10px;border-radius:100px}
+.task-step.blue{background:rgba(59,130,246,.12);color:#60a5fa;border:1px solid rgba(59,130,246,.2)}
+.task-step.purple{background:rgba(124,58,237,.12);color:#a78bfa;border:1px solid rgba(124,58,237,.2)}
+.task-step.orange{background:rgba(249,115,22,.12);color:#fb923c;border:1px solid rgba(249,115,22,.2)}
+.task-icon{width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:16px}
+.ti-blue{background:linear-gradient(135deg,#1d4ed8,#3b82f6)}
+.ti-purple{background:linear-gradient(135deg,#6d28d9,#7c3aed)}
+.ti-orange{background:linear-gradient(135deg,#c2410c,#f97316)}
+.task-title{font-size:15px;font-weight:700;color:#fff;margin-bottom:6px}
+.task-desc{font-size:12px;color:var(--muted);line-height:1.6;margin-bottom:16px}
+.task-reward{font-size:12px;color:var(--muted);border-top:1px solid var(--border2);padding-top:12px;margin-top:4px;display:flex;justify-content:space-between;align-items:center}
+.task-reward span:last-child{color:var(--green);font-weight:700;font-family:'JetBrains Mono',monospace}
+.task-btn{width:100%;padding:9px 12px;border-radius:8px;font-size:12px;font-weight:600;
+  cursor:pointer;transition:all .2s;border:none;margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:6px;font-family:'Inter',sans-serif}
+.tb-twitter{background:#1d9bf0;color:#fff}
+.tb-twitter:hover{background:#1a8cd8}
+.tb-telegram{background:#0088cc;color:#fff}
+.tb-telegram:hover{background:#0077b5}
+.tb-verify{background:transparent;border:1px solid var(--border2) !important;color:var(--muted);cursor:not-allowed}
+.tb-verify.ready{border-color:rgba(74,222,128,.3) !important;color:var(--green);cursor:pointer}
+.tb-verify.ready:hover{background:rgba(74,222,128,.08)}
+.tb-verify.done{background:rgba(74,222,128,.08);border-color:rgba(74,222,128,.2) !important;color:var(--green);cursor:default}
+.tb-purple{background:linear-gradient(135deg,#6d28d9,#7c3aed);color:#fff}
+.tb-purple:hover{box-shadow:0 4px 15px rgba(124,58,237,.4)}
+.tb-orange{background:linear-gradient(135deg,#c2410c,#f97316);color:#fff}
+.tb-orange:hover{box-shadow:0 4px 15px rgba(249,115,22,.4)}
 
-        .water-drop { position: absolute; width: 2px; background: linear-gradient(to bottom, transparent, rgba(74,222,128,0.4)); border-radius: 0 0 1px 1px; z-index: -8; pointer-events: none; animation: waterDrop 8s linear infinite; }
-        .water-wave { position: fixed; bottom: 0; left: 0; width: 300%; height: 150px; background: linear-gradient(90deg, transparent, rgba(74,222,128,0.1) 20%, rgba(74,222,128,0.05) 40%, transparent 60%); z-index: -7; opacity: 0.3; pointer-events: none; animation: wave 20s linear infinite; }
+/* Progress */
+.progress-bar-wrap{padding:20px 32px 28px;border-top:1px solid var(--border2)}
+.progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.progress-header span:first-child{font-size:13px;color:var(--muted)}
+.progress-chip{font-size:11px;background:rgba(74,222,128,.1);color:var(--green);
+  border:1px solid rgba(74,222,128,.2);border-radius:100px;padding:2px 10px}
+.progress-bar{height:6px;background:rgba(255,255,255,.06);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,#15803d,var(--green));border-radius:3px;
+  transition:width .6s cubic-bezier(.4,0,.2,1);width:0}
+.progress-total{font-size:13px;font-weight:700;color:var(--green);font-family:'JetBrains Mono',monospace}
 
-        .gradient-text {
-            background: linear-gradient(90deg, #ffffff, #4ade80, #22c55e, #4ade80, #ffffff);
-            background-size: 300% 300%;
-            -webkit-background-clip: text;
-            background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: gradient 8s ease infinite;
-        }
+/* TX History */
+.tx-section{padding:0 32px 32px;display:none}
+.tx-item{display:flex;justify-content:space-between;align-items:center;
+  padding:12px 14px;background:rgba(255,255,255,.02);border:1px solid var(--border2);
+  border-radius:10px;margin-bottom:8px}
+.tx-left{display:flex;align-items:center;gap:10px}
+.tx-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0}
+.tx-hash{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted2)}
+.tx-val{font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:var(--green)}
+.tx-time{font-size:11px;color:var(--muted)}
 
-        .mobile-menu {
-            position: fixed; top: 0; right: -100%; width: 80%; max-width: 400px; height: 100vh;
-            background: rgba(2,4,2,0.98); backdrop-filter: blur(20px);
-            z-index: 10000; transition: right 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
-            padding-top: 100px; overflow-y: auto; border-left: 1px solid rgba(74,222,128,0.1);
-        }
-        .mobile-menu.active { right: 0; }
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);
+  z-index:2000;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-overlay.show{display:flex}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:20px;
+  width:100%;max-width:440px;padding:32px;animation:modalIn .25s ease}
+@keyframes modalIn{from{transform:scale(.95);opacity:0}to{transform:scale(1);opacity:1}}
+.modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+.modal-title{font-size:20px;font-weight:700;color:#fff;display:flex;align-items:center;gap:10px}
+.modal-close{width:32px;height:32px;border-radius:8px;border:none;background:rgba(255,255,255,.05);
+  color:var(--muted);font-size:18px;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.modal-close:hover{background:rgba(255,255,255,.1);color:#fff}
+.wallet-opt{display:flex;align-items:center;gap:14px;padding:16px;
+  border:1px solid var(--border2);border-radius:14px;cursor:pointer;
+  transition:all .25s;margin-bottom:10px;background:rgba(255,255,255,.02)}
+.wallet-opt:hover{border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.04);transform:translateY(-1px)}
+.wallet-opt-icon{width:52px;height:52px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.wallet-opt-name{font-size:15px;font-weight:700;color:#fff}
+.wallet-opt-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.wallet-opt-indicator{width:10px;height:10px;border-radius:50%;margin-left:auto;flex-shrink:0}
 
-        .mobile-menu-backdrop {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7); backdrop-filter: blur(5px);
-            z-index: 9999; opacity: 0; pointer-events: none; transition: opacity 0.4s;
-        }
-        .mobile-menu-backdrop.active { opacity: 1; pointer-events: all; }
+/* ── TOAST ── */
+.toast-wrap{position:fixed;top:88px;right:20px;z-index:3000;display:flex;flex-direction:column;gap:8px}
+.toast{display:flex;align-items:flex-start;gap:12px;padding:14px 16px;
+  border-radius:12px;border:1px solid;min-width:280px;max-width:340px;
+  animation:toastIn .3s ease;font-size:13px}
+@keyframes toastIn{from{transform:translateX(120%);opacity:0}to{transform:translateX(0);opacity:1}}
+.toast.success{background:rgba(21,128,61,.12);border-color:rgba(34,197,94,.25)}
+.toast.error{background:rgba(239,68,68,.1);border-color:rgba(239,68,68,.25)}
+.toast.info{background:rgba(59,130,246,.1);border-color:rgba(59,130,246,.25)}
+.toast-icon{font-size:16px;margin-top:1px;flex-shrink:0}
+.toast.success .toast-icon{color:var(--green)}
+.toast.error .toast-icon{color:#f87171}
+.toast.info .toast-icon{color:#60a5fa}
+.toast-body p:first-child{font-weight:600;color:#fff;margin-bottom:2px}
+.toast-body p:last-child{color:var(--muted2);font-size:12px}
 
-        .hamburger { display: none; flex-direction: column; justify-content: space-between; width: 30px; height: 21px; background: transparent; border: none; cursor: pointer; padding: 0; z-index: 10001; }
-        .hamburger span { width: 100%; height: 3px; background: #4ade80; border-radius: 2px; transition: all 0.4s cubic-bezier(0.2, 0.8, 0.2, 1); }
-        .hamburger.active span:nth-child(1) { transform: rotate(45deg) translate(6px, 6px); }
-        .hamburger.active span:nth-child(2) { opacity: 0; }
-        .hamburger.active span:nth-child(3) { transform: rotate(-45deg) translate(7px, -7px); }
+/* ── VISION PAGE ── */
+.page-inner{max-width:1100px;margin:0 auto;padding:120px 24px 80px}
+.page-tag{display:inline-flex;align-items:center;gap:8px;padding:6px 16px;
+  background:rgba(74,222,128,.08);border:1px solid rgba(74,222,128,.2);
+  border-radius:100px;font-size:11px;font-weight:600;color:var(--green);
+  letter-spacing:.1em;text-transform:uppercase;margin-bottom:28px}
+.page-h{font-size:clamp(36px,5vw,64px);font-weight:800;letter-spacing:-.02em;color:#fff;margin-bottom:16px}
+.page-sub{font-size:18px;color:var(--muted2);line-height:1.7;max-width:560px;margin-bottom:64px}
+.vision-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;margin-bottom:64px}
+.vision-points{display:flex;flex-direction:column;gap:36px}
+.vp{padding-left:24px;border-left:3px solid var(--border2);transition:border-color .3s}
+.vp:hover{border-color:var(--green)}
+.vp-num{font-size:12px;font-weight:700;color:var(--green);letter-spacing:.12em;font-family:'JetBrains Mono',monospace;margin-bottom:8px}
+.vp-title{font-size:20px;font-weight:700;color:#fff;margin-bottom:8px}
+.vp-text{font-size:14px;color:var(--muted2);line-height:1.7}
+.vp-text em{color:var(--green);font-style:normal;font-weight:600}
 
-        @media (max-width: 1024px) { .desktop-nav { display: none !important; } .hamburger { display: flex; } }
+/* Gyro */
+.gyro-wrap{width:280px;height:280px;position:relative;perspective:800px;margin:0 auto}
+.gyro-ring{position:absolute;top:50%;left:50%;border-radius:50%;border:2px solid rgba(74,222,128,.5);box-shadow:0 0 20px rgba(74,222,128,.2)}
+.gr1{width:220px;height:220px;margin:-110px;animation:r1 8s linear infinite;border-top-color:transparent}
+.gr2{width:165px;height:165px;margin:-82.5px;animation:r2 6s linear infinite;border-right-color:transparent}
+.gr3{width:110px;height:110px;margin:-55px;animation:r3 4.5s linear infinite;border-bottom-color:transparent}
+.gr-core{width:14px;height:14px;background:var(--green);border-radius:50%;
+  position:absolute;top:50%;left:50%;margin:-7px;
+  box-shadow:0 0 20px var(--green),0 0 40px rgba(74,222,128,.5)}
+@keyframes r1{to{transform:rotateX(360deg) rotateY(360deg)}}
+@keyframes r2{to{transform:rotateX(-360deg) rotateY(180deg)}}
+@keyframes r3{to{transform:rotateX(180deg) rotateY(-360deg)}}
 
-        .page-content { display: none; opacity: 0; transition: opacity 0.6s; }
-        .page-content.active { display: block; opacity: 1; }
+/* Roadmap */
+.roadmap{display:grid;grid-template-columns:repeat(4,1fr);gap:0;
+  border:1px solid var(--border2);border-radius:16px;overflow:hidden}
+.rm-item{padding:28px 22px;border-right:1px solid var(--border2);position:relative}
+.rm-item:last-child{border-right:none}
+.rm-dot{width:10px;height:10px;border-radius:50%;margin-bottom:16px}
+.rm-dot.active{background:var(--green);box-shadow:0 0 12px var(--green);animation:pulse 2s infinite}
+.rm-dot.inactive{background:var(--muted);opacity:.4}
+.rm-phase{font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--green);margin-bottom:6px;font-family:'JetBrains Mono',monospace}
+.rm-name{font-size:17px;font-weight:700;color:#fff;margin-bottom:8px}
+.rm-desc{font-size:12px;color:var(--muted);line-height:1.6}
+.rm-item.dim{background:rgba(255,255,255,.01)}
 
-        .notification { animation: slideIn 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; max-width: 350px; width: 90%; }
-        @keyframes slideIn { from { transform: translateX(100%) translateY(-20px); opacity: 0; } to { transform: translateX(0) translateY(0); opacity: 1; } }
+/* ── ECOSYSTEM ── */
+.eco-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.eco-card{background:var(--surface2);border:1px solid var(--border2);border-radius:16px;
+  padding:28px;transition:all .3s;cursor:pointer}
+.eco-card:hover{border-color:rgba(74,222,128,.25);transform:translateY(-4px);
+  box-shadow:0 16px 40px rgba(0,0,0,.3)}
+.eco-icon{width:56px;height:56px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:20px}
+.eco-name{font-size:17px;font-weight:700;color:#fff;margin-bottom:8px}
+.eco-desc{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:20px}
+.eco-footer{display:flex;justify-content:space-between;align-items:center}
+.eco-tag{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;
+  padding:3px 10px;border-radius:100px}
 
-        .faq-content { max-height: 0; opacity: 0; overflow: hidden; transition: all 0.5s cubic-bezier(0.2, 0.8, 0.2, 1); }
-        .faq-content.open { max-height: 500px; opacity: 1; padding-top: 1rem; padding-bottom: 1rem; }
-        .faq-toggle i { transition: transform 0.4s; }
-        .faq-toggle.open i { transform: rotate(180deg); }
+/* ── SUPPORT ── */
+.support-cards{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:40px}
+.sup-card{background:var(--surface2);border:1px solid var(--border2);border-radius:16px;
+  padding:28px;display:flex;align-items:center;gap:20px;text-decoration:none;transition:all .3s}
+.sup-card:hover{border-color:rgba(74,222,128,.2);transform:translateY(-2px)}
+.sup-icon{width:64px;height:64px;border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+.sup-name{font-size:17px;font-weight:700;color:#fff;margin-bottom:4px}
+.sup-desc{font-size:13px;color:var(--muted)}
+.sup-handle{font-size:12px;color:var(--green);font-family:'JetBrains Mono',monospace;margin-top:6px}
+.network-box{background:var(--surface2);border:1px solid var(--border2);border-radius:16px;padding:28px;margin-bottom:32px}
+.net-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border2)}
+.net-row:last-child{border-bottom:none;padding-bottom:0}
+.net-key{font-size:13px;color:var(--muted)}
+.net-val{font-size:13px;color:var(--muted2);font-family:'JetBrains Mono',monospace;font-weight:500}
+.net-val.green{color:var(--green)}
+.faq-item{border:1px solid var(--border2);border-radius:12px;overflow:hidden;margin-bottom:10px}
+.faq-q{width:100%;padding:18px 20px;background:none;border:none;text-align:left;
+  color:#fff;font-size:14px;font-weight:600;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-family:'Inter',sans-serif;transition:background .2s}
+.faq-q:hover{background:rgba(255,255,255,.02)}
+.faq-q i{color:var(--green);transition:transform .3s;font-size:12px}
+.faq-q.open i{transform:rotate(180deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .4s ease,padding .4s;padding:0 20px}
+.faq-a.open{max-height:300px;padding:0 20px 18px}
+.faq-a p{font-size:13px;color:var(--muted2);line-height:1.7}
+.faq-a code{font-family:'JetBrains Mono',monospace;font-size:11px;background:rgba(74,222,128,.08);
+  border:1px solid var(--border);border-radius:4px;padding:1px 6px;color:var(--green)}
 
-        .task-locked { pointer-events: none; opacity: 0.5; filter: grayscale(0.8); position: relative; }
-        .task-locked::after {
-            content: '\f023'; font-family: "Font Awesome 6 Free"; font-weight: 900;
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 32px; color: rgba(255,255,255,0.9); background: rgba(0,0,0,0.8);
-            padding: 20px; border-radius: 50%; z-index: 10;
-        }
+/* ── FOOTER ── */
+footer{border-top:1px solid var(--border2);background:var(--surface);padding:56px 24px 36px;position:relative;z-index:1}
+.footer-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr;gap:48px}
+.footer-brand p{font-size:13px;color:var(--muted);line-height:1.7;margin-top:16px;max-width:280px}
+.footer-col h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:16px}
+.footer-col a{display:block;font-size:13px;color:var(--muted);text-decoration:none;margin-bottom:10px;transition:color .2s}
+.footer-col a:hover{color:var(--green)}
+.footer-bottom{max-width:1100px;margin:36px auto 0;padding-top:24px;border-top:1px solid var(--border2);
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-bottom p{font-size:12px;color:var(--muted)}
 
-        .timer-flip {
-            font-variant-numeric: tabular-nums; background: rgba(0,0,0,0.3);
-            padding: 0.5rem 1rem; border-radius: 0.5rem;
-            border: 1px solid rgba(74,222,128,0.3); box-shadow: 0 0 20px rgba(74,222,128,0.2);
-        }
+/* ── SCROLL TOP ── */
+#scroll-top{position:fixed;bottom:28px;right:28px;width:44px;height:44px;
+  background:linear-gradient(135deg,#15803d,#22c55e);border:none;border-radius:12px;
+  color:#fff;font-size:16px;cursor:pointer;z-index:100;opacity:0;transform:translateY(8px);
+  transition:all .3s;display:flex;align-items:center;justify-content:center}
+#scroll-top.show{opacity:1;transform:translateY(0)}
+#scroll-top:hover{transform:translateY(-2px) !important;box-shadow:0 8px 25px rgba(34,197,94,.4)}
 
-        #scrollToTopBtn { box-shadow: 0 4px 20px rgba(74,222,128,0.3); transition: all 0.4s; opacity: 0; transform: translateY(20px); pointer-events: none; }
-        #scrollToTopBtn.visible { opacity: 1; transform: translateY(0); pointer-events: all; }
-
-        .level-card {
-            background: linear-gradient(145deg, rgba(74,222,128,0.05) 0%, rgba(74,222,128,0.01) 100%);
-            border: 1px solid rgba(74,222,128,0.1); border-radius: 16px; padding: 20px; transition: all 0.4s ease;
-        }
-        .level-card:hover { transform: translateY(-4px); border-color: rgba(74,222,128,0.3); box-shadow: 0 20px 40px -20px rgba(74,222,128,0.3); }
-        .level-card.locked { opacity: 0.7; filter: grayscale(0.7); }
-        .level-card.active { border-color: #4ade80; box-shadow: 0 0 30px rgba(74,222,128,0.2); }
-
-        .level-badge {
-            position: absolute; top: 12px; right: 12px; padding: 4px 12px; border-radius: 20px;
-            font-size: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.5px;
-        }
-
-        /* DEMO MODE banner */
-        .demo-banner {
-            background: linear-gradient(90deg, rgba(234,179,8,0.15), rgba(234,179,8,0.05));
-            border: 1px solid rgba(234,179,8,0.3);
-            border-radius: 12px;
-            padding: 12px 16px;
-            margin-bottom: 16px;
-            font-size: 12px;
-            color: #fbbf24;
-        }
-
-        /* Captcha replacement */
-        .captcha-box {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px;
-            padding: 16px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
-            user-select: none;
-        }
-        .captcha-box:hover { border-color: rgba(74,222,128,0.3); background: rgba(74,222,128,0.03); }
-        .captcha-check { width: 24px; height: 24px; border: 2px solid rgba(255,255,255,0.3); border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; flex-shrink: 0; }
-        .captcha-check.checked { background: #4ade80; border-color: #4ade80; }
-        .captcha-spinning { width: 24px; height: 24px; border: 2px solid rgba(74,222,128,0.3); border-top-color: #4ade80; border-radius: 50%; animation: spin 0.8s linear infinite; flex-shrink: 0; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* Navbar backdrop */
-        #navbar.scrolled { background: rgba(2,4,2,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(255,255,255,0.05); }
-
-        /* Gyro */
-        .gyro-wrapper { perspective: 1000px; width: 300px; height: 300px; position: relative; }
-        .gyro { position: absolute; top: 50%; left: 50%; transform-style: preserve-3d; }
-        .gyro-ring { position: absolute; top: 50%; left: 50%; border-radius: 50%; border: 2px solid rgba(74,222,128,0.6); box-shadow: 0 0 20px rgba(74,222,128,0.3); }
-        @keyframes pulseRing { 0%,100% { border-color: rgba(74,222,128,0.6); } 50% { border-color: rgba(74,222,128,1); box-shadow: 0 0 40px rgba(74,222,128,0.6); } }
-        .gr-1 { width: 200px; height: 200px; margin: -100px; animation: rotate1 10s linear infinite; border-left-color: transparent; }
-        .gr-2 { width: 160px; height: 160px; margin: -80px; animation: rotate2 8s linear infinite; border-top-color: transparent; }
-        .gr-3 { width: 120px; height: 120px; margin: -60px; animation: rotate3 6s linear infinite; border-right-color: transparent; }
-        @keyframes rotate1 { 0% { transform: rotateX(0) rotateY(0); } 100% { transform: rotateX(360deg) rotateY(360deg); } }
-        @keyframes rotate2 { 0% { transform: rotateX(0) rotateY(0); } 100% { transform: rotateX(-360deg) rotateY(180deg); } }
-        @keyframes rotate3 { 0% { transform: rotateX(0) rotateY(0); } 100% { transform: rotateX(180deg) rotateY(-360deg); } }
-
-        /* Dropdown fix — relative parent */
-        .nav-dropdown-wrapper { position: relative; }
-        #userDropdown { position: absolute; top: calc(100% + 12px); right: 0; }
-
-        /* Task completed visual */
-        .task-done { border-color: rgba(74, 222, 128, 0.4) !important; }
-        .task-done .task-step-badge { background: rgba(74,222,128,0.2) !important; color: #4ade80 !important; border-color: rgba(74,222,128,0.3) !important; }
-    </style>
+/* ── RESPONSIVE ── */
+@media(max-width:900px){
+  .nav-links{display:none}
+  .burger{display:flex}
+  .stats-row{grid-template-columns:1fr 1fr}
+  .faucet-grid{grid-template-columns:1fr}
+  .tasks-grid{grid-template-columns:1fr}
+  .vision-grid{grid-template-columns:1fr}
+  .roadmap{grid-template-columns:1fr 1fr}
+  .eco-grid{grid-template-columns:1fr}
+  .support-cards{grid-template-columns:1fr}
+  .footer-inner{grid-template-columns:1fr}
+  .balance-block{flex-direction:column}
+  .bal-right{align-items:flex-start}
+  .panel-body{padding:20px}
+  .tasks-section{padding:20px}
+  .faucet-grid{padding:20px}
+  .progress-bar-wrap{padding:16px 20px 24px}
+  .tx-section{padding:0 20px 20px}
+}
+@media(max-width:600px){
+  .stats-row{grid-template-columns:1fr 1fr}
+  .stat-val{font-size:24px}
+  .roadmap{grid-template-columns:1fr}
+  .rm-item{border-right:none;border-bottom:1px solid var(--border2)}
+  .rm-item:last-child{border-bottom:none}
+}
+</style>
 </head>
-<body class="antialiased selection:bg-green-500 selection:text-white">
+<body>
 
-    <!-- Mobile Menu Backdrop -->
-    <div class="mobile-menu-backdrop" id="mobileBackdrop"></div>
+<!-- BG -->
+<canvas id="bg-canvas"></canvas>
+<div class="grid-bg"></div>
+<div class="glow-orb top"></div>
+<div class="glow-orb bot"></div>
 
-    <!-- Mobile Menu -->
-    <div class="mobile-menu" id="mobileMenu">
-        <div class="flex flex-col items-center p-8 space-y-2">
-            <button onclick="App.router.navigate('home'); UI.closeMobileMenu();" class="text-xl font-bold text-white hover:text-green-400 transition-colors w-full text-center py-4 border-b border-white/10 flex items-center justify-center gap-3">
-                <i class="fa-solid fa-flask text-green-400"></i>Testnet
+<!-- NAV -->
+<nav id="navbar">
+  <div class="nav-inner">
+    <a class="logo" onclick="navigate('home')">
+      <svg class="logo-icon" viewBox="0 0 100 100">
+        <path d="M20 10 V90" stroke="#4ade80" stroke-width="8" stroke-linecap="round"/>
+        <path d="M80 10 L20 50 L80 90" stroke="#4ade80" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="20" cy="50" r="10" fill="#22c55e"/>
+        <circle cx="80" cy="10" r="8" fill="#22c55e"/>
+        <circle cx="80" cy="90" r="8" fill="#22c55e"/>
+      </svg>
+      <div class="logo-text">
+        <span class="logo-name">KARCHAIN</span>
+        <span class="logo-sub">Testnet Phase 1</span>
+      </div>
+    </a>
+    <div class="nav-links">
+      <button class="nav-link active" id="nl-home" onclick="navigate('home')">Testnet</button>
+      <button class="nav-link" id="nl-vision" onclick="navigate('vision')">Vision</button>
+      <button class="nav-link" id="nl-ecosystem" onclick="navigate('ecosystem')">Ecosystem</button>
+      <button class="nav-link" id="nl-support" onclick="navigate('support')">Support</button>
+    </div>
+    <div class="nav-right">
+      <button id="connect-btn" onclick="handleConnectClick()">
+        <i class="fa-solid fa-wallet"></i>
+        <span id="connect-btn-text">Connect Wallet</span>
+      </button>
+      <div class="wallet-dropdown" id="wallet-dropdown">
+        <div style="font-size:12px;font-weight:700;color:var(--muted2)">Connected Wallet</div>
+        <div class="wd-addr" id="dd-addr"></div>
+        <div class="wd-bal">
+          <span>Balance</span>
+          <span id="dd-bal">0.0000 KRM</span>
+        </div>
+        <button class="wd-disconnect" onclick="disconnectWallet()">
+          <i class="fa-solid fa-right-from-bracket" style="margin-right:6px"></i>Disconnect
+        </button>
+      </div>
+      <button class="burger" id="burger" onclick="toggleMobile()">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<!-- Mobile -->
+<div class="mb-overlay" id="mb-overlay" onclick="toggleMobile()"></div>
+<div class="mobile-menu" id="mobile-menu">
+  <button class="mobile-link" onclick="navigate('home');toggleMobile()"><i class="fa-solid fa-flask-vial"></i>Testnet</button>
+  <button class="mobile-link" onclick="navigate('vision');toggleMobile()"><i class="fa-solid fa-eye"></i>Vision</button>
+  <button class="mobile-link" onclick="navigate('ecosystem');toggleMobile()"><i class="fa-solid fa-cubes"></i>Ecosystem</button>
+  <button class="mobile-link" onclick="navigate('support');toggleMobile()"><i class="fa-solid fa-headset"></i>Support</button>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
+<!-- CONNECT MODAL -->
+<div class="modal-overlay" id="connect-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title"><i class="fa-solid fa-plug" style="color:var(--green)"></i>Connect Wallet</div>
+      <button class="modal-close" onclick="closeModal()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <p style="font-size:13px;color:var(--muted);margin-bottom:24px;line-height:1.6">
+      Connect MetaMask to interact with KarChain Testnet. The network will be added automatically.
+    </p>
+    <div class="wallet-opt" onclick="connectMetaMask()">
+      <div class="wallet-opt-icon" style="background:rgba(246,133,27,.1)">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" style="width:32px;height:32px" alt="MM">
+      </div>
+      <div>
+        <div class="wallet-opt-name">MetaMask</div>
+        <div class="wallet-opt-sub">Browser Extension Wallet</div>
+      </div>
+      <div class="wallet-opt-indicator" style="background:var(--green);box-shadow:0 0 8px var(--green)"></div>
+    </div>
+    <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:20px;letter-spacing:.05em">
+      By connecting you agree to our Terms & Privacy Policy
+    </p>
+  </div>
+</div>
+
+<!-- ══════════ HOME PAGE ══════════ -->
+<div class="page active" id="page-home">
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-badge"><span class="pulse-dot"></span>Incentivized Testnet · Live</div>
+    <h1>THE ARCHITECTURE<br>OF <span class="grad">DIGITAL TRUST</span></h1>
+    <p>KarChain is the modular consensus layer designed for the next billion users. Join the Incentivized Testnet and secure your place in the genesis block.</p>
+    <div class="hero-btns">
+      <button class="btn-ghost" onclick="navigate('vision')"><i class="fa-solid fa-scroll"></i>Read Manifesto</button>
+      <button class="btn-primary" onclick="navigate('support')"><i class="fa-solid fa-book"></i>Documentation</button>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <div style="max-width:1100px;margin:0 auto;padding:0 24px">
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-val" id="s-blocks">0</div>
+        <div class="stat-label"><span class="stat-dot"></span>Blocks Minted</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val" id="s-time">0.4s</div>
+        <div class="stat-label"><span class="stat-dot"></span>Block Time</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val" id="s-txs">0</div>
+        <div class="stat-label"><span class="stat-dot"></span>Transactions</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-val" id="s-val">0</div>
+        <div class="stat-label"><span class="stat-dot"></span>Active Validators</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="dashboard" style="margin-top:60px">
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <i class="fa-solid fa-gauge-high" style="color:var(--green)"></i>
+          Testnet Dashboard
+        </div>
+        <div id="network-status" style="font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px">
+          <span id="net-dot" style="width:7px;height:7px;border-radius:50%;background:var(--muted);display:inline-block"></span>
+          <span id="net-text">Not connected</span>
+        </div>
+      </div>
+
+      <!-- LOCKED -->
+      <div id="view-locked">
+        <div class="locked-state">
+          <div class="lock-icon"><i class="fa-solid fa-lock"></i></div>
+          <h2 style="font-size:24px;font-weight:700;color:#fff;margin-bottom:10px">Dashboard Locked</h2>
+          <p style="font-size:14px;color:var(--muted);max-width:380px;margin:0 auto 28px;line-height:1.7">
+            Connect your MetaMask wallet to access the faucet, claim daily tokens, and complete incentivized tasks.
+          </p>
+          <button class="btn-primary" onclick="openModal()">
+            <i class="fa-solid fa-wallet"></i>Connect Wallet
+          </button>
+        </div>
+      </div>
+
+      <!-- ACTIVE -->
+      <div id="view-active" style="display:none">
+        <!-- Balance -->
+        <div class="balance-block">
+          <div>
+            <div class="bal-label">Available Balance</div>
+            <div class="bal-val">
+              <span class="bal-num" id="bal-num">0.0000</span>
+              <span class="bal-sym">KRM</span>
+            </div>
+          </div>
+          <div class="bal-right">
+            <div class="connected-badge">
+              <span class="pulse-dot" style="width:7px;height:7px"></span>
+              Connected to KarChain
+            </div>
+            <div class="wallet-addr-chip" id="wallet-chip">0x0000...0000</div>
+            <button class="refresh-btn" onclick="refreshBalance()">
+              <i class="fa-solid fa-rotate" style="margin-right:4px"></i>Refresh
             </button>
-            <button onclick="App.router.navigate('vision'); UI.closeMobileMenu();" class="text-xl font-bold text-gray-400 hover:text-white transition-colors w-full text-center py-4 border-b border-white/10 flex items-center justify-center gap-3">
-                <i class="fa-solid fa-eye"></i>Vision
-            </button>
-            <button onclick="App.router.navigate('ecosystem'); UI.closeMobileMenu();" class="text-xl font-bold text-gray-400 hover:text-white transition-colors w-full text-center py-4 border-b border-white/10 flex items-center justify-center gap-3">
-                <i class="fa-solid fa-cubes"></i>Ecosystem
-            </button>
-            <button onclick="App.router.navigate('support'); UI.closeMobileMenu();" class="text-xl font-bold text-gray-400 hover:text-white transition-colors w-full text-center py-4 border-b border-white/10 flex items-center justify-center gap-3">
-                <i class="fa-solid fa-headset"></i>Support
-            </button>
-
-            <div id="mobileWalletInfo" class="hidden w-full mt-4 pt-4">
-                <div class="glass-panel rounded-xl p-5">
-                    <div class="flex items-center gap-3 mb-4">
-                        <div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg">
-                            <i class="fa-solid fa-wallet text-white text-lg"></i>
-                        </div>
-                        <div class="flex-1 min-w-0">
-                            <p class="text-white font-bold text-sm">Connected Wallet</p>
-                            <p class="text-gray-400 text-xs font-mono truncate" id="mobileWalletAddress">Not connected</p>
-                        </div>
-                    </div>
-                    <div class="space-y-3">
-                        <div class="flex justify-between items-center p-3 bg-white/5 rounded-lg">
-                            <span class="text-gray-400 text-sm">Balance</span>
-                            <span class="text-white font-bold font-mono text-sm" id="mobileWalletBalance">0.0000 KRM</span>
-                        </div>
-                        <button onclick="App.wallet.disconnect()" class="w-full py-3 bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 rounded-lg text-sm font-bold transition-all flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-right-from-bracket"></i>Disconnect
-                        </button>
-                    </div>
-                </div>
-            </div>
+          </div>
         </div>
+
+        <!-- Faucet -->
+        <div class="faucet-grid">
+          <!-- L1 -->
+          <div class="faucet-card" id="l1-card">
+            <div class="fc-head">
+              <div class="fc-icon green"><i class="fa-solid fa-droplet" style="color:#fff"></i></div>
+              <div>
+                <div class="fc-title">Free Faucet</div>
+                <div class="fc-sub">Claim once every 24 hours</div>
+                <div class="fc-badge g">Level 1</div>
+              </div>
+            </div>
+            <div class="fc-meta">
+              <span>Daily reward</span><span>1 KRM</span>
+            </div>
+            <div class="fc-meta">
+              <span>Cooldown</span><span>24 hours</span>
+            </div>
+            <div id="l1-state"></div>
+          </div>
+
+          <!-- L2 -->
+          <div class="faucet-card locked-card" id="l2-card">
+            <div class="fc-head">
+              <div class="fc-icon purple"><i class="fa-brands fa-ethereum" style="color:#fff"></i></div>
+              <div>
+                <div class="fc-title">Premium Faucet</div>
+                <div class="fc-sub">Send 0.005 ETH → receive 5 KRM</div>
+                <div class="fc-badge p">Level 2</div>
+              </div>
+            </div>
+            <div class="fc-meta">
+              <span>Reward</span><span>5 KRM</span>
+            </div>
+            <div class="fc-meta">
+              <span>Payment required</span><span>0.005 ETH</span>
+            </div>
+            <div id="l2-state"></div>
+          </div>
+        </div>
+
+        <!-- Tasks -->
+        <div class="tasks-section">
+          <div class="section-title">
+            <i class="fa-solid fa-list-check" style="color:var(--green)"></i>
+            Incentivized Tasks
+            <span style="font-size:12px;font-weight:400;color:var(--muted);margin-left:4px">Complete all to qualify for genesis rewards</span>
+          </div>
+          <div class="tasks-grid">
+            <!-- T1 -->
+            <div class="task-card unlocked" id="tc-1">
+              <span class="task-step blue">Step 1</span>
+              <div class="task-icon ti-blue"><i class="fa-solid fa-users" style="color:#fff"></i></div>
+              <div class="task-title">Social Identity</div>
+              <div class="task-desc">Follow our X account and join the Telegram community to verify your identity.</div>
+              <button class="task-btn tb-twitter" onclick="openTwitter()"><i class="fa-brands fa-x-twitter"></i>Follow on X</button>
+              <button class="task-btn tb-telegram" onclick="openTelegram()"><i class="fa-brands fa-telegram"></i>Join Telegram</button>
+              <button class="task-btn tb-verify" id="t1-verify" onclick="verifyTask1()">
+                <i class="fa-solid fa-check-circle"></i>Verify Completion
+              </button>
+              <div class="task-reward"><span>Task reward</span><span>+10 KRM</span></div>
+            </div>
+            <!-- T2 -->
+            <div class="task-card locked" id="tc-2">
+              <span class="task-step purple">Step 2</span>
+              <div class="task-icon ti-purple"><i class="fa-solid fa-arrow-right-arrow-left" style="color:#fff"></i></div>
+              <div class="task-title">First Transaction</div>
+              <div class="task-desc">Send a test transaction on KarChain network to prove on-chain activity.</div>
+              <button class="task-btn tb-purple" onclick="sendTestTx()"><i class="fa-solid fa-bolt"></i>Send Test TX (0.001 KRM)</button>
+              <button class="task-btn tb-verify" id="t2-verify" onclick="verifyTask2()">
+                <i class="fa-solid fa-magnifying-glass"></i>Verify Transaction
+              </button>
+              <div class="task-reward"><span>Task reward</span><span>+25 KRM</span></div>
+            </div>
+            <!-- T3 -->
+            <div class="task-card locked" id="tc-3">
+              <span class="task-step orange">Final</span>
+              <div class="task-icon ti-orange"><i class="fa-solid fa-file-signature" style="color:#fff"></i></div>
+              <div class="task-title">Genesis Registration</div>
+              <div class="task-desc">Submit your wallet address via the form to be included in the genesis block.</div>
+              <button class="task-btn tb-orange" id="t3-btn" onclick="openForm()" style="opacity:.4;pointer-events:none">
+                <i class="fa-solid fa-pen-to-square"></i>Open Registration Form
+              </button>
+              <div class="task-reward"><span>Task reward</span><span>+50 KRM</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Progress -->
+        <div class="progress-bar-wrap">
+          <div class="progress-header">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span>Overall Progress</span>
+              <span class="progress-chip" id="prog-text">0/3 Tasks</span>
+            </div>
+            <span class="progress-total" id="prog-reward">+0 KRM</span>
+          </div>
+          <div class="progress-bar"><div class="progress-fill" id="prog-fill"></div></div>
+        </div>
+
+        <!-- TX history -->
+        <div class="tx-section" id="tx-section">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+            <span style="font-size:14px;font-weight:700;color:#fff;display:flex;align-items:center;gap:8px">
+              <i class="fa-solid fa-clock-rotate-left" style="color:var(--green)"></i>Recent Transactions
+            </span>
+            <button class="refresh-btn" onclick="renderTxHistory()"><i class="fa-solid fa-rotate" style="margin-right:4px"></i>Refresh</button>
+          </div>
+          <div id="tx-list"></div>
+        </div>
+      </div>
     </div>
+  </div>
+</div>
 
-    <!-- Background Elements -->
-    <div class="grid-overlay"></div>
-    <canvas id="webgl-canvas"></canvas>
-    <div id="water-drops" class="fixed inset-0 pointer-events-none z-[-8]"></div>
-    <div class="water-wave"></div>
-    <div class="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[1000px] h-[1000px] bg-green-500/5 rounded-full blur-[150px] -z-5 pointer-events-none animate-pulse-slow"></div>
-
-    <!-- Navigation -->
-    <nav class="fixed top-0 w-full z-50 transition-all duration-300" id="navbar">
-        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-            <!-- Logo -->
-            <div class="flex items-center gap-4 cursor-pointer group" onclick="App.router.navigate('home')">
-                <div class="relative w-12 h-12 flex items-center justify-center transition-transform duration-700 group-hover:rotate-180 group-hover:scale-110">
-                    <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_20px_rgba(74,222,128,0.6)]">
-                        <path d="M20 10 V90" stroke="#4ade80" stroke-width="8" stroke-linecap="round"/>
-                        <path d="M80 10 L20 50 L80 90" stroke="#4ade80" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-                        <circle cx="20" cy="50" r="10" fill="#22c55e"/>
-                        <circle cx="80" cy="10" r="8" fill="#22c55e"/>
-                        <circle cx="80" cy="90" r="8" fill="#22c55e"/>
-                    </svg>
-                </div>
-                <div class="flex flex-col">
-                    <span class="text-lg font-bold tracking-[0.2em] text-white group-hover:text-green-400 transition-colors font-display">KARCHAIN</span>
-                    <span class="text-[8px] text-gray-500 uppercase tracking-widest font-mono">Testnet Phase 1</span>
-                </div>
-            </div>
-
-            <!-- Desktop Nav -->
-            <div class="desktop-nav flex items-center gap-8">
-                <button onclick="App.router.navigate('home')" id="nav-home" class="nav-link text-sm font-bold uppercase tracking-widest text-white border-b-2 border-green-500 pb-1 px-1 transition-all hover:text-green-400">Testnet</button>
-                <button onclick="App.router.navigate('vision')" id="nav-vision" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white border-b-2 border-transparent hover:border-green-500/50 pb-1 px-1 transition-all">Vision</button>
-                <button onclick="App.router.navigate('ecosystem')" id="nav-ecosystem" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white border-b-2 border-transparent hover:border-green-500/50 pb-1 px-1 transition-all">Ecosystem</button>
-                <button onclick="App.router.navigate('support')" id="nav-support" class="nav-link text-sm font-bold uppercase tracking-widest text-gray-400 hover:text-white border-b-2 border-transparent hover:border-green-500/50 pb-1 px-1 transition-all">Support</button>
-            </div>
-
-            <!-- Right controls -->
-            <div class="flex items-center gap-4">
-                <!-- Wallet button + dropdown wrapper -->
-                <div class="nav-dropdown-wrapper">
-                    <button id="connectBtn" onclick="UI.handleConnectBtnClick()" class="btn-primary px-6 py-3 rounded-xl text-xs font-bold uppercase tracking-widest flex items-center gap-2 shadow-lg">
-                        <i class="fa-solid fa-wallet"></i>
-                        <span>Connect Wallet</span>
-                    </button>
-                    <!-- Dropdown -->
-                    <div id="userDropdown" class="hidden w-72 glass-panel rounded-xl p-5 z-50 border border-green-500/20">
-                        <div class="flex items-center gap-4 mb-4 pb-4 border-b border-white/10">
-                            <div class="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-blue-600 flex items-center justify-center shadow-lg">
-                                <i class="fa-solid fa-wallet text-white text-lg"></i>
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-white font-bold text-sm">Connected Wallet</p>
-                                <p class="text-gray-400 text-xs font-mono truncate" id="dropdownAddress">0x00...0000</p>
-                            </div>
-                        </div>
-                        <div class="space-y-2">
-                            <div class="flex justify-between items-center p-3 bg-white/5 rounded-lg">
-                                <span class="text-gray-400 text-sm">Balance</span>
-                                <span class="text-white font-bold font-mono text-sm" id="dropdownBalance">0.0000 KRM</span>
-                            </div>
-                            <button onclick="App.wallet.disconnect()" class="w-full text-left px-3 py-3 text-sm text-red-400 hover:bg-red-500/10 rounded-lg transition-all flex items-center gap-3">
-                                <div class="w-8 h-8 rounded-full bg-red-500/20 flex items-center justify-center">
-                                    <i class="fa-solid fa-right-from-bracket text-red-400"></i>
-                                </div>
-                                <div>
-                                    <p class="font-bold">Disconnect</p>
-                                    <p class="text-xs text-red-500/70">End current session</p>
-                                </div>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <button class="hamburger" id="hamburgerBtn"><span></span><span></span><span></span></button>
-            </div>
+<!-- ══════════ VISION PAGE ══════════ -->
+<div class="page" id="page-vision">
+  <div class="page-inner">
+    <div class="page-tag"><i class="fa-solid fa-compass"></i>Our Vision</div>
+    <h2 class="page-h">THE <span class="grad">MANIFESTO</span></h2>
+    <p class="page-sub">Re-engineering the fundamental substrate of human coordination for the 22nd century.</p>
+    <div class="vision-grid">
+      <div class="vision-points">
+        <div class="vp">
+          <div class="vp-num">01 // CONSENSUS</div>
+          <div class="vp-title">Asynchronous Finality</div>
+          <div class="vp-text">KarChain introduces <em>Hyper-Graph Sharding</em> — state partitioned into thousands of concurrent execution threads. Using <em>Proof-of-Synchrony</em>, we achieve mathematical finality in sub-second timeframes.</div>
         </div>
-    </nav>
-
-    <!-- Connect Wallet Modal -->
-    <div id="connect-modal" class="fixed inset-0 z-[100] hidden items-center justify-center p-4">
-        <div class="absolute inset-0 bg-black/80 backdrop-blur-md" onclick="UI.closeModal()"></div>
-        <div class="relative glass-panel w-full max-w-md rounded-2xl p-8 transform scale-95 opacity-0 transition-all duration-300" id="modal-content">
-            <div class="flex justify-between items-center mb-6">
-                <h3 class="text-2xl font-bold text-white font-display flex items-center gap-3">
-                    <i class="fa-solid fa-plug text-green-400"></i>Connect Wallet
-                </h3>
-                <button onclick="UI.closeModal()" class="text-gray-400 hover:text-white transition-colors w-10 h-10 rounded-full hover:bg-white/5 flex items-center justify-center">
-                    <i class="fa-solid fa-xmark text-xl"></i>
-                </button>
-            </div>
-
-            <!-- Demo mode notice -->
-            <div class="demo-banner flex items-start gap-2 mb-6">
-                <i class="fa-solid fa-flask-vial mt-0.5 flex-shrink-0"></i>
-                <div>
-                    <p class="font-bold">Demo / Testnet Mode</p>
-                    <p class="opacity-80 mt-0.5">No real ETH required. Simulated wallet for testnet exploration. Real MetaMask support available when network is live.</p>
-                </div>
-            </div>
-
-            <p class="text-gray-400 text-sm mb-6">Choose your wallet provider to connect to KarChain Testnet.</p>
-
-            <div class="space-y-4" id="wallet-options">
-                <!-- MetaMask -->
-                <div onclick="App.wallet.connect('MetaMask')" class="wallet-option group border border-white/10 p-5 rounded-xl bg-white/5 cursor-pointer transition-all hover:border-green-500/50 hover:bg-white/10 hover:shadow-[0_0_30px_rgba(74,222,128,0.15)]">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 rounded-xl bg-[#F6851B]/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" class="w-8 h-8" alt="MetaMask">
-                            </div>
-                            <div>
-                                <div class="font-bold text-white text-lg group-hover:text-[#F6851B] transition-colors">MetaMask</div>
-                                <div class="text-xs text-gray-500 font-mono mt-1">Browser Extension</div>
-                            </div>
-                        </div>
-                        <div class="w-3 h-3 rounded-full bg-green-500/50 group-hover:bg-green-400 group-hover:shadow-[0_0_15px_#4ade80] transition-all"></div>
-                    </div>
-                </div>
-
-                <!-- Demo Wallet -->
-                <div onclick="App.wallet.connectDemo()" class="wallet-option group border border-white/10 p-5 rounded-xl bg-white/5 cursor-pointer transition-all hover:border-yellow-500/50 hover:bg-white/10 hover:shadow-[0_0_30px_rgba(234,179,8,0.15)]">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center gap-4">
-                            <div class="w-14 h-14 rounded-xl bg-yellow-500/10 flex items-center justify-center group-hover:scale-110 transition-transform">
-                                <i class="fa-solid fa-flask text-3xl text-yellow-400"></i>
-                            </div>
-                            <div>
-                                <div class="font-bold text-white text-lg group-hover:text-yellow-400 transition-colors">Demo Wallet</div>
-                                <div class="text-xs text-gray-500 font-mono mt-1">Simulated · No real funds</div>
-                            </div>
-                        </div>
-                        <div class="w-3 h-3 rounded-full bg-yellow-500/50 group-hover:bg-yellow-400 group-hover:shadow-[0_0_15px_#fbbf24] transition-all"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="mt-8 pt-6 border-t border-white/10 text-center">
-                <p class="text-[10px] text-gray-600 uppercase tracking-widest">By connecting, you agree to our Terms & Privacy Policy</p>
-            </div>
+        <div class="vp">
+          <div class="vp-num">02 // SECURITY</div>
+          <div class="vp-title">Post-Quantum Fortress</div>
+          <div class="vp-text">Built with <em>Lattice-based signatures</em> (Kyber/Dilithium) to secure assets against future quantum decryption. ECC is ending — KarChain is ready.</div>
         </div>
+        <div class="vp">
+          <div class="vp-num">03 // SCALABILITY</div>
+          <div class="vp-title">100,000+ TPS</div>
+          <div class="vp-text">Modular architecture allows dynamic validator sets and <em>parallel execution</em> across shards, delivering enterprise-grade throughput without compromising decentralization.</div>
+        </div>
+      </div>
+      <div>
+        <div class="gyro-wrap">
+          <div class="gyro-ring gr1"></div>
+          <div class="gyro-ring gr2"></div>
+          <div class="gyro-ring gr3"></div>
+          <div class="gr-core"></div>
+        </div>
+      </div>
     </div>
-
-    <!-- ===================== HOME PAGE ===================== -->
-    <div id="page-home" class="page-content active pt-28 pb-20 px-4">
-        <div class="max-w-7xl mx-auto">
-            <!-- Hero -->
-            <div class="text-center mb-20">
-                <div class="inline-block px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold uppercase tracking-widest mb-6">
-                    <i class="fa-solid fa-circle-nodes mr-2"></i>Incentivized Testnet Live
-                </div>
-                <h1 class="text-5xl md:text-7xl font-bold text-white mb-8 leading-tight font-display">
-                    THE ARCHITECTURE OF <br>
-                    <span class="gradient-text">DIGITAL TRUST</span>
-                </h1>
-                <p class="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto font-light leading-relaxed mb-10">
-                    KarChain is the modular consensus layer designed for the next billion users.
-                    Join the Incentivized Testnet and secure your place in the genesis block.
-                </p>
-                <div class="flex flex-wrap justify-center gap-4">
-                    <button onclick="App.router.navigate('vision')" class="btn-secondary px-8 py-4 rounded-full text-sm font-bold uppercase tracking-widest flex items-center gap-2">
-                        <i class="fa-solid fa-scroll"></i>Read Manifesto
-                    </button>
-                    <button onclick="App.router.navigate('support')" class="btn-primary px-8 py-4 rounded-full text-sm font-bold uppercase tracking-widest flex items-center gap-2">
-                        <i class="fa-solid fa-book"></i>Documentation
-                    </button>
-                </div>
-
-                <!-- Stats -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-4xl mx-auto mt-16 pt-8 border-t border-white/10">
-                    <div class="text-center group">
-                        <div class="text-3xl md:text-4xl font-bold text-white mb-2 font-mono" id="stat-blocks">12,492</div>
-                        <div class="text-xs text-gray-500 uppercase tracking-wider flex items-center justify-center gap-1">
-                            <i class="fa-solid fa-cube text-green-500/50"></i>Blocks Minted
-                        </div>
-                    </div>
-                    <div class="text-center group">
-                        <div class="text-3xl md:text-4xl font-bold text-white mb-2 font-mono" id="stat-blocktime">0.4s</div>
-                        <div class="text-xs text-gray-500 uppercase tracking-wider flex items-center justify-center gap-1">
-                            <i class="fa-regular fa-clock text-green-500/50"></i>Block Time
-                        </div>
-                    </div>
-                    <div class="text-center group">
-                        <div class="text-3xl md:text-4xl font-bold text-white mb-2 font-mono" id="stat-txs">15,892</div>
-                        <div class="text-xs text-gray-500 uppercase tracking-wider flex items-center justify-center gap-1">
-                            <i class="fa-solid fa-arrow-right-arrow-left text-green-500/50"></i>Transactions
-                        </div>
-                    </div>
-                    <div class="text-center group">
-                        <div class="text-3xl md:text-4xl font-bold text-white mb-2 font-mono" id="stat-validators">138</div>
-                        <div class="text-xs text-gray-500 uppercase tracking-wider flex items-center justify-center gap-1">
-                            <i class="fa-solid fa-check-circle text-green-500/50"></i>Active Validators
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Dashboard -->
-            <div id="dashboard-ui" class="max-w-6xl mx-auto">
-                <div class="glass-panel rounded-3xl p-1 relative overflow-hidden">
-                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-green-500 to-transparent opacity-50"></div>
-                    <div class="bg-black/80 backdrop-blur-xl rounded-[20px] p-6 md:p-10">
-
-                        <!-- Locked View -->
-                        <div id="view-locked" class="text-center py-16">
-                            <div class="w-24 h-24 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/10 shadow-lg group hover:border-green-500/50 transition-all">
-                                <i class="fa-solid fa-lock text-3xl text-gray-600"></i>
-                            </div>
-                            <h2 class="text-3xl font-bold text-white mb-3 font-display">Dashboard Locked</h2>
-                            <p class="text-gray-400 mb-8 max-w-md mx-auto">Connect your wallet to access the testnet dashboard, claim daily tokens, and complete incentivized tasks.</p>
-                            <button onclick="UI.openModal()" class="btn-primary px-12 py-4 rounded-xl text-sm font-bold uppercase tracking-widest shadow-xl inline-flex items-center gap-3">
-                                <i class="fa-solid fa-wallet"></i>Connect Wallet
-                            </button>
-                        </div>
-
-                        <!-- Active View -->
-                        <div id="view-active" class="hidden">
-                            <!-- Balance Header -->
-                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center border-b border-white/10 pb-6 mb-8">
-                                <div>
-                                    <div class="flex items-center gap-2 text-green-400 mb-2">
-                                        <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                                        <span class="text-xs font-bold uppercase tracking-wider">Connected to KarChain</span>
-                                    </div>
-                                    <p class="text-sm text-gray-500 mb-1">Available Balance</p>
-                                    <div class="flex items-baseline gap-3">
-                                        <span id="balanceVal" class="text-5xl md:text-6xl font-bold text-white font-mono tracking-tighter">0.0000</span>
-                                        <span class="text-2xl font-bold text-green-500 bg-green-500/10 px-4 py-2 rounded-lg">KRM</span>
-                                    </div>
-                                </div>
-                                <div class="mt-6 md:mt-0 flex flex-col items-end">
-                                    <div class="flex items-center gap-3 mb-3">
-                                        <div class="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center">
-                                            <i class="fa-solid fa-fingerprint text-white"></i>
-                                        </div>
-                                        <div>
-                                            <p class="text-xs text-gray-500">Wallet Address</p>
-                                            <p class="text-sm text-white font-mono bg-white/5 px-3 py-1 rounded-lg border border-white/10" id="walletAddrDisp">0x0000...0000</p>
-                                        </div>
-                                    </div>
-                                    <button onclick="App.wallet.refreshBalance()" class="text-xs text-gray-500 hover:text-green-400 transition-colors px-3 py-1 rounded-full bg-white/5 hover:bg-white/10 flex items-center gap-1">
-                                        <i class="fa-solid fa-rotate"></i>Refresh
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Faucet Levels -->
-                            <div class="mb-8">
-                                <h3 class="text-2xl font-bold text-white mb-4 flex items-center gap-3">
-                                    <i class="fa-solid fa-water text-green-400"></i>
-                                    Faucet Levels
-                                    <span class="text-xs font-normal text-gray-500 ml-2">Complete Level 1 to unlock Level 2</span>
-                                </h3>
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <!-- Level 1 -->
-                                    <div class="level-card relative overflow-hidden group" id="level1-card">
-                                        <div class="level-badge bg-green-500/20 text-green-400 border border-green-500/30">Level 1</div>
-                                        <div class="flex items-center gap-4 mb-4">
-                                            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                                <i class="fa-solid fa-droplet text-white text-2xl"></i>
-                                            </div>
-                                            <div>
-                                                <h4 class="text-xl font-bold text-white">Free Faucet</h4>
-                                                <p class="text-sm text-gray-400">1 KRM every 24 hours</p>
-                                            </div>
-                                        </div>
-                                        <div class="space-y-4">
-                                            <div class="bg-white/5 rounded-lg p-3 text-sm">
-                                                <div class="flex justify-between mb-1">
-                                                    <span class="text-gray-400">Daily Limit</span>
-                                                    <span class="text-green-400 font-bold">1 KRM</span>
-                                                </div>
-                                                <div class="flex justify-between">
-                                                    <span class="text-gray-400">Cooldown</span>
-                                                    <span class="text-gray-300">24 hours</span>
-                                                </div>
-                                            </div>
-                                            <div id="faucet-level1-state"></div>
-                                        </div>
-                                    </div>
-
-                                    <!-- Level 2 -->
-                                    <div class="level-card relative overflow-hidden group" id="level2-card">
-                                        <div class="level-badge bg-purple-500/20 text-purple-400 border border-purple-500/30">Level 2</div>
-                                        <div class="flex items-center gap-4 mb-4">
-                                            <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                                                <i class="fa-brands fa-ethereum text-white text-2xl"></i>
-                                            </div>
-                                            <div>
-                                                <h4 class="text-xl font-bold text-white">Premium Faucet</h4>
-                                                <p class="text-sm text-gray-400">5 KRM · Simulated payment</p>
-                                            </div>
-                                        </div>
-                                        <div class="space-y-4">
-                                            <div class="bg-white/5 rounded-lg p-3 text-sm">
-                                                <div class="flex justify-between mb-1">
-                                                    <span class="text-gray-400">Reward</span>
-                                                    <span class="text-purple-400 font-bold">5 KRM</span>
-                                                </div>
-                                                <div class="flex justify-between mb-1">
-                                                    <span class="text-gray-400">Mode</span>
-                                                    <span class="text-yellow-400 font-mono text-xs">Testnet Demo</span>
-                                                </div>
-                                            </div>
-                                            <div id="faucet-level2-state"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Incentivized Tasks -->
-                            <h3 class="text-2xl font-bold text-white mb-6 flex items-center gap-3 mt-10 pt-6 border-t border-white/10">
-                                <i class="fa-solid fa-list-check text-green-400"></i>
-                                Incentivized Tasks
-                                <span class="text-sm font-normal text-gray-500 ml-2">Complete all to qualify for rewards</span>
-                            </h3>
-
-                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                                <!-- Task 1 -->
-                                <div id="card-task-1" class="glass-card p-6 rounded-2xl border border-white/10 relative overflow-hidden group hover:border-blue-500/30 transition-all">
-                                    <div class="absolute top-0 right-0 bg-blue-500/20 text-blue-400 text-[10px] font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-wider task-step-badge">Step 1</div>
-                                    <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center mb-5 text-2xl text-white shadow-lg group-hover:scale-110 transition-transform">
-                                        <i class="fa-solid fa-users"></i>
-                                    </div>
-                                    <h4 class="text-xl font-bold text-white mb-2">Social Identity</h4>
-                                    <p class="text-sm text-gray-400 mb-5">Follow our X account and join Telegram to verify your identity.</p>
-                                    <div class="space-y-3">
-                                        <button onclick="App.tasks.openTwitter()" id="btn-twitter" class="w-full py-3 bg-[#1DA1F2] hover:bg-[#1a8cd8] text-center rounded-lg text-xs font-bold text-white transition-all flex items-center justify-center gap-2">
-                                            <i class="fa-brands fa-x-twitter"></i>FOLLOW ON X
-                                        </button>
-                                        <button onclick="App.tasks.openTelegram()" id="btn-telegram" class="w-full py-3 bg-[#0088cc] hover:bg-[#0077b5] text-center rounded-lg text-xs font-bold text-white transition-all flex items-center justify-center gap-2">
-                                            <i class="fa-brands fa-telegram"></i>JOIN TELEGRAM
-                                        </button>
-                                        <button id="verify-social" onclick="App.tasks.completeSocialTask()" disabled class="w-full py-3 border-2 border-white/10 text-gray-500 rounded-lg text-xs font-bold cursor-not-allowed transition-all">
-                                            <i class="fa-solid fa-check-circle mr-1"></i>VERIFY COMPLETION
-                                        </button>
-                                    </div>
-                                    <div class="mt-4 pt-4 border-t border-white/10 flex justify-between text-xs">
-                                        <span class="text-gray-500">Reward</span>
-                                        <span class="text-green-400 font-bold">+10 KRM</span>
-                                    </div>
-                                </div>
-
-                                <!-- Task 2 -->
-                                <div id="card-task-2" class="glass-card p-6 rounded-2xl border border-white/10 task-locked relative overflow-hidden group hover:border-purple-500/30 transition-all">
-                                    <div class="absolute top-0 right-0 bg-purple-500/20 text-purple-400 text-[10px] font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-wider task-step-badge">Step 2</div>
-                                    <div class="w-14 h-14 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl flex items-center justify-center mb-5 text-2xl text-white shadow-lg group-hover:scale-110 transition-transform">
-                                        <i class="fa-solid fa-arrow-right-arrow-left"></i>
-                                    </div>
-                                    <h4 class="text-xl font-bold text-white mb-2">First Transaction</h4>
-                                    <p class="text-sm text-gray-400 mb-5">Send a simulated transaction on KarChain to prove activity.</p>
-                                    <div class="space-y-3">
-                                        <button onclick="App.tasks.makeTestTransaction()" id="btn-tx" class="w-full py-3 bg-purple-600 hover:bg-purple-500 text-white text-center rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2">
-                                            <i class="fa-solid fa-bolt"></i>SEND TEST TX (0.001 KRM)
-                                        </button>
-                                        <button id="verify-transaction" onclick="App.tasks.checkTransaction()" disabled class="w-full py-3 border-2 border-white/10 text-gray-500 rounded-lg text-xs font-bold cursor-not-allowed transition-all">
-                                            <i class="fa-solid fa-magnifying-glass mr-1"></i>VERIFY TRANSACTION
-                                        </button>
-                                    </div>
-                                    <div class="mt-4 pt-4 border-t border-white/10 flex justify-between text-xs">
-                                        <span class="text-gray-500">Reward</span>
-                                        <span class="text-green-400 font-bold">+25 KRM</span>
-                                    </div>
-                                </div>
-
-                                <!-- Task 3 -->
-                                <div id="card-task-3" class="glass-card p-6 rounded-2xl border border-white/10 task-locked relative overflow-hidden group hover:border-orange-500/30 transition-all">
-                                    <div class="absolute top-0 right-0 bg-orange-500/20 text-orange-400 text-[10px] font-bold px-4 py-1.5 rounded-bl-xl uppercase tracking-wider task-step-badge">Final</div>
-                                    <div class="w-14 h-14 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center mb-5 text-2xl text-white shadow-lg group-hover:scale-110 transition-transform">
-                                        <i class="fa-solid fa-file-signature"></i>
-                                    </div>
-                                    <h4 class="text-xl font-bold text-white mb-2">Genesis Registration</h4>
-                                    <p class="text-sm text-gray-400 mb-5">Submit your wallet address to be included in the genesis block.</p>
-                                    <button id="btn-form" onclick="App.tasks.openGoogleForm()" class="w-full py-3 bg-orange-600 hover:bg-orange-500 text-white text-center rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2 pointer-events-none opacity-50">
-                                        <i class="fa-solid fa-pen-to-square"></i>OPEN REGISTRATION FORM
-                                    </button>
-                                    <div class="mt-4 pt-4 border-t border-white/10 flex justify-between text-xs">
-                                        <span class="text-gray-500">Reward</span>
-                                        <span class="text-green-400 font-bold">+50 KRM</span>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Progress Bar -->
-                            <div class="mt-10 pt-6 border-t border-white/10">
-                                <div class="flex justify-between items-center mb-3">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-sm text-gray-400">Overall Progress</span>
-                                        <span class="text-xs px-2 py-1 bg-green-500/20 text-green-400 rounded-full" id="progress-text">0/3 Tasks</span>
-                                    </div>
-                                    <span class="text-sm text-green-400 font-bold" id="total-reward">+0 KRM</span>
-                                </div>
-                                <div class="w-full h-3 bg-white/10 rounded-full overflow-hidden">
-                                    <div id="progress-bar" class="h-full bg-gradient-to-r from-green-500 to-emerald-500 w-0 transition-all duration-700 ease-out rounded-full"></div>
-                                </div>
-                            </div>
-
-                            <!-- Transaction History -->
-                            <div id="transaction-history" class="mt-12 pt-8 border-t border-white/10 hidden">
-                                <h4 class="text-lg font-bold text-white mb-4 flex items-center gap-2">
-                                    <i class="fa-solid fa-clock-rotate-left text-green-400"></i>
-                                    Recent Transactions
-                                    <button onclick="UI.loadTransactionHistory()" class="ml-auto text-xs text-green-400 hover:text-green-300 transition-colors flex items-center gap-1">
-                                        <i class="fa-solid fa-rotate"></i>Refresh
-                                    </button>
-                                </h4>
-                                <div id="transactions-list" class="space-y-3 max-h-[400px] overflow-y-auto pr-2"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+    <h3 style="font-size:22px;font-weight:700;color:#fff;margin-bottom:20px">Strategic Roadmap</h3>
+    <div class="roadmap">
+      <div class="rm-item">
+        <div class="rm-dot active"></div>
+        <div class="rm-phase">Phase 1</div>
+        <div class="rm-name">Genesis</div>
+        <div class="rm-desc">Testnet launch · Faucet activation · Initial validator onboarding</div>
+      </div>
+      <div class="rm-item dim">
+        <div class="rm-dot inactive"></div>
+        <div class="rm-phase">Phase 2</div>
+        <div class="rm-name">Incentivized</div>
+        <div class="rm-desc">Public stress testing · Bug bounties · Cross-chain bridge beta</div>
+      </div>
+      <div class="rm-item dim">
+        <div class="rm-dot inactive"></div>
+        <div class="rm-phase">Phase 3</div>
+        <div class="rm-name">Ignition</div>
+        <div class="rm-desc">Mainnet launch · TGE · Governance DAO activation</div>
+      </div>
+      <div class="rm-item dim">
+        <div class="rm-dot inactive"></div>
+        <div class="rm-phase">Phase 4</div>
+        <div class="rm-name">Singularity</div>
+        <div class="rm-desc">Global settlement layer · Interplanetary file system</div>
+      </div>
     </div>
+  </div>
+</div>
 
-    <!-- ===================== VISION PAGE ===================== -->
-    <div id="page-vision" class="page-content pt-28 pb-20 px-4 max-w-7xl mx-auto">
-        <div class="text-center mb-20">
-            <div class="inline-block px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold uppercase tracking-widest mb-6">
-                <i class="fa-solid fa-compass mr-2"></i>Our Vision
-            </div>
-            <h2 class="text-5xl md:text-7xl font-bold text-white mb-6 font-display">THE <span class="gradient-text">MANIFESTO</span></h2>
-            <p class="text-xl text-gray-400 font-light max-w-3xl mx-auto">Re-engineering the fundamental substrate of human coordination for the 22nd century.</p>
+<!-- ══════════ ECOSYSTEM PAGE ══════════ -->
+<div class="page" id="page-ecosystem">
+  <div class="page-inner">
+    <div class="page-tag"><i class="fa-solid fa-cubes"></i>Ecosystem</div>
+    <h2 class="page-h">BUILDING THE FUTURE</h2>
+    <p class="page-sub">Explore the growing ecosystem of dApps and protocols being built on KarChain.</p>
+    <div class="eco-grid">
+      <div class="eco-card">
+        <div class="eco-icon" style="background:linear-gradient(135deg,#4c1d95,#7c3aed)"><i class="fa-solid fa-arrow-right-arrow-left" style="color:#fff"></i></div>
+        <div class="eco-name">KarSwap DEX</div>
+        <div class="eco-desc">Native AMM with concentrated liquidity and near-zero slippage optimised for high-frequency trading on KarChain.</div>
+        <div class="eco-footer">
+          <span class="eco-tag" style="background:rgba(124,58,237,.12);color:#a78bfa;border:1px solid rgba(124,58,237,.2)">Live on Testnet</span>
+          <i class="fa-solid fa-arrow-right" style="color:var(--muted)"></i>
         </div>
-
-        <div class="grid lg:grid-cols-2 gap-20 items-center mb-32">
-            <div class="space-y-12">
-                <div class="border-l-4 border-green-500 pl-8 transition-all hover:pl-10">
-                    <h3 class="text-3xl text-white font-bold mb-4 font-mono flex items-center gap-3">
-                        <span class="text-green-400">01</span>
-                        <span class="text-gray-400 text-sm font-normal">//</span>
-                        Asynchronous Finality
-                    </h3>
-                    <p class="text-gray-300 leading-relaxed mb-4">KarChain introduces a paradigm shift with <span class="text-green-400 font-bold">Hyper-Graph Sharding</span>. Unlike linear blockchains, our state is partitioned into thousands of concurrent execution threads.</p>
-                    <p class="text-gray-400 leading-relaxed">Using <span class="text-green-400">Proof-of-Synchrony</span>, we achieve mathematical finality in sub-second timeframes, eliminating probabilistic confirmations found in Nakamoto Consensus.</p>
-                </div>
-                <div class="border-l-4 border-white/10 pl-8 transition-all hover:pl-10 hover:border-green-500/50">
-                    <h3 class="text-3xl text-green-400 font-bold mb-4 font-mono flex items-center gap-3">
-                        <span class="text-green-400">02</span>
-                        <span class="text-gray-400 text-sm font-normal">//</span>
-                        Post-Quantum Security
-                    </h3>
-                    <p class="text-gray-300 leading-relaxed">The era of elliptic curve cryptography is ending. KarChain is built as a <span class="text-green-400 font-bold">Quantum Fortress</span>, utilizing Lattice-based signatures (Kyber/Dilithium) to secure assets against future quantum decryption threats.</p>
-                </div>
-            </div>
-            <div class="flex justify-center relative h-[400px] items-center">
-                <div class="absolute inset-0 bg-green-500/10 blur-[100px] rounded-full animate-pulse"></div>
-                <div class="gyro-wrapper">
-                    <div class="gyro">
-                        <div class="gyro-ring gr-1"></div>
-                        <div class="gyro-ring gr-2"></div>
-                        <div class="gyro-ring gr-3"></div>
-                    </div>
-                </div>
-            </div>
+      </div>
+      <div class="eco-card">
+        <div class="eco-icon" style="background:linear-gradient(135deg,#1e40af,#3b82f6)"><i class="fa-solid fa-vault" style="color:#fff"></i></div>
+        <div class="eco-name">KarVault Lending</div>
+        <div class="eco-desc">Cross-chain lending protocol with undercollateralized loans powered by on-chain reputation scoring.</div>
+        <div class="eco-footer">
+          <span class="eco-tag" style="background:rgba(234,179,8,.1);color:#fbbf24;border:1px solid rgba(234,179,8,.2)">Coming Q2 2025</span>
+          <i class="fa-solid fa-arrow-right" style="color:var(--muted)"></i>
         </div>
-
-        <!-- Roadmap -->
-        <div class="glass-panel p-12 rounded-3xl">
-            <h3 class="text-3xl text-white font-bold mb-12 text-center font-display">Strategic Roadmap</h3>
-            <div class="grid md:grid-cols-4 gap-8 relative">
-                <div class="relative text-center group">
-                    <div class="w-8 h-8 bg-green-500 rounded-full border-4 border-black mb-4 mx-auto relative z-10 animate-pulse group-hover:scale-125 transition-transform"></div>
-                    <div class="absolute top-4 left-1/2 w-full h-0.5 bg-gradient-to-r from-green-500 to-transparent hidden md:block"></div>
-                    <h4 class="text-green-400 font-bold mb-2">PHASE 1</h4>
-                    <p class="text-white font-bold text-lg mb-2">Genesis</p>
-                    <p class="text-gray-500 text-xs">Testnet launch, Faucet activation, Initial Validator onboarding.</p>
-                </div>
-                <div class="relative text-center group opacity-70">
-                    <div class="w-8 h-8 bg-gray-700 rounded-full border-4 border-black mb-4 mx-auto relative z-10 group-hover:bg-gray-600 transition-colors"></div>
-                    <h4 class="text-gray-400 font-bold mb-2">PHASE 2</h4>
-                    <p class="text-white font-bold text-lg mb-2">Incentivized</p>
-                    <p class="text-gray-500 text-xs">Public stress testing, Bug bounties, Cross-chain bridge beta.</p>
-                </div>
-                <div class="relative text-center group opacity-50">
-                    <div class="w-8 h-8 bg-gray-700 rounded-full border-4 border-black mb-4 mx-auto relative z-10"></div>
-                    <h4 class="text-gray-400 font-bold mb-2">PHASE 3</h4>
-                    <p class="text-white font-bold text-lg mb-2">Ignition</p>
-                    <p class="text-gray-500 text-xs">Mainnet launch, TGE, Governance DAO activation.</p>
-                </div>
-                <div class="relative text-center group opacity-30">
-                    <div class="w-8 h-8 bg-gray-700 rounded-full border-4 border-black mb-4 mx-auto relative z-10"></div>
-                    <h4 class="text-gray-400 font-bold mb-2">PHASE 4</h4>
-                    <p class="text-white font-bold text-lg mb-2">Singularity</p>
-                    <p class="text-gray-500 text-xs">Global settlement layer, Interplanetary file system.</p>
-                </div>
-            </div>
+      </div>
+      <div class="eco-card">
+        <div class="eco-icon" style="background:linear-gradient(135deg,#065f46,#059669)"><i class="fa-solid fa-shield-halved" style="color:#fff"></i></div>
+        <div class="eco-name">KarSafe</div>
+        <div class="eco-desc">Multi-sig institutional wallet with MPC technology for DAO treasury management. Fully audited.</div>
+        <div class="eco-footer">
+          <span class="eco-tag" style="background:rgba(74,222,128,.1);color:var(--green);border:1px solid rgba(74,222,128,.2)">Audited</span>
+          <i class="fa-solid fa-arrow-right" style="color:var(--muted)"></i>
         </div>
+      </div>
     </div>
+  </div>
+</div>
 
-    <!-- ===================== ECOSYSTEM PAGE ===================== -->
-    <div id="page-ecosystem" class="page-content pt-28 pb-20 px-4 max-w-7xl mx-auto">
-        <div class="text-center mb-16">
-            <div class="inline-block px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold uppercase tracking-widest mb-6">
-                <i class="fa-solid fa-cubes mr-2"></i>Ecosystem
-            </div>
-            <h2 class="text-5xl font-bold text-white mb-6 font-display">BUILDING THE FUTURE</h2>
-            <p class="text-gray-400 max-w-2xl mx-auto">Explore the growing ecosystem of dApps and protocols being built on KarChain.</p>
+<!-- ══════════ SUPPORT PAGE ══════════ -->
+<div class="page" id="page-support">
+  <div class="page-inner">
+    <div class="page-tag"><i class="fa-solid fa-headset"></i>Support</div>
+    <h2 class="page-h">COMMUNITY HUB</h2>
+    <p class="page-sub">Get support, report bugs, and connect with the KarChain team.</p>
+    <div class="support-cards">
+      <a href="https://t.me/tgkarim1" target="_blank" class="sup-card">
+        <div class="sup-icon" style="background:linear-gradient(135deg,#0369a1,#0ea5e9)"><i class="fa-brands fa-telegram" style="color:#fff"></i></div>
+        <div>
+          <div class="sup-name">Telegram Community</div>
+          <div class="sup-desc">Join 50,000+ members. Direct core team access.</div>
+          <div class="sup-handle">@tgkarim1</div>
         </div>
-
-        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="glass-card p-8 rounded-xl group cursor-pointer hover:border-purple-500/30 transition-all border border-white/5">
-                <div class="w-16 h-16 bg-purple-500/20 rounded-xl flex items-center justify-center mb-6 text-3xl text-purple-400 group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-arrow-right-arrow-left"></i>
-                </div>
-                <h3 class="text-xl font-bold text-white mb-2 group-hover:text-purple-400 transition-colors">KarSwap DEX</h3>
-                <p class="text-sm text-gray-400 mb-4">The native AMM with concentrated liquidity and zero slippage for high-frequency trading.</p>
-                <div class="flex items-center justify-between">
-                    <span class="text-xs px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full">Live on Testnet</span>
-                    <i class="fa-solid fa-arrow-right text-gray-600 group-hover:text-purple-400 transition-colors"></i>
-                </div>
-            </div>
-
-            <div class="glass-card p-8 rounded-xl group cursor-pointer hover:border-blue-500/30 transition-all border border-white/5">
-                <div class="w-16 h-16 bg-blue-500/20 rounded-xl flex items-center justify-center mb-6 text-3xl text-blue-400 group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-vault"></i>
-                </div>
-                <h3 class="text-xl font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">KarVault Lending</h3>
-                <p class="text-sm text-gray-400 mb-4">Cross-chain lending protocol with undercollateralized loans powered by reputation scores.</p>
-                <div class="flex items-center justify-between">
-                    <span class="text-xs px-3 py-1 bg-yellow-500/20 text-yellow-400 rounded-full">Coming Q2 2025</span>
-                    <i class="fa-solid fa-arrow-right text-gray-600 group-hover:text-blue-400 transition-colors"></i>
-                </div>
-            </div>
-
-            <div class="glass-card p-8 rounded-xl group cursor-pointer hover:border-emerald-500/30 transition-all border border-white/5">
-                <div class="w-16 h-16 bg-emerald-500/20 rounded-xl flex items-center justify-center mb-6 text-3xl text-emerald-400 group-hover:scale-110 transition-transform">
-                    <i class="fa-solid fa-shield-halved"></i>
-                </div>
-                <h3 class="text-xl font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors">KarSafe</h3>
-                <p class="text-sm text-gray-400 mb-4">Multi-sig institutional wallet with MPC technology for DAO treasury management.</p>
-                <div class="flex items-center justify-between">
-                    <span class="text-xs px-3 py-1 bg-green-500/20 text-green-400 rounded-full">Audited</span>
-                    <i class="fa-solid fa-arrow-right text-gray-600 group-hover:text-emerald-400 transition-colors"></i>
-                </div>
-            </div>
+      </a>
+      <a href="mailto:support@karchain.io" class="sup-card">
+        <div class="sup-icon" style="background:linear-gradient(135deg,#15803d,#22c55e)"><i class="fa-solid fa-envelope" style="color:#fff"></i></div>
+        <div>
+          <div class="sup-name">Email Support</div>
+          <div class="sup-desc">Technical support · 24–48h response time.</div>
+          <div class="sup-handle">support@karchain.io</div>
         </div>
+      </a>
     </div>
-
-    <!-- ===================== SUPPORT PAGE ===================== -->
-    <div id="page-support" class="page-content pt-28 pb-20 px-4 max-w-5xl mx-auto">
-        <div class="text-center mb-20">
-            <div class="inline-block px-4 py-2 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-bold uppercase tracking-widest mb-6">
-                <i class="fa-solid fa-headset mr-2"></i>Support
-            </div>
-            <h2 class="text-5xl font-bold text-white mb-6 font-display">COMMUNITY HUB</h2>
-            <p class="text-gray-400 text-lg">Get support, report bugs, and connect with the team.</p>
-        </div>
-
-        <div class="grid md:grid-cols-2 gap-8 mb-16">
-            <a href="https://t.me/tgkarim1" target="_blank" class="glass-panel p-8 rounded-3xl block group hover:border-blue-500/30 transition-all">
-                <div class="flex items-center gap-6 mb-6">
-                    <div class="w-20 h-20 bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl flex items-center justify-center text-3xl text-white shadow-lg group-hover:scale-110 transition-transform">
-                        <i class="fa-brands fa-telegram"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-2xl font-bold text-white mb-1">Telegram Community</h3>
-                        <p class="text-gray-400">Join 50,000+ members. Direct access to core team.</p>
-                    </div>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-blue-400 text-sm font-mono">@tgkarim1</span>
-                    <span class="px-6 py-3 bg-white/5 rounded-xl text-white font-bold text-sm group-hover:bg-blue-500/20 transition-all flex items-center gap-2">
-                        Join Now<i class="fa-solid fa-arrow-right ml-1 group-hover:translate-x-1 transition-transform"></i>
-                    </span>
-                </div>
-            </a>
-            <a href="mailto:support@karchain.io" class="glass-panel p-8 rounded-3xl block group hover:border-green-500/30 transition-all">
-                <div class="flex items-center gap-6 mb-6">
-                    <div class="w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center text-3xl text-white shadow-lg group-hover:scale-110 transition-transform">
-                        <i class="fa-solid fa-envelope"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-2xl font-bold text-white mb-1">Email Support</h3>
-                        <p class="text-gray-400">Technical support. 24-48h response time.</p>
-                    </div>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-green-400 text-sm font-mono">support@karchain.io</span>
-                    <span class="px-6 py-3 bg-white/5 rounded-xl text-white font-bold text-sm group-hover:bg-green-500/20 transition-all flex items-center gap-2">
-                        Send Email<i class="fa-solid fa-arrow-right ml-1 group-hover:translate-x-1 transition-transform"></i>
-                    </span>
-                </div>
-            </a>
-        </div>
-
-        <!-- Network Details -->
-        <div class="glass-panel p-8 rounded-3xl mb-8">
-            <h3 class="text-xl font-bold text-white mb-6 flex items-center gap-2"><i class="fa-solid fa-network-wired text-green-400"></i> Network Configuration</h3>
-            <div class="bg-white/5 p-6 rounded-xl font-mono text-sm space-y-2">
-                <div class="flex justify-between"><span class="text-gray-400">Network Name:</span><span class="text-green-400">KarChain Testnet</span></div>
-                <div class="flex justify-between"><span class="text-gray-400">RPC URL:</span><span class="text-white">https://rpc.karchain.network</span></div>
-                <div class="flex justify-between"><span class="text-gray-400">Chain ID:</span><span class="text-white">1337</span></div>
-                <div class="flex justify-between"><span class="text-gray-400">Currency Symbol:</span><span class="text-white">KRM</span></div>
-                <div class="flex justify-between"><span class="text-gray-400">Explorer:</span><span class="text-white">https://explorer.karchain.network</span></div>
-            </div>
-        </div>
-
-        <!-- FAQ -->
-        <div class="space-y-4">
-            <h3 class="text-2xl font-bold text-white mb-6 pl-4 border-l-4 border-green-500">Frequently Asked Questions</h3>
-
-            <div class="glass-panel rounded-xl overflow-hidden">
-                <button class="faq-toggle w-full p-6 text-left flex justify-between items-center text-white font-bold hover:bg-white/5 transition-colors">
-                    <span>How to add KarChain to MetaMask?</span>
-                    <i class="fa-solid fa-chevron-down text-green-400"></i>
-                </button>
-                <div class="faq-content border-t border-white/5">
-                    <div class="px-6 pb-6 text-gray-400 text-sm leading-relaxed">
-                        Click "Connect Wallet" → MetaMask on the dashboard. The app will automatically prompt MetaMask to add the KarChain Testnet network. You can also add it manually using the network details shown above.
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass-panel rounded-xl overflow-hidden">
-                <button class="faq-toggle w-full p-6 text-left flex justify-between items-center text-white font-bold hover:bg-white/5 transition-colors">
-                    <span>How does the Daily Faucet work?</span>
-                    <i class="fa-solid fa-chevron-down text-green-400"></i>
-                </button>
-                <div class="faq-content border-t border-white/5">
-                    <div class="px-6 pb-6 text-gray-400 text-sm leading-relaxed">
-                        <p>Two faucet levels are available after connecting your wallet:</p>
-                        <ul class="list-disc list-inside mt-3 space-y-2">
-                            <li><span class="text-green-400 font-bold">Level 1 (Free):</span> Claim 1 KRM every 24 hours after completing the CAPTCHA verification.</li>
-                            <li><span class="text-purple-400 font-bold">Level 2 (Premium):</span> Unlocked after Level 1 — receive 5 KRM via simulated transaction in testnet mode.</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <div class="glass-panel rounded-xl overflow-hidden">
-                <button class="faq-toggle w-full p-6 text-left flex justify-between items-center text-white font-bold hover:bg-white/5 transition-colors">
-                    <span>What is the Demo Wallet?</span>
-                    <i class="fa-solid fa-chevron-down text-green-400"></i>
-                </button>
-                <div class="faq-content border-t border-white/5">
-                    <div class="px-6 pb-6 text-gray-400 text-sm leading-relaxed">
-                        The Demo Wallet lets you explore KarChain's testnet dashboard without needing MetaMask or any real funds. A simulated wallet address is generated, and all KRM balances are for testnet demonstration purposes only.
-                    </div>
-                </div>
-            </div>
-        </div>
+    <div class="network-box">
+      <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:20px;display:flex;align-items:center;gap:8px">
+        <i class="fa-solid fa-network-wired" style="color:var(--green)"></i>Network Configuration
+      </div>
+      <div class="net-row"><span class="net-key">Network Name</span><span class="net-val green">KarChain</span></div>
+      <div class="net-row"><span class="net-key">RPC URL</span><span class="net-val">http://localhost:8545</span></div>
+      <div class="net-row"><span class="net-key">Chain ID</span><span class="net-val">1337</span></div>
+      <div class="net-row"><span class="net-key">Currency Symbol</span><span class="net-val green">KRM</span></div>
+      <div class="net-row"><span class="net-key">Block Explorer</span><span class="net-val" style="color:var(--muted)">Coming soon</span></div>
     </div>
+    <div>
+      <h3 style="font-size:18px;font-weight:700;color:#fff;margin-bottom:16px;padding-left:16px;border-left:3px solid var(--green)">FAQ</h3>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFAQ(this)">How do I add KarChain to MetaMask?<i class="fa-solid fa-chevron-down"></i></button>
+        <div class="faq-a"><p>Click "Connect Wallet" — MetaMask will be prompted to add the network automatically. Alternatively add manually: RPC <code>http://localhost:8545</code>, Chain ID <code>1337</code>, Symbol <code>KRM</code>.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFAQ(this)">How does the faucet work?<i class="fa-solid fa-chevron-down"></i></button>
+        <div class="faq-a"><p><strong style="color:#fff">Level 1</strong> — Complete the CAPTCHA and claim 1 KRM every 24 hours for free.<br><br><strong style="color:#fff">Level 2</strong> — Unlocked after Level 1. Send 0.005 ETH to the treasury address on Ethereum mainnet and receive 5 KRM on KarChain.</p></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-q" onclick="toggleFAQ(this)">What are Incentivized Tasks?<i class="fa-solid fa-chevron-down"></i></button>
+        <div class="faq-a"><p>Three sequential tasks — Social Identity (+10 KRM), First Transaction (+25 KRM), and Genesis Registration (+50 KRM). Completing all three qualifies your address for genesis block rewards at mainnet launch.</p></div>
+      </div>
+    </div>
+  </div>
+</div>
 
-    <!-- Footer -->
-    <footer class="border-t border-white/5 bg-black/50 backdrop-blur-xl py-16 mt-20">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="grid md:grid-cols-4 gap-12">
-                <div class="col-span-1 md:col-span-2">
-                    <div class="flex items-center gap-3 mb-6">
-                        <svg viewBox="0 0 100 100" class="w-12 h-12">
-                            <path d="M20 10 V90" stroke="#4ade80" stroke-width="8" stroke-linecap="round"/>
-                            <path d="M80 10 L20 50 L80 90" stroke="#4ade80" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
-                            <circle cx="20" cy="50" r="10" fill="#22c55e"/>
-                            <circle cx="80" cy="10" r="8" fill="#22c55e"/>
-                            <circle cx="80" cy="90" r="8" fill="#22c55e"/>
-                        </svg>
-                        <span class="text-2xl font-bold tracking-[0.2em] text-white font-display">KARCHAIN</span>
-                    </div>
-                    <p class="text-gray-500 text-sm max-w-xs leading-relaxed">The sovereign consensus layer for the decentralized future. Built for speed, security, and sustainability.</p>
-                </div>
-                <div>
-                    <h4 class="text-white font-bold mb-6 uppercase tracking-widest text-sm">Ecosystem</h4>
-                    <ul class="space-y-3 text-sm">
-                        <li><a href="#" class="text-gray-400 hover:text-green-400 transition-colors">Explorer</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-green-400 transition-colors">Governance</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h4 class="text-white font-bold mb-6 uppercase tracking-widest text-sm">Developers</h4>
-                    <ul class="space-y-3 text-sm">
-                        <li><a href="#" class="text-gray-400 hover:text-green-400 transition-colors">Documentation</a></li>
-                        <li><a href="#" class="text-gray-400 hover:text-green-400 transition-colors">GitHub</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="mt-16 pt-8 border-t border-white/5 text-center text-xs text-gray-600">
-                © 2025 KarChain Foundation. All rights reserved.
-            </div>
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div style="display:flex;align-items:center;gap:12px">
+        <svg viewBox="0 0 100 100" style="width:36px;height:36px">
+          <path d="M20 10 V90" stroke="#4ade80" stroke-width="8" stroke-linecap="round"/>
+          <path d="M80 10 L20 50 L80 90" stroke="#4ade80" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="20" cy="50" r="10" fill="#22c55e"/>
+          <circle cx="80" cy="10" r="8" fill="#22c55e"/>
+          <circle cx="80" cy="90" r="8" fill="#22c55e"/>
+        </svg>
+        <span style="font-size:18px;font-weight:800;letter-spacing:.15em;color:#fff">KARCHAIN</span>
+      </div>
+      <p>The sovereign consensus layer for the decentralized future. Built for speed, security, and sustainability.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Ecosystem</h4>
+      <a href="#">Explorer</a>
+      <a href="#">Governance</a>
+      <a href="#">KarSwap</a>
+    </div>
+    <div class="footer-col">
+      <h4>Developers</h4>
+      <a href="#">Documentation</a>
+      <a href="#">GitHub</a>
+      <a href="#">Bug Bounty</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 KarChain Foundation. All rights reserved.</p>
+    <p style="color:var(--green)">Testnet Phase 1 · Chain ID 1337</p>
+  </div>
+</footer>
+
+<!-- Scroll top -->
+<button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})">
+  <i class="fa-solid fa-chevron-up"></i>
+</button>
+
+<script>
+// ════════════════════════════════════════
+//  CONFIG
+// ════════════════════════════════════════
+const CFG = {
+  chainId: 1337,
+  chainHex: '0x539',
+  chainName: 'KarChain',
+  rpc: 'http://localhost:8545',
+  symbol: 'KRM',
+  decimals: 18,
+  treasury: '0x018fe8087035B3C5ba00E0EB7aB47d24297CCA5c',
+  twitter: 'https://x.com/karim7652117665',
+  telegram: 'https://t.me/tgkarim1',
+  form: 'https://docs.google.com/forms/d/e/1FAIpQLSeQhBQZ_XKxYp2G5bZ5RwTzR2QmPpLJ6xN3oYjH7sKvP8t0w/viewform',
+  l2PaymentEth: '0.005',
+  l1Cooldown: 24 * 3600 * 1000,
+};
+
+// ════════════════════════════════════════
+//  STATE
+// ════════════════════════════════════════
+const S = {
+  address: null,
+  provider: null,
+  signer: null,
+  balance: '0.0000',
+  captchaDone: false,
+  timerInterval: null,
+
+  get tasks() { return JSON.parse(localStorage.getItem('kc_tasks') || '[]'); },
+  setTask(id) {
+    const t = this.tasks;
+    if (!t.includes(id)) { t.push(id); localStorage.setItem('kc_tasks', JSON.stringify(t)); }
+  },
+  get txs() { return JSON.parse(localStorage.getItem('kc_txs_' + this.address) || '[]'); },
+  addTx(tx) {
+    const t = this.txs;
+    t.push({ ...tx, ts: Date.now() });
+    localStorage.setItem('kc_txs_' + this.address, JSON.stringify(t));
+  },
+  get l1LastClaim() { return parseInt(localStorage.getItem('kc_l1_' + this.address) || '0'); },
+  setL1Claim() { localStorage.setItem('kc_l1_' + this.address, Date.now().toString()); },
+  get l2Unlocked() { return localStorage.getItem('kc_l2_' + this.address) === '1'; },
+  unlockL2() { localStorage.setItem('kc_l2_' + this.address, '1'); },
+  get socialStarted() { return localStorage.getItem('kc_social') === '1'; },
+  setSocial() { localStorage.setItem('kc_social', '1'); },
+  get txDone() { return localStorage.getItem('kc_txdone_' + this.address) === '1'; },
+  setTxDone() { localStorage.setItem('kc_txdone_' + this.address, '1'); },
+};
+
+// ════════════════════════════════════════
+//  TOAST
+// ════════════════════════════════════════
+function toast(title, msg, type = 'info') {
+  const icons = { success: 'fa-check-circle', error: 'fa-exclamation-circle', info: 'fa-info-circle' };
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.innerHTML = `<i class="fas ${icons[type]} toast-icon"></i><div class="toast-body"><p>${title}</p><p>${msg}</p></div>`;
+  document.getElementById('toast-wrap').appendChild(el);
+  setTimeout(() => el.style.cssText = 'animation:toastIn .3s ease reverse forwards', 3500);
+  setTimeout(() => el.remove(), 4000);
+}
+
+// ════════════════════════════════════════
+//  ROUTER
+// ════════════════════════════════════════
+function navigate(page) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+  const nl = document.getElementById('nl-' + page);
+  if (nl) nl.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ════════════════════════════════════════
+//  MOBILE MENU
+// ════════════════════════════════════════
+function toggleMobile() {
+  document.getElementById('burger').classList.toggle('open');
+  document.getElementById('mobile-menu').classList.toggle('open');
+  document.getElementById('mb-overlay').classList.toggle('show');
+  document.body.style.overflow = document.getElementById('mobile-menu').classList.contains('open') ? 'hidden' : '';
+}
+
+// ════════════════════════════════════════
+//  MODAL
+// ════════════════════════════════════════
+function openModal() { document.getElementById('connect-modal').classList.add('show'); }
+function closeModal() { document.getElementById('connect-modal').classList.remove('show'); }
+document.getElementById('connect-modal').addEventListener('click', e => { if (e.target === e.currentTarget) closeModal(); });
+
+function handleConnectClick() {
+  if (S.address) {
+    document.getElementById('wallet-dropdown').classList.toggle('show');
+  } else {
+    openModal();
+  }
+}
+
+// Close dropdown on outside click
+document.addEventListener('click', e => {
+  const dd = document.getElementById('wallet-dropdown');
+  const btn = document.getElementById('connect-btn');
+  if (!dd.contains(e.target) && !btn.contains(e.target)) dd.classList.remove('show');
+});
+
+// ════════════════════════════════════════
+//  METAMASK CONNECT
+// ════════════════════════════════════════
+async function connectMetaMask() {
+  if (!window.ethereum) {
+    toast('MetaMask not found', 'Please install MetaMask extension and refresh the page.', 'error');
+    return;
+  }
+  try {
+    // Request accounts
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+    // Add / switch to KarChain
+    try {
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: CFG.chainHex }]
+      });
+    } catch (sw) {
+      if (sw.code === 4902 || sw.code === -32603) {
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [{
+            chainId: CFG.chainHex,
+            chainName: CFG.chainName,
+            rpcUrls: [CFG.rpc],
+            nativeCurrency: { name: 'KarChain', symbol: CFG.symbol, decimals: CFG.decimals }
+          }]
+        });
+      } else if (sw.code === 4001) {
+        toast('Rejected', 'You rejected the network switch.', 'error');
+        return;
+      }
+    }
+
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner();
+    const address = await signer.getAddress();
+
+    // Verify we're on the right chain
+    const network = await provider.getNetwork();
+    if (network.chainId !== CFG.chainId) {
+      toast('Wrong Network', `Please switch MetaMask to KarChain (Chain ID ${CFG.chainId}).`, 'error');
+      return;
+    }
+
+    let balance = '0.0000';
+    try {
+      const raw = await provider.getBalance(address);
+      balance = parseFloat(ethers.utils.formatEther(raw)).toFixed(4);
+    } catch (_) {}
+
+    S.address = address;
+    S.provider = provider;
+    S.signer = signer;
+    S.balance = balance;
+
+    localStorage.setItem('kc_addr', address);
+
+    closeModal();
+    setConnected(address, balance);
+    toast('Connected!', `Wallet ${address.slice(0,6)}...${address.slice(-4)} linked to KarChain.`, 'success');
+
+    // Listen for chain/account changes
+    window.ethereum.on('chainChanged', () => location.reload());
+    window.ethereum.on('accountsChanged', accs => { if (!accs.length) disconnectWallet(); else location.reload(); });
+
+  } catch (err) {
+    if (err.code === 4001) {
+      toast('Rejected', 'Connection request was rejected.', 'error');
+    } else {
+      toast('Error', err.message?.slice(0, 80) || 'Unknown error.', 'error');
+    }
+  }
+}
+
+// ════════════════════════════════════════
+//  SET CONNECTED STATE
+// ════════════════════════════════════════
+function setConnected(address, balance) {
+  const short = address.slice(0, 6) + '...' + address.slice(-4);
+  document.getElementById('connect-btn').innerHTML = `<span class="dot"></span><span id="connect-btn-text">${short}</span>`;
+  document.getElementById('dd-addr').textContent = address;
+  document.getElementById('dd-bal').textContent = parseFloat(balance).toFixed(4) + ' KRM';
+  document.getElementById('wallet-chip').textContent = short;
+  document.getElementById('bal-num').textContent = parseFloat(balance).toFixed(4);
+  document.getElementById('view-locked').style.display = 'none';
+  document.getElementById('view-active').style.display = 'block';
+
+  setNetStatus(true);
+  renderL1();
+  renderL2();
+  renderTasks();
+  renderProgress();
+  renderTxHistory();
+}
+
+function disconnectWallet() {
+  S.address = null; S.provider = null; S.signer = null; S.balance = '0.0000';
+  localStorage.removeItem('kc_addr');
+  clearInterval(S.timerInterval);
+  document.getElementById('connect-btn').innerHTML = '<i class="fa-solid fa-wallet"></i><span id="connect-btn-text">Connect Wallet</span>';
+  document.getElementById('wallet-dropdown').classList.remove('show');
+  document.getElementById('view-locked').style.display = 'block';
+  document.getElementById('view-active').style.display = 'none';
+  setNetStatus(false);
+  toast('Disconnected', 'Wallet session ended.', 'info');
+}
+
+function setNetStatus(connected) {
+  document.getElementById('net-dot').style.background = connected ? 'var(--green)' : 'var(--muted)';
+  document.getElementById('net-dot').style.boxShadow = connected ? '0 0 8px var(--green)' : 'none';
+  document.getElementById('net-dot').style.animation = connected ? 'pulse 2s infinite' : 'none';
+  document.getElementById('net-text').textContent = connected ? 'KarChain · Chain 1337' : 'Not connected';
+  document.getElementById('net-text').style.color = connected ? 'var(--green)' : 'var(--muted)';
+}
+
+async function refreshBalance() {
+  if (!S.provider || !S.address) return;
+  try {
+    const raw = await S.provider.getBalance(S.address);
+    S.balance = parseFloat(ethers.utils.formatEther(raw)).toFixed(4);
+    document.getElementById('bal-num').textContent = S.balance;
+    document.getElementById('dd-bal').textContent = S.balance + ' KRM';
+    toast('Refreshed', 'Balance updated from chain.', 'success');
+  } catch (e) {
+    toast('Error', 'Could not fetch balance.', 'error');
+  }
+}
+
+// ════════════════════════════════════════
+//  FAUCET LEVEL 1
+// ════════════════════════════════════════
+function renderL1() {
+  const container = document.getElementById('l1-state');
+  if (!S.address) return;
+  const last = S.l1LastClaim;
+  const now = Date.now();
+
+  clearInterval(S.timerInterval);
+
+  if (!last || now - last >= CFG.l1Cooldown) {
+    // Show captcha
+    container.innerHTML = `
+      <div class="captcha-wrap" id="cap-wrap" onclick="doCaptcha()">
+        <div class="captcha-box" id="cap-box"></div>
+        <span class="captcha-text">I'm not a robot</span>
+        <div class="captcha-logo">reCAPTCHA<br><span style="font-size:8px">Privacy · Terms</span></div>
+      </div>
+      <button class="btn-claim green" id="l1-btn" onclick="claimL1()" disabled style="margin-top:12px">
+        <i class="fa-solid fa-droplet"></i>Claim 1 KRM
+      </button>`;
+    S.captchaDone = false;
+  } else {
+    showL1Timer(container, last);
+  }
+}
+
+function showL1Timer(container, last) {
+  const tick = () => {
+    const left = CFG.l1Cooldown - (Date.now() - last);
+    if (left <= 0) { renderL1(); return; }
+    const h = Math.floor(left / 3600000).toString().padStart(2, '0');
+    const m = Math.floor((left % 3600000) / 60000).toString().padStart(2, '0');
+    const sc = Math.floor((left % 60000) / 1000).toString().padStart(2, '0');
+    container.innerHTML = `
+      <div class="timer-wrap">
+        <div class="timer-label">Next claim available in</div>
+        <div class="timer-digits">
+          <span class="td">${h}</span><span class="timer-sep">:</span>
+          <span class="td">${m}</span><span class="timer-sep">:</span>
+          <span class="td">${sc}</span>
         </div>
-    </footer>
+      </div>
+      <button class="btn-claim done" disabled><i class="fa-solid fa-check"></i>Claimed · Come back in ${h}h ${m}m</button>`;
+  };
+  tick();
+  S.timerInterval = setInterval(tick, 1000);
+}
 
-    <!-- Scroll to Top -->
-    <button id="scrollToTopBtn" class="fixed bottom-8 right-8 w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full flex items-center justify-center text-white z-40">
-        <i class="fa-solid fa-chevron-up text-xl"></i>
+function doCaptcha() {
+  if (S.captchaDone) return;
+  const box = document.getElementById('cap-box');
+  const wrap = document.getElementById('cap-wrap');
+  if (!box) return;
+  box.classList.add('spinning');
+  wrap.style.pointerEvents = 'none';
+  setTimeout(() => {
+    box.classList.remove('spinning');
+    box.classList.add('done');
+    box.innerHTML = '<i class="fa-solid fa-check" style="color:#fff;font-size:12px"></i>';
+    S.captchaDone = true;
+    const btn = document.getElementById('l1-btn');
+    if (btn) { btn.disabled = false; btn.style.opacity = '1'; }
+  }, 1300);
+}
+
+function claimL1() {
+  if (!S.captchaDone) { toast('CAPTCHA', 'Please complete the verification first.', 'error'); return; }
+  S.setL1Claim();
+  S.unlockL2();
+  const newBal = (parseFloat(S.balance) + 1).toFixed(4);
+  S.balance = newBal;
+  document.getElementById('bal-num').textContent = newBal;
+  document.getElementById('dd-bal').textContent = newBal + ' KRM';
+  S.addTx({ hash: '0x' + [...Array(64)].map(() => Math.floor(Math.random() * 16).toString(16)).join(''), value: '1.0000', type: 'Faucet L1' });
+  renderL1();
+  renderL2();
+  renderTxHistory();
+  toast('Claimed!', '1 KRM added to your balance. Level 2 unlocked!', 'success');
+}
+
+// ════════════════════════════════════════
+//  FAUCET LEVEL 2
+// ════════════════════════════════════════
+function renderL2() {
+  const container = document.getElementById('l2-state');
+  const card = document.getElementById('l2-card');
+  if (!S.address) return;
+
+  if (!S.l2Unlocked) {
+    card.classList.add('locked-card');
+    container.innerHTML = `
+      <div style="text-align:center;padding:16px;background:rgba(255,255,255,.02);border:1px solid var(--border2);border-radius:10px">
+        <i class="fa-solid fa-lock" style="font-size:22px;color:var(--muted);margin-bottom:8px;display:block"></i>
+        <span style="font-size:12px;color:var(--muted)">Complete Level 1 to unlock</span>
+      </div>`;
+    return;
+  }
+
+  card.classList.remove('locked-card');
+  container.innerHTML = `
+    <button class="btn-claim purple" id="l2-btn" onclick="claimL2()">
+      <i class="fa-brands fa-ethereum"></i>Send 0.005 ETH → Get 5 KRM
     </button>
-
-    <script>
-    // ==================== CONFIG ====================
-    const Config = {
-        chain: { id: 1337, hex: '0x539', name: 'KarChain Testnet', rpc: 'https://rpc.karchain.network', symbol: 'KRM', decimals: 18 },
-        tasks: {
-            twitterUrl: 'https://x.com/karim7652117665',
-            telegramUrl: 'https://t.me/tgkarim1',
-            googleFormUrl: 'https://docs.google.com/forms/d/e/1FAIpQLSeQhBQZ_XKxYp2G5bZ5RwTzR2QmPpLJ6xN3oYjH7sKvP8t0w/viewform'
-        },
-        faucet: {
-            level1: { amount: 1, cooldownHours: 24 },
-            level2: { amount: 5 }
-        }
-    };
-
-    const KEYS = {
-        CONNECTED: 'kc_connected',
-        ADDRESS: 'kc_address',
-        BALANCE: 'kc_balance',
-        IS_DEMO: 'kc_is_demo',
-        TASKS: 'kc_tasks',
-        TRANSACTIONS: 'kc_txs',
-        SOCIAL_STARTED: 'kc_social',
-        LAST_L1_CLAIM: 'kc_l1_claim_',
-        L2_UNLOCKED: 'kc_l2_unlock_',
-        TX_DONE: 'kc_tx_done_'
-    };
-
-    // ==================== HELPERS ====================
-    function generateDemoAddress() {
-        const hex = '0123456789abcdef';
-        let addr = '0x';
-        for (let i = 0; i < 40; i++) addr += hex[Math.floor(Math.random() * 16)];
-        return addr;
-    }
-
-    function shortAddr(addr) {
-        return addr.substring(0, 6) + '...' + addr.substring(addr.length - 4);
-    }
-
-    function getTasksCompleted() {
-        return JSON.parse(localStorage.getItem(KEYS.TASKS) || '[]');
-    }
-
-    function getTransactions(addr) {
-        return JSON.parse(localStorage.getItem(KEYS.TRANSACTIONS + addr) || '[]');
-    }
-
-    function saveTransactions(addr, txs) {
-        localStorage.setItem(KEYS.TRANSACTIONS + addr, JSON.stringify(txs));
-    }
-
-    // ==================== UI ====================
-    const UI = {
-        init() {
-            this.initCanvas();
-            this.initWaterDrops(25);
-            this.initMobileMenu();
-            this.initFAQ();
-            this.initScrollToTop();
-            this.initNavbarScroll();
-            this.animateStats();
-            this.checkSavedConnection();
-            setInterval(() => { if (App.state.address) this.renderFaucetLevel1(); }, 1000);
-        },
-
-        initCanvas() {
-            const canvas = document.getElementById('webgl-canvas');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            let particles = [];
-            const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
-            window.addEventListener('resize', resize);
-            resize();
-            for (let i = 0; i < 40; i++) {
-                particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, size: Math.random() * 2 + 0.5, speed: Math.random() * 0.4 + 0.1, alpha: Math.random() * 0.2 + 0.05 });
-            }
-            const animate = () => {
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-                particles.forEach(p => {
-                    p.y -= p.speed;
-                    if (p.y < 0) { p.y = canvas.height; p.x = Math.random() * canvas.width; }
-                    ctx.fillStyle = `rgba(74,222,128,${p.alpha})`;
-                    ctx.beginPath();
-                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-                    ctx.fill();
-                });
-                requestAnimationFrame(animate);
-            };
-            animate();
-        },
-
-        initWaterDrops(count) {
-            const container = document.getElementById('water-drops');
-            if (!container) return;
-            for (let i = 0; i < count; i++) {
-                const drop = document.createElement('div');
-                drop.className = 'water-drop';
-                drop.style.cssText = `left:${Math.random()*100}%;animation-delay:${Math.random()*8}s;height:${20+Math.random()*80}px;animation-duration:${5+Math.random()*10}s;opacity:${Math.random()*0.4+0.1}`;
-                container.appendChild(drop);
-            }
-        },
-
-        initMobileMenu() {
-            const hamburger = document.getElementById('hamburgerBtn');
-            const menu = document.getElementById('mobileMenu');
-            const backdrop = document.getElementById('mobileBackdrop');
-            if (!hamburger) return;
-            hamburger.addEventListener('click', (e) => {
-                e.preventDefault();
-                menu.classList.toggle('active');
-                backdrop.classList.toggle('active');
-                hamburger.classList.toggle('active');
-                document.body.style.overflow = menu.classList.contains('active') ? 'hidden' : '';
-            });
-            backdrop.addEventListener('click', () => this.closeMobileMenu());
-        },
-
-        closeMobileMenu() {
-            document.getElementById('mobileMenu')?.classList.remove('active');
-            document.getElementById('mobileBackdrop')?.classList.remove('active');
-            document.getElementById('hamburgerBtn')?.classList.remove('active');
-            document.body.style.overflow = '';
-        },
-
-        initFAQ() {
-            document.querySelectorAll('.faq-toggle').forEach(toggle => {
-                toggle.addEventListener('click', function() {
-                    this.nextElementSibling.classList.toggle('open');
-                    this.classList.toggle('open');
-                });
-            });
-        },
-
-        initScrollToTop() {
-            const btn = document.getElementById('scrollToTopBtn');
-            if (!btn) return;
-            window.addEventListener('scroll', () => btn.classList.toggle('visible', window.scrollY > 300));
-            btn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
-        },
-
-        initNavbarScroll() {
-            window.addEventListener('scroll', () => {
-                document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10);
-            });
-        },
-
-        animateStats() {
-            const animate = (el, target, isFloat = false, suffix = '') => {
-                if (!el) return;
-                let start = 0;
-                const duration = 2000;
-                const startTime = performance.now();
-                const step = (now) => {
-                    const progress = Math.min((now - startTime) / duration, 1);
-                    const eased = 1 - Math.pow(1 - progress, 3);
-                    const current = isFloat ? (eased * target).toFixed(1) : Math.round(eased * target).toLocaleString();
-                    el.textContent = current + suffix;
-                    if (progress < 1) requestAnimationFrame(step);
-                };
-                requestAnimationFrame(step);
-            };
-            setTimeout(() => {
-                animate(document.getElementById('stat-blocks'), 12492);
-                animate(document.getElementById('stat-blocktime'), 0.4, true, 's');
-                animate(document.getElementById('stat-txs'), 15892);
-                animate(document.getElementById('stat-validators'), 138);
-            }, 500);
-        },
-
-        handleConnectBtnClick() {
-            if (App.state.address) {
-                document.getElementById('userDropdown').classList.toggle('hidden');
-            } else {
-                this.openModal();
-            }
-        },
-
-        openModal() {
-            const modal = document.getElementById('connect-modal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            requestAnimationFrame(() => {
-                document.getElementById('modal-content').style.cssText = 'transform:scale(1);opacity:1;transition:all 0.3s ease';
-            });
-            document.body.style.overflow = 'hidden';
-            this.closeMobileMenu();
-        },
-
-        closeModal() {
-            const content = document.getElementById('modal-content');
-            content.style.cssText = 'transform:scale(0.95);opacity:0;transition:all 0.3s ease';
-            setTimeout(() => {
-                document.getElementById('connect-modal').classList.add('hidden');
-                document.getElementById('connect-modal').classList.remove('flex');
-                document.body.style.overflow = '';
-            }, 300);
-        },
-
-        notify(message, type = 'info') {
-            document.querySelectorAll('.notification').forEach(n => n.remove());
-            const colors = { success: 'border-green-500/30 bg-green-900/20', error: 'border-red-500/30 bg-red-900/20', info: 'border-blue-500/30 bg-blue-900/20' };
-            const icons = { success: 'fa-check-circle text-green-400', error: 'fa-exclamation-circle text-red-400', info: 'fa-info-circle text-blue-400' };
-            const n = document.createElement('div');
-            n.className = `notification fixed top-24 right-4 glass-panel px-6 py-4 rounded-xl z-[1000] max-w-sm border ${colors[type]}`;
-            n.innerHTML = `<div class="flex items-start gap-3"><i class="fas ${icons[type]} text-xl mt-0.5"></i><div><p class="text-white font-bold mb-0.5">${type.charAt(0).toUpperCase()+type.slice(1)}</p><p class="text-gray-300 text-sm">${message}</p></div><button onclick="this.closest('.notification').remove()" class="text-gray-500 hover:text-white ml-4 text-lg leading-none">&times;</button></div>`;
-            document.body.appendChild(n);
-            setTimeout(() => n.remove(), 5000);
-        },
-
-        checkSavedConnection() {
-            const connected = localStorage.getItem(KEYS.CONNECTED) === 'true';
-            const address = localStorage.getItem(KEYS.ADDRESS);
-            const balance = localStorage.getItem(KEYS.BALANCE) || '0.0000';
-            const isDemo = localStorage.getItem(KEYS.IS_DEMO) === 'true';
-            if (connected && address) {
-                App.state.address = address;
-                App.state.krmBalance = balance;
-                App.state.isDemo = isDemo;
-                this.setConnectedState(address, balance);
-            }
-
-            // Close dropdown on outside click
-            document.addEventListener('click', (e) => {
-                const dropdown = document.getElementById('userDropdown');
-                const btn = document.getElementById('connectBtn');
-                if (dropdown && !dropdown.contains(e.target) && !btn.contains(e.target)) {
-                    dropdown.classList.add('hidden');
-                }
-            });
-        },
-
-        setConnectedState(address, balance) {
-            const short = shortAddr(address);
-            const isDemo = App.state.isDemo;
-            const label = isDemo ? `<i class="fa-solid fa-flask text-yellow-400 mr-1"></i>${short}` : `<div class="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-1"></div>${short}`;
-            document.getElementById('connectBtn').innerHTML = label;
-            document.getElementById('dropdownAddress').textContent = short + (isDemo ? ' (demo)' : '');
-            document.getElementById('dropdownBalance').textContent = parseFloat(balance).toFixed(4) + ' KRM';
-            document.getElementById('mobileWalletAddress').textContent = short;
-            document.getElementById('mobileWalletBalance').textContent = parseFloat(balance).toFixed(4) + ' KRM';
-            document.getElementById('mobileWalletInfo').classList.remove('hidden');
-            document.getElementById('view-locked').classList.add('hidden');
-            document.getElementById('view-active').classList.remove('hidden');
-            document.getElementById('walletAddrDisp').textContent = address;
-            document.getElementById('balanceVal').textContent = parseFloat(balance).toFixed(4);
-
-            this.loadTaskProgress();
-            this.loadTransactionHistory();
-            this.renderFaucetLevel1();
-            this.renderFaucetLevel2();
-        },
-
-        updateBalance(balance) {
-            const f = parseFloat(balance).toFixed(4);
-            App.state.krmBalance = f;
-            document.getElementById('balanceVal').textContent = f;
-            document.getElementById('dropdownBalance').textContent = f + ' KRM';
-            document.getElementById('mobileWalletBalance').textContent = f + ' KRM';
-            localStorage.setItem(KEYS.BALANCE, f);
-        },
-
-        loadTaskProgress() {
-            const completed = getTasksCompleted();
-            const count = completed.length;
-            document.getElementById('progress-text').textContent = `${count}/3 Tasks`;
-            document.getElementById('progress-bar').style.width = (count / 3 * 100) + '%';
-            const rewards = { 1: 10, 2: 25, 3: 50 };
-            const total = completed.reduce((s, id) => s + (rewards[id] || 0), 0);
-            document.getElementById('total-reward').textContent = `+${total} KRM`;
-
-            // Restore button states
-            if (completed.includes(1)) {
-                this.markTaskDone(1);
-                this.unlockTask(2);
-            }
-            if (completed.includes(2)) {
-                this.markTaskDone(2);
-                this.unlockTask(3);
-            }
-            if (completed.includes(3)) {
-                this.markTaskDone(3);
-            }
-
-            // Social started but not completed
-            if (localStorage.getItem(KEYS.SOCIAL_STARTED) === 'true' && !completed.includes(1)) {
-                this.enableVerifyBtn('verify-social', App.tasks.completeSocialTask.bind(App.tasks));
-            }
-            // Tx done but not verified
-            if (localStorage.getItem(KEYS.TX_DONE + App.state.address) === 'true' && !completed.includes(2)) {
-                this.enableVerifyBtn('verify-transaction', App.tasks.checkTransaction.bind(App.tasks));
-            }
-        },
-
-        enableVerifyBtn(id, handler) {
-            const btn = document.getElementById(id);
-            if (!btn) return;
-            btn.disabled = false;
-            btn.onclick = handler;
-            btn.className = 'w-full py-3 border-2 border-green-500/50 bg-green-900/20 text-green-400 rounded-lg text-xs font-bold transition-all hover:bg-green-900/40';
-        },
-
-        unlockTask(taskNumber) {
-            if (taskNumber === 2) {
-                document.getElementById('card-task-2')?.classList.remove('task-locked');
-            }
-            if (taskNumber === 3) {
-                document.getElementById('card-task-3')?.classList.remove('task-locked');
-                const fb = document.getElementById('btn-form');
-                if (fb) { fb.classList.remove('pointer-events-none', 'opacity-50'); }
-            }
-        },
-
-        markTaskDone(taskId) {
-            const card = document.getElementById(`card-task-${taskId}`);
-            if (card) card.classList.add('task-done');
-
-            const btnMap = { 1: 'verify-social', 2: 'verify-transaction', 3: 'btn-form' };
-            const btn = document.getElementById(btnMap[taskId]);
-            if (btn) {
-                btn.disabled = true;
-                btn.innerHTML = '<i class="fa-solid fa-check-circle mr-1"></i> COMPLETED';
-                btn.className = 'w-full py-3 bg-green-900/50 text-green-400 rounded-lg text-xs font-bold cursor-not-allowed border border-green-500/20';
-                btn.onclick = null;
-            }
-        },
-
-        completeTask(taskId) {
-            const completed = getTasksCompleted();
-            if (completed.includes(taskId)) return;
-            completed.push(taskId);
-            localStorage.setItem(KEYS.TASKS, JSON.stringify(completed));
-
-            const rewards = { 1: 10, 2: 25, 3: 50 };
-            const reward = rewards[taskId] || 0;
-            const newBal = (parseFloat(App.state.krmBalance) + reward).toFixed(4);
-            this.updateBalance(newBal);
-            this.loadTaskProgress();
-            this.notify(`Task ${taskId} completed! +${reward} KRM`, 'success');
-        },
-
-        loadTransactionHistory() {
-            if (!App.state.address) return;
-            const txs = getTransactions(App.state.address);
-            const section = document.getElementById('transaction-history');
-            const list = document.getElementById('transactions-list');
-            if (txs.length === 0) { section.classList.add('hidden'); return; }
-            section.classList.remove('hidden');
-            list.innerHTML = txs.slice(-10).reverse().map(tx => `
-                <div class="flex justify-between items-center p-4 bg-white/5 rounded-xl border border-white/5">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center">
-                            <i class="fa-solid fa-check text-green-400 text-xs"></i>
-                        </div>
-                        <div>
-                            <p class="text-sm font-bold text-white font-mono">${tx.value} KRM</p>
-                            <p class="text-xs text-gray-500 font-mono">${tx.hash.substring(0, 18)}...</p>
-                        </div>
-                    </div>
-                    <p class="text-xs text-gray-500">${new Date(tx.timestamp).toLocaleTimeString()}</p>
-                </div>
-            `).join('');
-        },
-
-        addTransaction(tx) {
-            if (!App.state.address) return;
-            const txs = getTransactions(App.state.address);
-            txs.push({ ...tx, timestamp: Date.now() });
-            saveTransactions(App.state.address, txs);
-            this.loadTransactionHistory();
-        },
-
-        // ---- Faucet Level 1 ----
-        renderFaucetLevel1() {
-            const container = document.getElementById('faucet-level1-state');
-            if (!container || !App.state.address) return;
-
-            const key = KEYS.LAST_L1_CLAIM + App.state.address;
-            const last = localStorage.getItem(key);
-            const now = Date.now();
-            const cooldown = Config.faucet.level1.cooldownHours * 3600 * 1000;
-
-            if (!last || now - parseInt(last) >= cooldown) {
-                // Show captcha widget
-                if (!container.dataset.rendered || container.dataset.rendered !== 'captcha') {
-                    container.dataset.rendered = 'captcha';
-                    container.innerHTML = `
-                        <div class="space-y-3">
-                            <div class="captcha-box" id="captcha-box" onclick="UI.doCaptcha()">
-                                <div class="captcha-check" id="captcha-check"></div>
-                                <span class="text-sm text-gray-300">I'm not a robot</span>
-                                <div class="ml-auto text-right">
-                                    <div class="text-[10px] text-gray-600">reCAPTCHA</div>
-                                    <div class="text-[9px] text-gray-700">Privacy · Terms</div>
-                                </div>
-                            </div>
-                            <button onclick="UI.claimLevel1()" id="level1-claim-btn" disabled class="w-full py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-bold text-lg opacity-40 cursor-not-allowed transition-all">
-                                CLAIM 1 KRM
-                            </button>
-                        </div>
-                    `;
-                    App.state.captchaPassed = false;
-                }
-            } else {
-                // Timer countdown
-                const timeLeft = cooldown - (now - parseInt(last));
-                const h = Math.floor(timeLeft / 3600000).toString().padStart(2, '0');
-                const m = Math.floor((timeLeft % 3600000) / 60000).toString().padStart(2, '0');
-                const s = Math.floor((timeLeft % 60000) / 1000).toString().padStart(2, '0');
-                container.dataset.rendered = 'timer';
-                container.innerHTML = `
-                    <div class="text-center bg-white/5 rounded-lg p-4">
-                        <p class="text-sm text-gray-400 mb-3">Next claim in</p>
-                        <div class="flex items-center justify-center gap-2">
-                            <span class="timer-flip text-2xl font-mono">${h}</span>
-                            <span class="text-green-400 font-bold">:</span>
-                            <span class="timer-flip text-2xl font-mono">${m}</span>
-                            <span class="text-green-400 font-bold">:</span>
-                            <span class="timer-flip text-2xl font-mono">${s}</span>
-                        </div>
-                        <p class="text-xs text-gray-600 mt-2">Claimed successfully ✓</p>
-                    </div>
-                `;
-            }
-        },
-
-        doCaptcha() {
-            const box = document.getElementById('captcha-box');
-            const check = document.getElementById('captcha-check');
-            const btn = document.getElementById('level1-claim-btn');
-            if (!box || App.state.captchaPassed) return;
-
-            // Show spinner
-            check.innerHTML = '<div class="captcha-spinning"></div>';
-            box.style.pointerEvents = 'none';
-
-            setTimeout(() => {
-                // Show checkmark
-                check.innerHTML = '<i class="fa-solid fa-check text-white text-sm"></i>';
-                check.classList.add('checked');
-                box.style.background = 'rgba(74,222,128,0.05)';
-                box.style.borderColor = 'rgba(74,222,128,0.3)';
-
-                App.state.captchaPassed = true;
-                if (btn) {
-                    btn.disabled = false;
-                    btn.classList.remove('opacity-40', 'cursor-not-allowed');
-                    btn.classList.add('opacity-100', 'cursor-pointer', 'hover:from-green-600', 'hover:to-emerald-700');
-                }
-            }, 1200);
-        },
-
-        claimLevel1() {
-            if (!App.state.captchaPassed) {
-                this.notify('Please complete the CAPTCHA first', 'error');
-                return;
-            }
-            const key = KEYS.LAST_L1_CLAIM + App.state.address;
-            const last = localStorage.getItem(key);
-            const now = Date.now();
-            if (last && now - parseInt(last) < Config.faucet.level1.cooldownHours * 3600 * 1000) {
-                this.notify('Please wait 24 hours between claims', 'error');
-                return;
-            }
-            localStorage.setItem(key, now.toString());
-            localStorage.setItem(KEYS.L2_UNLOCKED + App.state.address, 'true');
-            App.state.captchaPassed = false;
-
-            const newBal = (parseFloat(App.state.krmBalance) + Config.faucet.level1.amount).toFixed(4);
-            this.updateBalance(newBal);
-            this.addTransaction({ hash: '0x' + Math.random().toString(16).substring(2).padEnd(64, '0'), value: Config.faucet.level1.amount + '.0000', type: 'Faucet L1' });
-            this.notify('Claimed 1 KRM! Level 2 unlocked.', 'success');
-            this.renderFaucetLevel2();
-            // Force re-render captcha → timer
-            const container = document.getElementById('faucet-level1-state');
-            if (container) container.dataset.rendered = '';
-        },
-
-        renderFaucetLevel2() {
-            const container = document.getElementById('faucet-level2-state');
-            if (!container || !App.state.address) return;
-            const unlocked = localStorage.getItem(KEYS.L2_UNLOCKED + App.state.address) === 'true';
-            const card = document.getElementById('level2-card');
-
-            if (!unlocked) {
-                container.innerHTML = `
-                    <div class="text-center bg-white/5 rounded-lg p-4">
-                        <i class="fa-solid fa-lock text-purple-400 text-2xl mb-2 block"></i>
-                        <p class="text-sm text-gray-400">Complete Level 1 faucet to unlock</p>
-                    </div>`;
-                card?.classList.add('opacity-70');
-            } else {
-                card?.classList.remove('opacity-70');
-                card?.classList.add('active');
-                container.innerHTML = `
-                    <button onclick="App.faucet.claimLevel2()" id="l2-claim-btn" class="w-full py-4 bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white rounded-xl font-bold text-lg transition-all flex items-center justify-center gap-2">
-                        <i class="fa-brands fa-ethereum"></i>CLAIM 5 KRM (DEMO)
-                    </button>
-                    <p class="text-center text-xs text-gray-600 mt-2">Testnet mode — simulated transaction</p>`;
-            }
-        }
-    };
-
-    // ==================== APP ====================
-    const App = {
-        state: { address: null, provider: null, signer: null, krmBalance: '0.0000', isDemo: false, captchaPassed: false },
-
-        router: {
-            navigate(page) {
-                document.querySelectorAll('.page-content').forEach(p => p.classList.remove('active'));
-                const pg = document.getElementById('page-' + page);
-                if (pg) pg.classList.add('active');
-                document.querySelectorAll('.nav-link').forEach(l => {
-                    l.classList.remove('text-white', 'border-green-500');
-                    l.classList.add('text-gray-400', 'border-transparent');
-                });
-                const active = document.getElementById('nav-' + page);
-                if (active) {
-                    active.classList.add('text-white', 'border-green-500');
-                    active.classList.remove('text-gray-400', 'border-transparent');
-                }
-                UI.closeMobileMenu();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        },
-
-        wallet: {
-            async connect(type) {
-                if (type === 'MetaMask') {
-                    if (!window.ethereum) {
-                        UI.notify('MetaMask not detected. Using Demo Wallet instead.', 'info');
-                        setTimeout(() => this.connectDemo(), 1000);
-                        return;
-                    }
-                    try {
-                        const provider = new ethers.providers.Web3Provider(window.ethereum);
-                        await provider.send('eth_requestAccounts', []);
-                        const signer = provider.getSigner();
-                        const address = await signer.getAddress();
-
-                        // Try to add/switch to KarChain network (will fail gracefully if network is offline)
-                        try {
-                            await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: Config.chain.hex }] });
-                        } catch (e) {
-                            if (e.code === 4902 || e.code === -32603) {
-                                try {
-                                    await window.ethereum.request({
-                                        method: 'wallet_addEthereumChain',
-                                        params: [{ chainId: Config.chain.hex, chainName: Config.chain.name, rpcUrls: [Config.chain.rpc], nativeCurrency: { name: 'KarChain', symbol: Config.chain.symbol, decimals: Config.chain.decimals } }]
-                                    });
-                                } catch (addErr) { /* RPC offline on testnet, that's fine */ }
-                            }
-                        }
-
-                        // Get balance on current chain for display
-                        let balance = '0.0000';
-                        try {
-                            const raw = await provider.getBalance(address);
-                            balance = parseFloat(ethers.utils.formatEther(raw)).toFixed(4);
-                        } catch (e) {}
-
-                        App.state.address = address;
-                        App.state.provider = provider;
-                        App.state.signer = signer;
-                        App.state.krmBalance = balance;
-                        App.state.isDemo = false;
-
-                        localStorage.setItem(KEYS.CONNECTED, 'true');
-                        localStorage.setItem(KEYS.ADDRESS, address);
-                        localStorage.setItem(KEYS.BALANCE, balance);
-                        localStorage.setItem(KEYS.IS_DEMO, 'false');
-
-                        UI.closeModal();
-                        UI.setConnectedState(address, balance);
-                        UI.notify('MetaMask connected!', 'success');
-                    } catch (err) {
-                        if (err.code === 4001) {
-                            UI.notify('Connection rejected by user.', 'error');
-                        } else {
-                            UI.notify('MetaMask error. Try Demo Wallet?', 'error');
-                        }
-                    }
-                }
-            },
-
-            connectDemo() {
-                const address = generateDemoAddress();
-                const balance = (Math.random() * 5 + 0.5).toFixed(4);
-                App.state.address = address;
-                App.state.krmBalance = balance;
-                App.state.isDemo = true;
-
-                localStorage.setItem(KEYS.CONNECTED, 'true');
-                localStorage.setItem(KEYS.ADDRESS, address);
-                localStorage.setItem(KEYS.BALANCE, balance);
-                localStorage.setItem(KEYS.IS_DEMO, 'true');
-
-                UI.closeModal();
-                UI.setConnectedState(address, balance);
-                UI.notify('Demo wallet connected! Explore freely.', 'success');
-            },
-
-            disconnect() {
-                App.state.address = null;
-                App.state.provider = null;
-                App.state.signer = null;
-                App.state.krmBalance = '0.0000';
-                App.state.isDemo = false;
-                App.state.captchaPassed = false;
-
-                localStorage.removeItem(KEYS.CONNECTED);
-                localStorage.removeItem(KEYS.ADDRESS);
-                localStorage.removeItem(KEYS.IS_DEMO);
-
-                document.getElementById('connectBtn').innerHTML = '<i class="fa-solid fa-wallet"></i> <span>Connect Wallet</span>';
-                document.getElementById('view-locked').classList.remove('hidden');
-                document.getElementById('view-active').classList.add('hidden');
-                document.getElementById('mobileWalletInfo').classList.add('hidden');
-                document.getElementById('userDropdown').classList.add('hidden');
-                document.getElementById('faucet-level1-state').innerHTML = '';
-                document.getElementById('faucet-level1-state').removeAttribute('data-rendered');
-                document.getElementById('faucet-level2-state').innerHTML = '';
-
-                UI.notify('Wallet disconnected', 'info');
-            },
-
-            async refreshBalance() {
-                if (App.state.isDemo) {
-                    UI.notify('Demo wallet — balance is simulated', 'info');
-                    return;
-                }
-                if (!App.state.provider || !App.state.address) return;
-                try {
-                    const raw = await App.state.provider.getBalance(App.state.address);
-                    const bal = parseFloat(ethers.utils.formatEther(raw)).toFixed(4);
-                    UI.updateBalance(bal);
-                    UI.notify('Balance refreshed', 'success');
-                } catch (e) {
-                    UI.notify('Could not fetch balance from chain', 'error');
-                }
-            }
-        },
-
-        tasks: {
-            openTwitter() {
-                window.open(Config.tasks.twitterUrl, '_blank');
-                localStorage.setItem(KEYS.SOCIAL_STARTED, 'true');
-                setTimeout(() => UI.enableVerifyBtn('verify-social', App.tasks.completeSocialTask.bind(App.tasks)), 1500);
-                UI.notify('Follow us on X, then click "Verify Completion"', 'info');
-            },
-
-            openTelegram() {
-                window.open(Config.tasks.telegramUrl, '_blank');
-                localStorage.setItem(KEYS.SOCIAL_STARTED, 'true');
-                setTimeout(() => UI.enableVerifyBtn('verify-social', App.tasks.completeSocialTask.bind(App.tasks)), 1500);
-                UI.notify('Join our Telegram, then click "Verify Completion"', 'info');
-            },
-
-            completeSocialTask() {
-                const btn = document.getElementById('verify-social');
-                if (!btn || btn.disabled) return;
-                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Verifying...';
-                btn.disabled = true;
-                setTimeout(() => {
-                    UI.completeTask(1);
-                    UI.markTaskDone(1);
-                    UI.unlockTask(2);
-                }, 1500);
-            },
-
-            async makeTestTransaction() {
-                const btn = document.getElementById('btn-tx');
-                if (btn) { btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Sending...'; btn.disabled = true; }
-
-                if (App.state.isDemo || !App.state.signer) {
-                    // Simulate tx for demo
-                    await new Promise(r => setTimeout(r, 1800));
-                    const fakeHash = '0x' + Array.from({length: 64}, () => Math.floor(Math.random()*16).toString(16)).join('');
-                    UI.addTransaction({ hash: fakeHash, value: '0.0010', type: 'Test TX' });
-                    localStorage.setItem(KEYS.TX_DONE + App.state.address, 'true');
-                    UI.notify('Test transaction sent! Click Verify.', 'success');
-                    UI.enableVerifyBtn('verify-transaction', App.tasks.checkTransaction.bind(App.tasks));
-                    if (btn) { btn.innerHTML = '<i class="fa-solid fa-bolt mr-1"></i>SEND TEST TX (0.001 KRM)'; btn.disabled = false; }
-                    return;
-                }
-
-                try {
-                    const tx = await App.state.signer.sendTransaction({
-                        to: App.state.address,
-                        value: ethers.utils.parseEther('0.001')
-                    });
-                    UI.notify('Transaction sent! Waiting for confirmation...', 'info');
-                    await tx.wait();
-                    UI.addTransaction({ hash: tx.hash, value: '0.001', type: 'Test TX' });
-                    localStorage.setItem(KEYS.TX_DONE + App.state.address, 'true');
-                    UI.notify('Transaction confirmed!', 'success');
-                    UI.enableVerifyBtn('verify-transaction', App.tasks.checkTransaction.bind(App.tasks));
-                } catch (err) {
-                    UI.notify(err.message || 'Transaction failed', 'error');
-                }
-
-                if (btn) { btn.innerHTML = '<i class="fa-solid fa-bolt mr-1"></i>SEND TEST TX (0.001 KRM)'; btn.disabled = false; }
-            },
-
-            checkTransaction() {
-                const txDone = localStorage.getItem(KEYS.TX_DONE + App.state.address) === 'true';
-                const txs = getTransactions(App.state.address);
-                if (!txDone && txs.length === 0) {
-                    UI.notify('No transaction found yet. Send a test TX first.', 'info');
-                    return;
-                }
-                const btn = document.getElementById('verify-transaction');
-                if (btn) { btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Verifying...'; btn.disabled = true; }
-                setTimeout(() => {
-                    UI.completeTask(2);
-                    UI.markTaskDone(2);
-                    UI.unlockTask(3);
-                }, 1500);
-            },
-
-            openGoogleForm() {
-                if (!App.state.address) { UI.notify('Connect wallet first', 'error'); return; }
-                const url = Config.tasks.googleFormUrl + '?entry.1234567890=' + encodeURIComponent(App.state.address);
-                window.open(url, '_blank');
-                const btn = document.getElementById('btn-form');
-                if (btn) { btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Processing...'; }
-                setTimeout(() => {
-                    UI.completeTask(3);
-                    UI.markTaskDone(3);
-                }, 3000);
-            }
-        },
-
-        faucet: {
-            claimLevel1() { UI.claimLevel1(); },
-
-            claimLevel2() {
-                const btn = document.getElementById('l2-claim-btn');
-                if (btn) { btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin mr-1"></i>Processing...'; btn.disabled = true; }
-                // Simulated in testnet/demo mode
-                setTimeout(() => {
-                    const newBal = (parseFloat(App.state.krmBalance) + Config.faucet.level2.amount).toFixed(4);
-                    UI.updateBalance(newBal);
-                    UI.addTransaction({ hash: '0x' + Math.random().toString(16).substring(2).padEnd(64, '0'), value: '5.0000', type: 'Faucet L2' });
-                    UI.notify('Received 5 KRM from Level 2 Faucet!', 'success');
-                    if (btn) { btn.innerHTML = '<i class="fa-solid fa-check mr-1"></i>CLAIMED!'; btn.disabled = true; btn.classList.replace('from-purple-500', 'from-green-600'); btn.classList.replace('to-purple-600', 'to-emerald-700'); }
-                }, 2000);
-            }
-        }
-    };
-
-    // ==================== BOOT ====================
-    window.addEventListener('load', () => UI.init());
-
-    // Close dropdown on outside click (extra safety)
-    document.addEventListener('click', (e) => {
-        const dropdown = document.getElementById('userDropdown');
-        if (dropdown && !dropdown.classList.contains('hidden')) {
-            const wrapper = dropdown.closest('.nav-dropdown-wrapper');
-            if (wrapper && !wrapper.contains(e.target)) dropdown.classList.add('hidden');
-        }
+    <p style="font-size:11px;color:var(--muted);text-align:center;margin-top:8px">
+      Transaction on Ethereum Mainnet · Treasury receives ETH, you receive KRM
+    </p>`;
+}
+
+async function claimL2() {
+  if (!window.ethereum || !S.signer) {
+    toast('Error', 'Wallet not connected.', 'error');
+    return;
+  }
+  const btn = document.getElementById('l2-btn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Switching to Mainnet…'; }
+
+  try {
+    // Switch to Ethereum mainnet
+    await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x1' }] });
+
+    const mainProvider = new ethers.providers.Web3Provider(window.ethereum);
+    const mainSigner = mainProvider.getSigner();
+
+    if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Sending 0.005 ETH…';
+
+    const tx = await mainSigner.sendTransaction({
+      to: CFG.treasury,
+      value: ethers.utils.parseEther(CFG.l2PaymentEth)
     });
-    </script>
+
+    if (btn) btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Waiting for confirmation…';
+    toast('TX Sent', `Hash: ${tx.hash.slice(0,12)}…`, 'info');
+
+    await tx.wait();
+
+    // Switch back to KarChain
+    try {
+      await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: CFG.chainHex }] });
+    } catch (_) {}
+
+    const newProvider = new ethers.providers.Web3Provider(window.ethereum);
+    S.provider = newProvider;
+    S.signer = newProvider.getSigner();
+
+    const newBal = (parseFloat(S.balance) + 5).toFixed(4);
+    S.balance = newBal;
+    document.getElementById('bal-num').textContent = newBal;
+    document.getElementById('dd-bal').textContent = newBal + ' KRM';
+
+    S.addTx({ hash: tx.hash, value: '5.0000', type: 'Faucet L2' });
+    renderTxHistory();
+
+    if (btn) { btn.innerHTML = '<i class="fa-solid fa-check"></i>Received 5 KRM!'; btn.classList.add('done'); }
+    toast('Success!', '5 KRM received. Thank you for supporting KarChain!', 'success');
+
+  } catch (err) {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-brands fa-ethereum"></i>Send 0.005 ETH → Get 5 KRM'; }
+    if (err.code === 4001) {
+      toast('Rejected', 'Transaction was rejected.', 'error');
+    } else {
+      toast('Error', err.message?.slice(0, 80) || 'Transaction failed.', 'error');
+    }
+  }
+}
+
+// ════════════════════════════════════════
+//  TASKS
+// ════════════════════════════════════════
+function renderTasks() {
+  const done = S.tasks;
+
+  // T1
+  if (done.includes(1)) {
+    markTaskDone('tc-1', 't1-verify');
+  } else if (S.socialStarted) {
+    enableVerify('t1-verify');
+  }
+  // T2
+  if (done.includes(1)) unlockCard('tc-2');
+  if (done.includes(2)) {
+    markTaskDone('tc-2', 't2-verify');
+  } else if (S.txDone && done.includes(1)) {
+    enableVerify('t2-verify');
+  }
+  // T3
+  if (done.includes(2)) {
+    unlockCard('tc-3');
+    const b = document.getElementById('t3-btn');
+    if (b) { b.style.opacity = '1'; b.style.pointerEvents = 'auto'; }
+  }
+  if (done.includes(3)) markTaskDone('tc-3', 't3-btn', true);
+}
+
+function unlockCard(id) {
+  const c = document.getElementById(id);
+  if (c) { c.classList.remove('locked'); c.classList.add('unlocked'); }
+}
+
+function enableVerify(id) {
+  const b = document.getElementById(id);
+  if (b) { b.classList.add('ready'); }
+}
+
+function markTaskDone(cardId, btnId, isForm = false) {
+  const card = document.getElementById(cardId);
+  if (card) { card.classList.add('completed'); card.classList.remove('locked'); card.classList.add('unlocked'); }
+  const btn = document.getElementById(btnId);
+  if (btn) {
+    btn.classList.remove('ready');
+    btn.classList.add('done');
+    btn.innerHTML = '<i class="fa-solid fa-check-circle"></i>Completed';
+    btn.onclick = null;
+    btn.style.pointerEvents = isForm ? 'none' : '';
+  }
+}
+
+function renderProgress() {
+  const done = S.tasks;
+  const count = done.length;
+  const rewards = { 1: 10, 2: 25, 3: 50 };
+  const total = done.reduce((s, id) => s + (rewards[id] || 0), 0);
+  document.getElementById('prog-text').textContent = `${count}/3 Tasks`;
+  document.getElementById('prog-fill').style.width = (count / 3 * 100) + '%';
+  document.getElementById('prog-reward').textContent = `+${total} KRM`;
+}
+
+function openTwitter() {
+  window.open(CFG.twitter, '_blank');
+  S.setSocial();
+  setTimeout(() => enableVerify('t1-verify'), 1500);
+  toast('Follow on X', 'Then click "Verify Completion" to claim +10 KRM.', 'info');
+}
+
+function openTelegram() {
+  window.open(CFG.telegram, '_blank');
+  S.setSocial();
+  setTimeout(() => enableVerify('t1-verify'), 1500);
+  toast('Join Telegram', 'Then click "Verify Completion" to claim +10 KRM.', 'info');
+}
+
+function verifyTask1() {
+  const btn = document.getElementById('t1-verify');
+  if (!btn || !btn.classList.contains('ready')) return;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Verifying…';
+  setTimeout(() => {
+    S.setTask(1);
+    const newBal = (parseFloat(S.balance) + 10).toFixed(4);
+    S.balance = newBal;
+    document.getElementById('bal-num').textContent = newBal;
+    document.getElementById('dd-bal').textContent = newBal + ' KRM';
+    markTaskDone('tc-1', 't1-verify');
+    unlockCard('tc-2');
+    renderProgress();
+    toast('Task 1 Complete!', '+10 KRM added. Step 2 unlocked.', 'success');
+  }, 1600);
+}
+
+async function sendTestTx() {
+  if (!S.signer) { toast('Error', 'Wallet not connected.', 'error'); return; }
+  const btn = document.querySelector('#tc-2 .tb-purple');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Sending…'; }
+  try {
+    const tx = await S.signer.sendTransaction({
+      to: S.address,
+      value: ethers.utils.parseEther('0.001')
+    });
+    toast('TX Sent', `Hash: ${tx.hash.slice(0,14)}…`, 'info');
+    await tx.wait();
+    S.setTxDone();
+    S.addTx({ hash: tx.hash, value: '0.0010', type: 'Test TX' });
+    renderTxHistory();
+    enableVerify('t2-verify');
+    toast('Confirmed!', 'Transaction confirmed on KarChain. Click Verify.', 'success');
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-bolt"></i>Send Test TX (0.001 KRM)'; }
+  } catch (err) {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-bolt"></i>Send Test TX (0.001 KRM)'; }
+    if (err.code === 4001) toast('Rejected', 'Transaction rejected.', 'error');
+    else toast('Error', err.message?.slice(0, 80) || 'TX failed.', 'error');
+  }
+}
+
+function verifyTask2() {
+  const btn = document.getElementById('t2-verify');
+  if (!btn || !btn.classList.contains('ready')) return;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Verifying…';
+  setTimeout(() => {
+    S.setTask(2);
+    const newBal = (parseFloat(S.balance) + 25).toFixed(4);
+    S.balance = newBal;
+    document.getElementById('bal-num').textContent = newBal;
+    document.getElementById('dd-bal').textContent = newBal + ' KRM';
+    markTaskDone('tc-2', 't2-verify');
+    unlockCard('tc-3');
+    const b = document.getElementById('t3-btn');
+    if (b) { b.style.opacity = '1'; b.style.pointerEvents = 'auto'; }
+    renderProgress();
+    toast('Task 2 Complete!', '+25 KRM added. Final step unlocked.', 'success');
+  }, 1600);
+}
+
+function openForm() {
+  const url = CFG.form + '?entry.1234567890=' + encodeURIComponent(S.address || '');
+  window.open(url, '_blank');
+  const btn = document.getElementById('t3-btn');
+  if (btn) { btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Processing…'; btn.style.pointerEvents = 'none'; }
+  setTimeout(() => {
+    S.setTask(3);
+    const newBal = (parseFloat(S.balance) + 50).toFixed(4);
+    S.balance = newBal;
+    document.getElementById('bal-num').textContent = newBal;
+    document.getElementById('dd-bal').textContent = newBal + ' KRM';
+    markTaskDone('tc-3', 't3-btn', true);
+    renderProgress();
+    toast('Task 3 Complete!', '+50 KRM added. Genesis registration successful!', 'success');
+  }, 3000);
+}
+
+// ════════════════════════════════════════
+//  TX HISTORY
+// ════════════════════════════════════════
+function renderTxHistory() {
+  if (!S.address) return;
+  const txs = S.txs;
+  const sec = document.getElementById('tx-section');
+  const list = document.getElementById('tx-list');
+  if (!txs.length) { sec.style.display = 'none'; return; }
+  sec.style.display = 'block';
+  list.innerHTML = txs.slice(-8).reverse().map(tx => `
+    <div class="tx-item">
+      <div class="tx-left">
+        <span class="tx-dot"></span>
+        <div>
+          <div class="tx-hash">${tx.hash.slice(0, 20)}…</div>
+          <div style="font-size:10px;color:var(--muted);margin-top:2px">${tx.type}</div>
+        </div>
+      </div>
+      <div style="text-align:right">
+        <div class="tx-val">+${tx.value} KRM</div>
+        <div class="tx-time">${new Date(tx.ts).toLocaleTimeString()}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ════════════════════════════════════════
+//  BACKGROUND CANVAS
+// ════════════════════════════════════════
+function initCanvas() {
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
+  window.addEventListener('resize', resize);
+  resize();
+  for (let i = 0; i < 50; i++) {
+    particles.push({ x: Math.random() * canvas.width, y: Math.random() * canvas.height, r: Math.random() * 1.8 + .3, v: Math.random() * .35 + .08, a: Math.random() * .18 + .04 });
+  }
+  const loop = () => {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.y -= p.v;
+      if (p.y < -10) { p.y = canvas.height + 10; p.x = Math.random() * canvas.width; }
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(74,222,128,${p.a})`;
+      ctx.fill();
+    });
+    requestAnimationFrame(loop);
+  };
+  loop();
+}
+
+// ════════════════════════════════════════
+//  STATS ANIMATION
+// ════════════════════════════════════════
+function animateStats() {
+  const run = (el, to, decimals = 0) => {
+    if (!el) return;
+    const dur = 2200;
+    const start = performance.now();
+    const step = now => {
+      const p = Math.min((now - start) / dur, 1);
+      const e = 1 - Math.pow(1 - p, 3);
+      el.textContent = decimals ? (e * to).toFixed(decimals) + 's' : Math.round(e * to).toLocaleString();
+      if (p < 1) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  };
+  setTimeout(() => {
+    run(document.getElementById('s-blocks'), 12492);
+    run(document.getElementById('s-txs'), 15892);
+    run(document.getElementById('s-val'), 138);
+  }, 400);
+}
+
+// ════════════════════════════════════════
+//  NAVBAR SCROLL
+// ════════════════════════════════════════
+window.addEventListener('scroll', () => {
+  document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 10);
+  document.getElementById('scroll-top').classList.toggle('show', window.scrollY > 300);
+});
+
+// ════════════════════════════════════════
+//  FAQ
+// ════════════════════════════════════════
+function toggleFAQ(btn) {
+  const a = btn.nextElementSibling;
+  const isOpen = a.classList.contains('open');
+  document.querySelectorAll('.faq-a').forEach(x => x.classList.remove('open'));
+  document.querySelectorAll('.faq-q').forEach(x => x.classList.remove('open'));
+  if (!isOpen) { a.classList.add('open'); btn.classList.add('open'); }
+}
+
+// ════════════════════════════════════════
+//  AUTO RESTORE SESSION
+// ════════════════════════════════════════
+async function restoreSession() {
+  const saved = localStorage.getItem('kc_addr');
+  if (!saved || !window.ethereum) return;
+  try {
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const accounts = await provider.listAccounts();
+    if (!accounts.length) return;
+    if (accounts[0].toLowerCase() !== saved.toLowerCase()) return;
+    const network = await provider.getNetwork();
+    if (network.chainId !== CFG.chainId) return;
+    const signer = provider.getSigner();
+    let balance = '0.0000';
+    try { balance = parseFloat(ethers.utils.formatEther(await provider.getBalance(saved))).toFixed(4); } catch (_) {}
+    S.address = saved; S.provider = provider; S.signer = signer; S.balance = balance;
+    setConnected(saved, balance);
+  } catch (_) {}
+}
+
+// ════════════════════════════════════════
+//  INIT
+// ════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  initCanvas();
+  animateStats();
+  restoreSession();
+});
+</script>
 </body>
 </html>
