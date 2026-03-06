@@ -173,31 +173,42 @@ nav.scrolled::after { opacity:1; }
 .nav-link.active { color:var(--green); }
 .nav-link span { position:relative; z-index:1; }
 
-/* Connect button */
+/* ── CONNECT BUTTON ── */
 .nav-cta {
-  position:relative; display:flex; align-items:center; gap:10px;
-  padding:10px 22px; border-radius:10px; border:none;
-  background:transparent;
-  color:#fff; font-family:var(--font-head); font-size:11px;
-  font-weight:700; letter-spacing:.14em; text-transform:uppercase;
-  overflow:hidden; transition:color .25s;
+  position:relative; display:flex; align-items:center; gap:9px;
+  padding:8px 16px 8px 10px; border-radius:12px; border:none;
+  background:transparent; color:#fff;
+  font-family:var(--font-head); font-size:11px;
+  font-weight:700; letter-spacing:.1em; text-transform:uppercase;
+  overflow:hidden; transition:color .25s; flex-shrink:0;
 }
 .nav-cta::before {
   content:''; position:absolute; inset:0;
-  background:linear-gradient(135deg, rgba(61,255,122,.15), rgba(61,255,122,.08));
-  border:1px solid rgba(61,255,122,.3); border-radius:10px;
+  background:rgba(61,255,122,.08);
+  border:1px solid rgba(61,255,122,.25); border-radius:12px;
   transition:all .3s var(--ease-out);
 }
 .nav-cta:hover::before {
-  background:linear-gradient(135deg, rgba(61,255,122,.25), rgba(61,255,122,.12));
-  border-color:rgba(61,255,122,.6);
-  box-shadow:0 0 30px rgba(61,255,122,.2), inset 0 0 20px rgba(61,255,122,.05);
+  background:rgba(61,255,122,.14);
+  border-color:rgba(61,255,122,.5);
+  box-shadow:0 0 24px rgba(61,255,122,.15);
 }
 .nav-cta .cta-icon { position:relative; z-index:1; font-size:13px; color:var(--green); }
-.nav-cta .cta-text { position:relative; z-index:1; }
+.nav-cta .cta-text { position:relative; z-index:1; white-space:nowrap; max-width:120px; overflow:hidden; text-overflow:ellipsis; }
+
+/* Connected state — avatar + address */
+.nav-cta.is-connected { padding:6px 14px 6px 8px; }
+.cta-avatar {
+  width:28px; height:28px; border-radius:8px;
+  background:linear-gradient(135deg,#15803d,var(--green));
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:700; color:var(--ink);
+  flex-shrink:0; position:relative; z-index:1;
+  font-family:var(--font-mono); letter-spacing:0;
+}
 .pulse-dot {
   width:7px; height:7px; border-radius:50%; background:var(--green);
-  position:relative; z-index:1;
+  position:relative; z-index:1; flex-shrink:0;
   animation:pulseDot 2s ease-in-out infinite;
 }
 @keyframes pulseDot {
@@ -205,44 +216,139 @@ nav.scrolled::after { opacity:1; }
   50% { opacity:.5; transform:scale(.7); }
 }
 
-/* Wallet dropdown */
+/* ── WALLET DROPDOWN ── */
 .wallet-dd {
-  position:absolute; top:calc(100% + 12px); right:0;
-  width:300px;
-  background:rgba(4,6,4,.98); border:1px solid var(--border);
-  border-radius:16px; padding:20px;
-  backdrop-filter:blur(20px);
-  box-shadow:0 24px 64px rgba(0,0,0,.9), 0 0 0 1px rgba(61,255,122,.04);
-  opacity:0; transform:translateY(-8px) scale(.97);
+  position:fixed; top:80px; right:20px;
+  width:320px;
+  background:rgba(3,5,3,.97); border:1px solid rgba(61,255,122,.14);
+  border-radius:20px;
+  backdrop-filter:blur(28px) saturate(200%);
+  box-shadow:0 28px 80px rgba(0,0,0,.95), 0 0 0 1px rgba(61,255,122,.04), 0 0 60px rgba(0,0,0,.6);
+  opacity:0; transform:translateY(-10px) scale(.96);
   pointer-events:none;
-  transition:opacity .25s var(--ease-out), transform .25s var(--ease-out);
-  z-index:600;
+  transition:opacity .28s var(--ease-out), transform .28s var(--ease-out);
+  z-index:700; overflow:hidden;
 }
-.wallet-dd.open {
-  opacity:1; transform:translateY(0) scale(1); pointer-events:all;
+.wallet-dd.open { opacity:1; transform:translateY(0) scale(1); pointer-events:all; }
+.wallet-dd::before {
+  content:''; position:absolute; top:0; left:20%; right:20%; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(61,255,122,.4),transparent);
 }
-.dd-label { font-size:10px; letter-spacing:.14em; color:var(--muted); text-transform:uppercase; font-family:var(--font-mono); }
-.dd-addr {
+
+/* Header */
+.dd-head {
+  padding:18px 20px 14px;
+  border-bottom:1px solid rgba(255,255,255,.05);
+}
+.dd-head-row {
+  display:flex; align-items:center; justify-content:space-between; margin-bottom:12px;
+}
+.dd-head-label {
+  font-family:var(--font-mono); font-size:9px; color:var(--muted);
+  letter-spacing:.16em; text-transform:uppercase;
+}
+.dd-chain-badge {
+  display:flex; align-items:center; gap:6px;
+  background:rgba(61,255,122,.08); border:1px solid rgba(61,255,122,.18);
+  border-radius:100px; padding:3px 10px;
+  font-family:var(--font-mono); font-size:9px; font-weight:700; color:var(--green);
+  letter-spacing:.08em;
+}
+.dd-chain-dot { width:5px; height:5px; border-radius:50%; background:var(--green); animation:pulseDot 2s infinite; }
+
+/* Avatar + address block */
+.dd-identity {
+  display:flex; align-items:center; gap:12px;
+}
+.dd-avatar {
+  width:44px; height:44px; border-radius:14px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-family:var(--font-mono); font-size:13px; font-weight:700; color:var(--ink);
+  background:linear-gradient(135deg,#166534,var(--green));
+  box-shadow:0 4px 16px rgba(61,255,122,.25);
+}
+.dd-addr-block { min-width:0; flex:1; }
+.dd-addr-full {
   font-family:var(--font-mono); font-size:10px; color:var(--muted2);
-  word-break:break-all; margin-top:6px; line-height:1.6;
+  word-break:break-all; line-height:1.5;
 }
-.dd-bal-row {
-  display:flex; justify-content:space-between; align-items:center;
-  background:var(--green-dim); border:1px solid var(--border);
-  border-radius:10px; padding:12px 14px; margin:14px 0;
+.dd-copy-btn {
+  background:none; border:none; color:var(--muted); font-size:11px;
+  cursor:pointer; padding:2px 4px; transition:color .2s; margin-top:2px;
+  display:flex; align-items:center; gap:4px;
+  font-family:var(--font-mono); font-size:9px; letter-spacing:.08em;
 }
-.dd-bal-row span:first-child { font-size:12px; color:var(--muted2); }
-.dd-bal-num { font-family:var(--font-mono); font-size:16px; font-weight:700; color:var(--green); }
-.dd-disconnect {
-  width:100%; padding:10px; border-radius:8px;
-  background:rgba(255,80,80,.08); border:1px solid rgba(255,80,80,.2);
-  color:#ff8080; font-size:11px; font-weight:600; letter-spacing:.08em;
-  transition:all .2s;
+.dd-copy-btn:hover { color:var(--green); }
+
+/* Stats grid */
+.dd-stats {
+  display:grid; grid-template-columns:1fr 1fr 1fr;
+  gap:8px; padding:14px 20px;
+  border-bottom:1px solid rgba(255,255,255,.05);
 }
-.dd-disconnect:hover { background:rgba(255,80,80,.15); }
+.dd-stat {
+  background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.05);
+  border-radius:10px; padding:10px 10px 8px;
+  text-align:center;
+}
+.dd-stat-val {
+  font-family:var(--font-mono); font-size:13px; font-weight:700; color:#fff;
+  line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.dd-stat-val.green { color:var(--green); }
+.dd-stat-lbl { font-size:9px; color:var(--muted); margin-top:4px; letter-spacing:.06em; }
+
+/* Txs mini list */
+.dd-txs {
+  padding:12px 20px;
+  border-bottom:1px solid rgba(255,255,255,.05);
+  max-height:140px; overflow-y:auto;
+}
+.dd-txs::-webkit-scrollbar { width:3px; }
+.dd-txs::-webkit-scrollbar-thumb { background:rgba(61,255,122,.2); border-radius:2px; }
+.dd-tx-item {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:6px 0; border-bottom:1px solid rgba(255,255,255,.03);
+}
+.dd-tx-item:last-child { border-bottom:none; }
+.dd-tx-hash { font-family:var(--font-mono); font-size:9px; color:var(--muted2); }
+.dd-tx-val  { font-family:var(--font-mono); font-size:10px; font-weight:700; color:var(--green); }
+
+/* Actions */
+.dd-actions { padding:14px 20px; display:flex; flex-direction:column; gap:8px; }
+.dd-btn {
+  width:100%; padding:11px 16px; border-radius:10px;
+  font-family:var(--font-head); font-size:11px; font-weight:700;
+  letter-spacing:.08em; text-transform:uppercase; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  transition:all .22s;
+}
+.dd-btn.switch {
+  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+  color:var(--muted2);
+}
+.dd-btn.switch:hover { background:rgba(255,255,255,.08); border-color:rgba(255,255,255,.14); color:#fff; }
+.dd-btn.disconnect {
+  background:rgba(255,60,60,.07); border:1px solid rgba(255,60,60,.18);
+  color:#ff7070;
+}
+.dd-btn.disconnect:hover { background:rgba(255,60,60,.14); border-color:rgba(255,60,60,.3); }
+.dd-refresh-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 20px 14px;
+}
+.dd-refresh-btn {
+  background:none; border:none; color:var(--muted); font-size:11px; cursor:pointer;
+  display:flex; align-items:center; gap:5px; transition:color .2s;
+  font-family:var(--font-mono); font-size:9px; letter-spacing:.08em;
+}
+.dd-refresh-btn:hover { color:var(--green); }
+.dd-refresh-btn i { transition:transform .6s; }
+.dd-refresh-btn:hover i { transform:rotate(360deg); }
+.dd-last-updated { font-family:var(--font-mono); font-size:9px; color:var(--muted); }
 
 /* Mobile */
-.burger { display:none; flex-direction:column; gap:6px; background:none; border:none; padding:4px; }
+.burger { display:none; flex-direction:column; gap:6px; background:none; border:none; padding:4px; flex-shrink:0; }
 .burger span { display:block; width:22px; height:1.5px; background:var(--muted2); border-radius:1px; transition:all .3s var(--ease); }
 .burger.open span:nth-child(1) { transform:translateY(7.5px) rotate(45deg); }
 .burger.open span:nth-child(2) { opacity:0; transform:scaleX(0); }
@@ -1234,21 +1340,74 @@ footer {
 
     <div class="nav-right-slot">
       <button class="nav-cta" id="connectBtn" onclick="onConnectClick()">
-        <i class="fa-solid fa-wallet cta-icon"></i>
+        <i class="fa-solid fa-wallet cta-icon" id="ctaIcon"></i>
         <span class="cta-text" id="connectTxt">Connect Wallet</span>
         <span class="pulse-dot" id="connectDot" style="display:none"></span>
       </button>
+
+      <!-- Full Account Dropdown -->
       <div class="wallet-dd" id="walletDD">
-        <div class="dd-label">Connected Wallet</div>
-        <div class="dd-addr" id="ddAddr"></div>
-        <div class="dd-bal-row">
-          <span>Balance</span>
-          <span class="dd-bal-num" id="ddBal">0.0000 KRM</span>
+        <!-- Header: chain + label -->
+        <div class="dd-head">
+          <div class="dd-head-row">
+            <span class="dd-head-label">Connected Account</span>
+            <div class="dd-chain-badge">
+              <span class="dd-chain-dot"></span>
+              <span id="ddChainName">KarChain</span>
+            </div>
+          </div>
+          <!-- Identity -->
+          <div class="dd-identity">
+            <div class="dd-avatar" id="ddAvatar">??</div>
+            <div class="dd-addr-block">
+              <div class="dd-addr-full" id="ddAddrFull">—</div>
+              <button class="dd-copy-btn" onclick="copyAddr()">
+                <i class="fa-regular fa-copy"></i><span id="ddCopyLbl">Copy address</span>
+              </button>
+            </div>
+          </div>
         </div>
-        <button class="dd-disconnect" onclick="disconnect()">
-          <i class="fa-solid fa-right-from-bracket" style="margin-right:6px"></i>Disconnect
-        </button>
+
+        <!-- Stats: balance, txs, block -->
+        <div class="dd-stats">
+          <div class="dd-stat">
+            <div class="dd-stat-val green" id="ddBal">—</div>
+            <div class="dd-stat-lbl">KRM Balance</div>
+          </div>
+          <div class="dd-stat">
+            <div class="dd-stat-val" id="ddNonce">—</div>
+            <div class="dd-stat-lbl">TX Count</div>
+          </div>
+          <div class="dd-stat">
+            <div class="dd-stat-val" id="ddBlock">—</div>
+            <div class="dd-stat-lbl">Block</div>
+          </div>
+        </div>
+
+        <!-- Recent txs -->
+        <div class="dd-txs" id="ddTxList">
+          <div style="text-align:center;padding:8px;font-size:10px;color:var(--muted)">No transactions yet</div>
+        </div>
+
+        <!-- Refresh row -->
+        <div class="dd-refresh-row">
+          <button class="dd-refresh-btn" onclick="refreshAll()">
+            <i class="fa-solid fa-rotate"></i> Refresh data
+          </button>
+          <span class="dd-last-updated" id="ddUpdated">—</span>
+        </div>
+
+        <!-- Actions -->
+        <div class="dd-actions">
+          <button class="dd-btn switch" onclick="switchAccount()">
+            <i class="fa-solid fa-right-left"></i>Switch Account
+          </button>
+          <button class="dd-btn disconnect" onclick="disconnect()">
+            <i class="fa-solid fa-right-from-bracket"></i>Disconnect
+          </button>
+        </div>
       </div>
+
       <button class="burger" id="burger" onclick="toggleMobile()">
         <span></span><span></span><span></span>
       </button>
@@ -2003,7 +2162,14 @@ function onModalBg(e) {
 ═══════════════════════════════════════ */
 function onConnectClick() {
   if (S.address) {
-    document.getElementById('walletDD').classList.toggle('open');
+    const dd = document.getElementById('walletDD');
+    const wasOpen = dd.classList.contains('open');
+    dd.classList.toggle('open');
+    if (!wasOpen) {
+      // Refresh data silently when opening
+      refreshAll().catch(() => {});
+      renderDDTxs();
+    }
   } else {
     openModal();
   }
@@ -2013,6 +2179,26 @@ document.addEventListener('click', e => {
   const btn = document.getElementById('connectBtn');
   if (!dd.contains(e.target) && !btn.contains(e.target)) dd.classList.remove('open');
 });
+
+function setNetStatus(on) {
+  const el  = document.getElementById('netStatus');
+  const dot = document.getElementById('netDot');
+  const txt = document.getElementById('netTxt');
+  if (!el) return;
+  if (on) {
+    el.className = 'net-status connected';
+    dot.style.background = 'var(--green)';
+    dot.style.boxShadow  = '0 0 8px var(--green)';
+    dot.style.animation  = 'pulseDot 2s infinite';
+    txt.textContent      = 'KarChain · Chain 1337';
+  } else {
+    el.className = 'net-status disconnected';
+    dot.style.background = 'var(--muted)';
+    dot.style.boxShadow  = 'none';
+    dot.style.animation  = 'none';
+    txt.textContent      = 'Not Connected';
+  }
+}
 
 /* ═══════════════════════════════════════
    METAMASK CONNECT
@@ -2066,16 +2252,10 @@ async function connectMM() {
     const signer  = provider.getSigner();
     const address = await signer.getAddress();
 
-    let balance = '0.0000';
-    try {
-      const raw = await provider.getBalance(address);
-      balance = parseFloat(ethers.utils.formatEther(raw)).toFixed(4);
-    } catch (_) {}
-
-    S.address = address; S.provider = provider; S.signer = signer; S.balance = balance;
+    S.address = address; S.provider = provider; S.signer = signer;
     S.save();
     closeModal();
-    setConnected(address, balance);
+    await setConnected(address);
     toast('Connected!', `${address.slice(0,8)}…${address.slice(-6)} · KarChain`, 'success');
 
     window.ethereum.on('chainChanged', () => location.reload());
@@ -2090,36 +2270,142 @@ async function connectMM() {
 }
 
 /* ═══════════════════════════════════════
+   WALLET DATA — fetch everything from chain
+═══════════════════════════════════════ */
+async function fetchChainData(address, provider) {
+  const results = { balance:'0.0000', nonce:0, block:0 };
+  try {
+    const [raw, nonce, block] = await Promise.all([
+      provider.getBalance(address),
+      provider.getTransactionCount(address),
+      provider.getBlockNumber()
+    ]);
+    results.balance = parseFloat(ethers.utils.formatEther(raw)).toFixed(4);
+    results.nonce   = nonce;
+    results.block   = block;
+  } catch(e) { console.warn('fetchChainData:', e.message); }
+  return results;
+}
+
+/* Generate avatar initials from address */
+function addrAvatar(address) {
+  return address.slice(2,4).toUpperCase();
+}
+
+/* ═══════════════════════════════════════
    SET CONNECTED STATE
 ═══════════════════════════════════════ */
-function setConnected(address, balance) {
+async function setConnected(address, preBalance) {
   const short = address.slice(0,6) + '…' + address.slice(-4);
 
-  // Nav button
-  document.getElementById('connectTxt').textContent = short;
-  document.getElementById('connectDot').style.display = 'inline-block';
+  // Nav button → connected state
+  const btn = document.getElementById('connectBtn');
+  btn.classList.add('is-connected');
+  btn.innerHTML = `
+    <div class="cta-avatar" style="position:relative;z-index:1">${addrAvatar(address)}</div>
+    <span class="cta-text" id="connectTxt" style="position:relative;z-index:1">${short}</span>
+    <span class="pulse-dot" id="connectDot" style="position:relative;z-index:1"></span>`;
 
-  // Dropdown
-  document.getElementById('ddAddr').textContent  = address;
-  document.getElementById('ddBal').textContent   = parseFloat(balance).toFixed(4) + ' KRM';
+  // Dropdown identity
+  document.getElementById('ddAddrFull').textContent = address;
+  document.getElementById('ddAvatar').textContent   = addrAvatar(address);
+  document.getElementById('ddCopyLbl').textContent  = 'Copy address';
 
-  // Dashboard
+  // Dashboard chips
   document.getElementById('addrChip').textContent = short;
-  document.getElementById('balNum').textContent   = parseFloat(balance).toFixed(4);
+
+  // Fetch real chain data
+  let balance = preBalance || '0.0000';
+  let nonce = 0, block = 0;
+  if (S.provider) {
+    const data = await fetchChainData(address, S.provider);
+    balance = data.balance; nonce = data.nonce; block = data.block;
+    S.balance = balance;
+  }
+
+  updateDropdownStats(balance, nonce, block);
+  updateDashboardBalance(balance);
 
   // Views
   document.getElementById('lockedView').style.display = 'none';
   document.getElementById('activeView').style.display = 'block';
-
-  // Network status
   setNetStatus(true);
 
-  // Render all dynamic parts
-  renderL1();
-  renderL2();
-  renderTasks();
-  renderProgress();
-  renderTxs();
+  // Dashboard sections
+  renderL1(); renderL2(); renderTasks(); renderProgress(); renderTxs();
+  renderDDTxs();
+}
+
+function updateDropdownStats(balance, nonce, block) {
+  document.getElementById('ddBal').textContent   = balance + ' KRM';
+  document.getElementById('ddNonce').textContent = nonce.toLocaleString();
+  document.getElementById('ddBlock').textContent = block ? '#' + block.toLocaleString() : '—';
+  const now = new Date();
+  document.getElementById('ddUpdated').textContent = 'Updated ' + now.toLocaleTimeString();
+}
+
+function updateDashboardBalance(balance) {
+  document.getElementById('balNum').textContent = parseFloat(balance).toFixed(4);
+}
+
+function renderDDTxs() {
+  const list = document.getElementById('ddTxList');
+  if (!S.address) return;
+  const txs = S.txs;
+  if (!txs.length) {
+    list.innerHTML = '<div style="text-align:center;padding:8px;font-size:10px;color:var(--muted)">No transactions yet</div>';
+    return;
+  }
+  list.innerHTML = txs.slice(-5).reverse().map(tx => `
+    <div class="dd-tx-item">
+      <div>
+        <div class="dd-tx-hash">${tx.hash.slice(0,18)}…</div>
+        <div style="font-size:9px;color:var(--muted);margin-top:1px">${tx.type}</div>
+      </div>
+      <div class="dd-tx-val">+${tx.value} KRM</div>
+    </div>`).join('');
+}
+
+async function refreshAll() {
+  if (!S.provider || !S.address) return;
+  const btn = document.querySelector('.dd-refresh-btn');
+  if (btn) btn.style.pointerEvents = 'none';
+  try {
+    const data = await fetchChainData(S.address, S.provider);
+    S.balance = data.balance;
+    updateDropdownStats(data.balance, data.nonce, data.block);
+    updateDashboardBalance(data.balance);
+    renderDDTxs();
+    toast('Data refreshed', 'Balance and chain data updated.', 'success');
+  } catch(_) {
+    toast('Error', 'Could not reach KarChain node.', 'error');
+  }
+  if (btn) btn.style.pointerEvents = '';
+}
+
+// kept for dashboard button
+async function refreshBal() { await refreshAll(); }
+
+function copyAddr() {
+  if (!S.address) return;
+  navigator.clipboard.writeText(S.address).then(() => {
+    const lbl = document.getElementById('ddCopyLbl');
+    if (lbl) { lbl.textContent = 'Copied!'; setTimeout(() => lbl.textContent = 'Copy address', 2000); }
+  });
+}
+
+async function switchAccount() {
+  if (!window.ethereum) return;
+  try {
+    // Request MetaMask to show account picker
+    await window.ethereum.request({ method: 'wallet_requestPermissions', params:[{ eth_accounts:{} }] });
+    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+    if (accounts[0] && accounts[0].toLowerCase() !== S.address.toLowerCase()) {
+      location.reload();
+    }
+  } catch(e) {
+    if (e.code !== 4001) toast('Error', e.message?.slice(0,60) || 'Could not switch account.', 'error');
+  }
 }
 
 function disconnect() {
@@ -2127,45 +2413,18 @@ function disconnect() {
   S.address = null; S.provider = null; S.signer = null; S.balance = '0.0000';
   localStorage.removeItem('kc_addr');
 
-  document.getElementById('connectTxt').textContent = 'Connect Wallet';
-  document.getElementById('connectDot').style.display = 'none';
+  // Reset nav button
+  const btn = document.getElementById('connectBtn');
+  btn.classList.remove('is-connected');
+  btn.innerHTML = `
+    <i class="fa-solid fa-wallet cta-icon"></i>
+    <span class="cta-text" id="connectTxt">Connect Wallet</span>`;
+
   document.getElementById('walletDD').classList.remove('open');
   document.getElementById('lockedView').style.display = 'block';
   document.getElementById('activeView').style.display = 'none';
   setNetStatus(false);
   toast('Disconnected', 'Wallet session ended.', 'info');
-}
-
-function setNetStatus(on) {
-  const el  = document.getElementById('netStatus');
-  const dot = document.getElementById('netDot');
-  const txt = document.getElementById('netTxt');
-  if (on) {
-    el.className = 'net-status connected';
-    dot.style.background = 'var(--green)';
-    dot.style.boxShadow  = '0 0 8px var(--green)';
-    dot.style.animation  = 'pulseDot 2s infinite';
-    txt.textContent      = 'KarChain · Chain 1337';
-  } else {
-    el.className = 'net-status disconnected';
-    dot.style.background = 'var(--muted)';
-    dot.style.boxShadow  = 'none';
-    dot.style.animation  = 'none';
-    txt.textContent      = 'Not Connected';
-  }
-}
-
-async function refreshBal() {
-  if (!S.provider || !S.address) return;
-  try {
-    const raw = await S.provider.getBalance(S.address);
-    S.balance = parseFloat(ethers.utils.formatEther(raw)).toFixed(4);
-    document.getElementById('balNum').textContent = S.balance;
-    document.getElementById('ddBal').textContent  = S.balance + ' KRM';
-    toast('Balance updated', 'Fetched from KarChain node.', 'success');
-  } catch (_) {
-    toast('Error', 'Could not fetch balance from node.', 'error');
-  }
 }
 
 /* ═══════════════════════════════════════
@@ -2241,9 +2500,9 @@ function claimL1() {
   S.setL2();
   const newBal = (parseFloat(S.balance) + 1).toFixed(4);
   S.balance = newBal;
-  document.getElementById('balNum').textContent = newBal;
-  document.getElementById('ddBal').textContent  = newBal + ' KRM';
+  updateDashboardBalance(newBal);
   S.addTx({ hash:'0x'+[...Array(64)].map(()=>Math.floor(Math.random()*16).toString(16)).join(''), value:'1.0000', type:'Faucet L1 Claim' });
+  renderDDTxs();
   renderL1();
   renderL2();
   renderTxs();
@@ -2317,10 +2576,9 @@ async function claimL2() {
 
     const newBal = (parseFloat(S.balance) + 5).toFixed(4);
     S.balance = newBal;
-    document.getElementById('balNum').textContent = newBal;
-    document.getElementById('ddBal').textContent  = newBal + ' KRM';
+    updateDashboardBalance(newBal);
     S.addTx({ hash:tx.hash, value:'5.0000', type:'Faucet L2 Premium' });
-    renderTxs();
+    renderTxs(); renderDDTxs();
 
     setBtn('<i class="fa-solid fa-check"></i>5 KRM received!');
     if (btn) btn.className = 'action-btn done';
@@ -2406,8 +2664,8 @@ function verifyT1() {
     S.addTask(1);
     const nb = (parseFloat(S.balance)+10).toFixed(4);
     S.balance = nb;
-    document.getElementById('balNum').textContent = nb;
-    document.getElementById('ddBal').textContent  = nb+' KRM';
+    updateDashboardBalance(nb);
+    
     markDone(1); unlock(2); renderProgress();
     toast('Task 1 Complete!', '+10 KRM added. Step 2 is now unlocked.', 'success');
   }, 1800);
@@ -2426,7 +2684,7 @@ async function doSendTx() {
     await tx.wait();
     S.setTxDone();
     S.addTx({ hash:tx.hash, value:'0.0010', type:'Test Transaction' });
-    renderTxs();
+    renderTxs(); renderDDTxs();
     setVerifyReady('t2verify');
     toast('TX confirmed!','Transaction confirmed on KarChain. Click Verify.','success');
     if (btn) { btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-bolt"></i>Send Test TX (0.001 KRM)'; }
@@ -2446,8 +2704,8 @@ function verifyT2() {
     S.addTask(2);
     const nb = (parseFloat(S.balance)+25).toFixed(4);
     S.balance = nb;
-    document.getElementById('balNum').textContent = nb;
-    document.getElementById('ddBal').textContent  = nb+' KRM';
+    updateDashboardBalance(nb);
+    
     markDone(2); unlock(3);
     const b3 = document.getElementById('t3btn');
     if (b3) { b3.style.opacity='1'; b3.style.pointerEvents='auto'; }
@@ -2465,8 +2723,8 @@ function doForm() {
     S.addTask(3);
     const nb = (parseFloat(S.balance)+50).toFixed(4);
     S.balance = nb;
-    document.getElementById('balNum').textContent = nb;
-    document.getElementById('ddBal').textContent  = nb+' KRM';
+    updateDashboardBalance(nb);
+    
     markDone(3); renderProgress();
     toast('Genesis Registration Complete!', '+50 KRM · Your wallet is queued for genesis block inclusion.', 'success');
   }, 3000);
@@ -2704,8 +2962,8 @@ async function restoreSession() {
       const raw = await provider.getBalance(saved);
       balance = parseFloat(ethers.utils.formatEther(raw)).toFixed(4);
     } catch(_) {}
-    S.address = saved; S.provider = provider; S.signer = signer; S.balance = balance;
-    setConnected(saved, balance);
+    S.address = saved; S.provider = provider; S.signer = signer;
+    await setConnected(saved);
   } catch(_) {}
 }
 
