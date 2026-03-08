@@ -1344,6 +1344,96 @@ footer {
   .stat-num { font-size:18px; }
   .wallet-dd { right:8px; width:calc(100vw - 16px); }
 }
+
+/* ═══ EXPLORER PAGE ═══ */
+.explorer-wrap { max-width:1100px; margin:0 auto; padding:110px 32px 80px; }
+.exp-search-bar {
+  display:flex; gap:10px; margin-bottom:40px;
+}
+.exp-input {
+  flex:1; background:rgba(255,255,255,.04); border:1px solid var(--border2);
+  border-radius:12px; padding:14px 18px; color:#fff;
+  font-family:var(--font-mono); font-size:13px; outline:none;
+  transition:border-color .2s;
+}
+.exp-input:focus { border-color:rgba(61,255,122,.4); }
+.exp-input::placeholder { color:var(--muted); }
+.exp-search-btn {
+  background:var(--green); color:var(--ink); border:none; border-radius:12px;
+  padding:14px 24px; font-family:var(--font-head); font-size:11px;
+  font-weight:700; letter-spacing:.1em; text-transform:uppercase; cursor:pointer;
+  white-space:nowrap; transition:opacity .2s;
+}
+.exp-search-btn:hover { opacity:.85; }
+.exp-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:32px; }
+.exp-panel {
+  background:rgba(255,255,255,.02); border:1px solid var(--border2);
+  border-radius:16px; overflow:hidden;
+}
+.exp-panel-head {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 20px; border-bottom:1px solid var(--border2);
+  font-family:var(--font-head); font-size:11px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--muted2);
+}
+.exp-panel-head .exp-live { display:flex; align-items:center; gap:6px; font-size:9px; color:var(--green); }
+.exp-list { max-height:380px; overflow-y:auto; }
+.exp-list::-webkit-scrollbar { width:3px; }
+.exp-list::-webkit-scrollbar-thumb { background:rgba(61,255,122,.2); border-radius:2px; }
+.exp-row {
+  display:flex; align-items:center; justify-content:space-between;
+  padding:12px 20px; border-bottom:1px solid rgba(255,255,255,.04);
+  transition:background .15s; cursor:pointer; gap:12px;
+}
+.exp-row:hover { background:rgba(255,255,255,.03); }
+.exp-row:last-child { border-bottom:none; }
+.exp-row-left { display:flex; align-items:center; gap:12px; min-width:0; }
+.exp-icon {
+  width:34px; height:34px; border-radius:8px; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px;
+}
+.exp-icon.block { background:rgba(61,255,122,.08); color:var(--green); }
+.exp-icon.tx    { background:rgba(100,160,255,.08); color:#64a0ff; }
+.exp-label { font-family:var(--font-mono); font-size:11px; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.exp-sub   { font-size:10px; color:var(--muted); margin-top:2px; }
+.exp-badge {
+  font-family:var(--font-mono); font-size:10px; padding:3px 8px;
+  border-radius:6px; white-space:nowrap; flex-shrink:0;
+}
+.exp-badge.green  { background:rgba(61,255,122,.1);  color:var(--green); }
+.exp-badge.blue   { background:rgba(100,160,255,.1); color:#64a0ff; }
+.exp-badge.muted  { background:rgba(255,255,255,.05); color:var(--muted); }
+/* Detail view */
+.exp-detail {
+  background:rgba(255,255,255,.02); border:1px solid var(--border2);
+  border-radius:16px; padding:24px; margin-bottom:24px; display:none;
+}
+.exp-detail.show { display:block; }
+.exp-detail-title {
+  font-family:var(--font-head); font-size:13px; font-weight:700;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--muted2);
+  margin-bottom:16px; display:flex; align-items:center; gap:10px;
+}
+.exp-kv { display:grid; grid-template-columns:140px 1fr; gap:8px 16px; }
+.exp-k { font-size:11px; color:var(--muted); padding:6px 0; border-bottom:1px solid rgba(255,255,255,.04); }
+.exp-v { font-family:var(--font-mono); font-size:11px; color:#fff; padding:6px 0; border-bottom:1px solid rgba(255,255,255,.04); word-break:break-all; }
+.exp-back-btn {
+  background:none; border:1px solid var(--border2); color:var(--muted2);
+  border-radius:8px; padding:6px 14px; font-size:11px; cursor:pointer;
+  font-family:var(--font-head); letter-spacing:.08em; text-transform:uppercase;
+  transition:border-color .2s, color .2s; margin-bottom:20px;
+}
+.exp-back-btn:hover { border-color:rgba(61,255,122,.3); color:#fff; }
+.exp-loading { padding:32px; text-align:center; color:var(--muted); font-size:12px; }
+@media(max-width:900px) {
+  .exp-grid { grid-template-columns:1fr; }
+  .explorer-wrap { padding:90px 16px 60px; }
+}
+@media(max-width:640px) {
+  .exp-kv { grid-template-columns:100px 1fr; }
+  .exp-search-bar { flex-direction:column; }
+}
 </style>
 </head>
 <body>
@@ -1362,6 +1452,7 @@ footer {
   <div class="page-dot"        data-page="vision"    data-label="Vision"    onclick="goto('vision')"></div>
   <div class="page-dot"        data-page="ecosystem" data-label="Ecosystem" onclick="goto('ecosystem')"></div>
   <div class="page-dot"        data-page="support"   data-label="Support"   onclick="goto('support')"></div>
+  <div class="page-dot"        data-page="explorer"  data-label="Explorer"  onclick="goto('explorer')"></div>
 </div>
 
 <!-- ══════ NAV ══════ -->
@@ -1386,6 +1477,7 @@ footer {
       <button class="nav-link"        id="nl-vision"    onclick="goto('vision')"><span>Vision</span></button>
       <button class="nav-link"        id="nl-ecosystem" onclick="goto('ecosystem')"><span>Ecosystem</span></button>
       <button class="nav-link"        id="nl-support"   onclick="goto('support')"><span>Support</span></button>
+      <button class="nav-link"        id="nl-explorer"  onclick="goto('explorer')"><span>Explorer</span></button>
     </div>
 
     <div class="nav-right-slot">
@@ -1472,6 +1564,7 @@ footer {
   <button class="mob-link" onclick="goto('vision');toggleMobile()"><i class="fa-solid fa-eye"></i>Vision</button>
   <button class="mob-link" onclick="goto('ecosystem');toggleMobile()"><i class="fa-solid fa-cubes"></i>Ecosystem</button>
   <button class="mob-link" onclick="goto('support');toggleMobile()"><i class="fa-solid fa-headset"></i>Support</button>
+  <button class="mob-link" onclick="goto('explorer');toggleMobile()"><i class="fa-solid fa-magnifying-glass"></i>Explorer</button>
 </div>
 
 <!-- ══════ CONNECT MODAL ══════ -->
@@ -2045,6 +2138,58 @@ footer {
   </div>
 </div>
 
+
+<!-- ══════════════════════════════════
+     EXPLORER PAGE
+══════════════════════════════════ -->
+<div class="page" id="page-explorer">
+  <div class="explorer-wrap">
+    <div class="section-head reveal" style="margin-bottom:32px">
+      <div class="section-tag"><span>Block Explorer</span></div>
+      <h2 class="section-title reveal" style="margin-bottom:8px">KarChain Explorer</h2>
+      <p class="section-sub">Search transactions, blocks and addresses on the KarChain network.</p>
+    </div>
+
+    <!-- Search bar -->
+    <div class="exp-search-bar reveal">
+      <input class="exp-input" id="expSearchInput" placeholder="Search by tx hash, block number or address (0x…)" onkeydown="if(event.key==='Enter')expSearch()">
+      <button class="exp-search-btn" onclick="expSearch()"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+    </div>
+
+    <!-- Detail view (hidden by default) -->
+    <div class="exp-detail" id="expDetail">
+      <button class="exp-back-btn" onclick="expHideDetail()"><i class="fa-solid fa-arrow-left"></i> Back</button>
+      <div class="exp-detail-title" id="expDetailTitle"></div>
+      <div class="exp-kv" id="expDetailBody"></div>
+    </div>
+
+    <!-- Blocks + Txs grid -->
+    <div class="exp-grid" id="expGrid">
+      <!-- Latest Blocks -->
+      <div class="exp-panel reveal">
+        <div class="exp-panel-head">
+          <span>Latest Blocks</span>
+          <span class="exp-live"><span style="width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulseDot 2s infinite;display:inline-block"></span>Live</span>
+        </div>
+        <div class="exp-list" id="expBlockList">
+          <div class="exp-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading blocks…</div>
+        </div>
+      </div>
+
+      <!-- Latest Transactions -->
+      <div class="exp-panel reveal reveal-delay-1">
+        <div class="exp-panel-head">
+          <span>Latest Transactions</span>
+          <span class="exp-live"><span style="width:6px;height:6px;border-radius:50%;background:#64a0ff;animation:pulseDot 2s infinite;display:inline-block"></span>Live</span>
+        </div>
+        <div class="exp-list" id="expTxList">
+          <div class="exp-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading transactions…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- FOOTER -->
 <footer>
   <div class="foot-inner">
@@ -2534,6 +2679,95 @@ async function fetchChainData(address, provider) {
   return results;
 }
 
+/* ═══════════════════════════════════════
+   TX HISTORY FROM BLOCKCHAIN
+   Scans last N blocks for txs involving address.
+   Works on any EVM node — no external API needed.
+═══════════════════════════════════════ */
+const TX_CACHE = new Map(); // address → { txs, scannedTo }
+
+async function fetchTxHistory(address, maxBlocks = 300) {
+  if (!address) return [];
+  const addrLow = address.toLowerCase();
+
+  try {
+    // Get latest block
+    const latestHex = await rpc('eth_blockNumber');
+    const latest    = parseInt(latestHex, 16);
+    const fromBlock = Math.max(0, latest - maxBlocks);
+
+    // Check cache — only scan new blocks since last check
+    const cached    = TX_CACHE.get(addrLow) || { txs: [], scannedTo: fromBlock - 1 };
+    const scanFrom  = Math.max(fromBlock, cached.scannedTo + 1);
+    const scanTo    = latest;
+
+    if (scanFrom > scanTo) return cached.txs;
+
+    // Batch fetch blocks (20 at a time)
+    const newTxs = [];
+    const BATCH  = 20;
+
+    for (let b = scanTo; b >= scanFrom; b -= BATCH) {
+      const batchStart = Math.max(scanFrom, b - BATCH + 1);
+      const calls = [];
+      for (let i = b; i >= batchStart; i--) {
+        calls.push({ method: 'eth_getBlockByNumber', params: ['0x' + i.toString(16), true] });
+      }
+      try {
+        const res = await fetch(CFG.rpc, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
+          body: JSON.stringify(calls.map((c, i) => ({ jsonrpc: '2.0', id: i, ...c }))),
+        });
+        const blocks = await res.json();
+        const blockArr = Array.isArray(blocks) ? blocks : [];
+        blockArr.forEach(item => {
+          const block = item?.result;
+          if (!block?.transactions) return;
+          block.transactions.forEach(tx => {
+            const from = (tx.from || '').toLowerCase();
+            const to   = (tx.to   || '').toLowerCase();
+            if (from === addrLow || to === addrLow) {
+              const value   = parseFloat(ethers.utils.formatEther(tx.value || '0x0')).toFixed(4);
+              const isOut   = from === addrLow;
+              const ts      = parseInt(block.timestamp, 16) * 1000;
+              newTxs.push({
+                hash:    tx.hash,
+                from:    tx.from,
+                to:      tx.to,
+                value,
+                isOut,
+                type:    isOut ? 'Sent' : 'Received',
+                block:   parseInt(block.number, 16),
+                ts,
+                gasUsed: tx.gas ? parseInt(tx.gas, 16) : 0,
+              });
+            }
+          });
+        });
+      } catch(_) { break; }
+    }
+
+    // Merge with cache, sort by block desc, deduplicate by hash
+    const merged = [...newTxs, ...cached.txs];
+    const seen   = new Set();
+    const deduped = merged.filter(tx => {
+      if (seen.has(tx.hash)) return false;
+      seen.add(tx.hash);
+      return true;
+    }).sort((a, b) => b.block - a.block);
+
+    // Update cache
+    TX_CACHE.set(addrLow, { txs: deduped, scannedTo: latest });
+    return deduped;
+
+  } catch(err) {
+    console.warn('[KarChain TX]', err.message);
+    // Fallback to localStorage txs
+    return S.txs.map(t => ({ ...t, type: t.type || 'Transaction', isOut: false }));
+  }
+}
+
 /* Generate avatar initials from address */
 function addrAvatar(address) {
   return address.slice(2,4).toUpperCase();
@@ -2579,7 +2813,8 @@ async function setConnected(address, preBalance, walletName) {
   setNetStatus(true);
 
   // Dashboard sections
-  renderL1(); renderL2(); renderTasks(); renderProgress(); renderTxs();
+  renderL1(); renderL2(); renderTasks(); renderProgress();
+  renderTxs();
   renderDDTxs();
 }
 
@@ -2595,21 +2830,28 @@ function updateDashboardBalance(balance) {
   document.getElementById('balNum').textContent = parseFloat(balance).toFixed(4);
 }
 
-function renderDDTxs() {
+async function renderDDTxs() {
   const list = document.getElementById('ddTxList');
-  if (!S.address) return;
-  const txs = S.txs;
+  if (!S.address || !list) return;
+
+  list.innerHTML = '<div style="text-align:center;padding:10px;font-size:10px;color:var(--muted)"><i class="fa-solid fa-spinner fa-spin"></i> Loading…</div>';
+
+  const txs = await fetchTxHistory(S.address, 200);
+
   if (!txs.length) {
     list.innerHTML = '<div style="text-align:center;padding:8px;font-size:10px;color:var(--muted)">No transactions yet</div>';
     return;
   }
-  list.innerHTML = txs.slice(-5).reverse().map(tx => `
+
+  list.innerHTML = txs.slice(0, 5).map(tx => `
     <div class="dd-tx-item">
-      <div>
-        <div class="dd-tx-hash">${tx.hash.slice(0,18)}…</div>
-        <div style="font-size:9px;color:var(--muted);margin-top:1px">${tx.type}</div>
+      <div style="flex:1;min-width:0">
+        <div class="dd-tx-hash">${tx.hash.slice(0,16)}…</div>
+        <div style="font-size:9px;color:var(--muted);margin-top:1px">${tx.type} · Block #${tx.block.toLocaleString()}</div>
       </div>
-      <div class="dd-tx-val">+${tx.value} KRM</div>
+      <div class="dd-tx-val" style="color:${tx.isOut ? '#ff7070' : 'var(--green)'}">
+        ${tx.isOut ? '−' : '+'}${tx.value} KRM
+      </div>
     </div>`).join('');
 }
 
@@ -2622,7 +2864,8 @@ async function refreshAll() {
     S.balance = data.balance;
     updateDropdownStats(data.balance, data.nonce, data.block);
     updateDashboardBalance(data.balance);
-    renderDDTxs();
+    await renderDDTxs();
+    await renderTxs();
     toast('Data refreshed', 'Balance and chain data updated.', 'success');
   } catch(_) {
     toast('Error', 'Could not reach KarChain node.', 'error');
@@ -2742,7 +2985,7 @@ function doCaptcha() {
   }, 1300);
 }
 
-function claimL1() {
+async function claimL1() {
   if (!S.capDone) { toast('CAPTCHA required', 'Please complete the verification.', 'error'); return; }
   S.setL1();
   S.setL2();
@@ -2750,9 +2993,10 @@ function claimL1() {
   S.balance = newBal;
   updateDashboardBalance(newBal);
   S.addTx({ hash:'0x'+[...Array(64)].map(()=>Math.floor(Math.random()*16).toString(16)).join(''), value:'1.0000', type:'Faucet L1 Claim' });
-  renderDDTxs();
+  TX_CACHE.delete(S.address?.toLowerCase());
   renderL1();
   renderL2();
+  renderDDTxs();
   renderTxs();
   toast('1 KRM claimed!', 'Level 2 faucet is now unlocked.', 'success');
 }
@@ -2826,7 +3070,8 @@ async function claimL2() {
     S.balance = newBal;
     updateDashboardBalance(newBal);
     S.addTx({ hash:tx.hash, value:'5.0000', type:'Faucet L2 Premium' });
-    renderTxs(); renderDDTxs();
+    TX_CACHE.delete(S.address.toLowerCase());
+    await renderTxs(); await renderDDTxs();
 
     setBtn('<i class="fa-solid fa-check"></i>5 KRM received!');
     if (btn) btn.className = 'action-btn done';
@@ -2932,7 +3177,8 @@ async function doSendTx() {
     await tx.wait();
     S.setTxDone();
     S.addTx({ hash:tx.hash, value:'0.0010', type:'Test Transaction' });
-    renderTxs(); renderDDTxs();
+    TX_CACHE.delete(S.address.toLowerCase());
+    await renderTxs(); await renderDDTxs();
     setVerifyReady('t2verify');
     toast('TX confirmed!','Transaction confirmed on KarChain. Click Verify.','success');
     if (btn) { btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-bolt"></i>Send Test TX (0.001 KRM)'; }
@@ -2981,27 +3227,45 @@ function doForm() {
 /* ═══════════════════════════════════════
    TX HISTORY
 ═══════════════════════════════════════ */
-function renderTxs() {
+async function renderTxs() {
   if (!S.address) return;
-  const txs = S.txs;
   const area = document.getElementById('txArea');
   const list = document.getElementById('txList');
-  if (!txs.length) { area.style.display='none'; return; }
+  if (!area || !list) return;
+
   area.style.display = 'block';
-  list.innerHTML = txs.slice(-8).reverse().map(tx => `
+  list.innerHTML = '<div style="padding:20px;text-align:center;font-size:12px;color:var(--muted)"><i class="fa-solid fa-spinner fa-spin"></i> Scanning blockchain…</div>';
+
+  const txs = await fetchTxHistory(S.address, 300);
+
+  if (!txs.length) {
+    list.innerHTML = '<div style="padding:20px;text-align:center;font-size:12px;color:var(--muted)">No transactions found in last 300 blocks</div>';
+    return;
+  }
+
+  list.innerHTML = txs.slice(0, 15).map(tx => {
+    const date = tx.ts ? new Date(tx.ts).toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : `Block #${tx.block}`;
+    const shortHash = tx.hash.slice(0,10) + '…' + tx.hash.slice(-6);
+    const counterpart = tx.isOut
+      ? (tx.to  ? tx.to.slice(0,8)+'…'+tx.to.slice(-4)  : '?')
+      : (tx.from ? tx.from.slice(0,8)+'…'+tx.from.slice(-4) : '?');
+    return `
     <div class="tx-item">
       <div class="tx-left">
-        <span class="tx-dot"></span>
+        <span class="tx-dot" style="background:${tx.isOut ? '#ff7070' : 'var(--green)'}"></span>
         <div>
-          <div class="tx-hash">${tx.hash.slice(0,22)}…</div>
-          <div class="tx-type">${tx.type}</div>
+          <div class="tx-hash">${shortHash}</div>
+          <div class="tx-type">${tx.isOut ? '→ To: ' : '← From: '}${counterpart}</div>
         </div>
       </div>
       <div style="text-align:right">
-        <div class="tx-val">+${tx.value} KRM</div>
-        <div class="tx-time">${new Date(tx.ts).toLocaleTimeString()}</div>
+        <div class="tx-val" style="color:${tx.isOut ? '#ff7070' : 'var(--green)'}">
+          ${tx.isOut ? '−' : '+'}${tx.value} KRM
+        </div>
+        <div class="tx-time">${date}</div>
       </div>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 
 /* ═══════════════════════════════════════
@@ -3264,8 +3528,10 @@ async function rpcBatch(calls) {
     },
     body: JSON.stringify(calls.map((c,i) => ({ jsonrpc:'2.0', id:i, ...c }))),
   });
-  const arr = await r.json();
-  return arr.sort((a,b) => a.id - b.id).map(x => x.result ?? null);
+  const raw = await r.json();
+  // Besu may return single object instead of array if batch fails
+  const arr = Array.isArray(raw) ? raw : [raw];
+  return arr.sort((a,b) => (a.id||0) - (b.id||0)).map(x => x.result ?? null);
 }
 
 // Format hashrate: H/s → KH/s → MH/s → GH/s
@@ -3336,7 +3602,10 @@ async function loadChainStats() {
         { method:'eth_chainId',        params:[] },
       ]);
 
-    const blockNum  = parseInt(blockHex,   16);
+    // Guard against null/undefined batch results
+    if (!blockHex) throw new Error('eth_blockNumber returned null');
+    const blockNum  = parseInt(blockHex, 16);
+    if (isNaN(blockNum)) throw new Error('Invalid block number: ' + blockHex);
     const isMining  = miningHex === true || miningHex === 'true';
     const hashrate  = parseInt(hashrateHex || '0x0', 16);   // H/s
     const gasWei    = parseInt(gasPriceHex || '0x0', 16);
@@ -3452,12 +3721,13 @@ async function loadChainStats() {
 }
 
 async function runCounters() {
-  // Try live data immediately on page load
+  // Try immediately, then retry once after 3s if fails (node may still be starting)
   const ok = await loadChainStats();
   if (!ok) {
-    console.info('[KarChain] Besu node not reachable at', CFG.rpc);
+    console.info('[KarChain] Retrying in 3s…');
+    setTimeout(loadChainStats, 3000);
   }
-  // Poll every 10s — Besu Ethash blocks are fast (fixedDifficulty=1000)
+  // Poll every 10s
   CS._timer = setInterval(() => {
     if (document.visibilityState !== 'hidden') loadChainStats();
   }, 10000);
@@ -3485,7 +3755,7 @@ function triggerReveal() {
 ═══════════════════════════════════════ */
 function initWheelNav() {
   if (window.innerWidth < 900) return;
-  const pages = ['home','vision','ecosystem','support'];
+  const pages = ['home','vision','ecosystem','support','explorer'];
   let scrollLock = false;
   let wheelAcc = 0;
   let accTimer = null;
@@ -3606,6 +3876,278 @@ async function restoreSession() {
   }
 }
 
+
+/* ═══════════════════════════════════════
+   BLOCK EXPLORER
+═══════════════════════════════════════ */
+const EXP = { timer: null, lastBlock: -1 };
+
+function timeAgo(ts) {
+  const sec = Math.floor((Date.now() - ts * 1000) / 1000);
+  if (sec < 5)   return 'just now';
+  if (sec < 60)  return sec + 's ago';
+  if (sec < 3600) return Math.floor(sec/60) + 'm ago';
+  return Math.floor(sec/3600) + 'h ago';
+}
+
+function shortHash(h, s=8) {
+  return h ? h.slice(0,s)+'…'+h.slice(-4) : '—';
+}
+
+async function expLoadBlocks() {
+  const list = document.getElementById('expBlockList');
+  if (!list) return;
+  try {
+    const latestHex = await rpc('eth_blockNumber');
+    const latest    = parseInt(latestHex, 16);
+    if (latest === EXP.lastBlock) return; // no new blocks
+    EXP.lastBlock = latest;
+
+    // Fetch last 10 blocks
+    const calls = [];
+    for (let i = latest; i > Math.max(latest - 10, -1); i--) {
+      calls.push({ method:'eth_getBlockByNumber', params:['0x'+i.toString(16), false] });
+    }
+    const res  = await fetch(CFG.rpc, {
+      method:'POST', headers:{'Content-Type':'application/json','ngrok-skip-browser-warning':'true'},
+      body: JSON.stringify(calls.map((c,i) => ({jsonrpc:'2.0',id:i,...c})))
+    });
+    const data = await res.json();
+    const blocks = (Array.isArray(data) ? data : []).map(d => d?.result).filter(Boolean).sort((a,b) => parseInt(b.number,16)-parseInt(a.number,16));
+
+    list.innerHTML = blocks.map(b => {
+      const num   = parseInt(b.number, 16);
+      const txCnt = b.transactions?.length || 0;
+      const ts    = parseInt(b.timestamp, 16);
+      const miner = b.miner ? b.miner.slice(0,8)+'…'+b.miner.slice(-4) : '—';
+      return `<div class="exp-row" onclick="expShowBlock('${b.number}')">
+        <div class="exp-row-left">
+          <div class="exp-icon block"><i class="fa-solid fa-cube"></i></div>
+          <div>
+            <div class="exp-label">#${num.toLocaleString()}</div>
+            <div class="exp-sub">Miner: ${miner}</div>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="exp-badge green">${txCnt} tx</div>
+          <div class="exp-sub" style="margin-top:4px">${timeAgo(ts)}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    if (list) list.innerHTML = '<div class="exp-loading" style="color:#ff7070"><i class="fa-solid fa-circle-exclamation"></i> Node offline</div>';
+  }
+}
+
+async function expLoadTxs() {
+  const list = document.getElementById('expTxList');
+  if (!list) return;
+  try {
+    const latestHex = await rpc('eth_blockNumber');
+    const latest    = parseInt(latestHex, 16);
+
+    // Scan last 20 blocks for txs
+    const calls = [];
+    for (let i = latest; i > Math.max(latest-20,-1); i--) {
+      calls.push({ method:'eth_getBlockByNumber', params:['0x'+i.toString(16), true] });
+    }
+    const res  = await fetch(CFG.rpc, {
+      method:'POST', headers:{'Content-Type':'application/json','ngrok-skip-browser-warning':'true'},
+      body: JSON.stringify(calls.map((c,i) => ({jsonrpc:'2.0',id:i,...c})))
+    });
+    const data = await res.json();
+
+    const txs = [];
+    ;(Array.isArray(data) ? data : []).forEach(d => {
+      const b = d?.result;
+      if (!b?.transactions) return;
+      b.transactions.forEach(tx => {
+        txs.push({ ...tx, blockTimestamp: parseInt(b.timestamp,16), blockNum: parseInt(b.number,16) });
+      });
+    });
+    txs.sort((a,b) => b.blockNum - a.blockNum);
+
+    if (!txs.length) {
+      list.innerHTML = '<div class="exp-loading">No transactions in last 20 blocks</div>';
+      return;
+    }
+
+    list.innerHTML = txs.slice(0,15).map(tx => {
+      const val  = parseFloat(ethers.utils.formatEther(tx.value||'0x0')).toFixed(4);
+      const from = shortHash(tx.from, 8);
+      const to   = tx.to ? shortHash(tx.to, 8) : 'Contract';
+      return `<div class="exp-row" onclick="expShowTx('${tx.hash}')">
+        <div class="exp-row-left">
+          <div class="exp-icon tx"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
+          <div>
+            <div class="exp-label">${shortHash(tx.hash, 10)}</div>
+            <div class="exp-sub">${from} → ${to}</div>
+          </div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div class="exp-badge blue">${val} KRM</div>
+          <div class="exp-sub" style="margin-top:4px">#${tx.blockNum.toLocaleString()}</div>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e) {
+    if (list) list.innerHTML = '<div class="exp-loading" style="color:#ff7070"><i class="fa-solid fa-circle-exclamation"></i> Node offline</div>';
+  }
+}
+
+async function expShowBlock(hexNum) {
+  const detail = document.getElementById('expDetail');
+  const title  = document.getElementById('expDetailTitle');
+  const body   = document.getElementById('expDetailBody');
+  const grid   = document.getElementById('expGrid');
+  if (!detail) return;
+
+  detail.classList.remove('show');
+  body.innerHTML = '<div class="exp-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading…</div>';
+  detail.classList.add('show');
+  grid.style.display = 'none';
+
+  try {
+    const b   = await rpc('eth_getBlockByNumber', [hexNum, true]);
+    const num = parseInt(b.number, 16);
+    const ts  = new Date(parseInt(b.timestamp,16)*1000).toLocaleString();
+    const diff = parseInt(b.difficulty||'0x0',16).toLocaleString();
+    const gas  = parseInt(b.gasUsed||'0x0',16).toLocaleString();
+    const txCnt = b.transactions?.length || 0;
+
+    title.innerHTML = `<i class="fa-solid fa-cube" style="color:var(--green)"></i> Block #${num.toLocaleString()}`;
+    body.innerHTML = `
+      <div class="exp-k">Block Number</div><div class="exp-v">${num.toLocaleString()}</div>
+      <div class="exp-k">Timestamp</div><div class="exp-v">${ts}</div>
+      <div class="exp-k">Transactions</div><div class="exp-v">${txCnt}</div>
+      <div class="exp-k">Miner</div><div class="exp-v">${b.miner||'—'}</div>
+      <div class="exp-k">Gas Used</div><div class="exp-v">${gas}</div>
+      <div class="exp-k">Difficulty</div><div class="exp-v">${diff}</div>
+      <div class="exp-k">Hash</div><div class="exp-v">${b.hash||'—'}</div>
+      <div class="exp-k">Parent Hash</div><div class="exp-v">${b.parentHash||'—'}</div>
+      ${txCnt > 0 ? `<div class="exp-k" style="grid-column:1/-1;padding-top:16px;border:none;color:#fff;font-family:var(--font-head);font-size:11px;letter-spacing:.1em;text-transform:uppercase">Transactions (${txCnt})</div>
+      ${b.transactions.map(tx => `
+        <div class="exp-k" style="font-size:9px">${shortHash(tx.hash,10)}</div>
+        <div class="exp-v" style="font-size:9px;cursor:pointer;color:var(--green)" onclick="expShowTx('${tx.hash}')">${shortHash(tx.from,8)} → ${tx.to ? shortHash(tx.to,8) : 'Contract'} · ${parseFloat(ethers.utils.formatEther(tx.value||'0x0')).toFixed(4)} KRM</div>
+      `).join('')}` : ''}
+    `;
+  } catch(e) {
+    body.innerHTML = `<div class="exp-k" style="grid-column:1/-1;color:#ff7070">Failed to load block: ${e.message}</div>`;
+  }
+}
+
+async function expShowTx(hash) {
+  const detail = document.getElementById('expDetail');
+  const title  = document.getElementById('expDetailTitle');
+  const body   = document.getElementById('expDetailBody');
+  const grid   = document.getElementById('expGrid');
+  if (!detail) return;
+
+  detail.classList.remove('show');
+  body.innerHTML = '<div class="exp-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading…</div>';
+  detail.classList.add('show');
+  grid.style.display = 'none';
+
+  try {
+    const [tx, receipt] = await Promise.all([
+      rpc('eth_getTransactionByHash', [hash]),
+      rpc('eth_getTransactionReceipt', [hash])
+    ]);
+    if (!tx) throw new Error('Transaction not found');
+
+    const val      = parseFloat(ethers.utils.formatEther(tx.value||'0x0')).toFixed(6);
+    const block    = parseInt(tx.blockNumber||'0x0',16);
+    const gasPrice = (parseInt(tx.gasPrice||'0x0',16)/1e9).toFixed(2);
+    const gasUsed  = receipt ? parseInt(receipt.gasUsed,16).toLocaleString() : '—';
+    const status   = receipt ? (receipt.status==='0x1' ? '✓ Success' : '✗ Failed') : 'Pending';
+
+    title.innerHTML = `<i class="fa-solid fa-arrow-right-arrow-left" style="color:#64a0ff"></i> Transaction`;
+    body.innerHTML = `
+      <div class="exp-k">Hash</div><div class="exp-v">${hash}</div>
+      <div class="exp-k">Status</div><div class="exp-v" style="color:${receipt?.status==='0x1'?'var(--green)':'#ff7070'}">${status}</div>
+      <div class="exp-k">Block</div><div class="exp-v" style="color:var(--green);cursor:pointer" onclick="expShowBlock('${tx.blockNumber}')">#${block.toLocaleString()}</div>
+      <div class="exp-k">From</div><div class="exp-v">${tx.from||'—'}</div>
+      <div class="exp-k">To</div><div class="exp-v">${tx.to||'Contract Creation'}</div>
+      <div class="exp-k">Value</div><div class="exp-v">${val} KRM</div>
+      <div class="exp-k">Gas Used</div><div class="exp-v">${gasUsed}</div>
+      <div class="exp-k">Gas Price</div><div class="exp-v">${gasPrice} Gwei</div>
+      <div class="exp-k">Nonce</div><div class="exp-v">${parseInt(tx.nonce||'0x0',16)}</div>
+    `;
+  } catch(e) {
+    body.innerHTML = `<div class="exp-k" style="grid-column:1/-1;color:#ff7070">Failed to load tx: ${e.message}</div>`;
+  }
+}
+
+async function expShowAddress(addr) {
+  const detail = document.getElementById('expDetail');
+  const title  = document.getElementById('expDetailTitle');
+  const body   = document.getElementById('expDetailBody');
+  const grid   = document.getElementById('expGrid');
+  if (!detail) return;
+
+  detail.classList.remove('show');
+  body.innerHTML = '<div class="exp-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading…</div>';
+  detail.classList.add('show');
+  grid.style.display = 'none';
+
+  try {
+    const [balRaw, nonce] = await Promise.all([
+      rpc('eth_getBalance', [addr, 'latest']),
+      rpc('eth_getTransactionCount', [addr, 'latest'])
+    ]);
+    const bal   = parseFloat(ethers.utils.formatEther(balRaw||'0x0')).toFixed(4);
+    const txCnt = parseInt(nonce||'0x0', 16);
+
+    title.innerHTML = `<i class="fa-solid fa-wallet" style="color:var(--green)"></i> Address`;
+    body.innerHTML = `
+      <div class="exp-k">Address</div><div class="exp-v">${addr}</div>
+      <div class="exp-k">Balance</div><div class="exp-v" style="color:var(--green)">${bal} KRM</div>
+      <div class="exp-k">Transactions</div><div class="exp-v">${txCnt.toLocaleString()}</div>
+    `;
+  } catch(e) {
+    body.innerHTML = `<div class="exp-k" style="grid-column:1/-1;color:#ff7070">Failed to load address: ${e.message}</div>`;
+  }
+}
+
+function expHideDetail() {
+  document.getElementById('expDetail')?.classList.remove('show');
+  const grid = document.getElementById('expGrid');
+  if (grid) grid.style.display = '';
+}
+
+async function expSearch() {
+  const input = document.getElementById('expSearchInput');
+  const q     = (input?.value || '').trim();
+  if (!q) return;
+
+  // Detect type: tx hash (66 chars), address (42 chars), block number
+  if (q.startsWith('0x') && q.length === 66) {
+    goto('explorer');
+    await expShowTx(q);
+  } else if (q.startsWith('0x') && q.length === 42) {
+    goto('explorer');
+    await expShowAddress(q);
+  } else if (/^\d+$/.test(q)) {
+    goto('explorer');
+    await expShowBlock('0x' + parseInt(q).toString(16));
+  } else {
+    toast('Invalid input', 'Enter a tx hash, address (0x…), or block number.', 'error');
+  }
+}
+
+function initExplorer() {
+  // Load on first visit to explorer page
+  expLoadBlocks();
+  expLoadTxs();
+  // Refresh every 12s
+  EXP.timer = setInterval(() => {
+    if (document.getElementById('page-explorer')?.classList.contains('active')) {
+      expLoadBlocks();
+      expLoadTxs();
+    }
+  }, 12000);
+}
+
 /* ═══════════════════════════════════════
    INIT
 ═══════════════════════════════════════ */
@@ -3622,6 +4164,7 @@ window.addEventListener('DOMContentLoaded', () => {
   initWheelNav();
   initHexCanvas();
   runCounters();
+  initExplorer();
   restoreSession();
 });
 </script>
