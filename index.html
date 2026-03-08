@@ -2293,6 +2293,7 @@ const WALLET_META = {
   'com.trustwallet.app': { name:'Trust Wallet', icon:'https://trustwallet.com/assets/images/favicon.png',                       color:'rgba(51,117,187,.15)', border:'rgba(51,117,187,.3)' },
   'com.coinbase.wallet': { name:'Coinbase Wallet',icon:'https://avatars.githubusercontent.com/u/18060234?s=60',                 color:'rgba(0,82,255,.12)',   border:'rgba(0,82,255,.25)' },
   'io.rabby':            { name:'Rabby',         icon:'https://rabby.io/assets/images/logo-128.png',                            color:'rgba(139,92,246,.12)', border:'rgba(139,92,246,.25)' },
+  'app.phantom':         { name:'Phantom',        icon:'https://phantom.app/img/phantom-logo.png',                                  color:'rgba(130,96,230,.12)', border:'rgba(130,96,230,.28)' },
 };
 
 function renderWalletList() {
@@ -2304,9 +2305,27 @@ function renderWalletList() {
 
   // EIP-6963 wallets (most reliable — each wallet exposes its own provider)
   DETECTED_WALLETS.forEach(({ info, provider }) => {
-    // Skip Phantom/Solana wallets — they inject ethereum but aren't EVM-native
-    if (info.rdns === 'app.phantom') return;
     const meta = WALLET_META[info.rdns] || {};
+
+    // Phantom special handling — use window.phantom.ethereum for EVM
+    let evmProvider = provider;
+    if (info.rdns === 'app.phantom') {
+      // Phantom injects EVM provider at window.phantom.ethereum
+      evmProvider = window?.phantom?.ethereum || provider;
+      options.push({
+        id:       'app.phantom',
+        name:     'Phantom',
+        icon:     info.icon || 'https://phantom.app/img/phantom-logo.png',
+        sub:      'EVM · Detected',
+        color:    'rgba(130,96,230,.12)',
+        border:   'rgba(130,96,230,.28)',
+        provider: evmProvider,
+        detected: true,
+        isPhantom: true,
+      });
+      return;
+    }
+
     options.push({
       id:       info.rdns,
       name:     meta.name || info.name,
@@ -2318,6 +2337,21 @@ function renderWalletList() {
       detected: true,
     });
   });
+
+  // Manual Phantom detection if not announced via EIP-6963
+  if (!options.find(o => o.id === 'app.phantom') && window?.phantom?.ethereum) {
+    options.push({
+      id:       'app.phantom',
+      name:     'Phantom',
+      icon:     'https://phantom.app/img/phantom-logo.png',
+      sub:      'EVM · Detected',
+      color:    'rgba(130,96,230,.12)',
+      border:   'rgba(130,96,230,.28)',
+      provider: window.phantom.ethereum,
+      detected: true,
+      isPhantom: true,
+    });
+  }
 
   // Legacy fallback — window.ethereum (only if no EIP-6963 wallets found)
   if (options.length === 0 && window.ethereum) {
@@ -2334,8 +2368,15 @@ function renderWalletList() {
     // Generic fallback
     if (options.length === 0) {
       const raw = window.ethereum;
-      const name = raw.isPhantom ? 'Phantom (EVM)' : raw.isBraveWallet ? 'Brave Wallet' : 'Browser Wallet';
-      options.push({ id:'legacy-generic', name, icon:'', sub:'Injected Provider', color:'rgba(255,255,255,.05)', border:'rgba(255,255,255,.1)', provider:raw, detected:false });
+      let name = 'Browser Wallet';
+      let icon = '';
+      let color = 'rgba(255,255,255,.05)', border = 'rgba(255,255,255,.1)';
+      if (raw.isPhantom || window?.phantom?.ethereum === raw) {
+        name = 'Phantom'; icon = 'https://phantom.app/img/phantom-logo.png';
+        color = 'rgba(130,96,230,.12)'; border = 'rgba(130,96,230,.28)';
+        raw = window?.phantom?.ethereum || raw; // use EVM provider
+      } else if (raw.isBraveWallet) { name = 'Brave Wallet'; }
+      options.push({ id:'legacy-generic', name, icon, sub:'Injected Provider', color, border, provider:raw, detected:false });
     }
   }
 
@@ -3468,12 +3509,13 @@ async function restoreSession() {
       // Prefer MetaMask, skip Phantom
       const mm = window._detectedProviders.find(p =>
         p.info.rdns === 'io.metamask' ||
-        (p.info.name?.toLowerCase().includes('metamask') && p.info.rdns !== 'app.phantom')
+        p.info.name?.toLowerCase().includes('metamask')
       );
       if (mm) raw = mm.provider;
       else {
-        const notPhantom = window._detectedProviders.find(p => p.info.rdns !== 'app.phantom');
-        if (notPhantom) raw = notPhantom.provider;
+        // Use any detected provider; prefer non-Phantom for auto-restore
+        const nonPhantom = window._detectedProviders.find(p => p.info.rdns !== 'app.phantom');
+        raw = (nonPhantom || window._detectedProviders[0]).provider;
       }
     }
 
