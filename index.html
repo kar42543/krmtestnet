@@ -1865,7 +1865,7 @@ footer {
       </div>
       <div class="net-row">
         <span class="net-key">RPC URL</span>
-        <span class="net-val" style="color:var(--muted2)">http://localhost:8545</span>
+        <span class="net-val" style="color:var(--muted2)">https://relationless-improperly-nettie.ngrok-free.dev</span>
       </div>
       <div class="net-row">
         <span class="net-key">Chain ID</span>
@@ -1898,7 +1898,7 @@ footer {
             How do I add KarChain to MetaMask?
             <i class="fa-solid fa-plus faq-icon"></i>
           </button>
-          <div class="faq-a"><div class="faq-a-inner">Click <strong>"Connect Wallet"</strong> — MetaMask will be prompted to add KarChain automatically. Alternatively add it manually: RPC <code>http://localhost:8545</code>, Chain ID <code>1337</code>, Symbol <code>KRM</code>, Decimals <code>18</code>.</div></div>
+          <div class="faq-a"><div class="faq-a-inner">Click <strong>"Connect Wallet"</strong> — MetaMask will be prompted to add KarChain automatically. Alternatively add it manually: RPC <code>https://relationless-improperly-nettie.ngrok-free.dev</code>, Chain ID <code>1337</code>, Symbol <code>KRM</code>, Decimals <code>18</code>.</div></div>
         </div>
         <div class="faq-item">
           <button class="faq-q" onclick="toggleFaq(this)">
@@ -1926,7 +1926,7 @@ footer {
             I need localhost:8545 — how do I run the node?
             <i class="fa-solid fa-plus faq-icon"></i>
           </button>
-          <div class="faq-a"><div class="faq-a-inner">Download the KarChain node binary from our GitHub releases page, run <code>karchain --testnet</code>, and the RPC will be available at <code>http://localhost:8545</code>. Full documentation available in the repository. For questions, join the Telegram.</div></div>
+          <div class="faq-a"><div class="faq-a-inner">Download the KarChain node binary from our GitHub releases page, run <code>karchain --testnet</code>, and the RPC will be available at <code>https://relationless-improperly-nettie.ngrok-free.dev</code>. Full documentation available in the repository. For questions, join the Telegram.</div></div>
         </div>
       </div>
     </div>
@@ -1987,7 +1987,7 @@ const CFG = {
   chainId:    1337,
   chainHex:   '0x539',
   chainName:  'KarChain',
-  rpc:        'http://localhost:8545',   // Besu --rpc-http-enabled
+  rpc:        'https://relationless-improperly-nettie.ngrok-free.dev',   // Besu via ngrok
   symbol:     'KRM',
   decimals:   18,
   treasury:   '0x018fe8087035B3C5ba00E0EB7aB47d24297CCA5c',
@@ -2945,8 +2945,11 @@ function animateCounter(el, from, to, dur=1600) {
 async function rpc(method, params=[]) {
   const r = await fetch(CFG.rpc, {
     method:  'POST',
-    headers: { 'Content-Type':'application/json' },
-    body:    JSON.stringify({ jsonrpc:'2.0', id:1, method, params }),
+    headers: {
+      'Content-Type':              'application/json',
+      'ngrok-skip-browser-warning': 'true',   // bypass ngrok interstitial
+    },
+    body: JSON.stringify({ jsonrpc:'2.0', id:1, method, params }),
   });
   const d = await r.json();
   if (d.error) throw new Error(`${method}: ${d.error.message}`);
@@ -2957,8 +2960,11 @@ async function rpc(method, params=[]) {
 async function rpcBatch(calls) {
   const r = await fetch(CFG.rpc, {
     method:  'POST',
-    headers: { 'Content-Type':'application/json' },
-    body:    JSON.stringify(calls.map((c,i) => ({ jsonrpc:'2.0', id:i, ...c }))),
+    headers: {
+      'Content-Type':              'application/json',
+      'ngrok-skip-browser-warning': 'true',
+    },
+    body: JSON.stringify(calls.map((c,i) => ({ jsonrpc:'2.0', id:i, ...c }))),
   });
   const arr = await r.json();
   return arr.sort((a,b) => a.id - b.id).map(x => x.result ?? null);
