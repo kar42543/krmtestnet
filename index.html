@@ -249,7 +249,7 @@ nav.scrolled::after { opacity:1; }
 
 /* ── WALLET DROPDOWN ── */
 .wallet-dd {
-  position:fixed; top:76px; right:20px; width:308px;
+  position:fixed; top:76px; right:20px; width:308px; max-width:calc(100vw - 24px);
   background:#030503; border:1px solid rgba(61,255,122,.15);
   border-radius:18px; overflow:hidden;
   box-shadow:0 20px 60px rgba(0,0,0,.95);
@@ -482,6 +482,11 @@ nav.scrolled::after { opacity:1; }
 .hero-inner {
   max-width:1280px; margin:0 auto; width:100%;
   display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:center;
+}
+@media(max-width:1100px) {
+  .hero-inner { grid-template-columns:1fr; gap:40px; }
+  .hero-visual { display:none; }
+  .hero-h1 { font-size:clamp(40px,7vw,64px); }
 }
 .hero-badge {
   display:inline-flex; align-items:center; gap:10px;
@@ -1220,72 +1225,124 @@ footer {
   .eco-grid { grid-template-columns:1fr 1fr; gap:16px; }
 }
 @media(max-width:900px) {
-  /* Nav: collapse to logo + burger, hide center links */
+  /* Nav */
   .nav-links { display:none !important; }
   .nav-inner { grid-template-columns:auto 1fr; }
   .nav-right-slot { justify-self:end; }
   .burger { display:flex; }
-  /* Layout */
+  /* Hero */
+  .hero { padding:100px 20px 50px; }
+  .hero-inner { grid-template-columns:1fr; gap:48px; }
+  .hero-visual { display:none; }
+  .hero-h1 { font-size:clamp(34px,8vw,56px); }
+  .hero-desc { font-size:15px; max-width:100%; margin-bottom:32px; }
+  .hero-btns { flex-direction:column; align-items:stretch; gap:12px; }
+  .hero-btns .btn { width:100%; justify-content:center; }
+  /* Sections */
+  .section-title { font-size:clamp(26px,6.5vw,40px); }
+  .vision-hero,.eco-hero,.support-hero { padding:100px 20px 50px; }
+  /* Stats */
+  .stats-inner { grid-template-columns:repeat(3,1fr); gap:1px; }
+  /* Layout blocks */
   .faucet-grid { grid-template-columns:1fr; padding:20px; }
   .task-grid { grid-template-columns:1fr; }
-  .stats-inner { grid-template-columns:1fr 1fr 1fr; gap:1px; }
   .roadmap-track { grid-template-columns:1fr 1fr; }
   .eco-grid { grid-template-columns:1fr; }
   .sup-grid { grid-template-columns:1fr; }
   .foot-inner { grid-template-columns:1fr; gap:32px; }
+  /* Dashboard */
   .balance-area { flex-direction:column; gap:16px; }
   .bal-right { align-items:flex-start; flex-direction:row; flex-wrap:wrap; gap:10px; }
-  .bal-num { font-size:42px; }
+  .bal-num { font-size:38px; }
   .panel-header { flex-direction:column; align-items:flex-start; gap:10px; }
-  .hero { padding:110px 20px 60px; }
-  .hero-h1 { font-size:clamp(38px,9vw,60px); }
-  .hero-desc { font-size:15px; }
-  .section-title { font-size:clamp(28px,7vw,42px); }
-  .vision-hero,.eco-hero,.support-hero { padding:110px 20px 60px; }
+  /* Vision */
   .v-points { gap:32px; }
   .roadmap-section { margin-bottom:48px; }
+  /* Wallet dropdown */
+  .wallet-dd { right:12px; width:290px; }
 }
+
 @media(max-width:640px) {
-  .stats-inner { grid-template-columns:1fr 1fr 1fr; }
-  .stat-item { padding:20px 16px; }
-  .stat-num { font-size:26px; }
+  /* Nav */
+  .nav-cta { padding:6px 10px; gap:6px; }
+  .nav-cta .cta-text { display:none; }          /* hide text, show icon only when connected */
+  .nav-cta.is-connected .cta-text { display:block; font-size:9px; max-width:72px; overflow:hidden; text-overflow:ellipsis; }
+  /* Stats — 2 wide + 2 + 2 */
+  .stats-inner { grid-template-columns:1fr 1fr; }
+  .stat-item { padding:18px 12px; }
+  .stat-num { font-size:22px; }
+  .stat-lbl { font-size:9px; }
+  /* Hero */
+  .hero { padding:88px 16px 40px; }
+  .hero-h1 { font-size:clamp(30px,8vw,44px); letter-spacing:-.02em; }
+  .hero-desc { font-size:14px; margin-bottom:28px; }
+  .hero-badge { font-size:9px; padding:6px 12px; margin-bottom:24px; }
+  /* Roadmap */
   .roadmap-track { grid-template-columns:1fr; }
   .rm { border-right:none; border-bottom:1px solid var(--border2); }
   .rm:last-child { border-bottom:none; }
-  .panel-header { padding:16px 20px; }
-  .panel-body { padding:20px; }
-  .faucet-grid { padding:16px; gap:14px; }
-  .tasks-wrap { padding:16px; }
-  .progress-bar-area { padding:14px 16px 18px; }
-  .tx-area { padding:0 16px 20px; }
-  .balance-area { padding:20px 16px; }
-  .bal-num { font-size:36px; }
-  .bal-sym { font-size:15px; padding:3px 10px; }
+  /* Panel */
+  .panel-header { padding:16px 16px; }
+  .panel-body { padding:16px; }
+  .panel-title { font-size:13px; }
+  /* Faucet */
+  .faucet-grid { padding:14px; gap:12px; }
+  .faucet-card { padding:16px; }
+  .faucet-card h3 { font-size:14px; }
+  /* Tasks */
+  .tasks-wrap { padding:14px; }
+  .task-grid { gap:10px; }
+  .tasks-header { flex-direction:column; align-items:flex-start; gap:6px; }
+  /* Balance */
+  .balance-area { padding:16px; }
+  .bal-num { font-size:32px; }
+  .bal-sym { font-size:14px; padding:3px 8px; }
   .bal-right { flex-direction:column; align-items:flex-start; gap:8px; }
-  .locked-view { padding:56px 20px; }
-  .nav-cta .cta-text { font-size:10px; }
+  .bal-label { font-size:10px; }
+  /* Misc */
+  .locked-view { padding:48px 16px; }
+  .locked-title { font-size:20px; }
+  .locked-sub { font-size:13px; }
   .foot-col { display:none; }
   .foot-brand { display:block; }
   .foot-bottom { flex-direction:column; align-items:flex-start; gap:6px; }
-  .sup-card { padding:20px; }
-  .eco-card { padding:22px; }
-  .faucet-card { padding:16px; }
-  .task-grid { gap:12px; }
-  .hero-btns { flex-direction:column; align-items:flex-start; }
-  .hero-btns .btn { width:100%; justify-content:center; }
-  .tasks-header { flex-direction:column; align-items:flex-start; gap:6px; }
-  .modal { padding:24px 20px; }
-  .net-info-box { padding:20px; }
-  .faq-q { padding:14px 16px; font-size:13px; }
-  .support-hero,.eco-hero,.vision-hero { padding:100px 16px 48px; }
-  .dashboard-wrap { padding:40px 16px 80px; }
+  .sup-card { padding:18px; }
+  .eco-card { padding:18px; }
+  .modal { padding:20px 16px; width:calc(100vw - 32px); max-width:none; }
+  .wallet-option { padding:12px; }
+  .net-info-box { padding:16px; }
+  .faq-q { padding:12px 14px; font-size:12px; }
+  .support-hero,.eco-hero,.vision-hero { padding:88px 16px 40px; }
+  .dashboard-wrap { padding:32px 14px 70px; }
+  .section-head { margin-bottom:32px; }
+  .section-tag { font-size:9px; }
+  .section-title { font-size:clamp(22px,6vw,34px); }
+  .section-sub { font-size:13px; }
+  /* Progress bar */
+  .progress-bar-area { padding:12px 14px 16px; }
+  .tx-area { padding:0 14px 16px; }
+  /* Vision page */
+  .hex-canvas-wrap { max-width:320px; margin:0 auto; }
+  .v-points { gap:20px; }
+  .v-point-title { font-size:15px; }
+  /* Stats live bar */
+  .stats-live-bar { padding:6px 16px 0; gap:8px; }
+  .stats-live-rpc { display:none; }
 }
+
 @media(max-width:400px) {
-  .logo-name { font-size:14px; letter-spacing:.16em; }
+  .logo-name { font-size:13px; letter-spacing:.14em; }
   .logo-sub { display:none; }
-  .bal-num { font-size:30px; }
+  .logo-icon { width:30px; height:30px; }
+  .bal-num { font-size:28px; }
   .stats-inner { grid-template-columns:1fr 1fr; }
-  .nav-inner { padding:0 16px; }
+  .nav-inner { padding:0 14px; }
+  .hero-h1 { font-size:28px; }
+  .hero-desc { font-size:13px; }
+  .btn { padding:12px 20px; font-size:11px; }
+  .stat-item { padding:14px 10px; }
+  .stat-num { font-size:18px; }
+  .wallet-dd { right:8px; width:calc(100vw - 16px); }
 }
 </style>
 </head>
@@ -1749,7 +1806,7 @@ footer {
 
       <!-- Hex visualiser -->
       <div class="hex-grid-wrap reveal reveal-delay-2">
-        <canvas id="hexCanvas" width="500" height="500" style="width:100%;height:auto"></canvas>
+        <canvas id="hexCanvas" width="520" height="460" style="width:100%;height:auto"></canvas>
       </div>
     </div>
 
@@ -2929,51 +2986,273 @@ function initHexCanvas() {
   if (!c) return;
   const ctx = c.getContext('2d');
   const W = c.width, H = c.height;
-  let t = 0;
 
-  const hexes = [];
-  const rows = 8, cols = 9;
-  const hw = 28, hh = 32;
-  const dx = hw * 1.75, dy = hh * 1.52;
-  for (let r = 0; r < rows; r++) {
-    for (let col = 0; col < cols; col++) {
-      const x = 30 + col * dx + (r%2===1 ? dx/2 : 0);
-      const y = 30 + r * dy;
-      if (x < W-20 && y < H-20) {
-        hexes.push({ x, y, phase: Math.random()*Math.PI*2, speed: Math.random()*.015+.005 });
-      }
+  // ── Hex grid setup ──────────────────────────────────────────────
+  const HEX_R  = 22;     // hex radius
+  const HEX_W  = HEX_R * 2;
+  const HEX_H  = Math.sqrt(3) * HEX_R;
+  const COL_DX = HEX_W  * 0.75;
+  const ROW_DY = HEX_H;
+
+  const COLS = 10, ROWS = 9;
+
+  // Build grid array [col][row] → {x, y, idx}
+  const grid = [];
+  for (let col = 0; col < COLS; col++) {
+    grid[col] = [];
+    for (let row = 0; row < ROWS; row++) {
+      const x = 25 + col * COL_DX;
+      const y = 25 + row * ROW_DY + (col % 2 === 1 ? ROW_DY / 2 : 0);
+      grid[col][row] = { x, y, col, row };
     }
   }
 
-  const drawHex = (x, y, size, alpha) => {
-    ctx.beginPath();
-    for (let i = 0; i < 6; i++) {
-      const angle = (i * Math.PI) / 3 - Math.PI/6;
-      const px = x + size * Math.cos(angle);
-      const py = y + size * Math.sin(angle);
-      i === 0 ? ctx.moveTo(px,py) : ctx.lineTo(px,py);
-    }
-    ctx.closePath();
-    ctx.strokeStyle = `rgba(61,255,122,${alpha})`;
-    ctx.lineWidth = 1;
-    ctx.stroke();
+  // Flat list for background animation
+  const allHexes = grid.flat().map(h => ({
+    ...h,
+    phase: Math.random() * Math.PI * 2,
+    speed: Math.random() * 0.012 + 0.004,
+    lit: 0,        // 0=idle, 1=lighting-up, 2=on, 3=fading
+    litAlpha: 0,
+  }));
+
+  // ── Letter pixel maps (5×7 grid each, 0=off 1=on) ─────────────
+  const LETTERS = {
+    K: [
+      [1,0,0,0,1],
+      [1,0,0,1,0],
+      [1,0,1,0,0],
+      [1,1,0,0,0],
+      [1,0,1,0,0],
+      [1,0,0,1,0],
+      [1,0,0,0,1],
+    ],
+    A: [
+      [0,1,1,1,0],
+      [1,0,0,0,1],
+      [1,0,0,0,1],
+      [1,1,1,1,1],
+      [1,0,0,0,1],
+      [1,0,0,0,1],
+      [1,0,0,0,1],
+    ],
+    R: [
+      [1,1,1,1,0],
+      [1,0,0,0,1],
+      [1,0,0,0,1],
+      [1,1,1,1,0],
+      [1,0,1,0,0],
+      [1,0,0,1,0],
+      [1,0,0,0,1],
+    ],
+    C: [
+      [0,1,1,1,0],
+      [1,0,0,0,1],
+      [1,0,0,0,0],
+      [1,0,0,0,0],
+      [1,0,0,0,0],
+      [1,0,0,0,1],
+      [0,1,1,1,0],
+    ],
+    H: [
+      [1,0,0,0,1],
+      [1,0,0,0,1],
+      [1,0,0,0,1],
+      [1,1,1,1,1],
+      [1,0,0,0,1],
+      [1,0,0,0,1],
+      [1,0,0,0,1],
+    ],
+    I: [
+      [1,1,1,1,1],
+      [0,0,1,0,0],
+      [0,0,1,0,0],
+      [0,0,1,0,0],
+      [0,0,1,0,0],
+      [0,0,1,0,0],
+      [1,1,1,1,1],
+    ],
+    N: [
+      [1,0,0,0,1],
+      [1,1,0,0,1],
+      [1,0,1,0,1],
+      [1,0,0,1,1],
+      [1,0,0,0,1],
+      [1,0,0,0,1],
+      [1,0,0,0,1],
+    ],
   };
 
-  const loop = () => {
-    ctx.clearRect(0,0,W,H);
-    t += 1;
-    hexes.forEach(h => {
+  const WORD    = ['K','A','R','C','H','A','I','N'];
+  const LETTER_W = 5;  // pixel columns per letter
+  const LETTER_H = 7;  // pixel rows per letter
+
+  // Map each letter pixel to a hex cell
+  // Layout: letters shown one at a time centered in canvas
+  // We'll use a 5-col × 7-row slice of the hex grid centered
+  const GRID_OFFSET_COL = Math.floor((COLS - LETTER_W) / 2);  // ~2
+  const GRID_OFFSET_ROW = Math.floor((ROWS - LETTER_H) / 2);  // ~1
+
+  function getLetterHexes(letter) {
+    const map = LETTERS[letter];
+    if (!map) return [];
+    const result = [];
+    for (let row = 0; row < LETTER_H; row++) {
+      for (let col = 0; col < LETTER_W; col++) {
+        if (map[row][col]) {
+          const gc = GRID_OFFSET_COL + col;
+          const gr = GRID_OFFSET_ROW + row;
+          if (grid[gc] && grid[gc][gr]) {
+            result.push(grid[gc][gr]);
+          }
+        }
+      }
+    }
+    return result;
+  }
+
+  // ── State machine ────────────────────────────────────────────────
+  let letterIdx   = 0;      // which letter (0–7)
+  let phase       = 'idle'; // idle | lighting | hold | extinguishing
+  let phaseTimer  = 0;
+  let activeHexSet = new Set(); // keys "col,row" of lit hexes this letter
+
+  const LIGHT_DELAY   = 60;   // ms between each hex lighting up
+  const HOLD_DUR      = 900;  // ms letter stays fully lit
+  const FADE_DUR      = 400;  // ms each hex fades out
+  const LETTER_GAP    = 300;  // ms gap between letters
+  const LIGHT_SPEED   = 0.08; // alpha per frame ramp-up speed
+  const FADE_SPEED    = 0.025;
+
+  // Per-hex letter state
+  const hexState = new Map(); // key → {litAlpha, mode: 'rising'|'hold'|'fading'}
+
+  let lightQueue  = [];  // hexes still to light up
+  let lastLightMs = 0;
+  let holdStart   = 0;
+  let fadeStart   = 0;
+  let letterStart = 0;
+  let gapStart    = 0;
+  let animPhase   = 'gap'; // gap | lighting | hold | fading
+
+  function startLetter(idx) {
+    letterIdx  = idx % WORD.length;
+    lightQueue = [...getLetterHexes(WORD[letterIdx])];
+    // Shuffle so hexes light up in random order
+    for (let i = lightQueue.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [lightQueue[i], lightQueue[j]] = [lightQueue[j], lightQueue[i]];
+    }
+    hexState.clear();
+    activeHexSet.clear();
+    animPhase   = 'lighting';
+    lastLightMs = performance.now();
+  }
+
+  function hexKey(h) { return `${h.col},${h.row}`; }
+
+  // ── Draw one hex ─────────────────────────────────────────────────
+  function drawHex(x, y, size, strokeAlpha, fillAlpha) {
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const angle = (i * Math.PI) / 3 - Math.PI / 6;
+      const px = x + size * Math.cos(angle);
+      const py = y + size * Math.sin(angle);
+      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    if (fillAlpha > 0) {
+      ctx.fillStyle = `rgba(61,255,122,${fillAlpha})`;
+      ctx.fill();
+    }
+    if (strokeAlpha > 0) {
+      ctx.strokeStyle = strokeAlpha > 0.4 ? `rgba(80,255,140,${strokeAlpha})` : `rgba(61,255,122,${strokeAlpha})`;
+      ctx.lineWidth = 1.0;
+      ctx.stroke();
+    }
+  }
+
+  // ── Main render loop ─────────────────────────────────────────────
+  let lastMs = performance.now();
+  startLetter(0);
+
+  function loop(now) {
+    ctx.clearRect(0, 0, W, H);
+
+    // ── Background hex grid (faint pulsing) ──
+    allHexes.forEach(h => {
       h.phase += h.speed;
-      const a = (Math.sin(h.phase)*0.5+0.5) * 0.25 + 0.03;
-      drawHex(h.x, h.y, 22, a);
-      if (a > 0.2) {
-        ctx.fillStyle = `rgba(61,255,122,${(a-0.2)*0.3})`;
-        ctx.fill();
+      const a = (Math.sin(h.phase) * 0.5 + 0.5) * 0.06 + 0.015;
+      drawHex(h.x, h.y, HEX_R - 1, a, 0);
+    });
+
+    // ── Letter animation state machine ──
+    if (animPhase === 'lighting') {
+      // Drip-feed hexes from queue
+      while (lightQueue.length > 0 && now - lastLightMs > LIGHT_DELAY) {
+        const hx = lightQueue.pop();
+        const k  = hexKey(hx);
+        hexState.set(k, { x: hx.x, y: hx.y, alpha: 0, mode: 'rising' });
+        activeHexSet.add(k);
+        lastLightMs = now;
+      }
+      if (lightQueue.length === 0) {
+        // All hexes queued — wait for them to finish rising
+        const allRisen = [...hexState.values()].every(s => s.mode !== 'rising' || s.alpha >= 0.85);
+        if (allRisen) {
+          animPhase = 'hold';
+          holdStart = now;
+        }
+      }
+    }
+
+    if (animPhase === 'hold' && now - holdStart > HOLD_DUR) {
+      animPhase = 'fading';
+      fadeStart = now;
+      hexState.forEach(s => { s.mode = 'fading'; });
+    }
+
+    if (animPhase === 'fading') {
+      const allFaded = [...hexState.values()].every(s => s.alpha <= 0);
+      if (allFaded) {
+        animPhase = 'gap';
+        gapStart  = now;
+      }
+    }
+
+    if (animPhase === 'gap' && now - gapStart > LETTER_GAP) {
+      startLetter(letterIdx + 1);
+    }
+
+    // ── Update + draw lit hexes ──
+    hexState.forEach((s, k) => {
+      if (s.mode === 'rising') {
+        s.alpha = Math.min(s.alpha + LIGHT_SPEED, 0.72);
+        if (s.alpha >= 1.0) s.mode = 'hold';
+      } else if (s.mode === 'fading') {
+        s.alpha = Math.max(s.alpha - FADE_SPEED, 0);
+      }
+
+      if (s.alpha > 0) {
+        const fa = s.alpha * 0.18;
+        const sa = s.alpha * 0.65;
+        drawHex(s.x, s.y, HEX_R - 1, sa, fa);
+
+        // Glow effect on bright hexes
+        if (s.alpha > 0.68) {
+          ctx.save();
+          ctx.shadowBlur  = 10;
+          ctx.shadowColor = `rgba(61,255,122,${s.alpha * 0.28})`;
+          drawHex(s.x, s.y, HEX_R - 1, 0, 0);
+          ctx.restore();
+        }
       }
     });
+
     requestAnimationFrame(loop);
-  };
-  loop();
+  }
+
+  requestAnimationFrame(loop);
 }
 
 /* ═══════════════════════════════════════
