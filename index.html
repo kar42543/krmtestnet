@@ -1173,7 +1173,7 @@ footer {
   /* Layout */
   .faucet-grid { grid-template-columns:1fr; padding:20px; }
   .task-grid { grid-template-columns:1fr; }
-  .stats-inner { grid-template-columns:1fr 1fr 1fr; }
+  .stats-inner { grid-template-columns:1fr 1fr 1fr; gap:1px; }
   .roadmap-track { grid-template-columns:1fr 1fr; }
   .eco-grid { grid-template-columns:1fr; }
   .sup-grid { grid-template-columns:1fr; }
@@ -1191,7 +1191,7 @@ footer {
   .roadmap-section { margin-bottom:48px; }
 }
 @media(max-width:640px) {
-  .stats-inner { grid-template-columns:1fr 1fr; }
+  .stats-inner { grid-template-columns:1fr 1fr 1fr; }
   .stat-item { padding:20px 16px; }
   .stat-num { font-size:26px; }
   .roadmap-track { grid-template-columns:1fr; }
@@ -1451,38 +1451,43 @@ footer {
     </div>
   </section>
 
-  <!-- Stats strip -->
+  <!-- Stats strip — Besu Ethash PoW live data -->
   <div class="stats-strip">
     <div class="stats-live-bar">
-      <span class="stats-live-dot"></span>
-      <span class="stats-live-txt">Live Chain Data</span>
+      <span class="stats-live-dot" id="statsLiveDot"></span>
+      <span class="stats-live-txt">Live Chain Data · Besu</span>
       <span class="stats-live-rpc" id="statsRpcStatus">Connecting to node…</span>
     </div>
     <div class="stats-inner">
       <div class="stat-item reveal">
         <div class="stat-tick"></div>
-        <div class="stat-num"><span id="s-blocks">0</span></div>
+        <div class="stat-num"><span id="s-blocks">—</span></div>
         <div class="stat-lbl">Blocks Minted</div>
       </div>
       <div class="stat-item reveal reveal-delay-1">
         <div class="stat-tick"></div>
-        <div class="stat-num"><span id="s-txs">0</span></div>
+        <div class="stat-num"><span id="s-txs">—</span></div>
         <div class="stat-lbl">Transactions</div>
       </div>
       <div class="stat-item reveal reveal-delay-2">
         <div class="stat-tick"></div>
-        <div class="stat-num"><span id="s-validators">0</span></div>
-        <div class="stat-lbl">Validators</div>
+        <div class="stat-num" style="font-size:clamp(16px,2.2vw,24px)"><span id="s-hashrate">—</span></div>
+        <div class="stat-lbl">Hashrate</div>
       </div>
       <div class="stat-item reveal reveal-delay-3">
         <div class="stat-tick"></div>
-        <div class="stat-num"><span id="s-nodes">0</span></div>
-        <div class="stat-lbl">Active Nodes</div>
+        <div class="stat-num" style="font-size:clamp(16px,2.2vw,24px)"><span id="s-difficulty">—</span></div>
+        <div class="stat-lbl">Difficulty</div>
       </div>
       <div class="stat-item reveal reveal-delay-4">
         <div class="stat-tick"></div>
-        <div class="stat-num" style="font-size:clamp(18px,2.5vw,26px)"><span id="s-gas">—</span></div>
+        <div class="stat-num" style="font-size:clamp(16px,2.2vw,24px)"><span id="s-gas">—</span></div>
         <div class="stat-lbl">Gas Price</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-4">
+        <div class="stat-tick"></div>
+        <div class="stat-num"><span id="s-peers">—</span></div>
+        <div class="stat-lbl">Peers</div>
       </div>
     </div>
   </div>
@@ -1982,7 +1987,7 @@ const CFG = {
   chainId:    1337,
   chainHex:   '0x539',
   chainName:  'KarChain',
-  rpc:        'http://localhost:8545',
+  rpc:        'http://localhost:8545',   // Besu --rpc-http-enabled
   symbol:     'KRM',
   decimals:   18,
   treasury:   '0x018fe8087035B3C5ba00E0EB7aB47d24297CCA5c',
@@ -2914,239 +2919,247 @@ function initHexCanvas() {
 /* ═══════════════════════════════════════
    COUNTER ANIMATION
 ═══════════════════════════════════════ */
-function animateCounter(el, from, to, dur=1800) {
+function animateCounter(el, from, to, dur=1600) {
   if (!el) return;
-  // Cancel any running animation on this element
-  if (el._animRaf) cancelAnimationFrame(el._animRaf);
+  if (el._raf) cancelAnimationFrame(el._raf);
   const start = performance.now();
-  const diff  = to - from;
-  const step = now => {
+  const range = to - from;
+  const step  = now => {
     const p = Math.min((now - start) / dur, 1);
-    const e = 1 - Math.pow(1 - p, 3); // ease-out-cubic
-    el.textContent = Math.round(from + e * diff).toLocaleString();
-    if (p < 1) el._animRaf = requestAnimationFrame(step);
-    else el._animRaf = null;
+    const e = 1 - Math.pow(1 - p, 3);
+    el.textContent = Math.round(from + e * range).toLocaleString();
+    if (p < 1) el._raf = requestAnimationFrame(step);
+    else el._raf = null;
   };
-  el._animRaf = requestAnimationFrame(step);
+  el._raf = requestAnimationFrame(step);
 }
 
 /* ═══════════════════════════════════════
-   LIVE CHAIN STATS — real RPC data
+   BESU RPC ENGINE
+   Chain: KarChain | Client: Hyperledger Besu
+   Consensus: Ethash PoW (fixedDifficulty:1000)
+   APIs: ETH, NET, WEB3, MINER, ADMIN, TXPOOL
 ═══════════════════════════════════════ */
-const STATS = {
-  blocks:     0,
-  txs:        0,
-  validators: 0,
-  nodes:      0,
-  gasPrice:   0,
-  tps:        0,
-  _interval:  null,
-  _ws:        null,
-};
 
-// Low-level JSON-RPC call (works without ethers.js, direct to node)
-async function rpc(method, params = []) {
-  const res = await fetch(CFG.rpc, {
+// Single JSON-RPC call
+async function rpc(method, params=[]) {
+  const r = await fetch(CFG.rpc, {
     method:  'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
+    headers: { 'Content-Type':'application/json' },
+    body:    JSON.stringify({ jsonrpc:'2.0', id:1, method, params }),
   });
-  const data = await res.json();
-  if (data.error) throw new Error(data.error.message);
-  return data.result;
+  const d = await r.json();
+  if (d.error) throw new Error(`${method}: ${d.error.message}`);
+  return d.result;
 }
 
-// Count total transactions across all blocks (sample last N blocks for speed)
-async function fetchTotalTxCount(latestBlock) {
-  // For small testnets we can count exactly; for large ones we sample
-  const SCAN_DEPTH = Math.min(latestBlock, 500); // scan last 500 blocks max
-  let total = 0;
+// Batch JSON-RPC — send array, get array back
+async function rpcBatch(calls) {
+  const r = await fetch(CFG.rpc, {
+    method:  'POST',
+    headers: { 'Content-Type':'application/json' },
+    body:    JSON.stringify(calls.map((c,i) => ({ jsonrpc:'2.0', id:i, ...c }))),
+  });
+  const arr = await r.json();
+  return arr.sort((a,b) => a.id - b.id).map(x => x.result ?? null);
+}
 
-  // Batch request — get block tx counts without downloading full blocks
-  const batchSize = 20;
-  const requests  = [];
-  for (let i = latestBlock; i > latestBlock - SCAN_DEPTH; i--) {
-    requests.push({ jsonrpc:'2.0', id: i, method:'eth_getBlockByNumber', params:['0x'+i.toString(16), false] });
+// Format hashrate: H/s → KH/s → MH/s → GH/s
+function fmtHashrate(hps) {
+  if (hps === 0) return '0 H/s';
+  if (hps < 1e3)  return hps.toFixed(0) + ' H/s';
+  if (hps < 1e6)  return (hps/1e3).toFixed(2) + ' KH/s';
+  if (hps < 1e9)  return (hps/1e6).toFixed(2) + ' MH/s';
+  return (hps/1e9).toFixed(2) + ' GH/s';
+}
+
+// Format difficulty
+function fmtDifficulty(d) {
+  if (d < 1e3)  return d.toString();
+  if (d < 1e6)  return (d/1e3).toFixed(1) + 'K';
+  if (d < 1e9)  return (d/1e6).toFixed(2) + 'M';
+  if (d < 1e12) return (d/1e9).toFixed(2) + 'G';
+  return (d/1e12).toFixed(2) + 'T';
+}
+
+// Count txs: scan last N blocks in batches of 20
+async function countTotalTxs(latestBlockNum) {
+  const DEPTH   = Math.min(latestBlockNum + 1, 1000);
+  const batches = [];
+  const batchSz = 20;
+
+  for (let start = latestBlockNum; start > latestBlockNum - DEPTH; start -= batchSz) {
+    const calls = [];
+    for (let i = start; i > Math.max(start - batchSz, latestBlockNum - DEPTH); i--) {
+      calls.push({ method:'eth_getBlockByNumber', params:['0x'+i.toString(16), false] });
+    }
+    batches.push(calls);
   }
 
-  // Split into batches of 20
-  for (let i = 0; i < requests.length; i += batchSize) {
-    const batch  = requests.slice(i, i + batchSize);
+  let total = 0;
+  let scanned = 0;
+  for (const batch of batches) {
     try {
-      const res  = await fetch(CFG.rpc, {
-        method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(batch),
-      });
-      const data = await res.json();
-      data.forEach(item => {
-        if (item.result?.transactions) total += item.result.transactions.length;
-      });
+      const results = await rpcBatch(batch);
+      results.forEach(b => { if (b?.transactions) { total += b.transactions.length; scanned++; } });
     } catch(_) { break; }
   }
 
-  // If we only scanned partial history, extrapolate
-  if (latestBlock > SCAN_DEPTH && SCAN_DEPTH > 0) {
-    const avg = total / SCAN_DEPTH;
-    total = Math.round(avg * latestBlock);
+  // Extrapolate if we couldn't scan full history
+  if (scanned > 0 && latestBlockNum + 1 > DEPTH) {
+    const avg = total / scanned;
+    total = Math.round(avg * (latestBlockNum + 1));
   }
   return total;
 }
 
-// Fetch validator/peer count — varies by client
-async function fetchNetworkStats() {
-  let peers = 0, validators = 0;
-
-  // net_peerCount — available on Geth, Besu, most clients
-  try {
-    const pc = await rpc('net_peerCount');
-    peers = parseInt(pc, 16);
-  } catch(_) {}
-
-  // Geth admin_peers (needs --rpc.enabledeprecatedpersonal or admin API)
-  try {
-    const ap = await rpc('admin_peers');
-    if (Array.isArray(ap)) peers = ap.length;
-  } catch(_) {}
-
-  // Clique (PoA) — clique_getSigners
-  try {
-    const signers = await rpc('clique_getSigners', ['latest']);
-    if (Array.isArray(signers)) validators = signers.length;
-  } catch(_) {}
-
-  // Hardhat/Anvil — no real validators, show accounts as "nodes"
-  if (validators === 0) {
-    try {
-      const accs = await rpc('eth_accounts');
-      if (Array.isArray(accs) && accs.length > 0) validators = accs.length;
-    } catch(_) {}
-  }
-
-  // Fallback: peers + 1 (self)
-  if (validators === 0) validators = Math.max(peers, 1);
-
-  return { peers, validators };
-}
+// State
+const CS = { blocks:0, txs:0, peers:0, ok:false, _timer:null };
 
 async function loadChainStats() {
+  const elStatus = document.getElementById('statsRpcStatus');
+  const elDot    = document.getElementById('statsLiveDot');
+
   try {
-    // 1. Latest block number
-    const blockHex = await rpc('eth_blockNumber');
-    const blockNum  = parseInt(blockHex, 16);
+    // ── Batch core stats (all in one HTTP request) ──────────────────
+    const [blockHex, miningHex, hashrateHex, gasPriceHex, peerCountHex, chainIdHex] =
+      await rpcBatch([
+        { method:'eth_blockNumber',    params:[] },
+        { method:'eth_mining',         params:[] },
+        { method:'eth_hashrate',       params:[] },   // Besu Ethash
+        { method:'eth_gasPrice',       params:[] },
+        { method:'net_peerCount',      params:[] },
+        { method:'eth_chainId',        params:[] },
+      ]);
 
-    // 2. Gas price
-    let gasGwei = 0;
+    const blockNum  = parseInt(blockHex,   16);
+    const isMining  = miningHex === true || miningHex === 'true';
+    const hashrate  = parseInt(hashrateHex || '0x0', 16);   // H/s
+    const gasWei    = parseInt(gasPriceHex || '0x0', 16);
+    const gasGwei   = (gasWei / 1e9).toFixed(2);
+    const peers     = parseInt(peerCountHex || '0x0', 16);
+    const chainId   = parseInt(chainIdHex || '0x539', 16);
+
+    // ── Get latest block for difficulty + block time ─────────────────
+    const latestBlock = await rpc('eth_getBlockByNumber', ['latest', false]);
+    const difficulty  = latestBlock ? parseInt(latestBlock.difficulty || '0x0', 16) : 0;
+
+    // ── Miner info from MINER API ────────────────────────────────────
+    let minerAddr = CFG.treasury;
+    try { minerAddr = await rpc('eth_coinbase'); } catch(_) {}
+
+    // ── txpool stats (Besu supports txpool_besuStatistics or eth_getTransactionCount) ──
+    let pendingTxs = 0;
     try {
-      const gp = await rpc('eth_gasPrice');
-      gasGwei = parseFloat((parseInt(gp, 16) / 1e9).toFixed(2));
-    } catch(_) {}
+      const tp = await rpc('txpool_besuStatistics', []);
+      if (tp) pendingTxs = (tp.localCount||0) + (tp.remoteCount||0);
+    } catch(_) {
+      try {
+        const tp2 = await rpc('txpool_status', []);
+        if (tp2) pendingTxs = parseInt(tp2.pending||'0x0',16) + parseInt(tp2.queued||'0x0',16);
+      } catch(_) {}
+    }
 
-    // 3. Network stats (validators/peers)
-    const { peers, validators } = await fetchNetworkStats();
+    // ── Update DOM ────────────────────────────────────────────────────
+    const elBlocks   = document.getElementById('s-blocks');
+    const elTxs      = document.getElementById('s-txs');
+    const elHashrate = document.getElementById('s-hashrate');
+    const elDiff     = document.getElementById('s-difficulty');
+    const elGas      = document.getElementById('s-gas');
+    const elPeers    = document.getElementById('s-peers');
+    const elTps      = document.getElementById('hs-tps');
+    const netTxt     = document.getElementById('netTxt');
 
-    // 4. TX count (async, can take a moment)
-    let txCount = STATS.txs; // keep last value while loading
-    fetchTotalTxCount(blockNum).then(count => {
-      if (count > 0) {
-        const el = document.getElementById('s-txs');
-        const old = STATS.txs;
-        STATS.txs = count;
-        if (el) animateCounter(el, old, count, 1400);
+    // Blocks — animate if changed
+    if (blockNum !== CS.blocks || elBlocks?.textContent === '—') {
+      if (elBlocks) animateCounter(elBlocks, CS.blocks, blockNum, 1400);
+      CS.blocks = blockNum;
+    }
+
+    // Hashrate — text (not integer, formatted)
+    if (elHashrate) elHashrate.textContent = isMining ? fmtHashrate(hashrate) : '—';
+
+    // Difficulty
+    if (elDiff) elDiff.textContent = fmtDifficulty(difficulty);
+
+    // Gas price
+    if (elGas) elGas.textContent = gasGwei > 0 ? gasGwei + ' Gwei' : '0 Gwei';
+
+    // Peers
+    if (peers !== CS.peers || elPeers?.textContent === '—') {
+      if (elPeers) animateCounter(elPeers, CS.peers, peers, 800);
+      CS.peers = peers;
+    }
+
+    // Hero TPS estimate: txs in last block / block time
+    if (latestBlock && elTps) {
+      const txInBlock = latestBlock.transactions?.length || 0;
+      const prevNum   = blockNum - 1;
+      if (prevNum >= 0) {
+        rpc('eth_getBlockByNumber', ['0x'+prevNum.toString(16), false]).then(prev => {
+          if (prev) {
+            const dt  = parseInt(latestBlock.timestamp,16) - parseInt(prev.timestamp,16);
+            const tps = dt > 0 ? (txInBlock / dt).toFixed(1) : '—';
+            elTps.textContent = tps + ' TPS';
+          }
+        }).catch(()=>{});
       }
+    }
+
+    // Net status in dashboard panel
+    if (netTxt && S.address) {
+      netTxt.textContent = `KarChain · #${blockNum.toLocaleString()} · ${isMining ? '⛏ Mining' : 'Syncing'}`;
+    }
+
+    // Status bar
+    if (elStatus) elStatus.textContent = `${CFG.rpc} · #${blockNum.toLocaleString()} · ${new Date().toLocaleTimeString()}`;
+    if (elDot) { elDot.style.background = 'var(--green)'; elDot.style.boxShadow = '0 0 6px var(--green)'; }
+
+    CS.ok = true;
+
+    // ── Count total TXs async (heavier operation) ─────────────────────
+    countTotalTxs(blockNum).then(total => {
+      if (total >= 0) {
+        const elT = document.getElementById('s-txs');
+        if (elT) {
+          if (CS.txs === 0) animateCounter(elT, 0, total, 1800);
+          else if (total !== CS.txs) animateCounter(elT, CS.txs, total, 800);
+          CS.txs = total;
+        }
+      }
+    }).catch(()=>{});
+
+    return true;
+
+  } catch(err) {
+    console.warn('[KarChain Besu]', err.message);
+    if (elStatus) elStatus.textContent = `Node offline — ${CFG.rpc}`;
+    if (elDot) { elDot.style.background = '#ff4040'; elDot.style.boxShadow = 'none'; elDot.style.animation = 'none'; }
+
+    // Show dashes when offline
+    ['s-blocks','s-txs','s-hashrate','s-difficulty','s-gas','s-peers'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && (el.textContent === '0' || el.textContent === '')) el.textContent = '—';
     });
 
-    // 5. TPS estimate (txs in last block / avg block time)
-    let tps = 0;
-    try {
-      const latest = await rpc('eth_getBlockByNumber', ['latest', false]);
-      const prev   = await rpc('eth_getBlockByNumber', ['0x' + (blockNum - 1).toString(16), false]);
-      if (latest && prev) {
-        const dt     = parseInt(latest.timestamp, 16) - parseInt(prev.timestamp, 16);
-        const txInBlock = latest.transactions?.length || 0;
-        tps = dt > 0 ? (txInBlock / dt).toFixed(1) : 0;
-      }
-    } catch(_) {}
-
-    // ── Update DOM ──
-    const elBlocks = document.getElementById('s-blocks');
-    const elVal    = document.getElementById('s-validators');
-    const elNodes  = document.getElementById('s-nodes');
-    const elGas    = document.getElementById('s-gas');
-    const elTps    = document.getElementById('hs-tps');
-
-    // Animate only if value changed
-    if (blockNum !== STATS.blocks) {
-      animateCounter(elBlocks, STATS.blocks, blockNum, 1600);
-      STATS.blocks = blockNum;
-    } else if (elBlocks && elBlocks.textContent === '0') {
-      animateCounter(elBlocks, 0, blockNum, 2000);
-      STATS.blocks = blockNum;
-    }
-
-    if (validators !== STATS.validators) {
-      animateCounter(elVal, STATS.validators, validators, 1200);
-      STATS.validators = validators;
-    }
-
-    const nodes = peers + 1; // peers + self
-    if (nodes !== STATS.nodes) {
-      animateCounter(elNodes, STATS.nodes, nodes, 1200);
-      STATS.nodes = nodes;
-    }
-
-    // Gas price indicator
-    if (elGas) elGas.textContent = gasGwei ? gasGwei + ' Gwei' : '—';
-
-    // TPS in hero
-    if (elTps && tps > 0) elTps.textContent = tps + ' TPS';
-
-    // Update net status in panel if connected
-    const netTxt = document.getElementById('netTxt');
-    if (netTxt && S.address) netTxt.textContent = `KarChain · Block #${blockNum.toLocaleString()}`;
-
-    // Update RPC status
-    const rpcEl = document.getElementById('statsRpcStatus');
-    if (rpcEl) rpcEl.textContent = CFG.rpc + ' · ' + new Date().toLocaleTimeString();
-    return true; // success
-  } catch(err) {
-    console.warn('[KarChain stats] RPC error:', err.message);
-    const el = document.getElementById('statsRpcStatus');
-    if (el) el.textContent = 'Node offline · ' + CFG.rpc;
+    CS.ok = false;
     return false;
   }
 }
 
-// Called on page load — first attempt real data, fallback to animated demo values
 async function runCounters() {
-  // Try live data immediately
+  // Try live data immediately on page load
   const ok = await loadChainStats();
-
   if (!ok) {
-    // Node unreachable (user opened file locally without node running)
-    // Show demo counters with ≈ notation so user knows these aren't real
-    console.info('[KarChain] Node not reachable at', CFG.rpc, '— showing demo stats');
-    setTimeout(() => {
-      const elB = document.getElementById('s-blocks');
-      const elT = document.getElementById('s-txs');
-      const elV = document.getElementById('s-validators');
-      const elN = document.getElementById('s-nodes');
-      if (elB) { elB.closest('.stat-item')?.setAttribute('title','Connect your node to see live data'); }
-      animateCounter(elB,  0,  0, 100); // show 0 when offline
-      animateCounter(elT,  0,  0, 100);
-      animateCounter(elV,  0,  0, 100);
-      animateCounter(elN,  0,  0, 100);
-    }, 400);
+    console.info('[KarChain] Besu node not reachable at', CFG.rpc);
   }
-
-  // Auto-refresh every 12 seconds (≈ block time × 30)
-  STATS._interval = setInterval(async () => {
-    // Only refresh if tab is visible
-    if (document.visibilityState !== 'hidden') await loadChainStats();
-  }, 12000);
+  // Poll every 10s — Besu Ethash blocks are fast (fixedDifficulty=1000)
+  CS._timer = setInterval(() => {
+    if (document.visibilityState !== 'hidden') loadChainStats();
+  }, 10000);
 }
 
-// Pause polling when tab hidden (save resources)
+// Re-fetch when tab becomes visible again
 document.addEventListener('visibilitychange', () => {
   if (document.visibilityState === 'visible') loadChainStats();
 });
