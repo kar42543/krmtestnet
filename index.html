@@ -1781,8 +1781,8 @@ footer {
                 <span class="fc-badge p">Level 2</span>
               </div>
             </div>
-            <div class="fc-row"><span>Reward</span><span>5 KRM</span></div>
-            <div class="fc-row"><span>Payment</span><span>0.005 ETH</span></div>
+            <div class="fc-row"><span>Daily Boost</span><span style="color:#a78bfa">50 KRM/day</span></div>
+            <div class="fc-row"><span>Activation</span><span>0.005 ETH</span></div>
             <div id="l2State" style="margin-top:12px">
               <div style="text-align:center;padding:14px;background:rgba(255,255,255,.02);border:1px solid var(--border2);border-radius:10px">
                 <i class="fa-solid fa-lock" style="font-size:20px;color:var(--muted);display:block;margin-bottom:6px"></i>
@@ -1790,6 +1790,17 @@ footer {
               </div>
             </div>
           </div>
+        </div>
+
+        <!-- Disclaimer -->
+        <div style="margin:0 0 4px;padding:14px 16px;background:rgba(255,255,255,.02);border:1px solid rgba(255,255,255,.06);border-radius:10px">
+          <p style="font-size:10px;color:var(--muted);line-height:1.7;margin:0">
+            <i class="fa-solid fa-circle-info" style="color:rgba(61,255,122,.4);margin-right:5px"></i>
+            <strong style="color:rgba(255,255,255,.4)">KRM is a testnet token</strong> with no monetary value.
+            ETH contributions support network development and infrastructure costs.
+            This is not an investment — no returns are guaranteed.
+            KarChain is in active development.
+          </p>
         </div>
 
         <!-- Tasks -->
@@ -2110,7 +2121,7 @@ footer {
             How does the faucet system work?
             <i class="fa-solid fa-plus faq-icon"></i>
           </button>
-          <div class="faq-a"><div class="faq-a-inner"><strong>Level 1</strong> — Complete the CAPTCHA and claim 1 KRM every 24 hours at no cost.<br><br><strong>Level 2</strong> — Unlocked after Level 1. Send 0.005 ETH from Ethereum Mainnet to the treasury address and receive 5 KRM on KarChain. MetaMask handles the network switch automatically.</div></div>
+          <div class="faq-a"><div class="faq-a-inner"><strong>Level 1</strong> — Complete the CAPTCHA and claim 1 KRM every 24 hours at no cost.<br><br><strong>Level 2</strong> — Unlocked after Level 1. Send 0.005 ETH from Ethereum Mainnet to the treasury and activate a <strong>daily boost of 50 KRM</strong>. Renewable every 24 hours. MetaMask handles the network switch automatically.</div></div>
         </div>
         <div class="faq-item">
           <button class="faq-q" onclick="toggleFaq(this)">
@@ -2185,6 +2196,21 @@ footer {
         <div class="exp-list" id="expTxList">
           <div class="exp-loading"><i class="fa-solid fa-spinner fa-spin"></i> Loading transactions…</div>
         </div>
+      </div>
+
+      <!-- Disclaimer block -->
+      <div class="reveal" style="margin-top:40px;padding:20px 24px;background:rgba(255,255,255,.015);border:1px solid rgba(255,255,255,.07);border-radius:14px;max-width:640px">
+        <div style="font-family:var(--font-head);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px">
+          <i class="fa-solid fa-shield-halved" style="margin-right:6px;color:rgba(61,255,122,.35)"></i>Disclaimer
+        </div>
+        <p style="font-size:12px;color:var(--muted2);line-height:1.8;margin:0">
+          KRM tokens are <strong style="color:rgba(255,255,255,.5)">testnet tokens</strong> used solely for network testing and development purposes.
+          They carry no monetary value and do not represent any financial instrument or investment.
+          ETH contributions via the Level 2 faucet are voluntary donations to support KarChain infrastructure and development costs —
+          they are not payments for a service or guarantee of any future benefit.
+          KarChain is an experimental blockchain project currently in testnet phase.
+          Participation is at your own discretion.
+        </p>
       </div>
     </div>
   </div>
@@ -3020,12 +3046,34 @@ function renderL2() {
   }
 
   card.classList.remove('fc-locked');
+
+  // Check 24h cooldown (same key as L1 but separate: kc_l2d_addr)
+  const lastL2 = parseInt(localStorage.getItem('kc_l2d_' + S.address) || '0');
+  const now    = Date.now();
+  const diff   = now - lastL2;
+  const cool   = 24 * 3600 * 1000;
+
+  if (lastL2 > 0 && diff < cool) {
+    // Cooldown active — show timer
+    const rem  = cool - diff;
+    const hh   = Math.floor(rem / 3600000);
+    const mm   = Math.floor((rem % 3600000) / 60000);
+    box.innerHTML = `
+      <div style="text-align:center;padding:14px;background:rgba(124,58,237,.05);border:1px solid rgba(124,58,237,.2);border-radius:10px">
+        <i class="fa-solid fa-clock" style="font-size:16px;color:#a78bfa;display:block;margin-bottom:6px"></i>
+        <span style="font-size:11px;color:#a78bfa;font-family:var(--font-mono)">Next boost in ${hh}h ${mm}m</span>
+        <div style="font-size:10px;color:var(--muted);margin-top:4px">50 KRM daily boost active</div>
+      </div>`;
+    return;
+  }
+
   box.innerHTML = `
     <button class="action-btn purple" id="l2Btn" onclick="claimL2()">
-      <i class="fa-brands fa-ethereum"></i>Send 0.005 ETH → Get 5 KRM
+      <i class="fa-brands fa-ethereum"></i>Activate Daily Boost · 0.005 ETH
     </button>
     <p style="font-size:10px;color:var(--muted);text-align:center;margin-top:8px;line-height:1.6">
-      Sends 0.005 ETH via MetaMask to treasury on Ethereum Mainnet.<br>5 KRM credited to your KarChain balance.
+      Sends 0.005 ETH to KarChain treasury on Ethereum Mainnet.<br>
+      Unlocks <strong style="color:#a78bfa">+50 KRM/day</strong> — renewable every 24 hours.
     </p>`;
 }
 
@@ -3066,19 +3114,23 @@ async function claimL2() {
     const np = new ethers.providers.Web3Provider(window.ethereum);
     S.provider = np; S.signer = np.getSigner();
 
-    const newBal = (parseFloat(S.balance) + 5).toFixed(4);
+    // Save cooldown timestamp
+    localStorage.setItem('kc_l2d_' + S.address, Date.now().toString());
+
+    const newBal = (parseFloat(S.balance) + 50).toFixed(4);
     S.balance = newBal;
     updateDashboardBalance(newBal);
-    S.addTx({ hash:tx.hash, value:'5.0000', type:'Faucet L2 Premium' });
+    S.addTx({ hash:tx.hash, value:'50.0000', type:'Daily Boost · L2' });
     TX_CACHE.delete(S.address.toLowerCase());
     await renderTxs(); await renderDDTxs();
 
-    setBtn('<i class="fa-solid fa-check"></i>5 KRM received!');
+    setBtn('<i class="fa-solid fa-check"></i>+50 KRM received!');
     if (btn) btn.className = 'action-btn done';
-    toast('5 KRM received!', 'Thank you for supporting KarChain testnet.', 'success');
+    renderL2();
+    toast('+50 KRM Daily Boost!', 'Come back in 24h to activate again.', 'success');
 
   } catch(err) {
-    setBtn('<i class="fa-brands fa-ethereum"></i>Send 0.005 ETH → Get 5 KRM');
+    setBtn('<i class="fa-brands fa-ethereum"></i>Activate Daily Boost · 0.005 ETH');
     if (err.code === 4001) toast('Rejected','Transaction rejected by user.','error');
     else toast('Error', (err.message||'TX failed').slice(0,80), 'error');
   }
