@@ -548,6 +548,23 @@ nav.scrolled::after { opacity:1; }
 .mini-stat-label { font-size:10px; color:var(--muted); margin-top:2px; letter-spacing:.06em; }
 
 /* Stats strip */
+/* Live stats bar */
+.stats-live-bar {
+  max-width:1280px; margin:0 auto; padding:8px 32px 0;
+  display:flex; align-items:center; gap:10px;
+}
+.stats-live-dot {
+  width:7px; height:7px; border-radius:50%; background:var(--green);
+  animation:pulseDot 2s infinite; flex-shrink:0;
+}
+.stats-live-txt {
+  font-family:var(--font-mono); font-size:10px; color:var(--green);
+  letter-spacing:.12em; text-transform:uppercase;
+}
+.stats-live-rpc {
+  font-family:var(--font-mono); font-size:9px; color:var(--muted);
+  margin-left:auto;
+}
 .stats-strip {
   border-top:1px solid var(--border2);
   border-bottom:1px solid var(--border2);
@@ -1156,7 +1173,7 @@ footer {
   /* Layout */
   .faucet-grid { grid-template-columns:1fr; padding:20px; }
   .task-grid { grid-template-columns:1fr; }
-  .stats-inner { grid-template-columns:1fr 1fr; }
+  .stats-inner { grid-template-columns:1fr 1fr 1fr; }
   .roadmap-track { grid-template-columns:1fr 1fr; }
   .eco-grid { grid-template-columns:1fr; }
   .sup-grid { grid-template-columns:1fr; }
@@ -1436,6 +1453,11 @@ footer {
 
   <!-- Stats strip -->
   <div class="stats-strip">
+    <div class="stats-live-bar">
+      <span class="stats-live-dot"></span>
+      <span class="stats-live-txt">Live Chain Data</span>
+      <span class="stats-live-rpc" id="statsRpcStatus">Connecting to node…</span>
+    </div>
     <div class="stats-inner">
       <div class="stat-item reveal">
         <div class="stat-tick"></div>
@@ -1456,6 +1478,11 @@ footer {
         <div class="stat-tick"></div>
         <div class="stat-num"><span id="s-nodes">0</span></div>
         <div class="stat-lbl">Active Nodes</div>
+      </div>
+      <div class="stat-item reveal reveal-delay-4">
+        <div class="stat-tick"></div>
+        <div class="stat-num" style="font-size:clamp(18px,2.5vw,26px)"><span id="s-gas">—</span></div>
+        <div class="stat-lbl">Gas Price</div>
       </div>
     </div>
   </div>
@@ -2887,26 +2914,242 @@ function initHexCanvas() {
 /* ═══════════════════════════════════════
    COUNTER ANIMATION
 ═══════════════════════════════════════ */
-function animateCounter(el, to, dur=2200) {
+function animateCounter(el, from, to, dur=1800) {
   if (!el) return;
+  // Cancel any running animation on this element
+  if (el._animRaf) cancelAnimationFrame(el._animRaf);
   const start = performance.now();
+  const diff  = to - from;
   const step = now => {
-    const p = Math.min((now-start)/dur, 1);
-    const e = 1 - Math.pow(1-p, 3);
-    el.textContent = Math.round(e*to).toLocaleString();
-    if (p < 1) requestAnimationFrame(step);
+    const p = Math.min((now - start) / dur, 1);
+    const e = 1 - Math.pow(1 - p, 3); // ease-out-cubic
+    el.textContent = Math.round(from + e * diff).toLocaleString();
+    if (p < 1) el._animRaf = requestAnimationFrame(step);
+    else el._animRaf = null;
   };
-  requestAnimationFrame(step);
+  el._animRaf = requestAnimationFrame(step);
 }
 
-function runCounters() {
-  setTimeout(() => {
-    animateCounter(document.getElementById('s-blocks'),     14892, 2400);
-    animateCounter(document.getElementById('s-txs'),        19204, 2600);
-    animateCounter(document.getElementById('s-validators'),   138, 2000);
-    animateCounter(document.getElementById('s-nodes'),        312, 2200);
-  }, 600);
+/* ═══════════════════════════════════════
+   LIVE CHAIN STATS — real RPC data
+═══════════════════════════════════════ */
+const STATS = {
+  blocks:     0,
+  txs:        0,
+  validators: 0,
+  nodes:      0,
+  gasPrice:   0,
+  tps:        0,
+  _interval:  null,
+  _ws:        null,
+};
+
+// Low-level JSON-RPC call (works without ethers.js, direct to node)
+async function rpc(method, params = []) {
+  const res = await fetch(CFG.rpc, {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }),
+  });
+  const data = await res.json();
+  if (data.error) throw new Error(data.error.message);
+  return data.result;
 }
+
+// Count total transactions across all blocks (sample last N blocks for speed)
+async function fetchTotalTxCount(latestBlock) {
+  // For small testnets we can count exactly; for large ones we sample
+  const SCAN_DEPTH = Math.min(latestBlock, 500); // scan last 500 blocks max
+  let total = 0;
+
+  // Batch request — get block tx counts without downloading full blocks
+  const batchSize = 20;
+  const requests  = [];
+  for (let i = latestBlock; i > latestBlock - SCAN_DEPTH; i--) {
+    requests.push({ jsonrpc:'2.0', id: i, method:'eth_getBlockByNumber', params:['0x'+i.toString(16), false] });
+  }
+
+  // Split into batches of 20
+  for (let i = 0; i < requests.length; i += batchSize) {
+    const batch  = requests.slice(i, i + batchSize);
+    try {
+      const res  = await fetch(CFG.rpc, {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify(batch),
+      });
+      const data = await res.json();
+      data.forEach(item => {
+        if (item.result?.transactions) total += item.result.transactions.length;
+      });
+    } catch(_) { break; }
+  }
+
+  // If we only scanned partial history, extrapolate
+  if (latestBlock > SCAN_DEPTH && SCAN_DEPTH > 0) {
+    const avg = total / SCAN_DEPTH;
+    total = Math.round(avg * latestBlock);
+  }
+  return total;
+}
+
+// Fetch validator/peer count — varies by client
+async function fetchNetworkStats() {
+  let peers = 0, validators = 0;
+
+  // net_peerCount — available on Geth, Besu, most clients
+  try {
+    const pc = await rpc('net_peerCount');
+    peers = parseInt(pc, 16);
+  } catch(_) {}
+
+  // Geth admin_peers (needs --rpc.enabledeprecatedpersonal or admin API)
+  try {
+    const ap = await rpc('admin_peers');
+    if (Array.isArray(ap)) peers = ap.length;
+  } catch(_) {}
+
+  // Clique (PoA) — clique_getSigners
+  try {
+    const signers = await rpc('clique_getSigners', ['latest']);
+    if (Array.isArray(signers)) validators = signers.length;
+  } catch(_) {}
+
+  // Hardhat/Anvil — no real validators, show accounts as "nodes"
+  if (validators === 0) {
+    try {
+      const accs = await rpc('eth_accounts');
+      if (Array.isArray(accs) && accs.length > 0) validators = accs.length;
+    } catch(_) {}
+  }
+
+  // Fallback: peers + 1 (self)
+  if (validators === 0) validators = Math.max(peers, 1);
+
+  return { peers, validators };
+}
+
+async function loadChainStats() {
+  try {
+    // 1. Latest block number
+    const blockHex = await rpc('eth_blockNumber');
+    const blockNum  = parseInt(blockHex, 16);
+
+    // 2. Gas price
+    let gasGwei = 0;
+    try {
+      const gp = await rpc('eth_gasPrice');
+      gasGwei = parseFloat((parseInt(gp, 16) / 1e9).toFixed(2));
+    } catch(_) {}
+
+    // 3. Network stats (validators/peers)
+    const { peers, validators } = await fetchNetworkStats();
+
+    // 4. TX count (async, can take a moment)
+    let txCount = STATS.txs; // keep last value while loading
+    fetchTotalTxCount(blockNum).then(count => {
+      if (count > 0) {
+        const el = document.getElementById('s-txs');
+        const old = STATS.txs;
+        STATS.txs = count;
+        if (el) animateCounter(el, old, count, 1400);
+      }
+    });
+
+    // 5. TPS estimate (txs in last block / avg block time)
+    let tps = 0;
+    try {
+      const latest = await rpc('eth_getBlockByNumber', ['latest', false]);
+      const prev   = await rpc('eth_getBlockByNumber', ['0x' + (blockNum - 1).toString(16), false]);
+      if (latest && prev) {
+        const dt     = parseInt(latest.timestamp, 16) - parseInt(prev.timestamp, 16);
+        const txInBlock = latest.transactions?.length || 0;
+        tps = dt > 0 ? (txInBlock / dt).toFixed(1) : 0;
+      }
+    } catch(_) {}
+
+    // ── Update DOM ──
+    const elBlocks = document.getElementById('s-blocks');
+    const elVal    = document.getElementById('s-validators');
+    const elNodes  = document.getElementById('s-nodes');
+    const elGas    = document.getElementById('s-gas');
+    const elTps    = document.getElementById('hs-tps');
+
+    // Animate only if value changed
+    if (blockNum !== STATS.blocks) {
+      animateCounter(elBlocks, STATS.blocks, blockNum, 1600);
+      STATS.blocks = blockNum;
+    } else if (elBlocks && elBlocks.textContent === '0') {
+      animateCounter(elBlocks, 0, blockNum, 2000);
+      STATS.blocks = blockNum;
+    }
+
+    if (validators !== STATS.validators) {
+      animateCounter(elVal, STATS.validators, validators, 1200);
+      STATS.validators = validators;
+    }
+
+    const nodes = peers + 1; // peers + self
+    if (nodes !== STATS.nodes) {
+      animateCounter(elNodes, STATS.nodes, nodes, 1200);
+      STATS.nodes = nodes;
+    }
+
+    // Gas price indicator
+    if (elGas) elGas.textContent = gasGwei ? gasGwei + ' Gwei' : '—';
+
+    // TPS in hero
+    if (elTps && tps > 0) elTps.textContent = tps + ' TPS';
+
+    // Update net status in panel if connected
+    const netTxt = document.getElementById('netTxt');
+    if (netTxt && S.address) netTxt.textContent = `KarChain · Block #${blockNum.toLocaleString()}`;
+
+    // Update RPC status
+    const rpcEl = document.getElementById('statsRpcStatus');
+    if (rpcEl) rpcEl.textContent = CFG.rpc + ' · ' + new Date().toLocaleTimeString();
+    return true; // success
+  } catch(err) {
+    console.warn('[KarChain stats] RPC error:', err.message);
+    const el = document.getElementById('statsRpcStatus');
+    if (el) el.textContent = 'Node offline · ' + CFG.rpc;
+    return false;
+  }
+}
+
+// Called on page load — first attempt real data, fallback to animated demo values
+async function runCounters() {
+  // Try live data immediately
+  const ok = await loadChainStats();
+
+  if (!ok) {
+    // Node unreachable (user opened file locally without node running)
+    // Show demo counters with ≈ notation so user knows these aren't real
+    console.info('[KarChain] Node not reachable at', CFG.rpc, '— showing demo stats');
+    setTimeout(() => {
+      const elB = document.getElementById('s-blocks');
+      const elT = document.getElementById('s-txs');
+      const elV = document.getElementById('s-validators');
+      const elN = document.getElementById('s-nodes');
+      if (elB) { elB.closest('.stat-item')?.setAttribute('title','Connect your node to see live data'); }
+      animateCounter(elB,  0,  0, 100); // show 0 when offline
+      animateCounter(elT,  0,  0, 100);
+      animateCounter(elV,  0,  0, 100);
+      animateCounter(elN,  0,  0, 100);
+    }, 400);
+  }
+
+  // Auto-refresh every 12 seconds (≈ block time × 30)
+  STATS._interval = setInterval(async () => {
+    // Only refresh if tab is visible
+    if (document.visibilityState !== 'hidden') await loadChainStats();
+  }, 12000);
+}
+
+// Pause polling when tab hidden (save resources)
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') loadChainStats();
+});
 
 /* ═══════════════════════════════════════
    SCROLL REVEAL
