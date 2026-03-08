@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://krmtestnet.vercel.app/sitemap.xml
