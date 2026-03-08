@@ -2063,6 +2063,8 @@ const S = {
   balance:   '0.0000',
   capDone:   false,
   timerInt:  null,
+  walletId:  null,
+  walletName: null,
 
   key: k => `kc_${k}`,
   get tasks()       { return JSON.parse(localStorage.getItem(this.key('tasks')) || '[]'); },
@@ -2078,8 +2080,10 @@ const S = {
   setSocial()       { localStorage.setItem('kc_social','1'); },
   get txDone()      { return localStorage.getItem('kc_txd_'+this.address)==='1'; },
   setTxDone()       { localStorage.setItem('kc_txd_'+this.address,'1'); },
-  save()            { localStorage.setItem(this.key('addr'),this.address); },
-  load()            { return localStorage.getItem(this.key('addr')); }
+  save()            { localStorage.setItem(this.key('addr'),this.address); if(this.walletId) localStorage.setItem(this.key('walletId'),this.walletId); },
+  load()            { return localStorage.getItem(this.key('addr')); },
+  loadWalletId()    { return localStorage.getItem(this.key('walletId')); },
+  clearSession()    { localStorage.removeItem(this.key('addr')); localStorage.removeItem(this.key('walletId')); }
 };
 
 /* ═══════════════════════════════════════
@@ -2355,6 +2359,7 @@ async function connectWithProvider(walletId) {
 
     S.address = address; S.provider = provider; S.signer = signer;
     S.walletName = wallet.name;
+    S.walletId = walletId;
     S.save();
     closeModal();
     await setConnected(address, null, wallet.name);
@@ -2519,7 +2524,7 @@ async function switchAccount() {
 function disconnect() {
   clearInterval(S.timerInt);
   S.address = null; S.provider = null; S.signer = null; S.balance = '0.0000';
-  localStorage.removeItem('kc_addr');
+  S.clearSession();
 
   // Reset nav button
   const btn = document.getElementById('connectBtn');
@@ -3286,23 +3291,80 @@ window.addEventListener('scroll', () => {
 ═══════════════════════════════════════ */
 async function restoreSession() {
   const saved = S.load();
-  if (!saved || !window.ethereum) return;
+  if (!saved) return;
+
+  // Wait up to 2s for wallet to inject
+  let attempts = 0;
+  while (!window.ethereum && attempts < 10) {
+    await new Promise(r => setTimeout(r, 200));
+    attempts++;
+  }
+  if (!window.ethereum) return;
+
   try {
-    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    // Use EIP-6963 detected provider if available, fallback to window.ethereum
+    let raw = window.ethereum;
+    if (window._detectedProviders && window._detectedProviders.length) {
+      // Prefer MetaMask, skip Phantom
+      const mm = window._detectedProviders.find(p =>
+        p.info.rdns === 'io.metamask' ||
+        (p.info.name?.toLowerCase().includes('metamask') && p.info.rdns !== 'app.phantom')
+      );
+      if (mm) raw = mm.provider;
+      else {
+        const notPhantom = window._detectedProviders.find(p => p.info.rdns !== 'app.phantom');
+        if (notPhantom) raw = notPhantom.provider;
+      }
+    }
+
+    const provider = new ethers.providers.Web3Provider(raw, 'any');
+
+    // Get currently unlocked accounts WITHOUT prompting user
     const accounts = await provider.listAccounts();
-    if (!accounts.length) return;
-    if (accounts[0].toLowerCase() !== saved.toLowerCase()) return;
-    const network = await provider.getNetwork();
-    if (network.chainId !== CFG.chainId) return;
-    const signer = provider.getSigner();
-    let balance = '0.0000';
+    if (!accounts.length) return; // wallet is locked — don't restore silently
+
+    // Accept any account if saved address matches, OR just use first account
+    const matchedAddr = accounts.find(a => a.toLowerCase() === saved.toLowerCase());
+    const addr = matchedAddr || accounts[0];
+
+    // Try to switch to KarChain — but don't abort if it fails
     try {
-      const raw = await provider.getBalance(saved);
-      balance = parseFloat(ethers.utils.formatEther(raw)).toFixed(4);
-    } catch(_) {}
-    S.address = saved; S.provider = provider; S.signer = signer;
-    await setConnected(saved);
-  } catch(_) {}
+      const network = await provider.getNetwork();
+      if (network.chainId !== CFG.chainId) {
+        await raw.request({ method:'wallet_switchEthereumChain', params:[{chainId:CFG.chainHex}] });
+      }
+    } catch(switchErr) {
+      // Chain not added yet — try adding it
+      if (switchErr.code === 4902 || switchErr.code === -32603) {
+        try {
+          await raw.request({
+            method: 'wallet_addEthereumChain',
+            params: [{ chainId:CFG.chainHex, chainName:CFG.chainName,
+              rpcUrls:[CFG.rpc], nativeCurrency:{name:CFG.symbol,symbol:CFG.symbol,decimals:18} }]
+          });
+        } catch(_) {}
+      }
+      // Continue anyway — connect to whatever network is active
+    }
+
+    const signer = provider.getSigner();
+    S.address  = addr;
+    S.provider = provider;
+    S.signer   = signer;
+    S.save();
+
+    await setConnected(addr);
+
+    // Listen for account/chain changes
+    raw.on('accountsChanged', accs => {
+      if (!accs.length) disconnect();
+      else if (accs[0].toLowerCase() !== S.address?.toLowerCase()) location.reload();
+    });
+    raw.on('chainChanged', () => location.reload());
+
+  } catch(err) {
+    console.info('[KarChain] Session restore skipped:', err.message);
+  }
 }
 
 /* ═══════════════════════════════════════
