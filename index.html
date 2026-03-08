@@ -2982,277 +2982,158 @@ function initStars() {
    HEX CANVAS (Vision page)
 ═══════════════════════════════════════ */
 function initHexCanvas() {
-  const c = document.getElementById('hexCanvas');
-  if (!c) return;
-  const ctx = c.getContext('2d');
-  const W = c.width, H = c.height;
+  const canvas = document.getElementById('hexCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
 
-  // ── Hex grid setup ──────────────────────────────────────────────
-  const HEX_R  = 22;     // hex radius
-  const HEX_W  = HEX_R * 2;
-  const HEX_H  = Math.sqrt(3) * HEX_R;
-  const COL_DX = HEX_W  * 0.75;
-  const ROW_DY = HEX_H;
+  /* ── KARCHAIN letter pixel maps (5 wide × 7 tall) ─────────── */
+  const MAPS = {
+    K:[[1,0,0,0,1],[1,0,0,1,0],[1,0,1,0,0],[1,1,0,0,0],[1,0,1,0,0],[1,0,0,1,0],[1,0,0,0,1]],
+    A:[[0,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,1,1,1,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1]],
+    R:[[1,1,1,1,0],[1,0,0,0,1],[1,0,0,0,1],[1,1,1,1,0],[1,0,1,0,0],[1,0,0,1,0],[1,0,0,0,1]],
+    C:[[0,1,1,1,0],[1,0,0,0,1],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,0],[1,0,0,0,1],[0,1,1,1,0]],
+    H:[[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1],[1,1,1,1,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1]],
+    I:[[1,1,1,1,1],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[0,0,1,0,0],[1,1,1,1,1]],
+    N:[[1,0,0,0,1],[1,1,0,0,1],[1,0,1,0,1],[1,0,0,1,1],[1,0,0,0,1],[1,0,0,0,1],[1,0,0,0,1]],
+  };
+  const WORD = ['K','A','R','C','H','A','I','N'];
 
+  /* ── Hex grid ──────────────────────────────────────────────── */
+  const R  = 24;                         // hex radius
+  const DX = R * 1.75;                   // col step
+  const DY = R * Math.sqrt(3) * 0.92;   // row step
   const COLS = 10, ROWS = 9;
 
-  // Build grid array [col][row] → {x, y, idx}
-  const grid = [];
-  for (let col = 0; col < COLS; col++) {
-    grid[col] = [];
-    for (let row = 0; row < ROWS; row++) {
-      const x = 25 + col * COL_DX;
-      const y = 25 + row * ROW_DY + (col % 2 === 1 ? ROW_DY / 2 : 0);
-      grid[col][row] = { x, y, col, row };
+  // Build flat grid
+  const cells = [];
+  for (let c = 0; c < COLS; c++) {
+    for (let r = 0; r < ROWS; r++) {
+      cells.push({
+        x: 28 + c * DX,
+        y: 28 + r * DY + (c % 2 ? DY / 2 : 0),
+        c, r,
+        // background pulse
+        phase: Math.random() * Math.PI * 2,
+        spd:   Math.random() * 0.008 + 0.003,
+        // letter highlight
+        target: 0,   // 0..1 desired brightness
+        cur:    0,   // current brightness
+      });
     }
   }
 
-  // Flat list for background animation
-  const allHexes = grid.flat().map(h => ({
-    ...h,
-    phase: Math.random() * Math.PI * 2,
-    speed: Math.random() * 0.012 + 0.004,
-    lit: 0,        // 0=idle, 1=lighting-up, 2=on, 3=fading
-    litAlpha: 0,
-  }));
+  // Map letter px → cell index
+  const OC = Math.round((COLS - 5) / 2);  // col offset
+  const OR = Math.round((ROWS - 7) / 2);  // row offset
 
-  // ── Letter pixel maps (5×7 grid each, 0=off 1=on) ─────────────
-  const LETTERS = {
-    K: [
-      [1,0,0,0,1],
-      [1,0,0,1,0],
-      [1,0,1,0,0],
-      [1,1,0,0,0],
-      [1,0,1,0,0],
-      [1,0,0,1,0],
-      [1,0,0,0,1],
-    ],
-    A: [
-      [0,1,1,1,0],
-      [1,0,0,0,1],
-      [1,0,0,0,1],
-      [1,1,1,1,1],
-      [1,0,0,0,1],
-      [1,0,0,0,1],
-      [1,0,0,0,1],
-    ],
-    R: [
-      [1,1,1,1,0],
-      [1,0,0,0,1],
-      [1,0,0,0,1],
-      [1,1,1,1,0],
-      [1,0,1,0,0],
-      [1,0,0,1,0],
-      [1,0,0,0,1],
-    ],
-    C: [
-      [0,1,1,1,0],
-      [1,0,0,0,1],
-      [1,0,0,0,0],
-      [1,0,0,0,0],
-      [1,0,0,0,0],
-      [1,0,0,0,1],
-      [0,1,1,1,0],
-    ],
-    H: [
-      [1,0,0,0,1],
-      [1,0,0,0,1],
-      [1,0,0,0,1],
-      [1,1,1,1,1],
-      [1,0,0,0,1],
-      [1,0,0,0,1],
-      [1,0,0,0,1],
-    ],
-    I: [
-      [1,1,1,1,1],
-      [0,0,1,0,0],
-      [0,0,1,0,0],
-      [0,0,1,0,0],
-      [0,0,1,0,0],
-      [0,0,1,0,0],
-      [1,1,1,1,1],
-    ],
-    N: [
-      [1,0,0,0,1],
-      [1,1,0,0,1],
-      [1,0,1,0,1],
-      [1,0,0,1,1],
-      [1,0,0,0,1],
-      [1,0,0,0,1],
-      [1,0,0,0,1],
-    ],
-  };
+  function cellOf(c, r) {
+    return cells.find(x => x.c === c && x.r === r) || null;
+  }
 
-  const WORD    = ['K','A','R','C','H','A','I','N'];
-  const LETTER_W = 5;  // pixel columns per letter
-  const LETTER_H = 7;  // pixel rows per letter
-
-  // Map each letter pixel to a hex cell
-  // Layout: letters shown one at a time centered in canvas
-  // We'll use a 5-col × 7-row slice of the hex grid centered
-  const GRID_OFFSET_COL = Math.floor((COLS - LETTER_W) / 2);  // ~2
-  const GRID_OFFSET_ROW = Math.floor((ROWS - LETTER_H) / 2);  // ~1
-
-  function getLetterHexes(letter) {
-    const map = LETTERS[letter];
-    if (!map) return [];
-    const result = [];
-    for (let row = 0; row < LETTER_H; row++) {
-      for (let col = 0; col < LETTER_W; col++) {
-        if (map[row][col]) {
-          const gc = GRID_OFFSET_COL + col;
-          const gr = GRID_OFFSET_ROW + row;
-          if (grid[gc] && grid[gc][gr]) {
-            result.push(grid[gc][gr]);
-          }
+  function setLetter(letter) {
+    const map = MAPS[letter];
+    // Reset all targets
+    cells.forEach(x => x.target = 0);
+    if (!map) return;
+    for (let r = 0; r < 7; r++) {
+      for (let c = 0; c < 5; c++) {
+        if (map[r][c]) {
+          const cell = cellOf(OC + c, OR + r);
+          if (cell) cell.target = 1;
         }
       }
     }
-    return result;
   }
 
-  // ── State machine ────────────────────────────────────────────────
-  let letterIdx   = 0;      // which letter (0–7)
-  let phase       = 'idle'; // idle | lighting | hold | extinguishing
-  let phaseTimer  = 0;
-  let activeHexSet = new Set(); // keys "col,row" of lit hexes this letter
+  /* ── Sequencer ─────────────────────────────────────────────── */
+  let wordIdx   = 0;
+  let seqPhase  = 'in';   // 'in' | 'hold' | 'out' | 'gap'
+  let phaseAt   = 0;
+  const T_HOLD = 950;
+  const T_GAP  = 280;
 
-  const LIGHT_DELAY   = 60;   // ms between each hex lighting up
-  const HOLD_DUR      = 900;  // ms letter stays fully lit
-  const FADE_DUR      = 400;  // ms each hex fades out
-  const LETTER_GAP    = 300;  // ms gap between letters
-  const LIGHT_SPEED   = 0.08; // alpha per frame ramp-up speed
-  const FADE_SPEED    = 0.025;
+  setLetter(WORD[0]);
 
-  // Per-hex letter state
-  const hexState = new Map(); // key → {litAlpha, mode: 'rising'|'hold'|'fading'}
-
-  let lightQueue  = [];  // hexes still to light up
-  let lastLightMs = 0;
-  let holdStart   = 0;
-  let fadeStart   = 0;
-  let letterStart = 0;
-  let gapStart    = 0;
-  let animPhase   = 'gap'; // gap | lighting | hold | fading
-
-  function startLetter(idx) {
-    letterIdx  = idx % WORD.length;
-    lightQueue = [...getLetterHexes(WORD[letterIdx])];
-    // Shuffle so hexes light up in random order
-    for (let i = lightQueue.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [lightQueue[i], lightQueue[j]] = [lightQueue[j], lightQueue[i]];
-    }
-    hexState.clear();
-    activeHexSet.clear();
-    animPhase   = 'lighting';
-    lastLightMs = performance.now();
-  }
-
-  function hexKey(h) { return `${h.col},${h.row}`; }
-
-  // ── Draw one hex ─────────────────────────────────────────────────
-  function drawHex(x, y, size, strokeAlpha, fillAlpha) {
+  /* ── Draw one hex ──────────────────────────────────────────── */
+  function hex(x, y, size, sa, fa) {
     ctx.beginPath();
     for (let i = 0; i < 6; i++) {
-      const angle = (i * Math.PI) / 3 - Math.PI / 6;
-      const px = x + size * Math.cos(angle);
-      const py = y + size * Math.sin(angle);
-      i === 0 ? ctx.moveTo(px, py) : ctx.lineTo(px, py);
+      const a  = i * Math.PI / 3 - Math.PI / 6;
+      const px = x + size * Math.cos(a);
+      const py = y + size * Math.sin(a);
+      i ? ctx.lineTo(px, py) : ctx.moveTo(px, py);
     }
     ctx.closePath();
-    if (fillAlpha > 0) {
-      ctx.fillStyle = `rgba(61,255,122,${fillAlpha})`;
-      ctx.fill();
-    }
-    if (strokeAlpha > 0) {
-      ctx.strokeStyle = strokeAlpha > 0.4 ? `rgba(80,255,140,${strokeAlpha})` : `rgba(61,255,122,${strokeAlpha})`;
-      ctx.lineWidth = 1.0;
-      ctx.stroke();
-    }
+    if (fa > 0.004) { ctx.fillStyle   = `rgba(61,255,122,${fa})`; ctx.fill();   }
+    if (sa > 0.004) { ctx.strokeStyle = `rgba(61,255,122,${sa})`; ctx.lineWidth = 1; ctx.stroke(); }
   }
 
-  // ── Main render loop ─────────────────────────────────────────────
-  let lastMs = performance.now();
-  startLetter(0);
-
-  function loop(now) {
+  /* ── Render loop ───────────────────────────────────────────── */
+  function frame(now) {
     ctx.clearRect(0, 0, W, H);
 
-    // ── Background hex grid (faint pulsing) ──
-    allHexes.forEach(h => {
-      h.phase += h.speed;
-      const a = (Math.sin(h.phase) * 0.5 + 0.5) * 0.06 + 0.015;
-      drawHex(h.x, h.y, HEX_R - 1, a, 0);
-    });
+    // — Sequencer state machine —
+    const allIn  = cells.every(c => c.target === 0 || c.cur >= 0.95);
+    const allOut = cells.every(c => c.target === 0 && c.cur <= 0.02);
 
-    // ── Letter animation state machine ──
-    if (animPhase === 'lighting') {
-      // Drip-feed hexes from queue
-      while (lightQueue.length > 0 && now - lastLightMs > LIGHT_DELAY) {
-        const hx = lightQueue.pop();
-        const k  = hexKey(hx);
-        hexState.set(k, { x: hx.x, y: hx.y, alpha: 0, mode: 'rising' });
-        activeHexSet.add(k);
-        lastLightMs = now;
-      }
-      if (lightQueue.length === 0) {
-        // All hexes queued — wait for them to finish rising
-        const allRisen = [...hexState.values()].every(s => s.mode !== 'rising' || s.alpha >= 0.85);
-        if (allRisen) {
-          animPhase = 'hold';
-          holdStart = now;
-        }
-      }
+    if (seqPhase === 'in' && allIn) {
+      seqPhase = 'hold';
+      phaseAt  = now;
+    }
+    if (seqPhase === 'hold' && now - phaseAt > T_HOLD) {
+      seqPhase = 'out';
+      cells.forEach(c => c.target = 0);
+    }
+    if (seqPhase === 'out' && allOut) {
+      seqPhase = 'gap';
+      phaseAt  = now;
+    }
+    if (seqPhase === 'gap' && now - phaseAt > T_GAP) {
+      wordIdx = (wordIdx + 1) % WORD.length;
+      setLetter(WORD[wordIdx]);
+      seqPhase = 'in';
     }
 
-    if (animPhase === 'hold' && now - holdStart > HOLD_DUR) {
-      animPhase = 'fading';
-      fadeStart = now;
-      hexState.forEach(s => { s.mode = 'fading'; });
-    }
+    // — Update + draw cells —
+    cells.forEach(cell => {
+      cell.phase += cell.spd;
 
-    if (animPhase === 'fading') {
-      const allFaded = [...hexState.values()].every(s => s.alpha <= 0);
-      if (allFaded) {
-        animPhase = 'gap';
-        gapStart  = now;
-      }
-    }
+      // Smooth interpolate current → target
+      const spd = cell.target > cell.cur ? 0.055 : 0.030;
+      cell.cur += (cell.target - cell.cur) * spd;
 
-    if (animPhase === 'gap' && now - gapStart > LETTER_GAP) {
-      startLetter(letterIdx + 1);
-    }
+      const bg = (Math.sin(cell.phase) * 0.5 + 0.5) * 0.055 + 0.012;
 
-    // ── Update + draw lit hexes ──
-    hexState.forEach((s, k) => {
-      if (s.mode === 'rising') {
-        s.alpha = Math.min(s.alpha + LIGHT_SPEED, 0.72);
-        if (s.alpha >= 1.0) s.mode = 'hold';
-      } else if (s.mode === 'fading') {
-        s.alpha = Math.max(s.alpha - FADE_SPEED, 0);
-      }
+      if (cell.cur > 0.01) {
+        // Lit cell — layered glow
+        const fa = cell.cur * 0.22;
+        const sa = 0.12 + cell.cur * 0.60;
 
-      if (s.alpha > 0) {
-        const fa = s.alpha * 0.18;
-        const sa = s.alpha * 0.65;
-        drawHex(s.x, s.y, HEX_R - 1, sa, fa);
-
-        // Glow effect on bright hexes
-        if (s.alpha > 0.68) {
+        // Outer soft glow
+        if (cell.cur > 0.5) {
           ctx.save();
-          ctx.shadowBlur  = 10;
-          ctx.shadowColor = `rgba(61,255,122,${s.alpha * 0.28})`;
-          drawHex(s.x, s.y, HEX_R - 1, 0, 0);
+          ctx.shadowBlur  = 14;
+          ctx.shadowColor = `rgba(61,255,122,${cell.cur * 0.25})`;
+          hex(cell.x, cell.y, R, 0, 0);
           ctx.restore();
         }
+        hex(cell.x, cell.y, R - 1, sa, fa);
+
+        // Inner bright core when fully lit
+        if (cell.cur > 0.85) {
+          hex(cell.x, cell.y, R * 0.45, 0, cell.cur * 0.35);
+        }
+      } else {
+        // Idle background pulse
+        hex(cell.x, cell.y, R - 1, bg, 0);
       }
     });
 
-    requestAnimationFrame(loop);
+    requestAnimationFrame(frame);
   }
 
-  requestAnimationFrame(loop);
+  requestAnimationFrame(frame);
 }
 
 /* ═══════════════════════════════════════
