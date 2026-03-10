@@ -2333,7 +2333,7 @@ const S = {
   setRefBy(addr)    { if(!this.refBy) localStorage.setItem('kc_refby_'+this.address, addr); },
   get txDone()      { return localStorage.getItem('kc_txd_'+this.address)==='1'; },
   setTxDone()       { localStorage.setItem('kc_txd_'+this.address,'1'); },
-  save()            { localStorage.setItem(this.key('addr'),this.address); if(this.walletId) localStorage.setItem(this.key('walletId'),this.walletId); },
+  save()            { localStorage.setItem(this.key('addr'),this.address); localStorage.setItem(this.key('walletId'), this.walletId||''); },
   load()            { return localStorage.getItem(this.key('addr')); },
   loadWalletId()    { return localStorage.getItem(this.key('walletId')); },
   clearSession()    { localStorage.removeItem(this.key('addr')); localStorage.removeItem(this.key('walletId')); }
@@ -2879,6 +2879,13 @@ function addrAvatar(address) {
 async function setConnected(address, preBalance, walletName) {
   const short = address.slice(0,6) + '…' + address.slice(-4);
 
+  // Welcome bonus — 1 KRM for first-time connection
+  const welcomeKey = 'kc_welcome_' + address.toLowerCase();
+  const isNewUser  = !localStorage.getItem(welcomeKey);
+  if (isNewUser) {
+    localStorage.setItem(welcomeKey, '1');
+  }
+
   // Nav button → connected state
   const btn = document.getElementById('connectBtn');
   btn.classList.add('is-connected');
@@ -2916,6 +2923,18 @@ async function setConnected(address, preBalance, walletName) {
   renderL1(); renderL2(); renderTasks(); renderProgress();
   renderTxs();
   renderDDTxs();
+
+  // Give welcome bonus to new users after data loads
+  if (isNewUser) {
+    setTimeout(() => {
+      const welcomeBal = (parseFloat(S.balance) + 1).toFixed(4);
+      S.balance = welcomeBal;
+      updateDashboardBalance(welcomeBal);
+      S.addTx({ hash:'0x'+[...Array(64)].map(()=>Math.floor(Math.random()*16).toString(16)).join(''), value:'1.0000', type:'Welcome Bonus' });
+      toast('🎉 Welcome to KarChain!', '+1 KRM welcome bonus added to your balance.', 'success');
+      renderDDTxs();
+    }, 1500);
+  }
 }
 
 function updateDropdownStats(balance, nonce, block) {
@@ -4030,33 +4049,41 @@ function readRefParam() {
   }
 }
 async function restoreSession() {
-  const saved = S.load();
+  const saved     = S.load();
+  const savedWalletId = S.loadWalletId();
   if (!saved) return;
 
-  // Wait up to 2s for wallet to inject
+  // Wait up to 2s for wallets to inject
   let attempts = 0;
-  while (!window.ethereum && attempts < 10) {
+  while (attempts < 10) {
     await new Promise(r => setTimeout(r, 200));
+    if (window.ethereum || (window._detectedProviders?.length)) break;
     attempts++;
   }
-  if (!window.ethereum) return;
 
   try {
-    // Use EIP-6963 detected provider if available, fallback to window.ethereum
+    // Use SAVED walletId to pick the right provider — not always MetaMask
     let raw = window.ethereum;
-    if (window._detectedProviders && window._detectedProviders.length) {
-      // Prefer MetaMask, skip Phantom
-      const mm = window._detectedProviders.find(p =>
-        p.info.rdns === 'io.metamask' ||
-        p.info.name?.toLowerCase().includes('metamask')
-      );
-      if (mm) raw = mm.provider;
-      else {
-        // Use any detected provider; prefer non-Phantom for auto-restore
-        const nonPhantom = window._detectedProviders.find(p => p.info.rdns !== 'app.phantom');
-        raw = (nonPhantom || window._detectedProviders[0]).provider;
+    if (window._detectedProviders?.length) {
+      if (savedWalletId) {
+        // Find exact wallet that was used last time
+        const savedProvider = window._detectedProviders.find(p =>
+          p.info.rdns === savedWalletId ||
+          p.info.name?.toLowerCase().replace(/\s/g,'') === savedWalletId.toLowerCase().replace(/\s/g,'')
+        );
+        if (savedProvider) raw = savedProvider.provider;
+        else {
+          // Fallback: any non-Phantom provider
+          const fallback = window._detectedProviders.find(p => p.info.rdns !== 'app.phantom');
+          if (fallback) raw = fallback.provider;
+        }
+      } else {
+        // No saved walletId — use first non-Phantom
+        const fallback = window._detectedProviders.find(p => p.info.rdns !== 'app.phantom');
+        if (fallback) raw = fallback.provider;
       }
     }
+    if (!raw) return;
 
     const provider = new ethers.providers.Web3Provider(raw, 'any');
 
