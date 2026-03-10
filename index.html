@@ -2359,11 +2359,20 @@ function toast(title, msg, type='info') {
    ROUTER
 ═══════════════════════════════════════ */
 let currentPage = 'home';
-function goto(page) {
+function goto(page, pushState = true) {
+  const valid = ['home','vision','ecosystem','support','explorer'];
+  if (!valid.includes(page)) page = 'home';
   if (page === currentPage) return;
 
   const old = document.getElementById('page-' + currentPage);
   const nw  = document.getElementById('page-' + page);
+  if (!old || !nw) return;
+
+  // Update URL hash — kнопка "назад" теперь работает
+  if (pushState) {
+    const hash = page === 'home' ? '' : '#' + page;
+    history.pushState({ page }, '', window.location.pathname + hash);
+  }
 
   // fade out old
   old.style.opacity = '0';
@@ -2377,7 +2386,6 @@ function goto(page) {
     old.style.transform = '';
 
     nw.classList.add('active');
-    // force reflow
     nw.getBoundingClientRect();
     setTimeout(() => {
       nw.classList.add('visible');
@@ -2390,10 +2398,23 @@ function goto(page) {
   document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
   const nl = document.getElementById('nl-' + page);
   if (nl) nl.classList.add('active');
-  // sync page dots
   document.querySelectorAll('.page-dot').forEach(d => {
     d.classList.toggle('active', d.dataset.page === page);
   });
+  // Load explorer data on visit
+  if (page === 'explorer') { expLoadBlocks(); expLoadTxs(); }
+}
+
+// Кнопка "назад/вперёд" браузера
+window.addEventListener('popstate', (e) => {
+  const page = e.state?.page || getHashPage();
+  goto(page, false);
+});
+
+function getHashPage() {
+  const hash = window.location.hash.replace('#', '');
+  const valid = ['home','vision','ecosystem','support','explorer'];
+  return valid.includes(hash) ? hash : 'home';
 }
 
 /* ═══════════════════════════════════════
@@ -4008,8 +4029,6 @@ function readRefParam() {
     window._pendingRef = ref.toLowerCase();
   }
 }
-readRefParam();
-
 async function restoreSession() {
   const saved = S.load();
   if (!saved) return;
@@ -4365,11 +4384,28 @@ function initExplorer() {
    INIT
 ═══════════════════════════════════════ */
 window.addEventListener('DOMContentLoaded', () => {
-  // Show first page
-  const firstPage = document.getElementById('page-home');
-  firstPage.classList.add('active');
+  // Read page from URL hash (e.g. karchain.vercel.app/#explorer)
+  const startPage = getHashPage();
+
+  // Set initial history state
+  const hash = startPage === 'home' ? '' : '#' + startPage;
+  history.replaceState({ page: startPage }, '', window.location.pathname + hash);
+
+  // Show start page
+  const firstPage = document.getElementById('page-' + startPage);
+  if (firstPage) {
+    firstPage.classList.add('active');
+    currentPage = startPage;
+    // Sync nav
+    document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+    const nl = document.getElementById('nl-' + startPage);
+    if (nl) nl.classList.add('active');
+    document.querySelectorAll('.page-dot').forEach(d => {
+      d.classList.toggle('active', d.dataset.page === startPage);
+    });
+  }
   requestAnimationFrame(() => {
-    firstPage.classList.add('visible');
+    if (firstPage) firstPage.classList.add('visible');
     triggerReveal();
   });
 
@@ -4379,6 +4415,7 @@ window.addEventListener('DOMContentLoaded', () => {
   runCounters();
   initExplorer();
   restoreSession();
+  readRefParam();
 });
 </script>
 </body>
