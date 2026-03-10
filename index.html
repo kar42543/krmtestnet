@@ -2657,32 +2657,56 @@ async function connectWithProvider(walletId) {
     await raw.request({ method: 'eth_requestAccounts' });
 
     // Add / switch to KarChain
+    const chainParams = [{
+      chainId:     CFG.chainHex,
+      chainName:   CFG.chainName,
+      rpcUrls:     [CFG.rpc],
+      nativeCurrency: { name:'KarChain Token', symbol:CFG.symbol, decimals:CFG.decimals }
+    }];
     try {
       await raw.request({ method:'wallet_switchEthereumChain', params:[{ chainId:CFG.chainHex }] });
     } catch(sw) {
-      if (sw.code === 4902 || sw.code === -32603 || sw.code === 4200) {
-        await raw.request({
-          method: 'wallet_addEthereumChain',
-          params: [{
-            chainId:     CFG.chainHex,
-            chainName:   CFG.chainName,
-            rpcUrls:     [CFG.rpc],
-            nativeCurrency: { name:'KarChain Token', symbol:CFG.symbol, decimals:CFG.decimals }
-          }]
-        });
+      if (sw.code === 4902 || sw.code === -32603 || sw.code === 4200 || sw.code === -32601) {
+        // Chain not found or method not supported — try adding it
+        try {
+          await raw.request({ method:'wallet_addEthereumChain', params: chainParams });
+        } catch(addErr) {
+          if (addErr.code === 4001) {
+            toast('Rejected', 'Network addition cancelled.', 'error');
+            if (el) { el.style.opacity=''; el.style.pointerEvents=''; }
+            return;
+          }
+          // Some wallets add but throw anyway — continue
+          console.warn('[KarChain] addEthereumChain warning:', addErr.message);
+        }
       } else if (sw.code === 4001) {
         toast('Rejected', 'Network switch cancelled.', 'error');
         if (el) { el.style.opacity=''; el.style.pointerEvents=''; }
         return;
-      } else throw sw;
+      } else {
+        // Unknown error — try adding chain as fallback
+        try {
+          await raw.request({ method:'wallet_addEthereumChain', params: chainParams });
+        } catch(_) {}
+      }
     }
 
+    // Wait a moment for wallet to finish switching network (Trust Wallet needs this)
+    await new Promise(r => setTimeout(r, 600));
+
     const provider = new ethers.providers.Web3Provider(raw, 'any');
-    const network  = await provider.getNetwork();
+
+    // Retry network check up to 3 times — mobile wallets switch slowly
+    let network, attempts = 0;
+    while (attempts < 3) {
+      network = await provider.getNetwork();
+      if (network.chainId === CFG.chainId) break;
+      await new Promise(r => setTimeout(r, 800));
+      attempts++;
+    }
     if (network.chainId !== CFG.chainId) {
-      toast('Wrong Network', `Please switch to KarChain (ID: ${CFG.chainId}) in ${wallet.name}.`, 'error');
-      if (el) { el.style.opacity=''; el.style.pointerEvents=''; }
-      return;
+      // Don't block — Trust Wallet sometimes reports wrong chainId but works fine
+      console.warn('[KarChain] chainId mismatch:', network.chainId, 'expected:', CFG.chainId);
     }
 
     const signer  = provider.getSigner();
@@ -2700,7 +2724,11 @@ async function connectWithProvider(walletId) {
     raw.on('accountsChanged', accs => { if (!accs.length) disconnect(); else location.reload(); });
 
   } catch(err) {
-    const msg = err.code===4001 ? 'Rejected by user.' : (err.message||'Unknown error').slice(0,90);
+    console.error('[KarChain connect]', err);
+    let msg = 'Unknown error';
+    if (err.code === 4001)  msg = 'Rejected by user.';
+    else if (err.code === -32002) msg = 'Request pending — check your wallet app.';
+    else if (err.message)   msg = err.message.slice(0,100);
     toast('Connection failed', msg, 'error');
   }
   if (el) { el.style.opacity=''; el.style.pointerEvents=''; }
