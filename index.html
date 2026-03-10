@@ -10,14 +10,14 @@
 <meta name="keywords" content="KarChain, KRM, testnet, blockchain, crypto, faucet, earn tokens, genesis block, layer 1, consensus, EVM, Web3">
 <meta name="author" content="KarChain">
 <meta name="robots" content="index, follow">
-<link rel="canonical" href="https://krmtestnet.vercel.app/">
+<link rel="canonical" href="https://karchain.vercel.app/">
 
 <!-- ═══ OPEN GRAPH (Facebook, Telegram, WhatsApp previews) ═══ -->
 <meta property="og:type"        content="website">
-<meta property="og:url"         content="https://krmtestnet.vercel.app/">
+<meta property="og:url"         content="https://karchain.vercel.app/">
 <meta property="og:title"       content="KarChain Testnet — Earn KRM Tokens">
 <meta property="og:description" content="Join the KarChain Incentivized Testnet. Claim tokens, complete tasks, earn genesis block rewards. Connect your wallet and start earning KRM.">
-<meta property="og:image"       content="https://krmtestnet.vercel.app/og-image.png">
+<meta property="og:image"       content="https://karchain.vercel.app/og-image.png">
 <meta property="og:site_name"   content="KarChain">
 <meta property="og:locale"      content="en_US">
 
@@ -27,7 +27,7 @@
 <meta name="twitter:creator"     content="@karim7652117665">
 <meta name="twitter:title"       content="KarChain Testnet — Earn KRM Tokens">
 <meta name="twitter:description" content="Join the KarChain Incentivized Testnet. Claim tokens, complete tasks, earn genesis block rewards.">
-<meta name="twitter:image"       content="https://krmtestnet.vercel.app/og-image.png">
+<meta name="twitter:image"       content="https://karchain.vercel.app/og-image.png">
 
 <!-- ═══ STRUCTURED DATA — Google Rich Results ═══ -->
 <script type="application/ld+json">
@@ -35,7 +35,8 @@
   "@context": "https://schema.org",
   "@type": "WebApplication",
   "name": "KarChain Testnet",
-  "url": "https://krmtestnet.vercel.app",
+  "url": "https://karchain.vercel.app",
+      "logo": "https://karchain.vercel.app/favicon.svg",
   "description": "KarChain Incentivized Testnet — claim KRM tokens, complete on-chain tasks, earn genesis block rewards.",
   "applicationCategory": "BlockchainApplication",
   "operatingSystem": "Web Browser",
@@ -48,7 +49,7 @@
   "creator": {
     "@type": "Organization",
     "name": "KarChain",
-    "url": "https://krmtestnet.vercel.app",
+    "url": "https://karchain.vercel.app",
     "sameAs": [
       "https://x.com/karim7652117665",
       "https://t.me/KarChainDEV"
@@ -58,8 +59,11 @@
 </script>
 
 <!-- ═══ SITEMAP HINT ═══ -->
-<link rel="sitemap" type="application/xml" href="https://krmtestnet.vercel.app/sitemap.xml">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%23020302'/%3E%3Cpath d='M22 12 V88' stroke='%233dff7a' stroke-width='9' stroke-linecap='round'/%3E%3Cpath d='M78 12 L22 50 L78 88' stroke='%233dff7a' stroke-width='9' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='22' cy='50' r='9' fill='%2322e65a'/%3E%3Ccircle cx='78' cy='12' r='7' fill='%2322e65a'/%3E%3Ccircle cx='78' cy='88' r='7' fill='%2322e65a'/%3E%3C/svg%3E">
+<link rel="sitemap" type="application/xml" href="https://karchain.vercel.app/sitemap.xml">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="shortcut icon" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/favicon.svg">
+<meta name="theme-color" content="#020302">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
@@ -1807,40 +1811,57 @@ footer {
         <div class="tasks-wrap">
           <div class="tasks-header">
             <div class="tasks-title"><i class="fa-solid fa-list-check"></i>Incentivized Tasks</div>
-            <span style="font-size:11px;color:var(--muted)">Complete all 3 · Qualify for genesis rewards</span>
+            <span style="font-size:11px;color:var(--muted)">Complete all 4 · Qualify for genesis rewards</span>
           </div>
           <div class="task-grid">
 
-            <!-- Task 1 -->
-            <div class="task-card tc-unlocked" id="tc1">
+            <!-- Task 1 — Social (unlock after L1 claim) -->
+            <div class="task-card tc-locked" id="tc1">
               <span class="task-step step-1">Step 1</span>
               <div class="task-ico ti-blue"><i class="fa-solid fa-users"></i></div>
               <div class="task-name">Social Identity</div>
-              <div class="task-desc">Follow our X (Twitter) account and join the Telegram community to verify your social identity.</div>
+              <div class="task-desc">Follow KarChain on X and join Telegram. Unlocked after first faucet claim.</div>
               <button class="task-btn tb-x" onclick="doTwitter()"><i class="fa-brands fa-x-twitter"></i>Follow on X</button>
               <button class="task-btn tb-tg" onclick="doTelegram()"><i class="fa-brands fa-telegram"></i>Join Telegram</button>
               <button class="task-btn tb-verify" id="t1verify" onclick="verifyT1()"><i class="fa-solid fa-check-circle"></i>Verify Completion</button>
               <div class="task-reward"><span>Reward</span><strong>+10 KRM</strong></div>
             </div>
 
-            <!-- Task 2 -->
+            <!-- Task 2 — First TX (unlock after task 1) -->
             <div class="task-card tc-locked" id="tc2">
               <span class="task-step step-2">Step 2</span>
               <div class="task-ico ti-purple"><i class="fa-solid fa-arrow-right-arrow-left"></i></div>
               <div class="task-name">First Transaction</div>
-              <div class="task-desc">Broadcast a real transaction on KarChain network to demonstrate live on-chain activity.</div>
+              <div class="task-desc">Send a real on-chain transaction on KarChain. Verified directly from blockchain.</div>
               <button class="task-btn tb-purple" onclick="doSendTx()"><i class="fa-solid fa-bolt"></i>Send Test TX (0.001 KRM)</button>
-              <button class="task-btn tb-verify" id="t2verify" onclick="verifyT2()"><i class="fa-solid fa-magnifying-glass"></i>Verify Transaction</button>
-              <div class="task-reward"><span>Reward</span><strong>+25 KRM</strong></div>
+              <button class="task-btn tb-verify" id="t2verify" onclick="verifyT2()"><i class="fa-solid fa-magnifying-glass"></i>Verify On-Chain</button>
+              <div class="task-reward"><span>Reward</span><strong>+25 KRM · Unlocks Daily Boost</strong></div>
             </div>
 
-            <!-- Task 3 -->
+            <!-- Task 3 — Invite Friend (unlock after task 2) -->
             <div class="task-card tc-locked" id="tc3">
-              <span class="task-step step-3">Final</span>
-              <div class="task-ico ti-orange"><i class="fa-solid fa-file-signature"></i></div>
+              <span class="task-step step-3">Step 3</span>
+              <div class="task-ico ti-orange"><i class="fa-solid fa-user-plus"></i></div>
+              <div class="task-name">Invite a Friend</div>
+              <div class="task-desc">Share your referral link. Verified when your friend makes their first transaction on KarChain.</div>
+              <div id="t3refArea" style="display:none">
+                <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px">
+                  <input id="t3refInput" readonly style="flex:1;background:rgba(255,255,255,.04);border:1px solid var(--border2);border-radius:8px;padding:8px 10px;color:var(--green);font-family:var(--font-mono);font-size:10px;outline:none" placeholder="Connect wallet to get link">
+                  <button class="task-btn tb-orange" style="margin:0;padding:8px 12px;white-space:nowrap" onclick="copyRefLink()"><i class="fa-solid fa-copy"></i>Copy</button>
+                </div>
+                <div style="font-size:10px;color:var(--muted);margin-bottom:8px">Friend must connect wallet and send a transaction to verify.</div>
+              </div>
+              <button class="task-btn tb-verify" id="t3verify" onclick="verifyT3()"><i class="fa-solid fa-magnifying-glass"></i>Check Referral</button>
+              <div class="task-reward"><span>Reward</span><strong>+30 KRM</strong></div>
+            </div>
+
+            <!-- Task 4 — Genesis (unlock after task 3) -->
+            <div class="task-card tc-locked" id="tc4">
+              <span class="task-step step-4">Final</span>
+              <div class="task-ico" style="background:rgba(251,191,36,.08);color:#fbbf24"><i class="fa-solid fa-file-signature"></i></div>
               <div class="task-name">Genesis Registration</div>
-              <div class="task-desc">Submit your wallet address to be included in the KarChain genesis block at mainnet launch.</div>
-              <button class="task-btn tb-orange" id="t3btn" onclick="doForm()" style="opacity:.4;pointer-events:none"><i class="fa-solid fa-pen-to-square"></i>Open Registration Form</button>
+              <div class="task-desc">Register your wallet for KarChain genesis block inclusion at mainnet launch.</div>
+              <button class="task-btn tb-orange" id="t4btn" onclick="doForm()"><i class="fa-solid fa-pen-to-square"></i>Open Registration Form</button>
               <div class="task-reward"><span>Reward</span><strong>+50 KRM</strong></div>
             </div>
 
@@ -1852,7 +1873,7 @@ footer {
           <div class="prog-header">
             <span class="prog-label">
               Overall Progress
-              <span class="prog-chip" id="progChip">0 / 3 Tasks</span>
+              <span class="prog-chip" id="progChip">0 / 4 Tasks</span>
             </span>
             <span class="prog-reward" id="progReward">+0 KRM Earned</span>
           </div>
@@ -2306,6 +2327,10 @@ const S = {
   setL2()           { localStorage.setItem('kc_l2_'+this.address,'1'); },
   get socialDone()  { return localStorage.getItem('kc_social')==='1'; },
   setSocial()       { localStorage.setItem('kc_social','1'); },
+  get refDone()     { return localStorage.getItem('kc_ref_'+this.address)==='1'; },
+  setRefDone()      { localStorage.setItem('kc_ref_'+this.address,'1'); },
+  get refBy()       { return localStorage.getItem('kc_refby_'+this.address)||''; },
+  setRefBy(addr)    { if(!this.refBy) localStorage.setItem('kc_refby_'+this.address, addr); },
   get txDone()      { return localStorage.getItem('kc_txd_'+this.address)==='1'; },
   setTxDone()       { localStorage.setItem('kc_txd_'+this.address,'1'); },
   save()            { localStorage.setItem(this.key('addr'),this.address); if(this.walletId) localStorage.setItem(this.key('walletId'),this.walletId); },
@@ -2524,9 +2549,9 @@ function renderWalletList() {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
     if (isMobile) {
       // Deep links — open wallet app directly and navigate back to site
-      const mmDeep   = `https://metamask.app.link/dapp/krmtestnet.vercel.app`; 
-      const twDeep   = `https://link.trustwallet.com/open_url?coin_id=60&url=https%3A%2F%2Fkrmtestnet.vercel.app`;
-      const cbDeep   = `https://go.cb-w.com/dapp?cb_url=https%3A%2F%2Fkrmtestnet.vercel.app`;
+      const mmDeep   = `https://metamask.app.link/dapp/karchain.vercel.app`; 
+      const twDeep   = `https://link.trustwallet.com/open_url?coin_id=60&url=https%3A%2F%2Fkarchain.vercel.app`;
+      const cbDeep   = `https://go.cb-w.com/dapp?cb_url=https%3A%2F%2Fkarchain.vercel.app`;
       list.innerHTML = `
         <div style="padding:16px 0 8px;border-bottom:1px solid rgba(255,255,255,.06);margin-bottom:12px">
           <div style="font-size:10px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;text-align:center">Open in wallet app</div>
@@ -2599,11 +2624,11 @@ function renderWalletList() {
       </div>
       <div style="margin-bottom:8px">
         <div style="font-size:9px;color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px">Open in wallet app</div>
-        <a href="https://metamask.app.link/dapp/krmtestnet.vercel.app" class="wallet-option" style="--wo-color:rgba(246,133,27,.12);--wo-border:rgba(246,133,27,.28);text-decoration:none;display:flex;align-items:center;gap:14px">
+        <a href="https://metamask.app.link/dapp/karchain.vercel.app" class="wallet-option" style="--wo-color:rgba(246,133,27,.12);--wo-border:rgba(246,133,27,.28);text-decoration:none;display:flex;align-items:center;gap:14px">
           <div class="wo-icon" style="background:rgba(246,133,27,.12);border:1px solid rgba(246,133,27,.28)"><img src="https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg" width="28" height="28" alt="MetaMask"></div>
           <div><div class="wo-name">MetaMask</div><div class="wo-sub">Open in app →</div></div>
         </a>
-        <a href="https://link.trustwallet.com/open_url?coin_id=60&url=https%3A%2F%2Fkrmtestnet.vercel.app" class="wallet-option" style="--wo-color:rgba(51,117,187,.12);--wo-border:rgba(51,117,187,.28);text-decoration:none;display:flex;align-items:center;gap:14px">
+        <a href="https://link.trustwallet.com/open_url?coin_id=60&url=https%3A%2F%2Fkarchain.vercel.app" class="wallet-option" style="--wo-color:rgba(51,117,187,.12);--wo-border:rgba(51,117,187,.28);text-decoration:none;display:flex;align-items:center;gap:14px">
           <div class="wo-icon" style="background:rgba(51,117,187,.12);border:1px solid rgba(51,117,187,.28)"><img src="https://trustwallet.com/assets/images/favicon.png" width="28" height="28" alt="Trust"></div>
           <div><div class="wo-name">Trust Wallet</div><div class="wo-sub">Open in app →</div></div>
         </a>
@@ -3024,7 +3049,8 @@ async function claimL1() {
   renderL2();
   renderDDTxs();
   renderTxs();
-  toast('1 KRM claimed!', 'Level 2 faucet is now unlocked.', 'success');
+  renderTasks(); // unlocks Task 1 after first claim
+  toast('1 KRM claimed!', 'Task 1 is now unlocked — complete social steps!', 'success');
 }
 
 /* ═══════════════════════════════════════
@@ -3035,15 +3061,18 @@ function renderL2() {
   const card = document.getElementById('l2Card');
   if (!S.address) return;
 
-  if (!S.l2Unlocked) {
+  // L2 unlocks only after Task 2 (First Transaction) is complete
+  const task2Done = S.hasTask(2);
+  if (!task2Done) {
     card.classList.add('fc-locked');
     box.innerHTML = `
       <div style="text-align:center;padding:14px;background:rgba(255,255,255,.02);border:1px solid var(--border2);border-radius:10px">
         <i class="fa-solid fa-lock" style="font-size:20px;color:var(--muted);display:block;margin-bottom:6px"></i>
-        <span style="font-size:11px;color:var(--muted)">Complete Level 1 to unlock</span>
+        <span style="font-size:11px;color:var(--muted)">Complete Task 2 (First Transaction) to unlock</span>
       </div>`;
     return;
   }
+  if (!S.l2Unlocked) S.setL2();
 
   card.classList.remove('fc-locked');
 
@@ -3140,19 +3169,45 @@ async function claimL2() {
    TASKS
 ═══════════════════════════════════════ */
 function renderTasks() {
+  // Task 1 (Social) — unlocks after L1 faucet claimed
+  const l1Claimed = parseInt(localStorage.getItem('kc_l1_'+S.address)||'0') > 0;
+  if (l1Claimed && !S.hasTask(1)) unlock(1);
   if (S.hasTask(1)) markDone(1);
-  else if (S.socialDone) setVerifyReady('t1verify');
+  else if (l1Claimed && S.socialDone) setVerifyReady('t1verify');
 
+  // Task 2 (TX) — unlocks after Task 1
   if (S.hasTask(1)) unlock(2);
-  if (S.hasTask(2)) markDone(2);
+  if (S.hasTask(2)) {
+    markDone(2);
+    // Completing Task 2 unlocks L2 faucet
+    renderL2();
+  }
   else if (S.txDone && S.hasTask(1)) setVerifyReady('t2verify');
 
+  // Task 3 (Referral) — unlocks after Task 2
   if (S.hasTask(2)) {
     unlock(3);
-    const b = document.getElementById('t3btn');
-    if (b) { b.style.opacity='1'; b.style.pointerEvents='auto'; }
+    // Show referral link
+    const refArea = document.getElementById('t3refArea');
+    if (refArea) {
+      refArea.style.display = 'block';
+      const inp = document.getElementById('t3refInput');
+      if (inp && S.address) inp.value = `https://karchain.vercel.app/?ref=${S.address}`;
+    }
   }
   if (S.hasTask(3)) markDone(3);
+  else if (S.hasTask(2) && S.refDone) setVerifyReady('t3verify');
+
+  // Task 4 (Genesis) — unlocks after Task 3
+  if (S.hasTask(3)) {
+    unlock(4);
+    const b = document.getElementById('t4btn');
+    if (b) { b.style.opacity='1'; b.style.pointerEvents='auto'; }
+  }
+  if (S.hasTask(4)) markDone(4);
+
+  // Progress
+  renderProgress();
 }
 
 function unlock(n) {
@@ -3174,15 +3229,16 @@ function markDone(n) {
   }
   if (n===1) { const b=document.getElementById('t1verify'); if(b){b.className='task-btn tb-verify v-done';b.innerHTML='<i class="fa-solid fa-check-circle"></i>Verified';b.onclick=null;} }
   if (n===2) { const b=document.getElementById('t2verify'); if(b){b.className='task-btn tb-verify v-done';b.innerHTML='<i class="fa-solid fa-check-circle"></i>Verified';b.onclick=null;} }
-  if (n===3) { const b=document.getElementById('t3btn'); if(b){b.className='task-btn tb-orange';b.style.opacity='1';b.style.pointerEvents='none';b.innerHTML='<i class="fa-solid fa-check-circle"></i>Registered';} }
+  if (n===3) { const b=document.getElementById('t3verify'); if(b){b.className='task-btn tb-verify v-done';b.innerHTML='<i class="fa-solid fa-check-circle"></i>Friend Verified';b.onclick=null;} }
+  if (n===4) { const b=document.getElementById('t4btn'); if(b){b.className='task-btn tb-orange';b.style.opacity='1';b.style.pointerEvents='none';b.innerHTML='<i class="fa-solid fa-check-circle"></i>Registered';} }
 }
 
 function renderProgress() {
   const count = S.tasks.length;
-  const map   = {1:10,2:25,3:50};
+  const map   = {1:10, 2:25, 3:30, 4:50};
   const total = S.tasks.reduce((s,n)=>s+(map[n]||0),0);
-  document.getElementById('progChip').textContent  = `${count} / 3 Tasks`;
-  document.getElementById('progFill').style.width  = (count/3*100) + '%';
+  document.getElementById('progChip').textContent  = `${count} / 4 Tasks`;
+  document.getElementById('progFill').style.width  = (count/4*100) + '%';
   document.getElementById('progReward').textContent = `+${total} KRM Earned`;
 }
 
@@ -3232,6 +3288,12 @@ async function doSendTx() {
     TX_CACHE.delete(S.address.toLowerCase());
     await renderTxs(); await renderDDTxs();
     setVerifyReady('t2verify');
+    // If came via referral link — notify referrer
+    const refBy = S.refBy;
+    if (refBy) {
+      const refKey = 'kc_ref_confirmed_' + refBy;
+      localStorage.setItem(refKey, S.address.toLowerCase());
+    }
     toast('TX confirmed!','Transaction confirmed on KarChain. Click Verify.','success');
     if (btn) { btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-bolt"></i>Send Test TX (0.001 KRM)'; }
   } catch(err) {
@@ -3241,37 +3303,97 @@ async function doSendTx() {
   }
 }
 
-function verifyT2() {
+async function verifyT2() {
   const b = document.getElementById('t2verify');
   if (!b || !b.classList.contains('v-ready')) return;
-  b.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Verifying…';
+  b.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Checking blockchain…';
   b.style.pointerEvents = 'none';
-  setTimeout(() => {
+  try {
+    // Real on-chain check — transaction count must be > 0
+    const nonce = await rpc('eth_getTransactionCount', [S.address, 'latest']);
+    const txCount = parseInt(nonce || '0x0', 16);
+    if (txCount === 0) {
+      b.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i>Verify On-Chain';
+      b.style.pointerEvents = 'auto';
+      toast('No transactions found', 'Send a transaction first, then verify.', 'error');
+      return;
+    }
     S.addTask(2);
     const nb = (parseFloat(S.balance)+25).toFixed(4);
     S.balance = nb;
     updateDashboardBalance(nb);
-    
-    markDone(2); unlock(3);
-    const b3 = document.getElementById('t3btn');
-    if (b3) { b3.style.opacity='1'; b3.style.pointerEvents='auto'; }
+    markDone(2);
+    unlock(3);
+    // Show referral area
+    const refArea = document.getElementById('t3refArea');
+    if (refArea) {
+      refArea.style.display = 'block';
+      const inp = document.getElementById('t3refInput');
+      if (inp) inp.value = `https://karchain.vercel.app/?ref=${S.address}`;
+    }
+    renderL2(); // unlock L2 faucet
     renderProgress();
-    toast('Task 2 Complete!', '+25 KRM added. Final step unlocked.', 'success');
-  }, 1800);
+    toast('Task 2 Complete!', `+25 KRM · ${txCount} transaction(s) verified on-chain.`, 'success');
+  } catch(err) {
+    b.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i>Verify On-Chain';
+    b.style.pointerEvents = 'auto';
+    toast('Verification failed', 'Could not reach KarChain node.', 'error');
+  }
+}
+
+function copyRefLink() {
+  const inp = document.getElementById('t3refInput');
+  if (!inp) return;
+  navigator.clipboard.writeText(inp.value).then(() => {
+    toast('Link copied!', 'Share it with a friend. They must connect and send a TX.', 'success');
+  });
+}
+
+async function verifyT3() {
+  const b = document.getElementById('t3verify');
+  if (!b || !b.classList.contains('v-ready')) return;
+  b.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Checking blockchain…';
+  b.style.pointerEvents = 'none';
+  try {
+    // Find all addresses that came via this referral
+    // We check localStorage for any stored ref confirmations
+    // (set when friend connects with ?ref=ourAddress and makes a TX)
+    const refKey = 'kc_ref_confirmed_' + S.address.toLowerCase();
+    const confirmed = localStorage.getItem(refKey);
+    if (!confirmed) {
+      b.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i>Check Referral';
+      b.style.pointerEvents = 'auto';
+      toast('No referral yet', 'Your friend must open your link, connect wallet, and send a transaction.', 'error');
+      return;
+    }
+    S.addTask(3);
+    const nb = (parseFloat(S.balance)+30).toFixed(4);
+    S.balance = nb;
+    updateDashboardBalance(nb);
+    markDone(3);
+    unlock(4);
+    const b4 = document.getElementById('t4btn');
+    if (b4) { b4.style.opacity='1'; b4.style.pointerEvents='auto'; }
+    renderProgress();
+    toast('Task 3 Complete!', '+30 KRM · Referral verified on-chain.', 'success');
+  } catch(err) {
+    b.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i>Check Referral';
+    b.style.pointerEvents = 'auto';
+    toast('Error', 'Could not verify referral.', 'error');
+  }
 }
 
 function doForm() {
   const url = CFG.form + '?entry.1234567890=' + encodeURIComponent(S.address||'');
   window.open(url,'_blank');
-  const btn = document.getElementById('t3btn');
+  const btn = document.getElementById('t4btn');
   if (btn) { btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i>Processing…'; btn.style.pointerEvents='none'; }
   setTimeout(() => {
-    S.addTask(3);
+    S.addTask(4);
     const nb = (parseFloat(S.balance)+50).toFixed(4);
     S.balance = nb;
     updateDashboardBalance(nb);
-    
-    markDone(3); renderProgress();
+    markDone(4); renderProgress();
     toast('Genesis Registration Complete!', '+50 KRM · Your wallet is queued for genesis block inclusion.', 'success');
   }, 3000);
 }
@@ -3849,6 +3971,17 @@ window.addEventListener('scroll', () => {
 /* ═══════════════════════════════════════
    SESSION RESTORE
 ═══════════════════════════════════════ */
+// Read referral param from URL
+function readRefParam() {
+  const params = new URLSearchParams(window.location.search);
+  const ref = params.get('ref');
+  if (ref && /^0x[0-9a-fA-F]{40}$/.test(ref)) {
+    // Store temporarily until wallet connects
+    window._pendingRef = ref.toLowerCase();
+  }
+}
+readRefParam();
+
 async function restoreSession() {
   const saved = S.load();
   if (!saved) return;
