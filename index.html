@@ -4086,7 +4086,7 @@ async function restoreSession() {
   await new Promise(r => setTimeout(r, 500));
   let waited = 0;
   while (waited < 2500) {
-    if (window._detectedProviders?.length || window.ethereum) break;
+    if (DETECTED_WALLETS.size > 0 || window.ethereum) break;
     await new Promise(r => setTimeout(r, 200));
     waited += 200;
   }
@@ -4094,32 +4094,27 @@ async function restoreSession() {
   try {
     let raw = null;
 
-    // 1. Exact rdns match via EIP-6963
-    if (savedRdns && window._detectedProviders?.length) {
-      const found = window._detectedProviders.find(p => p.info.rdns === savedRdns);
+    // 1. Exact match from DETECTED_WALLETS map (EIP-6963)
+    if (savedRdns && DETECTED_WALLETS.size > 0) {
+      const found = DETECTED_WALLETS.get(savedRdns);
       if (found) raw = found.provider;
     }
 
-    // 2. Legacy property match for known wallets
+    // 2. Legacy property fallback — for wallets that don't support EIP-6963
     if (!raw && savedRdns) {
-      const providers = window._detectedProviders?.map(p => p.provider) || [];
-      if (savedRdns === 'io.metamask') {
-        raw = providers.find(p => p.isMetaMask && !p.isPhantom && !p.isBraveWallet)
-           || (window.ethereum?.isMetaMask && !window.ethereum?.isPhantom ? window.ethereum : null);
-      } else if (savedRdns === 'com.trustwallet.app') {
-        raw = providers.find(p => p.isTrust || p.isTrustWallet)
-           || (window.ethereum?.isTrust ? window.ethereum : null);
-      } else if (savedRdns === 'com.okex.wallet') {
-        raw = window.okxwallet
-           || providers.find(p => p.isOKExWallet || p.isOkxWallet);
-      } else if (savedRdns === 'com.coinbase.wallet') {
-        raw = providers.find(p => p.isCoinbaseWallet);
+      if (savedRdns === 'io.metamask' || savedRdns === 'legacy-mm') {
+        raw = window.ethereum?.isMetaMask && !window.ethereum?.isPhantom ? window.ethereum : null;
+      } else if (savedRdns === 'com.trustwallet.app' || savedRdns === 'legacy-tw') {
+        raw = window.ethereum?.isTrust || window.ethereum?.isTrustWallet ? window.ethereum : null;
+      } else if (savedRdns === 'com.okex.wallet' || savedRdns === 'legacy-okx') {
+        raw = window.okxwallet || null;
+      } else if (savedRdns === 'com.coinbase.wallet' || savedRdns === 'legacy-cb') {
+        raw = window.ethereum?.isCoinbaseWallet ? window.ethereum : null;
       }
     }
 
-    // 3. Ultimate fallback — use window.ethereum if accounts already unlocked
-    //    This handles cases where only one wallet is installed
-    if (!raw && window.ethereum) {
+    // 3. Last resort — window.ethereum (only one wallet installed)
+    if (!raw && DETECTED_WALLETS.size === 0 && window.ethereum) {
       raw = window.ethereum;
     }
 
