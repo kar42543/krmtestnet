@@ -2547,11 +2547,13 @@ function renderWalletList() {
     // If multiple providers injected, find MetaMask specifically
     const providers = window.ethereum.providers || [window.ethereum];
     const mm = providers.find(p => p.isMetaMask && !p.isPhantom && !p.isBraveWallet);
-    const tw = providers.find(p => p.isTrust || p.isTrustWallet);
+    const tw  = providers.find(p => p.isTrust || p.isTrustWallet);
+    const okx = window.okxwallet || providers.find(p => p.isOKExWallet || p.isOkxWallet);
     const cb = providers.find(p => p.isCoinbaseWallet || p.isCoinbaseBrowser);
 
     if (mm) options.push({ id:'legacy-mm', name:'MetaMask', icon:'https://upload.wikimedia.org/wikipedia/commons/3/36/MetaMask_Fox.svg', sub:'Browser Extension', color:'rgba(246,133,27,.15)', border:'rgba(246,133,27,.3)', provider:mm, detected:false });
-    if (tw) options.push({ id:'legacy-tw', name:'Trust Wallet', icon:'https://trustwallet.com/assets/images/favicon.png', sub:'Mobile / Extension', color:'rgba(51,117,187,.15)', border:'rgba(51,117,187,.3)', provider:tw, detected:false });
+    if (tw)  options.push({ id:'legacy-tw',  rdns:'com.trustwallet.app', name:'Trust Wallet', icon:'https://trustwallet.com/assets/images/favicon.png', sub:'Mobile / Extension', color:'rgba(51,117,187,.15)', border:'rgba(51,117,187,.3)', provider:tw,  detected:false });
+    if (okx) options.push({ id:'legacy-okx', rdns:'com.okex.wallet', name:'OKX Wallet', icon:'https://static.oklink.com/cdn/assets/imgs/okx-logo.png', sub:'Extension', color:'rgba(255,255,255,.08)', border:'rgba(255,255,255,.2)', provider:okx, detected:false });
     if (cb) options.push({ id:'legacy-cb', name:'Coinbase Wallet', icon:'https://avatars.githubusercontent.com/u/18060234?s=60', sub:'Browser Extension', color:'rgba(0,82,255,.12)', border:'rgba(0,82,255,.25)', provider:cb, detected:false });
 
     // Generic fallback
@@ -2736,6 +2738,10 @@ async function connectWithProvider(walletId) {
     S.address = address; S.provider = provider; S.signer = signer;
     S.walletName = wallet.name;
     S.walletId = walletId;
+    // Save rdns for reliable restore — this is the stable identifier
+    const _rdns = wallet.rdns || walletId;
+    localStorage.setItem('kc_last_rdns', _rdns);
+    localStorage.setItem('kc_last_addr', address.toLowerCase());
     S.save();
     closeModal();
     await setConnected(address, null, wallet.name);
@@ -2923,16 +2929,13 @@ async function setConnected(address, preBalance, walletName) {
   renderL1(); renderL2(); renderTasks(); renderProgress();
   renderTxs();
   renderDDTxs();
+  // Async: restore completed tasks from blockchain (works across devices)
+  restoreTasksFromChain(address);
 
-  // Give welcome bonus to new users after data loads
+  // Welcome message for new users — point them to faucet
   if (isNewUser) {
     setTimeout(() => {
-      const welcomeBal = (parseFloat(S.balance) + 1).toFixed(4);
-      S.balance = welcomeBal;
-      updateDashboardBalance(welcomeBal);
-      S.addTx({ hash:'0x'+[...Array(64)].map(()=>Math.floor(Math.random()*16).toString(16)).join(''), value:'1.0000', type:'Welcome Bonus' });
-      toast('🎉 Welcome to KarChain!', '+1 KRM welcome bonus added to your balance.', 'success');
-      renderDDTxs();
+      toast('🎉 Welcome to KarChain!', 'Claim your first KRM from the faucet below.', 'info');
     }, 1500);
   }
 }
@@ -3106,19 +3109,29 @@ function doCaptcha() {
 
 async function claimL1() {
   if (!S.capDone) { toast('CAPTCHA required', 'Please complete the verification.', 'error'); return; }
-  S.setL1();
-  S.setL2();
-  const newBal = (parseFloat(S.balance) + 1).toFixed(4);
-  S.balance = newBal;
-  updateDashboardBalance(newBal);
-  S.addTx({ hash:'0x'+[...Array(64)].map(()=>Math.floor(Math.random()*16).toString(16)).join(''), value:'1.0000', type:'Faucet L1 Claim' });
-  TX_CACHE.delete(S.address?.toLowerCase());
-  renderL1();
-  renderL2();
-  renderDDTxs();
-  renderTxs();
-  renderTasks(); // unlocks Task 1 after first claim
-  toast('1 KRM claimed!', 'Task 1 is now unlocked — complete social steps!', 'success');
+  if (!S.signer)  { toast('Not connected', 'Connect wallet first.', 'error'); return; }
+
+  const btn = document.getElementById('claimL1Btn');
+  if (btn) { btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i>Recording on-chain…'; }
+
+  try {
+    // Write faucet claim to blockchain
+    const tx = await sendActionTx('FAUCET_L1');
+
+    S.setL1();
+    S.setL2();
+    const newBal = (parseFloat(S.balance) + 1).toFixed(4);
+    S.balance = newBal;
+    updateDashboardBalance(newBal);
+    S.addTx({ hash:tx.hash, value:'1.0000', type:'Faucet L1 Claim' });
+    renderL1(); renderL2(); renderDDTxs(); renderTxs();
+    renderTasks();
+    toast('1 KRM claimed!', 'Recorded on-chain · Task 1 unlocked!', 'success');
+  } catch(err) {
+    if (btn) { btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-droplet"></i>Claim 1 KRM'; }
+    if (err.code === 4001) toast('Rejected', 'Transaction cancelled.', 'error');
+    else toast('Claim failed', (err.message||'Error').slice(0,80), 'error');
+  }
 }
 
 /* ═══════════════════════════════════════
@@ -3237,11 +3250,17 @@ async function claimL2() {
    TASKS
 ═══════════════════════════════════════ */
 function renderTasks() {
-  // Task 1 (Social) — unlocks after L1 faucet claimed
+  // Task 1 (Social) — unlocks after L1 faucet claimed (check localStorage first for speed)
   const l1Claimed = parseInt(localStorage.getItem('kc_l1_'+S.address)||'0') > 0;
   if (l1Claimed && !S.hasTask(1)) unlock(1);
   if (S.hasTask(1)) markDone(1);
   else if (l1Claimed && S.socialDone) setVerifyReady('t1verify');
+  // Also trigger async on-chain check if not yet confirmed locally
+  if (!l1Claimed) {
+    checkOnChainAction(S.address, 'FAUCET_L1', 300).then(r => {
+      if (r.found) { S.setL1(); unlock(1); if (S.socialDone) setVerifyReady('t1verify'); }
+    });
+  }
 
   // Task 2 (TX) — unlocks after Task 1
   if (S.hasTask(1)) unlock(2);
@@ -3324,20 +3343,25 @@ function doTelegram() {
   toast('Join Telegram','Come back and click Verify Completion.','info');
 }
 
-function verifyT1() {
+async function verifyT1() {
   const b = document.getElementById('t1verify');
   if (!b || !b.classList.contains('v-ready')) return;
-  b.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Verifying…';
+  b.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Recording on-chain…';
   b.style.pointerEvents = 'none';
-  setTimeout(() => {
+  try {
+    const tx = await sendActionTx('TASK1');
     S.addTask(1);
     const nb = (parseFloat(S.balance)+10).toFixed(4);
     S.balance = nb;
     updateDashboardBalance(nb);
-    
     markDone(1); unlock(2); renderProgress();
-    toast('Task 1 Complete!', '+10 KRM added. Step 2 is now unlocked.', 'success');
-  }, 1800);
+    toast('Task 1 Complete!', '+10 KRM · Recorded on-chain.', 'success');
+  } catch(err) {
+    b.innerHTML = '<i class="fa-solid fa-check-circle"></i>Verify Completion';
+    b.style.pointerEvents = 'auto';
+    if (err.code === 4001) toast('Rejected', 'Transaction cancelled.', 'error');
+    else toast('Error', (err.message||'Failed').slice(0,80), 'error');
+  }
 }
 
 async function doSendTx() {
@@ -3356,11 +3380,11 @@ async function doSendTx() {
     TX_CACHE.delete(S.address.toLowerCase());
     await renderTxs(); await renderDDTxs();
     setVerifyReady('t2verify');
-    // If came via referral link — notify referrer
+    // If came via referral link — write it to blockchain
     const refBy = S.refBy;
     if (refBy) {
-      const refKey = 'kc_ref_confirmed_' + refBy;
-      localStorage.setItem(refKey, S.address.toLowerCase());
+      // Fire and forget — write REF:referrerAddress to chain
+      sendActionTx('REF:' + refBy).catch(e => console.warn('[ref tx]', e.message));
     }
     toast('TX confirmed!','Transaction confirmed on KarChain. Click Verify.','success');
     if (btn) { btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-bolt"></i>Send Test TX (0.001 KRM)'; }
@@ -3419,19 +3443,16 @@ function copyRefLink() {
 
 async function verifyT3() {
   const b = document.getElementById('t3verify');
-  if (!b || !b.classList.contains('v-ready')) return;
-  b.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Checking blockchain…';
+  if (!b) return;
+  b.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Scanning blockchain…';
   b.style.pointerEvents = 'none';
   try {
-    // Find all addresses that came via this referral
-    // We check localStorage for any stored ref confirmations
-    // (set when friend connects with ?ref=ourAddress and makes a TX)
-    const refKey = 'kc_ref_confirmed_' + S.address.toLowerCase();
-    const confirmed = localStorage.getItem(refKey);
-    if (!confirmed) {
+    // Scan chain for any tx with KARCHAIN:REF:myAddress from another address
+    const result = await checkOnChainReferral(S.address, 500);
+    if (!result.found) {
       b.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i>Check Referral';
       b.style.pointerEvents = 'auto';
-      toast('No referral yet', 'Your friend must open your link, connect wallet, and send a transaction.', 'error');
+      toast('No referral found', 'Friend must open your link, connect wallet, and send a transaction.', 'error');
       return;
     }
     S.addTask(3);
@@ -3443,27 +3464,33 @@ async function verifyT3() {
     const b4 = document.getElementById('t4btn');
     if (b4) { b4.style.opacity='1'; b4.style.pointerEvents='auto'; }
     renderProgress();
-    toast('Task 3 Complete!', '+30 KRM · Referral verified on-chain.', 'success');
+    toast('Task 3 Complete!', `+30 KRM · Referral from ${result.friendAddr.slice(0,10)}… verified on-chain.`, 'success');
   } catch(err) {
     b.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i>Check Referral';
     b.style.pointerEvents = 'auto';
-    toast('Error', 'Could not verify referral.', 'error');
+    toast('Error', (err.message||'Failed').slice(0,80), 'error');
   }
 }
 
-function doForm() {
+async function doForm() {
+  if (!S.signer) { toast('Not connected','Connect wallet first.','error'); return; }
   const url = CFG.form + '?entry.1234567890=' + encodeURIComponent(S.address||'');
   window.open(url,'_blank');
   const btn = document.getElementById('t4btn');
-  if (btn) { btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i>Processing…'; btn.style.pointerEvents='none'; }
-  setTimeout(() => {
+  if (btn) { btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i>Recording on-chain…'; btn.style.pointerEvents='none'; }
+  try {
+    const tx = await sendActionTx('GENESIS');
     S.addTask(4);
     const nb = (parseFloat(S.balance)+50).toFixed(4);
     S.balance = nb;
     updateDashboardBalance(nb);
     markDone(4); renderProgress();
-    toast('Genesis Registration Complete!', '+50 KRM · Your wallet is queued for genesis block inclusion.', 'success');
-  }, 3000);
+    toast('Genesis Registration Complete!', '+50 KRM · Recorded on-chain forever.', 'success');
+  } catch(err) {
+    if (btn) { btn.innerHTML='<i class="fa-solid fa-pen-to-square"></i>Open Registration Form'; btn.style.pointerEvents='auto'; }
+    if (err.code === 4001) toast('Rejected','Transaction cancelled.','error');
+    else toast('Error',(err.message||'Failed').slice(0,80),'error');
+  }
 }
 
 /* ═══════════════════════════════════════
@@ -4049,41 +4076,49 @@ function readRefParam() {
   }
 }
 async function restoreSession() {
-  const saved     = S.load();
-  const savedWalletId = S.loadWalletId();
-  if (!saved) return;
+  const savedAddr = S.load();
+  if (!savedAddr) return;
 
-  // Wait up to 2s for wallets to inject
-  let attempts = 0;
-  while (attempts < 10) {
+  // Read the rdns we saved on last connect — this is the reliable wallet identifier
+  const savedRdns = localStorage.getItem('kc_last_rdns') || '';
+
+  // Wait for providers to inject (up to 3s)
+  await new Promise(r => setTimeout(r, 400));
+  let waited = 0;
+  while (waited < 2600 && !window._detectedProviders?.length && !window.ethereum) {
     await new Promise(r => setTimeout(r, 200));
-    if (window.ethereum || (window._detectedProviders?.length)) break;
-    attempts++;
+    waited += 200;
   }
 
   try {
-    // Use SAVED walletId to pick the right provider — not always MetaMask
-    let raw = window.ethereum;
-    if (window._detectedProviders?.length) {
-      if (savedWalletId) {
-        // Find exact wallet that was used last time
-        const savedProvider = window._detectedProviders.find(p =>
-          p.info.rdns === savedWalletId ||
-          p.info.name?.toLowerCase().replace(/\s/g,'') === savedWalletId.toLowerCase().replace(/\s/g,'')
-        );
-        if (savedProvider) raw = savedProvider.provider;
-        else {
-          // Fallback: any non-Phantom provider
-          const fallback = window._detectedProviders.find(p => p.info.rdns !== 'app.phantom');
-          if (fallback) raw = fallback.provider;
-        }
-      } else {
-        // No saved walletId — use first non-Phantom
-        const fallback = window._detectedProviders.find(p => p.info.rdns !== 'app.phantom');
-        if (fallback) raw = fallback.provider;
+    let raw = null;
+
+    // Find provider by saved rdns — exact match first
+    if (savedRdns && window._detectedProviders?.length) {
+      const found = window._detectedProviders.find(p => p.info.rdns === savedRdns);
+      if (found) raw = found.provider;
+    }
+
+    // Legacy fallback: match by known rdns patterns
+    if (!raw && savedRdns) {
+      if (savedRdns === 'io.metamask' && window.ethereum?.isMetaMask && !window.ethereum?.isPhantom) {
+        raw = window.ethereum;
+      } else if (savedRdns === 'com.trustwallet.app') {
+        const p = window._detectedProviders?.find(p => p.provider?.isTrust || p.provider?.isTrustWallet);
+        if (p) raw = p.provider;
+        else if (window.ethereum?.isTrust) raw = window.ethereum;
+      } else if (savedRdns === 'com.okex.wallet') {
+        raw = window.okxwallet || window._detectedProviders?.find(p => p.provider?.isOKExWallet)?.provider;
+      } else if (savedRdns === 'com.coinbase.wallet') {
+        raw = window._detectedProviders?.find(p => p.provider?.isCoinbaseWallet)?.provider;
       }
     }
-    if (!raw) return;
+
+    // If still nothing — don't auto-connect, let user choose manually
+    if (!raw) {
+      console.info('[KarChain] Saved wallet not found, skipping auto-restore');
+      return;
+    }
 
     const provider = new ethers.providers.Web3Provider(raw, 'any');
 
@@ -4405,6 +4440,142 @@ function initExplorer() {
       expLoadTxs();
     }
   }, 12000);
+}
+
+
+/* ═══════════════════════════════════════
+   ON-CHAIN ACTION RECORDING
+   Every user action writes a tx to blockchain with data field.
+   Verification reads from chain — works across browsers/devices.
+═══════════════════════════════════════ */
+
+// Encode action string to hex data field
+function encodeAction(action) {
+  // Convert string to hex: "KARCHAIN:TASK1" → "0x4b4152434841494e3a5441534b31"
+  return '0x' + Array.from(new TextEncoder().encode(action))
+    .map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+// Decode hex data back to string
+function decodeData(hex) {
+  if (!hex || hex === '0x' || hex.length < 4) return '';
+  try {
+    const bytes = hex.slice(2).match(/.{2}/g).map(b => parseInt(b, 16));
+    return new TextDecoder().decode(new Uint8Array(bytes));
+  } catch(_) { return ''; }
+}
+
+// Send on-chain action tx (0 value, data = encoded action)
+async function sendActionTx(action) {
+  if (!S.signer) throw new Error('No signer');
+  const data = encodeAction('KARCHAIN:' + action);
+  const tx = await S.signer.sendTransaction({
+    to:    CFG.treasury,
+    value: ethers.utils.parseEther('0'),
+    data,
+    gasLimit: 50000
+  });
+  await tx.wait();
+  TX_CACHE.delete(S.address.toLowerCase());
+  return tx;
+}
+
+// Scan blockchain for action by this address
+// Returns true if action found in last N blocks
+async function checkOnChainAction(address, action, maxBlocks = 500) {
+  const target = ('KARCHAIN:' + action).toLowerCase();
+  const addrLow = address.toLowerCase();
+  try {
+    const latestHex = await rpc('eth_blockNumber');
+    const latest = parseInt(latestHex, 16);
+    const from   = Math.max(0, latest - maxBlocks);
+    const BATCH  = 20;
+    for (let b = latest; b >= from; b -= BATCH) {
+      const bStart = Math.max(from, b - BATCH + 1);
+      const calls  = [];
+      for (let i = b; i >= bStart; i--)
+        calls.push({ method:'eth_getBlockByNumber', params:['0x'+i.toString(16), true] });
+      try {
+        const res  = await fetch(CFG.rpc, {
+          method:'POST',
+          headers:{'Content-Type':'application/json','ngrok-skip-browser-warning':'true'},
+          body: JSON.stringify(calls.map((c,i) => ({jsonrpc:'2.0',id:i,...c})))
+        });
+        const blocks = await res.json();
+        for (const item of (Array.isArray(blocks) ? blocks : [])) {
+          const blk = item?.result;
+          if (!blk?.transactions) continue;
+          for (const tx of blk.transactions) {
+            if ((tx.from||'').toLowerCase() !== addrLow) continue;
+            const decoded = decodeData(tx.input || tx.data || '0x');
+            if (decoded.toLowerCase().startsWith(target)) return { found:true, tx, decoded };
+          }
+        }
+      } catch(_) { break; }
+    }
+    return { found: false };
+  } catch(err) {
+    console.warn('[KarChain onchain]', err.message);
+    return { found: false };
+  }
+}
+
+// Scan for referral — find any tx with KARCHAIN:REF:myAddress from someone else
+async function checkOnChainReferral(myAddress, maxBlocks = 500) {
+  const target  = ('KARCHAIN:REF:' + myAddress).toLowerCase();
+  const myLow   = myAddress.toLowerCase();
+  try {
+    const latestHex = await rpc('eth_blockNumber');
+    const latest = parseInt(latestHex, 16);
+    const from   = Math.max(0, latest - maxBlocks);
+    const BATCH  = 20;
+    for (let b = latest; b >= from; b -= BATCH) {
+      const bStart = Math.max(from, b - BATCH + 1);
+      const calls  = [];
+      for (let i = b; i >= bStart; i--)
+        calls.push({ method:'eth_getBlockByNumber', params:['0x'+i.toString(16), true] });
+      try {
+        const res  = await fetch(CFG.rpc, {
+          method:'POST',
+          headers:{'Content-Type':'application/json','ngrok-skip-browser-warning':'true'},
+          body: JSON.stringify(calls.map((c,i) => ({jsonrpc:'2.0',id:i,...c})))
+        });
+        const blocks = await res.json();
+        for (const item of (Array.isArray(blocks) ? blocks : [])) {
+          const blk = item?.result;
+          if (!blk?.transactions) continue;
+          for (const tx of blk.transactions) {
+            const sender = (tx.from||'').toLowerCase();
+            if (sender === myLow) continue; // skip own txs
+            const decoded = decodeData(tx.input || tx.data || '0x');
+            if (decoded.toLowerCase().startsWith(target)) return { found:true, friendAddr: tx.from };
+          }
+        }
+      } catch(_) { break; }
+    }
+    return { found: false };
+  } catch(err) { return { found: false }; }
+}
+
+/* ═══════════════════════════════════════
+   RESTORE TASKS FROM BLOCKCHAIN
+   Works across browsers and devices
+═══════════════════════════════════════ */
+async function restoreTasksFromChain(address) {
+  try {
+    const [r1, r2, r4, rRef] = await Promise.all([
+      checkOnChainAction(address, 'FAUCET_L1', 300),
+      checkOnChainAction(address, 'TASK1', 300),
+      checkOnChainAction(address, 'GENESIS', 300),
+      checkOnChainReferral(address, 500),
+    ]);
+    let changed = false;
+    if (r1.found && !S.l1Unlocked) { S.setL1(); S.setL2(); changed = true; }
+    if (r2.found && !S.hasTask(1)) { S.addTask(1); changed = true; }
+    if (rRef.found && !S.hasTask(3)) { S.addTask(3); changed = true; }
+    if (r4.found && !S.hasTask(4)) { S.addTask(4); changed = true; }
+    if (changed) { renderTasks(); renderProgress(); renderL1(); renderL2(); }
+  } catch(e) { console.warn('[restoreChain]', e.message); }
 }
 
 /* ═══════════════════════════════════════
