@@ -4079,13 +4079,14 @@ async function restoreSession() {
   const savedAddr = S.load();
   if (!savedAddr) return;
 
-  // Read the rdns we saved on last connect — this is the reliable wallet identifier
+  // rdns saved on last explicit connect — reliable wallet identifier
   const savedRdns = localStorage.getItem('kc_last_rdns') || '';
 
-  // Wait for providers to inject (up to 3s)
-  await new Promise(r => setTimeout(r, 400));
+  // Wait for wallets to inject — mobile needs more time
+  await new Promise(r => setTimeout(r, 500));
   let waited = 0;
-  while (waited < 2600 && !window._detectedProviders?.length && !window.ethereum) {
+  while (waited < 2500) {
+    if (window._detectedProviders?.length || window.ethereum) break;
     await new Promise(r => setTimeout(r, 200));
     waited += 200;
   }
@@ -4093,41 +4094,45 @@ async function restoreSession() {
   try {
     let raw = null;
 
-    // Find provider by saved rdns — exact match first
+    // 1. Exact rdns match via EIP-6963
     if (savedRdns && window._detectedProviders?.length) {
       const found = window._detectedProviders.find(p => p.info.rdns === savedRdns);
       if (found) raw = found.provider;
     }
 
-    // Legacy fallback: match by known rdns patterns
+    // 2. Legacy property match for known wallets
     if (!raw && savedRdns) {
-      if (savedRdns === 'io.metamask' && window.ethereum?.isMetaMask && !window.ethereum?.isPhantom) {
-        raw = window.ethereum;
+      const providers = window._detectedProviders?.map(p => p.provider) || [];
+      if (savedRdns === 'io.metamask') {
+        raw = providers.find(p => p.isMetaMask && !p.isPhantom && !p.isBraveWallet)
+           || (window.ethereum?.isMetaMask && !window.ethereum?.isPhantom ? window.ethereum : null);
       } else if (savedRdns === 'com.trustwallet.app') {
-        const p = window._detectedProviders?.find(p => p.provider?.isTrust || p.provider?.isTrustWallet);
-        if (p) raw = p.provider;
-        else if (window.ethereum?.isTrust) raw = window.ethereum;
+        raw = providers.find(p => p.isTrust || p.isTrustWallet)
+           || (window.ethereum?.isTrust ? window.ethereum : null);
       } else if (savedRdns === 'com.okex.wallet') {
-        raw = window.okxwallet || window._detectedProviders?.find(p => p.provider?.isOKExWallet)?.provider;
+        raw = window.okxwallet
+           || providers.find(p => p.isOKExWallet || p.isOkxWallet);
       } else if (savedRdns === 'com.coinbase.wallet') {
-        raw = window._detectedProviders?.find(p => p.provider?.isCoinbaseWallet)?.provider;
+        raw = providers.find(p => p.isCoinbaseWallet);
       }
     }
 
-    // If still nothing — don't auto-connect, let user choose manually
-    if (!raw) {
-      console.info('[KarChain] Saved wallet not found, skipping auto-restore');
-      return;
+    // 3. Ultimate fallback — use window.ethereum if accounts already unlocked
+    //    This handles cases where only one wallet is installed
+    if (!raw && window.ethereum) {
+      raw = window.ethereum;
     }
+
+    if (!raw) return;
 
     const provider = new ethers.providers.Web3Provider(raw, 'any');
 
-    // Get currently unlocked accounts WITHOUT prompting user
+    // Silently check if wallet already has accounts unlocked — NO prompt
     const accounts = await provider.listAccounts();
-    if (!accounts.length) return; // wallet is locked — don't restore silently
+    if (!accounts.length) return;
 
-    // Accept any account if saved address matches, OR just use first account
-    const matchedAddr = accounts.find(a => a.toLowerCase() === saved.toLowerCase());
+    // Use saved address if still in accounts, otherwise first account
+    const matchedAddr = accounts.find(a => a.toLowerCase() === savedAddr.toLowerCase());
     const addr = matchedAddr || accounts[0];
 
     // Try to switch to KarChain — but don't abort if it fails
