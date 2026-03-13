@@ -2275,7 +2275,7 @@ footer {
     </div>
   </div>
   <div class="foot-bottom">
-    <p>© 2025 KarChain Foundation · All rights reserved</p>
+    <p>© 2026 KarChain Foundation · All rights reserved · Created by Mahomedov Karim</p>
     <span class="foot-chain">Chain ID 1337 · KRM · Testnet Phase I</span>
   </div>
 </footer>
@@ -3112,25 +3112,40 @@ async function claimL1() {
   if (!S.signer)  { toast('Not connected', 'Connect wallet first.', 'error'); return; }
 
   const btn = document.getElementById('claimL1Btn');
-  if (btn) { btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i>Recording on-chain…'; }
+  if (btn) { btn.disabled=true; btn.innerHTML='<i class="fa-solid fa-spinner fa-spin"></i>Claiming…'; }
 
   try {
-    // Write faucet claim to blockchain
-    const tx = await sendActionTx('FAUCET_L1');
+    // Call backend — backend sends real KRM from treasury
+    const res  = await fetch(CFG.api + '/faucet/l1', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ address: S.address })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      if (btn) { btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-droplet"></i>Claim 1 KRM'; }
+      toast('Claim failed', data.error || 'Server error', 'error');
+      return;
+    }
 
+    // Real KRM sent — update display and cooldown
     S.setL1();
-    S.setL2();
-    const newBal = (parseFloat(S.balance) + 1).toFixed(4);
-    S.balance = newBal;
-    updateDashboardBalance(newBal);
-    S.addTx({ hash:tx.hash, value:'1.0000', type:'Faucet L1 Claim' });
+    // Refresh real balance from chain after short delay
+    setTimeout(async () => {
+      const chainData = await fetchChainData(S.address, S.provider);
+      S.balance = chainData.balance;
+      updateDashboardBalance(chainData.balance);
+      updateDropdownStats(chainData.balance, chainData.nonce, chainData.block);
+    }, 2000);
+
+    S.addTx({ hash: data.hash, value:'1.0000', type:'Faucet L1 Claim' });
+    TX_CACHE.delete(S.address.toLowerCase());
     renderL1(); renderL2(); renderDDTxs(); renderTxs();
     renderTasks();
-    toast('1 KRM claimed!', 'Recorded on-chain · Task 1 unlocked!', 'success');
-  } catch(err) {
+    toast('1 KRM sent!', 'Real KRM arriving in your wallet. TX: ' + data.hash.slice(0,16) + '…', 'success');
+  } catch(e) {
     if (btn) { btn.disabled=false; btn.innerHTML='<i class="fa-solid fa-droplet"></i>Claim 1 KRM'; }
-    if (err.code === 4001) toast('Rejected', 'Transaction cancelled.', 'error');
-    else toast('Claim failed', (err.message||'Error').slice(0,80), 'error');
+    toast('Claim failed', 'Cannot reach faucet server. Is it running?', 'error');
   }
 }
 
@@ -3346,21 +3361,33 @@ function doTelegram() {
 async function verifyT1() {
   const b = document.getElementById('t1verify');
   if (!b || !b.classList.contains('v-ready')) return;
-  b.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Recording on-chain…';
+  b.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Verifying…';
   b.style.pointerEvents = 'none';
   try {
-    const tx = await sendActionTx('TASK1');
+    const res  = await fetch(CFG.api + '/task/reward', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ address: S.address, taskId: 1 })
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      b.innerHTML = '<i class="fa-solid fa-check-circle"></i>Verify Completion';
+      b.style.pointerEvents = 'auto';
+      toast('Error', data.error || 'Server error', 'error');
+      return;
+    }
     S.addTask(1);
-    const nb = (parseFloat(S.balance)+10).toFixed(4);
-    S.balance = nb;
-    updateDashboardBalance(nb);
+    S.addTx({ hash: data.hash, value:'10.0000', type:'Task 1 Reward' });
+    setTimeout(async () => {
+      const cd = await fetchChainData(S.address, S.provider);
+      S.balance = cd.balance; updateDashboardBalance(cd.balance);
+    }, 2000);
     markDone(1); unlock(2); renderProgress();
-    toast('Task 1 Complete!', '+10 KRM · Recorded on-chain.', 'success');
+    toast('Task 1 Complete!', '+10 KRM sent to your wallet!', 'success');
   } catch(err) {
     b.innerHTML = '<i class="fa-solid fa-check-circle"></i>Verify Completion';
     b.style.pointerEvents = 'auto';
-    if (err.code === 4001) toast('Rejected', 'Transaction cancelled.', 'error');
-    else toast('Error', (err.message||'Failed').slice(0,80), 'error');
+    toast('Error', 'Cannot reach faucet server.', 'error');
   }
 }
 
@@ -3411,11 +3438,22 @@ async function verifyT2() {
       return;
     }
     S.addTask(2);
-    const nb = (parseFloat(S.balance)+25).toFixed(4);
-    S.balance = nb;
-    updateDashboardBalance(nb);
     markDone(2);
     unlock(3);
+    // Send real reward
+    fetch(CFG.api + '/task/reward', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ address: S.address, taskId: 2 })
+    }).then(r=>r.json()).then(data => {
+      if (data.hash) {
+        S.addTx({ hash: data.hash, value:'25.0000', type:'Task 2 Reward' });
+        setTimeout(async () => {
+          const cd = await fetchChainData(S.address, S.provider);
+          S.balance = cd.balance; updateDashboardBalance(cd.balance);
+        }, 2000);
+        toast('Task 2 Complete!', '+25 KRM sent to wallet!', 'success');
+      }
+    }).catch(()=>{});
     // Show referral area
     const refArea = document.getElementById('t3refArea');
     if (refArea) {
@@ -3456,10 +3494,19 @@ async function verifyT3() {
       return;
     }
     S.addTask(3);
-    const nb = (parseFloat(S.balance)+30).toFixed(4);
-    S.balance = nb;
-    updateDashboardBalance(nb);
     markDone(3);
+    fetch(CFG.api + '/task/reward', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ address: S.address, taskId: 3 })
+    }).then(r=>r.json()).then(data => {
+      if (data.hash) {
+        S.addTx({ hash: data.hash, value:'30.0000', type:'Task 3 Reward' });
+        setTimeout(async () => {
+          const cd = await fetchChainData(S.address, S.provider);
+          S.balance = cd.balance; updateDashboardBalance(cd.balance);
+        }, 2000);
+      }
+    }).catch(()=>{});
     unlock(4);
     const b4 = document.getElementById('t4btn');
     if (b4) { b4.style.opacity='1'; b4.style.pointerEvents='auto'; }
@@ -3481,11 +3528,22 @@ async function doForm() {
   try {
     const tx = await sendActionTx('GENESIS');
     S.addTask(4);
-    const nb = (parseFloat(S.balance)+50).toFixed(4);
-    S.balance = nb;
-    updateDashboardBalance(nb);
     markDone(4); renderProgress();
-    toast('Genesis Registration Complete!', '+50 KRM · Recorded on-chain forever.', 'success');
+    fetch(CFG.api + '/task/reward', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ address: S.address, taskId: 4 })
+    }).then(r=>r.json()).then(data => {
+      if (data.hash) {
+        S.addTx({ hash: data.hash, value:'50.0000', type:'Task 4 Reward' });
+        setTimeout(async () => {
+          const cd = await fetchChainData(S.address, S.provider);
+          S.balance = cd.balance; updateDashboardBalance(cd.balance);
+        }, 2000);
+        toast('Genesis Registration Complete!', '+50 KRM sent to your wallet!', 'success');
+      }
+    }).catch(()=>{
+      toast('Genesis Registration Complete!', 'Registered! Reward will be sent shortly.', 'success');
+    });
   } catch(err) {
     if (btn) { btn.innerHTML='<i class="fa-solid fa-pen-to-square"></i>Open Registration Form'; btn.style.pointerEvents='auto'; }
     if (err.code === 4001) toast('Rejected','Transaction cancelled.','error');
@@ -4469,9 +4527,10 @@ function decodeData(hex) {
 async function sendActionTx(action) {
   if (!S.signer) throw new Error('No signer');
   const data = encodeAction('KARCHAIN:' + action);
+  // Send to self — Besu forbids data field on external EOA accounts
   const tx = await S.signer.sendTransaction({
-    to:    CFG.treasury,
-    value: ethers.utils.parseEther('0'),
+    to:       S.address,
+    value:    ethers.utils.parseEther('0'),
     data,
     gasLimit: 50000
   });
