@@ -1438,6 +1438,126 @@ footer {
   .exp-kv { grid-template-columns:100px 1fr; }
   .exp-search-bar { flex-direction:column; }
 }
+
+/* ═══ TOKENOMICS PAGE ═══ */
+.tokenomics-wrap { max-width:1100px; margin:0 auto; padding:110px 32px 80px; }
+.token-hero-grid { display:grid; grid-template-columns:1fr 1fr; gap:40px; margin-bottom:60px; align-items:center; }
+.token-supply-box {
+  background:var(--ink2); border:1px solid var(--border); border-radius:20px; padding:36px;
+  position:relative; overflow:hidden;
+}
+.token-supply-box::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:2px;
+  background:linear-gradient(90deg,transparent,var(--green),transparent);
+}
+.tsb-label { font-family:var(--font-mono); font-size:10px; color:var(--muted); letter-spacing:.14em; text-transform:uppercase; margin-bottom:12px; }
+.tsb-num { font-family:var(--font-head); font-size:48px; font-weight:800; color:#fff; letter-spacing:-.03em; line-height:1; }
+.tsb-sym { font-family:var(--font-mono); font-size:16px; color:var(--green); margin-left:8px; }
+.tsb-sub { font-size:12px; color:var(--muted); margin-top:8px; }
+
+/* Donut chart */
+.donut-wrap { position:relative; width:220px; height:220px; margin:0 auto; }
+.donut-svg { width:100%; height:100%; transform:rotate(-90deg); }
+.donut-bg { fill:none; stroke:rgba(255,255,255,.05); stroke-width:28; }
+.donut-seg { fill:none; stroke-width:28; stroke-linecap:butt; transition:stroke-dashoffset .6s var(--ease-out); }
+.donut-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.donut-center-val { font-family:var(--font-head); font-size:28px; font-weight:800; color:#fff; }
+.donut-center-lbl { font-family:var(--font-mono); font-size:9px; color:var(--muted); margin-top:2px; text-transform:uppercase; letter-spacing:.1em; }
+
+/* Allocation table */
+.alloc-table { width:100%; border-collapse:collapse; margin-top:32px; }
+.alloc-table th { font-family:var(--font-mono); font-size:9px; color:var(--muted); letter-spacing:.12em; text-transform:uppercase; padding:10px 0; border-bottom:1px solid var(--border2); text-align:left; }
+.alloc-table td { padding:14px 0; border-bottom:1px solid rgba(255,255,255,.03); font-size:13px; }
+.alloc-name { color:#fff; display:flex; align-items:center; gap:10px; }
+.alloc-dot { width:10px; height:10px; border-radius:50%; flex-shrink:0; }
+.alloc-pct { font-family:var(--font-mono); font-weight:700; }
+.alloc-bar-wrap { width:100px; height:4px; background:rgba(255,255,255,.06); border-radius:2px; overflow:hidden; }
+.alloc-bar { height:100%; border-radius:2px; }
+.alloc-lock { font-family:var(--font-mono); font-size:10px; color:var(--muted); }
+
+/* Token metrics grid */
+.token-metrics { display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:48px; }
+.tm-card {
+  background:var(--ink2); border:1px solid var(--border2); border-radius:16px; padding:22px 20px;
+  position:relative; overflow:hidden; transition:border-color .3s;
+}
+.tm-card:hover { border-color:var(--border); }
+.tm-card::before {
+  content:''; position:absolute; top:0; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,rgba(61,255,122,.25),transparent);
+}
+.tm-icon { width:38px; height:38px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px; margin-bottom:14px; }
+.tm-val { font-family:var(--font-head); font-size:22px; font-weight:800; color:#fff; letter-spacing:-.02em; line-height:1; }
+.tm-lbl { font-size:11px; color:var(--muted); margin-top:6px; }
+
+/* Vesting timeline */
+.vesting-section { margin-top:48px; }
+.vesting-title { font-family:var(--font-head); font-size:22px; font-weight:700; color:#fff; margin-bottom:24px; }
+.vesting-row {
+  display:grid; grid-template-columns:180px 1fr 80px; gap:16px; align-items:center;
+  padding:14px 0; border-bottom:1px solid rgba(255,255,255,.04);
+}
+.vesting-row:last-child { border-bottom:none; }
+.vr-name { font-size:13px; color:var(--text); }
+.vr-bar-wrap { height:6px; background:rgba(255,255,255,.06); border-radius:3px; position:relative; overflow:hidden; }
+.vr-bar { height:100%; border-radius:3px; }
+.vr-lock { font-family:var(--font-mono); font-size:10px; color:var(--muted); text-align:right; }
+
+/* ═══ LEADERBOARD ═══ */
+.lb-section { margin-top:60px; }
+.lb-title { font-family:var(--font-head); font-size:22px; font-weight:700; color:#fff; margin-bottom:6px; display:flex; align-items:center; gap:10px; }
+.lb-title i { color:var(--green); }
+.lb-sub { font-size:13px; color:var(--muted); margin-bottom:24px; }
+.lb-header {
+  display:grid; grid-template-columns:48px 1fr 120px 100px 80px;
+  gap:12px; padding:10px 18px;
+  font-family:var(--font-mono); font-size:9px; color:var(--muted); letter-spacing:.1em; text-transform:uppercase;
+}
+.lb-row {
+  display:grid; grid-template-columns:48px 1fr 120px 100px 80px;
+  gap:12px; align-items:center;
+  padding:14px 18px; margin-bottom:6px;
+  background:rgba(255,255,255,.02); border:1px solid var(--border2);
+  border-radius:12px; transition:all .2s;
+}
+.lb-row:hover { border-color:var(--border); background:rgba(61,255,122,.03); transform:translateX(4px); }
+.lb-row.top-1 { background:rgba(251,191,36,.04); border-color:rgba(251,191,36,.2); }
+.lb-row.top-2 { background:rgba(180,180,200,.04); border-color:rgba(200,200,220,.15); }
+.lb-row.top-3 { background:rgba(180,100,50,.04); border-color:rgba(200,130,80,.15); }
+.lb-rank { font-family:var(--font-mono); font-size:13px; font-weight:700; text-align:center; }
+.lb-rank.r1 { color:#fbbf24; }
+.lb-rank.r2 { color:#c0c8d8; }
+.lb-rank.r3 { color:#cd8050; }
+.lb-rank.rn { color:var(--muted); }
+.lb-identity { display:flex; align-items:center; gap:10px; }
+.lb-avatar { width:32px; height:32px; border-radius:8px; display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:11px; font-weight:700; color:#020302; flex-shrink:0; }
+.lb-addr { font-family:var(--font-mono); font-size:11px; color:#fff; }
+.lb-wallet { font-size:10px; color:var(--muted); margin-top:2px; }
+.lb-balance { font-family:var(--font-mono); font-size:13px; font-weight:700; color:var(--green); }
+.lb-tasks { display:flex; gap:4px; }
+.lb-task-dot { width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.1); }
+.lb-task-dot.done { background:var(--green); box-shadow:0 0 4px var(--green); }
+.lb-score { font-family:var(--font-mono); font-size:12px; font-weight:700; color:#fff; }
+.lb-empty { padding:40px; text-align:center; color:var(--muted); font-size:13px; }
+.lb-loading { padding:40px; text-align:center; color:var(--muted); font-size:12px; }
+.lb-refresh { display:flex; align-items:center; gap:8px; margin-bottom:16px; justify-content:flex-end; }
+
+@media(max-width:900px) {
+  .token-hero-grid { grid-template-columns:1fr; }
+  .token-metrics { grid-template-columns:1fr 1fr; }
+  .lb-header { display:none; }
+  .lb-row { grid-template-columns:40px 1fr 80px; }
+  .lb-tasks, .lb-score { display:none; }
+  .tokenomics-wrap { padding:90px 16px 60px; }
+}
+@media(max-width:640px) {
+  .token-metrics { grid-template-columns:1fr 1fr; gap:10px; }
+  .tm-val { font-size:18px; }
+  .vesting-row { grid-template-columns:120px 1fr; }
+  .vr-lock { display:none; }
+  .tsb-num { font-size:36px; }
+}
+
 </style>
 </head>
 <body>
@@ -1457,6 +1577,7 @@ footer {
   <div class="page-dot"        data-page="ecosystem" data-label="Ecosystem" onclick="goto('ecosystem')"></div>
   <div class="page-dot"        data-page="support"   data-label="Support"   onclick="goto('support')"></div>
   <div class="page-dot"        data-page="explorer"  data-label="Explorer"  onclick="goto('explorer')"></div>
+  <div class="page-dot"        data-page="tokenomics" data-label="Tokenomics" onclick="goto('tokenomics')"></div>
 </div>
 
 <!-- ══════ NAV ══════ -->
@@ -1482,6 +1603,7 @@ footer {
       <button class="nav-link"        id="nl-ecosystem" onclick="goto('ecosystem')"><span>Ecosystem</span></button>
       <button class="nav-link"        id="nl-support"   onclick="goto('support')"><span>Support</span></button>
       <button class="nav-link"        id="nl-explorer"  onclick="goto('explorer')"><span>Explorer</span></button>
+      <button class="nav-link"        id="nl-tokenomics" onclick="goto('tokenomics')"><span>Tokenomics</span></button>
     </div>
 
     <div class="nav-right-slot">
@@ -1569,6 +1691,7 @@ footer {
   <button class="mob-link" onclick="goto('ecosystem');toggleMobile()"><i class="fa-solid fa-cubes"></i>Ecosystem</button>
   <button class="mob-link" onclick="goto('support');toggleMobile()"><i class="fa-solid fa-headset"></i>Support</button>
   <button class="mob-link" onclick="goto('explorer');toggleMobile()"><i class="fa-solid fa-magnifying-glass"></i>Explorer</button>
+  <button class="mob-link" onclick="goto('tokenomics');toggleMobile()"><i class="fa-solid fa-coins"></i>Tokenomics</button>
 </div>
 
 <!-- ══════ CONNECT MODAL ══════ -->
@@ -2081,14 +2204,14 @@ footer {
           <div class="sup-handle">@KarChainDEV</div>
         </div>
       </a>
-      <a href="mailto:support@karchain.io" class="sup-card">
+      <a href="/cdn-cgi/l/email-protection#f3808683839c8187b3989281909b929a9ddd9a9c" class="sup-card">
         <div class="sup-ico" style="background:var(--green-dim);border:1px solid var(--border)">
           <i class="fa-solid fa-envelope" style="color:var(--green)"></i>
         </div>
         <div>
           <div class="sup-name">Email Support</div>
           <div class="sup-desc">Technical issues · Security reports · Response within 24–48h.</div>
-          <div class="sup-handle">support@karchain.io</div>
+          <div class="sup-handle"><span class="__cf_email__" data-cfemail="21525451514e5355614a4053424940484f0f484e">[email&#160;protected]</span></div>
         </div>
       </a>
     </div>
@@ -2122,7 +2245,7 @@ footer {
       </div>
       <div class="net-row">
         <span class="net-key">Treasury Address</span>
-        <span class="net-val" style="color:var(--muted2);font-size:11px">0x018fe8...CCA5c</span>
+        <span class="net-val" style="color:var(--muted2);font-size:11px">0x849A91...b9255</span>
       </div>
     </div>
 
@@ -2237,6 +2360,228 @@ footer {
   </div>
 </div>
 
+
+<!-- ══════════════════════════════════
+     TOKENOMICS PAGE
+══════════════════════════════════ -->
+<div class="page" id="page-tokenomics">
+  <div class="tokenomics-wrap">
+    <div class="section-head reveal">
+      <div class="section-tag"><span>KRM Token</span></div>
+      <h2 class="section-title" style="margin-bottom:8px">Tokenomics</h2>
+      <p class="section-sub">The KRM token powers the KarChain ecosystem — governance, staking, fees, and community incentives.</p>
+    </div>
+
+    <!-- Metrics strip -->
+    <div class="token-metrics reveal reveal-delay-1">
+      <div class="tm-card">
+        <div class="tm-icon" style="background:rgba(61,255,122,.1);color:var(--green)"><i class="fa-solid fa-coins"></i></div>
+        <div class="tm-val">1B</div>
+        <div class="tm-lbl">Total Supply</div>
+      </div>
+      <div class="tm-card">
+        <div class="tm-icon" style="background:rgba(59,130,246,.1);color:#60a5fa"><i class="fa-solid fa-fire"></i></div>
+        <div class="tm-val">0%</div>
+        <div class="tm-lbl">Initial Inflation</div>
+      </div>
+      <div class="tm-card">
+        <div class="tm-icon" style="background:rgba(139,92,246,.1);color:#a78bfa"><i class="fa-solid fa-lock"></i></div>
+        <div class="tm-val">4 yr</div>
+        <div class="tm-lbl">Vesting Period</div>
+      </div>
+      <div class="tm-card">
+        <div class="tm-icon" style="background:rgba(251,191,36,.1);color:#fbbf24"><i class="fa-solid fa-shield-halved"></i></div>
+        <div class="tm-val">ERC-20</div>
+        <div class="tm-lbl">Token Standard</div>
+      </div>
+    </div>
+
+    <!-- Hero: donut + supply box -->
+    <div class="token-hero-grid reveal reveal-delay-2">
+      <!-- Donut Chart -->
+      <div style="display:flex;flex-direction:column;align-items:center;gap:28px">
+        <div class="donut-wrap">
+          <svg class="donut-svg" viewBox="0 0 100 100">
+            <circle class="donut-bg" cx="50" cy="50" r="36"/>
+            <!-- Community 35% — green -->
+            <circle class="donut-seg" cx="50" cy="50" r="36"
+              stroke="#3dff7a"
+              stroke-dasharray="79.2 147.08"
+              stroke-dashoffset="0"/>
+            <!-- Team 20% — purple -->
+            <circle class="donut-seg" cx="50" cy="50" r="36"
+              stroke="#a78bfa"
+              stroke-dasharray="45.24 180.96"
+              stroke-dashoffset="-79.2"/>
+            <!-- Ecosystem 20% — blue -->
+            <circle class="donut-seg" cx="50" cy="50" r="36"
+              stroke="#60a5fa"
+              stroke-dasharray="45.24 180.96"
+              stroke-dashoffset="-124.44"/>
+            <!-- Treasury 15% — amber -->
+            <circle class="donut-seg" cx="50" cy="50" r="36"
+              stroke="#fbbf24"
+              stroke-dasharray="33.93 192.27"
+              stroke-dashoffset="-169.68"/>
+            <!-- Investors 10% — orange -->
+            <circle class="donut-seg" cx="50" cy="50" r="36"
+              stroke="#fb923c"
+              stroke-dasharray="22.62 203.58"
+              stroke-dashoffset="-203.61"/>
+          </svg>
+          <div class="donut-center">
+            <div class="donut-center-val">1B</div>
+            <div class="donut-center-lbl">KRM Total</div>
+          </div>
+        </div>
+
+        <!-- Legend -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;width:100%">
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="width:10px;height:10px;border-radius:50%;background:#3dff7a;flex-shrink:0"></span>
+            <span style="font-size:12px;color:var(--muted2)">Community 35%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="width:10px;height:10px;border-radius:50%;background:#a78bfa;flex-shrink:0"></span>
+            <span style="font-size:12px;color:var(--muted2)">Team 20%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="width:10px;height:10px;border-radius:50%;background:#60a5fa;flex-shrink:0"></span>
+            <span style="font-size:12px;color:var(--muted2)">Ecosystem 20%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="width:10px;height:10px;border-radius:50%;background:#fbbf24;flex-shrink:0"></span>
+            <span style="font-size:12px;color:var(--muted2)">Treasury 15%</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="width:10px;height:10px;border-radius:50%;background:#fb923c;flex-shrink:0"></span>
+            <span style="font-size:12px;color:var(--muted2)">Investors 10%</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Allocation table -->
+      <div>
+        <div class="token-supply-box">
+          <div class="tsb-label">Total Supply</div>
+          <div><span class="tsb-num">1,000,000,000</span><span class="tsb-sym">KRM</span></div>
+          <div class="tsb-sub">Fixed supply · No inflation · Deflationary burn mechanism</div>
+        </div>
+
+        <table class="alloc-table" style="margin-top:24px">
+          <thead>
+            <tr>
+              <th>Allocation</th>
+              <th>Amount</th>
+              <th>%</th>
+              <th>Distribution</th>
+              <th>Vesting</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><div class="alloc-name"><span class="alloc-dot" style="background:#3dff7a"></span>Community & Testnet</div></td>
+              <td style="font-family:var(--font-mono);color:var(--muted2);font-size:12px">350,000,000</td>
+              <td><span class="alloc-pct" style="color:#3dff7a">35%</span></td>
+              <td><div class="alloc-bar-wrap"><div class="alloc-bar" style="width:35%;background:#3dff7a"></div></div></td>
+              <td class="alloc-lock">12m cliff</td>
+            </tr>
+            <tr>
+              <td><div class="alloc-name"><span class="alloc-dot" style="background:#a78bfa"></span>Team & Founders</div></td>
+              <td style="font-family:var(--font-mono);color:var(--muted2);font-size:12px">200,000,000</td>
+              <td><span class="alloc-pct" style="color:#a78bfa">20%</span></td>
+              <td><div class="alloc-bar-wrap"><div class="alloc-bar" style="width:20%;background:#a78bfa"></div></div></td>
+              <td class="alloc-lock">4yr vest</td>
+            </tr>
+            <tr>
+              <td><div class="alloc-name"><span class="alloc-dot" style="background:#60a5fa"></span>Ecosystem Fund</div></td>
+              <td style="font-family:var(--font-mono);color:var(--muted2);font-size:12px">200,000,000</td>
+              <td><span class="alloc-pct" style="color:#60a5fa">20%</span></td>
+              <td><div class="alloc-bar-wrap"><div class="alloc-bar" style="width:20%;background:#60a5fa"></div></div></td>
+              <td class="alloc-lock">2yr vest</td>
+            </tr>
+            <tr>
+              <td><div class="alloc-name"><span class="alloc-dot" style="background:#fbbf24"></span>Treasury</div></td>
+              <td style="font-family:var(--font-mono);color:var(--muted2);font-size:12px">150,000,000</td>
+              <td><span class="alloc-pct" style="color:#fbbf24">15%</span></td>
+              <td><div class="alloc-bar-wrap"><div class="alloc-bar" style="width:15%;background:#fbbf24"></div></div></td>
+              <td class="alloc-lock">DAO ctrl</td>
+            </tr>
+            <tr>
+              <td><div class="alloc-name"><span class="alloc-dot" style="background:#fb923c"></span>Investors & Advisors</div></td>
+              <td style="font-family:var(--font-mono);color:var(--muted2);font-size:12px">100,000,000</td>
+              <td><span class="alloc-pct" style="color:#fb923c">10%</span></td>
+              <td><div class="alloc-bar-wrap"><div class="alloc-bar" style="width:10%;background:#fb923c"></div></div></td>
+              <td class="alloc-lock">18m cliff</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Vesting Schedule -->
+    <div class="vesting-section reveal reveal-delay-3">
+      <div class="vesting-title">Vesting Schedule</div>
+      <div class="vesting-row">
+        <div class="vr-name" style="color:var(--green)">Community & Testnet</div>
+        <div class="vr-bar-wrap"><div class="vr-bar" style="width:100%;background:linear-gradient(90deg,#3dff7a,#22e65a)"></div></div>
+        <div class="vr-lock" style="color:#3dff7a">Unlocked at TGE</div>
+      </div>
+      <div class="vesting-row">
+        <div class="vr-name">Ecosystem Fund</div>
+        <div class="vr-bar-wrap"><div class="vr-bar" style="width:50%;background:linear-gradient(90deg,#60a5fa,#3b82f6)"></div></div>
+        <div class="vr-lock">24 months linear</div>
+      </div>
+      <div class="vesting-row">
+        <div class="vr-name">Treasury</div>
+        <div class="vr-bar-wrap"><div class="vr-bar" style="width:40%;background:linear-gradient(90deg,#fbbf24,#f59e0b)"></div></div>
+        <div class="vr-lock">DAO controlled</div>
+      </div>
+      <div class="vesting-row">
+        <div class="vr-name">Investors</div>
+        <div class="vr-bar-wrap"><div class="vr-bar" style="width:25%;background:linear-gradient(90deg,#fb923c,#ea580c)"></div></div>
+        <div class="vr-lock">18m cliff · 18m vest</div>
+      </div>
+      <div class="vesting-row">
+        <div class="vr-name">Team & Founders</div>
+        <div class="vr-bar-wrap"><div class="vr-bar" style="width:0%;background:linear-gradient(90deg,#a78bfa,#7c3aed)"></div></div>
+        <div class="vr-lock">12m cliff · 48m vest</div>
+      </div>
+    </div>
+
+    <!-- ═══ LEADERBOARD ═══ -->
+    <div class="lb-section reveal reveal-delay-4">
+      <div class="lb-title"><i class="fa-solid fa-trophy"></i>Testnet Leaderboard</div>
+      <div class="lb-sub">Top participants by KRM balance and completed tasks. Updated live from the blockchain.</div>
+
+      <div class="lb-refresh">
+        <span style="font-size:11px;color:var(--muted)" id="lbUpdated">—</span>
+        <button class="refresh-chip" onclick="loadLeaderboard(true)"><i class="fa-solid fa-rotate"></i>Refresh</button>
+      </div>
+
+      <div class="lb-header">
+        <div>#</div>
+        <div>Address</div>
+        <div>Balance</div>
+        <div>Tasks</div>
+        <div>Score</div>
+      </div>
+      <div id="lbList">
+        <div class="lb-loading"><i class="fa-solid fa-spinner fa-spin" style="margin-right:8px"></i>Loading leaderboard…</div>
+      </div>
+
+      <div style="margin-top:20px;padding:16px 20px;background:rgba(255,255,255,.02);border:1px solid var(--border2);border-radius:12px">
+        <div style="font-size:11px;color:var(--muted);line-height:1.75">
+          <i class="fa-solid fa-circle-info" style="color:rgba(61,255,122,.4);margin-right:6px"></i>
+          <strong style="color:rgba(255,255,255,.4)">Score formula:</strong> 
+          KRM balance × 1 + Tasks completed × 500. Top participants at mainnet launch will receive a genesis block allocation bonus.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <!-- FOOTER -->
 <footer>
   <div class="foot-inner">
@@ -2271,7 +2616,7 @@ footer {
       <h4>Community</h4>
       <a href="https://t.me/KarChainDEV" target="_blank">Telegram</a>
       <a href="https://x.com/karim7652117665" target="_blank">X (Twitter)</a>
-      <a href="mailto:support@karchain.io">Email</a>
+      <a href="/cdn-cgi/l/email-protection#15666065657a6761557e7467767d747c7b3b7c7a">Email</a>
     </div>
   </div>
   <div class="foot-bottom">
@@ -2283,7 +2628,7 @@ footer {
 <button id="scrolltop" onclick="window.scrollTo({top:0,behavior:'smooth'})">
   <i class="fa-solid fa-chevron-up"></i>
 </button>
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 /* ═══════════════════════════════════════
    CONFIG
 ═══════════════════════════════════════ */
@@ -2291,10 +2636,11 @@ const CFG = {
   chainId:    1337,
   chainHex:   '0x539',
   chainName:  'KarChain',
-  rpc:        'https://relationless-improperly-nettie.ngrok-free.dev',   // Besu via ngrok
+  rpc:        'https://relationless-improperly-nettie.ngrok-free.dev/rpc',  // via server proxy
+  api:        'https://relationless-improperly-nettie.ngrok-free.dev',       // faucet backend
   symbol:     'KRM',
   decimals:   18,
-  treasury:   '0x018fe8087035B3C5ba00E0EB7aB47d24297CCA5c',
+  treasury:   '0x849A91A340dDe5fb93BFF9196F2fAdc7161B9255',
   twitter:    'https://x.com/karim7652117665',
   telegram:   'https://t.me/KarChainDEV',
   form:       'https://docs.google.com/forms/d/e/1FAIpQLSeQhBQZ_XKxYp2G5bZ5RwTzR2QmPpLJ6xN3oYjH7sKvP8t0w/viewform',
@@ -2360,7 +2706,7 @@ function toast(title, msg, type='info') {
 ═══════════════════════════════════════ */
 let currentPage = 'home';
 function goto(page, pushState = true) {
-  const valid = ['home','vision','ecosystem','support','explorer'];
+  const valid = ['home','vision','ecosystem','support','explorer','tokenomics'];
   if (!valid.includes(page)) page = 'home';
   if (page === currentPage) return;
 
@@ -2403,6 +2749,7 @@ function goto(page, pushState = true) {
   });
   // Load explorer data on visit
   if (page === 'explorer') { expLoadBlocks(); expLoadTxs(); }
+  if (page === 'tokenomics') { loadLeaderboard(); }
 }
 
 // Кнопка "назад/вперёд" браузера
@@ -2413,7 +2760,7 @@ window.addEventListener('popstate', (e) => {
 
 function getHashPage() {
   const hash = window.location.hash.replace('#', '');
-  const valid = ['home','vision','ecosystem','support','explorer'];
+  const valid = ['home','vision','ecosystem','support','explorer','tokenomics'];
   return valid.includes(hash) ? hash : 'home';
 }
 
@@ -4658,22 +5005,4 @@ window.addEventListener('DOMContentLoaded', () => {
     const nl = document.getElementById('nl-' + startPage);
     if (nl) nl.classList.add('active');
     document.querySelectorAll('.page-dot').forEach(d => {
-      d.classList.toggle('active', d.dataset.page === startPage);
-    });
-  }
-  requestAnimationFrame(() => {
-    if (firstPage) firstPage.classList.add('visible');
-    triggerReveal();
-  });
-
-  initStars();
-  initWheelNav();
-  initHexCanvas();
-  runCounters();
-  initExplorer();
-  restoreSession();
-  readRefParam();
-});
-</script>
-</body>
-</html>
+      d.classList.toggle('active', d.dataset.page === startPage
