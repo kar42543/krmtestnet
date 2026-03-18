@@ -2102,7 +2102,7 @@ footer {
       </div>
       <div class="net-row">
         <span class="net-key">RPC URL</span>
-        <span class="net-val" style="color:var(--muted2)">https://relationless-improperly-nettie.ngrok-free.dev</span>
+        <span class="net-val" style="color:var(--muted2)">https://relationless-improperly-nettie.ngrok-free.dev/rpc</span>
       </div>
       <div class="net-row">
         <span class="net-key">Chain ID</span>
@@ -2122,7 +2122,7 @@ footer {
       </div>
       <div class="net-row">
         <span class="net-key">Treasury Address</span>
-        <span class="net-val" style="color:var(--muted2);font-size:11px">0x018fe8...CCA5c</span>
+        <span class="net-val" style="color:var(--muted2);font-size:11px">0x849A91...b9255</span>
       </div>
     </div>
 
@@ -2135,7 +2135,7 @@ footer {
             How do I add KarChain to MetaMask?
             <i class="fa-solid fa-plus faq-icon"></i>
           </button>
-          <div class="faq-a"><div class="faq-a-inner">Click <strong>"Connect Wallet"</strong> — MetaMask will be prompted to add KarChain automatically. Alternatively add it manually: RPC <code>https://relationless-improperly-nettie.ngrok-free.dev</code>, Chain ID <code>1337</code>, Symbol <code>KRM</code>, Decimals <code>18</code>.</div></div>
+          <div class="faq-a"><div class="faq-a-inner">Click <strong>"Connect Wallet"</strong> — MetaMask will be prompted to add KarChain automatically. Alternatively add it manually: RPC <code>https://relationless-improperly-nettie.ngrok-free.dev/rpc</code>, Chain ID <code>1337</code>, Symbol <code>KRM</code>, Decimals <code>18</code>.</div></div>
         </div>
         <div class="faq-item">
           <button class="faq-q" onclick="toggleFaq(this)">
@@ -2291,10 +2291,11 @@ const CFG = {
   chainId:    1337,
   chainHex:   '0x539',
   chainName:  'KarChain',
-  rpc:        'https://relationless-improperly-nettie.ngrok-free.dev',   // Besu via ngrok
+  rpc:        'https://relationless-improperly-nettie.ngrok-free.dev/rpc',
+  api:        'https://relationless-improperly-nettie.ngrok-free.dev',
   symbol:     'KRM',
   decimals:   18,
-  treasury:   '0x018fe8087035B3C5ba00E0EB7aB47d24297CCA5c',
+  treasury:   '0x849A91A340dDe5fb93BFF9196F2fAdc7161B9255',
   twitter:    'https://x.com/karim7652117665',
   telegram:   'https://t.me/KarChainDEV',
   form:       'https://docs.google.com/forms/d/e/1FAIpQLSeQhBQZ_XKxYp2G5bZ5RwTzR2QmPpLJ6xN3oYjH7sKvP8t0w/viewform',
@@ -2685,7 +2686,7 @@ async function connectWithProvider(walletId) {
     const chainParams = [{
       chainId:     CFG.chainHex,
       chainName:   CFG.chainName,
-      rpcUrls:     [CFG.rpc],
+      rpcUrls:     [CFG.api],
       nativeCurrency: { name:'KarChain Token', symbol:CFG.symbol, decimals:CFG.decimals }
     }];
     try {
@@ -3120,7 +3121,7 @@ async function claimL1() {
     // Call backend — backend sends real KRM from treasury
     const res  = await fetch(CFG.api + '/faucet/l1', {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
       body:    JSON.stringify({ address: S.address })
     });
     const data = await res.json();
@@ -3368,7 +3369,7 @@ async function verifyT1() {
   try {
     const res  = await fetch(CFG.api + '/task/reward', {
       method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' },
       body:    JSON.stringify({ address: S.address, taskId: 1 })
     });
     const data = await res.json();
@@ -3838,7 +3839,7 @@ async function rpc(method, params=[]) {
     method:  'POST',
     headers: {
       'Content-Type':              'application/json',
-      'ngrok-skip-browser-warning': 'true',   // bypass ngrok interstitial
+      'ngrok-skip-browser-warning': 'true',
     },
     body: JSON.stringify({ jsonrpc:'2.0', id:1, method, params }),
   });
@@ -4203,7 +4204,7 @@ async function restoreSession() {
           await raw.request({
             method: 'wallet_addEthereumChain',
             params: [{ chainId:CFG.chainHex, chainName:CFG.chainName,
-              rpcUrls:[CFG.rpc], nativeCurrency:{name:CFG.symbol,symbol:CFG.symbol,decimals:18} }]
+              rpcUrls:[CFG.api], nativeCurrency:{name:CFG.symbol,symbol:CFG.symbol,decimals:18} }]
           });
         } catch(_) {}
       }
