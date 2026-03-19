@@ -2800,24 +2800,22 @@ async function fetchTxHistory(address, maxBlocks = 999999) {
   const addrLow = address.toLowerCase();
 
   try {
-    // Get latest block
     const latestHex = await rpc('eth_blockNumber');
     const latest    = parseInt(latestHex, 16);
-    const fromBlock = 0;
 
-    // Check cache — only scan new blocks since last check
-    const cached    = TX_CACHE.get(addrLow) || { txs: [], scannedTo: fromBlock - 1 };
-    const scanFrom  = Math.max(fromBlock, cached.scannedTo + 1);
-    const scanTo    = latest;
+    // Use cache — only scan new blocks since last check
+    const cached   = TX_CACHE.get(addrLow) || { txs: [], scannedTo: -1 };
+    const scanFrom = cached.scannedTo + 1;
+    const scanTo   = latest;
 
     if (scanFrom > scanTo) return cached.txs;
 
-    // Batch fetch blocks (20 at a time)
     const newTxs = [];
-    const BATCH  = 20;
+    const BATCH  = 25;
 
-    for (let b = scanTo; b >= scanFrom; b -= BATCH) {
-      const batchStart = Math.max(scanFrom, b - BATCH + 1);
+    // Scan newest → oldest, stop early if we have enough AND scanned recent blocks
+    for (let b = scanTo; b >= 0; b -= BATCH) {
+      const batchStart = Math.max(0, b - BATCH + 1);
       const calls = [];
       for (let i = b; i >= batchStart; i--) {
         calls.push({ method: 'eth_getBlockByNumber', params: ['0x' + i.toString(16), true] });
@@ -2831,48 +2829,43 @@ async function fetchTxHistory(address, maxBlocks = 999999) {
         const blocks = await res.json();
         const blockArr = Array.isArray(blocks) ? blocks : [];
         blockArr.forEach(item => {
-          const block = item?.result;
-          if (!block?.transactions) return;
+          const block = item && item.result;
+          if (!block || !block.transactions) return;
           block.transactions.forEach(tx => {
             const from = (tx.from || '').toLowerCase();
             const to   = (tx.to   || '').toLowerCase();
             if (from === addrLow || to === addrLow) {
-              const value   = parseFloat(ethers.utils.formatEther(tx.value || '0x0')).toFixed(4);
-              const isOut   = from === addrLow;
-              const ts      = parseInt(block.timestamp, 16) * 1000;
+              const value = parseFloat(ethers.utils.formatEther(tx.value || '0x0')).toFixed(4);
+              const isOut = from === addrLow;
+              const ts    = parseInt(block.timestamp, 16) * 1000;
               newTxs.push({
-                hash:    tx.hash,
-                from:    tx.from,
-                to:      tx.to,
-                value,
-                isOut,
-                type:    isOut ? 'Sent' : 'Received',
-                block:   parseInt(block.number, 16),
-                ts,
+                hash: tx.hash, from: tx.from, to: tx.to,
+                value, isOut, type: isOut ? 'Sent' : 'Received',
+                block: parseInt(block.number, 16), ts,
                 gasUsed: tx.gas ? parseInt(tx.gas, 16) : 0,
               });
             }
           });
         });
       } catch(_) { break; }
+
+      // Stop scanning old blocks if we already found 50+ txs and scanned at least 200 blocks
+      if (newTxs.length >= 50 && (scanTo - b) >= 200) break;
     }
 
-    // Merge with cache, sort by block desc, deduplicate by hash
+    // Merge + deduplicate + sort
     const merged = [...newTxs, ...cached.txs];
     const seen   = new Set();
     const deduped = merged.filter(tx => {
       if (seen.has(tx.hash)) return false;
-      seen.add(tx.hash);
-      return true;
+      seen.add(tx.hash); return true;
     }).sort((a, b) => b.block - a.block);
 
-    // Update cache
     TX_CACHE.set(addrLow, { txs: deduped, scannedTo: latest });
     return deduped;
 
   } catch(err) {
     console.warn('[KarChain TX]', err.message);
-    // Fallback to localStorage txs
     return S.txs.map(t => ({ ...t, type: t.type || 'Transaction', isOut: false }));
   }
 }
