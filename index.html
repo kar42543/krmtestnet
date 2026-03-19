@@ -2795,7 +2795,7 @@ async function fetchChainData(address, provider) {
 ═══════════════════════════════════════ */
 const TX_CACHE = new Map(); // address → { txs, scannedTo }
 
-async function fetchTxHistory(address, maxBlocks = 300) {
+async function fetchTxHistory(address, maxBlocks = 999999) {
   if (!address) return [];
   const addrLow = address.toLowerCase();
 
@@ -2803,7 +2803,7 @@ async function fetchTxHistory(address, maxBlocks = 300) {
     // Get latest block
     const latestHex = await rpc('eth_blockNumber');
     const latest    = parseInt(latestHex, 16);
-    const fromBlock = Math.max(0, latest - maxBlocks);
+    const fromBlock = 0;
 
     // Check cache — only scan new blocks since last check
     const cached    = TX_CACHE.get(addrLow) || { txs: [], scannedTo: fromBlock - 1 };
@@ -2961,7 +2961,7 @@ async function renderDDTxs() {
 
   list.innerHTML = '<div style="text-align:center;padding:10px;font-size:10px;color:var(--muted)"><i class="fa-solid fa-spinner fa-spin"></i> Loading…</div>';
 
-  const txs = await fetchTxHistory(S.address, 200);
+  const txs = await fetchTxHistory(S.address);
 
   if (!txs.length) {
     list.innerHTML = '<div style="text-align:center;padding:8px;font-size:10px;color:var(--muted)">No transactions yet</div>';
@@ -3566,14 +3566,14 @@ async function renderTxs() {
   area.style.display = 'block';
   list.innerHTML = '<div style="padding:20px;text-align:center;font-size:12px;color:var(--muted)"><i class="fa-solid fa-spinner fa-spin"></i> Scanning blockchain…</div>';
 
-  const txs = await fetchTxHistory(S.address, 300);
+  const txs = await fetchTxHistory(S.address);
 
   if (!txs.length) {
-    list.innerHTML = '<div style="padding:20px;text-align:center;font-size:12px;color:var(--muted)">No transactions found in last 300 blocks</div>';
+    list.innerHTML = '<div style="padding:20px;text-align:center;font-size:12px;color:var(--muted)">No transactions found</div>';
     return;
   }
 
-  list.innerHTML = txs.slice(0, 15).map(tx => {
+  list.innerHTML = txs.slice(0, 50).map(tx => {
     const date = tx.ts ? new Date(tx.ts).toLocaleString([], {month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'}) : `Block #${tx.block}`;
     const shortHash = tx.hash.slice(0,10) + '…' + tx.hash.slice(-6);
     const counterpart = tx.isOut
