@@ -1438,6 +1438,46 @@ footer {
   .exp-kv { grid-template-columns:100px 1fr; }
   .exp-search-bar { flex-direction:column; }
 }
+
+.tb-yellow { background:linear-gradient(135deg,#b45309,#fbbf24); color:#020302 !important; font-weight:700; }
+.tb-yellow:hover { box-shadow:0 4px 16px rgba(251,191,36,.5); }
+
+/* Referral banner */
+.ref-banner {
+  margin:0 24px 0;
+  padding:16px 20px;
+  background:linear-gradient(135deg,rgba(251,191,36,.08),rgba(251,191,36,.04));
+  border:1px solid rgba(251,191,36,.3);
+  border-radius:14px;
+  display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;
+}
+.ref-banner-left { display:flex; align-items:center; gap:12px; }
+.ref-banner-ico {
+  width:40px; height:40px; border-radius:10px; flex-shrink:0;
+  background:rgba(251,191,36,.15); border:1px solid rgba(251,191,36,.3);
+  display:flex; align-items:center; justify-content:center;
+  font-size:18px; color:#fbbf24;
+}
+.ref-banner-title { font-family:var(--font-head); font-size:13px; font-weight:700; color:#fff; margin-bottom:3px; }
+.ref-banner-sub { font-size:11px; color:var(--muted2); line-height:1.5; }
+.ref-banner-btn {
+  padding:9px 18px; border-radius:9px; border:none; cursor:pointer;
+  background:linear-gradient(135deg,#b45309,#fbbf24);
+  font-family:var(--font-head); font-size:11px; font-weight:700;
+  letter-spacing:.08em; text-transform:uppercase; color:#020302;
+  white-space:nowrap; transition:all .2s; flex-shrink:0;
+  display:flex; align-items:center; gap:7px;
+}
+.ref-banner-btn:hover { box-shadow:0 4px 20px rgba(251,191,36,.4); transform:translateY(-1px); }
+.ref-banner-btn:disabled { opacity:.5; cursor:not-allowed; transform:none; }
+.ref-banner-done {
+  padding:9px 18px; border-radius:9px;
+  background:rgba(61,255,122,.08); border:1px solid rgba(61,255,122,.2);
+  font-family:var(--font-head); font-size:11px; font-weight:700;
+  color:var(--green); white-space:nowrap; flex-shrink:0;
+  display:flex; align-items:center; gap:7px;
+}
+
 </style>
 </head>
 <body>
@@ -1758,6 +1798,26 @@ footer {
           </div>
         </div>
 
+
+        <!-- Referral Banner — shown only when came via ref link -->
+        <div id="refBanner" style="display:none;padding:0 0 0;">
+          <div class="ref-banner" style="margin:16px 24px 0;">
+            <div class="ref-banner-left">
+              <div class="ref-banner-ico"><i class="fa-solid fa-user-plus"></i></div>
+              <div>
+                <div class="ref-banner-title">You were invited by a friend!</div>
+                <div class="ref-banner-sub">
+                  Confirm the referral by sending a small test transaction.<br>
+                  <strong style="color:#fbbf24">Your friend gets +30 KRM</strong> when you confirm.
+                </div>
+              </div>
+            </div>
+            <button class="ref-banner-btn" id="refConfirmBtn" onclick="confirmReferral()">
+              <i class="fa-solid fa-handshake"></i>Confirm Referral
+            </button>
+          </div>
+        </div>
+
         <!-- Faucet -->
         <div class="faucet-grid">
           <!-- L1 -->
@@ -1861,7 +1921,7 @@ footer {
               <div class="task-ico" style="background:rgba(251,191,36,.08);color:#fbbf24"><i class="fa-solid fa-file-signature"></i></div>
               <div class="task-name">Genesis Registration</div>
               <div class="task-desc">Register your wallet for KarChain genesis block inclusion at mainnet launch.</div>
-              <button class="task-btn tb-orange" id="t4btn" onclick="doForm()"><i class="fa-solid fa-pen-to-square"></i>Open Registration Form</button>
+              <button class="task-btn tb-yellow" id="t4btn" onclick="doForm()"><i class="fa-solid fa-pen-to-square"></i>Open Registration Form</button>
               <div class="task-reward"><span>Reward</span><strong>+50 KRM</strong></div>
             </div>
 
@@ -2923,6 +2983,7 @@ async function setConnected(address, preBalance, walletName) {
 
   // Dashboard sections
   renderL1(); renderL2(); renderTasks(); renderProgress();
+  checkRefBanner();
   renderTxs();
   renderDDTxs();
   // Async: restore completed tasks from blockchain (works across devices)
@@ -4125,8 +4186,73 @@ function readRefParam() {
   const params = new URLSearchParams(window.location.search);
   const ref = params.get('ref');
   if (ref && /^0x[0-9a-fA-F]{40}$/.test(ref)) {
-    // Store temporarily until wallet connects
     window._pendingRef = ref.toLowerCase();
+    // Store in localStorage too so it persists after wallet connect redirect
+    localStorage.setItem('kc_pending_ref', ref.toLowerCase());
+  }
+}
+
+function checkRefBanner() {
+  // Show banner if came via ref link and haven't confirmed yet
+  const pending = window._pendingRef || localStorage.getItem('kc_pending_ref');
+  if (!pending || !S.address) return;
+  // Don't show if this is the referrer's own address
+  if (pending === S.address.toLowerCase()) return;
+  // Don't show if already confirmed
+  if (S.refBy) return;
+  // Don't show if already done task 2 (already confirmed before)
+  if (S.hasTask(3)) return;
+
+  const banner = document.getElementById('refBanner');
+  if (banner) banner.style.display = 'block';
+
+  // Show who referred them
+  const sub = banner && banner.querySelector('.ref-banner-sub');
+  if (sub) {
+    sub.innerHTML = `Referred by: <span style="font-family:var(--font-mono);color:#fbbf24;font-size:10px">${pending.slice(0,10)}…${pending.slice(-4)}</span><br>
+    Send a test transaction to confirm. <strong style="color:#fbbf24">Your friend gets +30 KRM.</strong><br>
+    <span style="color:var(--muted);font-size:10px">A small 0 KRM transaction will be sent with referral data.</span>`;
+  }
+}
+
+async function confirmReferral() {
+  const pending = window._pendingRef || localStorage.getItem('kc_pending_ref');
+  if (!pending) { toast('No referral', 'No referral link detected.', 'error'); return; }
+  if (!S.signer) { toast('Not connected', 'Connect wallet first.', 'error'); return; }
+  if (pending === S.address.toLowerCase()) { toast('Error', 'Cannot refer yourself.', 'error'); return; }
+
+  const btn = document.getElementById('refConfirmBtn');
+  if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>Sending…'; }
+
+  try {
+    // Send 0 KRM tx with REF data encoded in data field
+    const tx = await sendActionTx('REF:' + pending);
+    S.setRefBy(pending);
+    localStorage.removeItem('kc_pending_ref');
+    window._pendingRef = null;
+
+    // Update banner to done state
+    const banner = document.getElementById('refBanner');
+    if (banner) {
+      const btnWrap = banner.querySelector('.ref-banner-btn');
+      if (btnWrap) {
+        btnWrap.outerHTML = '<div class="ref-banner-done"><i class="fa-solid fa-check-circle"></i>Referral Confirmed!</div>';
+      }
+    }
+
+    TX_CACHE.delete(S.address.toLowerCase());
+    toast('Referral confirmed!', 'Your friend will receive +30 KRM reward.', 'success');
+
+    // Hide banner after 3s
+    setTimeout(() => {
+      const b = document.getElementById('refBanner');
+      if (b) b.style.display = 'none';
+    }, 3000);
+
+  } catch(err) {
+    if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fa-solid fa-handshake"></i>Confirm Referral'; }
+    if (err.code === 4001) toast('Rejected', 'Transaction cancelled.', 'error');
+    else toast('Error', (err.message || 'Failed').slice(0, 80), 'error');
   }
 }
 async function restoreSession() {
