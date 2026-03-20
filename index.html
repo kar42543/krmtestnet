@@ -1884,7 +1884,7 @@ footer {
               <button class="task-btn tb-x" onclick="doTwitter()"><i class="fa-brands fa-x-twitter"></i>Follow on X</button>
               <button class="task-btn tb-tg" onclick="doTelegram()"><i class="fa-brands fa-telegram"></i>Join Telegram</button>
               <button class="task-btn tb-verify" id="t1verify" onclick="verifyT1()"><i class="fa-solid fa-check-circle"></i>Verify Completion</button>
-              <div class="task-reward"><span>Reward</span><strong>+10 KRM</strong></div>
+              <div class="task-reward"><span>Reward</span><strong>+20 KRM</strong></div>
             </div>
 
             <!-- Task 2 — First TX (unlock after task 1) -->
@@ -1912,7 +1912,7 @@ footer {
                 <div style="font-size:10px;color:var(--muted);margin-bottom:8px">Friend must connect wallet and send a transaction to verify.</div>
               </div>
               <button class="task-btn tb-verify" id="t3verify" onclick="verifyT3()"><i class="fa-solid fa-magnifying-glass"></i>Check Referral</button>
-              <div class="task-reward"><span>Reward</span><strong>+30 KRM</strong></div>
+              <div class="task-reward"><span>Reward</span><strong>+25 KRM</strong></div>
             </div>
 
             <!-- Task 4 — Genesis (unlock after task 3) -->
@@ -1922,7 +1922,7 @@ footer {
               <div class="task-name">Genesis Registration</div>
               <div class="task-desc">Register your wallet for KarChain genesis block inclusion at mainnet launch.</div>
               <button class="task-btn tb-yellow" id="t4btn" onclick="doForm()"><i class="fa-solid fa-pen-to-square"></i>Open Registration Form</button>
-              <div class="task-reward"><span>Reward</span><strong>+50 KRM</strong></div>
+              <div class="task-reward"><span>Reward</span><strong>+30 KRM</strong></div>
             </div>
 
           </div>
@@ -2344,28 +2344,37 @@ footer {
   <i class="fa-solid fa-chevron-up"></i>
 </button>
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-/* ═══════════════════════════════════════
-   CONFIG
-═══════════════════════════════════════ */
+/*
+ * ─────────────────────────────────────────────────────
+ *  КОНФИГУРАЦИЯ СЕТИ
+ *  Все настройки KarChain в одном месте.
+ *  Если меняется ngrok URL — меняешь только здесь.
+ * ─────────────────────────────────────────────────────
+ */
 const CFG = {
-  chainId:    1337,
-  chainHex:   '0x539',
+  chainId:    1337,          // ID нашей сети (локальная/тестовая)
+  chainHex:   '0x539',       // 1337 в шестнадцатеричном (нужен для MetaMask)
   chainName:  'KarChain',
-  rpc:        'https://relationless-improperly-nettie.ngrok-free.dev/rpc',
-  api:        'https://relationless-improperly-nettie.ngrok-free.dev',
+  rpc:        'https://relationless-improperly-nettie.ngrok-free.dev/rpc', // запросы к ноде через server.js
+  api:        'https://relationless-improperly-nettie.ngrok-free.dev',      // фаусет и награды
   symbol:     'KRM',
   decimals:   18,
-  treasury:   '0x849A91A340dDe5fb93BFF9196F2fAdc7161B9255',
+  treasury:   '0x849A91A340dDe5fb93BFF9196F2fAdc7161B9255', // адрес казны (наш кошелёк с ключом)
   twitter:    'https://x.com/karim7652117665',
   telegram:   'https://t.me/KarChainDEV',
   form:       'https://docs.google.com/forms/d/e/1FAIpQLSeQhBQZ_XKxYp2G5bZ5RwTzR2QmPpLJ6xN3oYjH7sKvP8t0w/viewform',
-  l2Eth:      '0.005',
-  l1Cool:     24 * 3600 * 1000
+  l2Eth:      '0.005',       // сколько ETH нужно для активации L2 фаусета
+  l1Cool:     24 * 3600 * 1000 // кулдаун L1 фаусета: 24 часа в миллисекундах
 };
 
-/* ═══════════════════════════════════════
-   STATE
-═══════════════════════════════════════ */
+/*
+ * ─────────────────────────────────────────────────────
+ *  СОСТОЯНИЕ ПРИЛОЖЕНИЯ
+ *  S — глобальный объект который хранит всё:
+ *  подключённый кошелёк, баланс, выполненные задания.
+ *  Данные сохраняются в localStorage между сессиями.
+ * ─────────────────────────────────────────────────────
+ */
 const S = {
   address:   null,
   provider:  null,
@@ -2400,9 +2409,14 @@ const S = {
   clearSession()    { localStorage.removeItem(this.key('addr')); localStorage.removeItem(this.key('walletId')); }
 };
 
-/* ═══════════════════════════════════════
-   TOAST
-═══════════════════════════════════════ */
+/*
+ * ─────────────────────────────────────────────────────
+ *  УВЕДОМЛЕНИЯ (Toast)
+ *  Всплывающие сообщения в правом верхнем углу.
+ *  Типы: 'success' (зелёный), 'error' (красный), 'info' (синий)
+ *  Пример: toast('Готово!', 'KRM зачислены', 'success')
+ * ─────────────────────────────────────────────────────
+ */
 function toast(title, msg, type='info') {
   const icons = {success:'fa-check-circle',error:'fa-times-circle',info:'fa-info-circle'};
   const el = document.createElement('div');
@@ -2416,9 +2430,15 @@ function toast(title, msg, type='info') {
   }, 4000);
 }
 
-/* ═══════════════════════════════════════
-   ROUTER
-═══════════════════════════════════════ */
+/*
+ * ─────────────────────────────────────────────────────
+ *  РОУТЕР — навигация между страницами
+ *  Сайт — это SPA (Single Page Application).
+ *  Все страницы уже загружены в HTML, просто скрыты.
+ *  goto('vision') — плавно переключает на страницу Vision.
+ *  URL меняется через history.pushState (работает кнопка Назад).
+ * ─────────────────────────────────────────────────────
+ */
 let currentPage = 'home';
 function goto(page, pushState = true) {
   const valid = ['home','vision','ecosystem','support','explorer'];
@@ -2480,9 +2500,13 @@ function getHashPage() {
   return valid.includes(hash) ? hash : 'home';
 }
 
-/* ═══════════════════════════════════════
-   MOBILE MENU
-═══════════════════════════════════════ */
+/*
+ * ─────────────────────────────────────────────────────
+ *  МОБИЛЬНОЕ МЕНЮ
+ *  Открывает/закрывает боковое меню на мобильных.
+ *  Бургер-кнопка → сдвигает панель справа.
+ * ─────────────────────────────────────────────────────
+ */
 function toggleMobile() {
   const burger = document.getElementById('burger');
   const nav    = document.getElementById('mobileNav');
@@ -2493,9 +2517,13 @@ function toggleMobile() {
   document.body.style.overflow = open ? 'hidden' : '';
 }
 
-/* ═══════════════════════════════════════
-   MODAL
-═══════════════════════════════════════ */
+/*
+ * ─────────────────────────────────────────────────────
+ *  МОДАЛЬНОЕ ОКНО ПОДКЛЮЧЕНИЯ КОШЕЛЬКА
+ *  Показывает список доступных кошельков (MetaMask, Trust и др.)
+ *  Определяет их через стандарт EIP-6963.
+ * ─────────────────────────────────────────────────────
+ */
 function openModal() {
   renderWalletList();
   document.getElementById('connectModal').classList.add('open');
@@ -2550,13 +2578,23 @@ function setNetStatus(on) {
   }
 }
 
-/* ═══════════════════════════════════════
-   WALLET DETECTION — EIP-6963 + legacy
-   Works like Linea, zkSync, Base bridges
-═══════════════════════════════════════ */
+/*
+ * ─────────────────────────────────────────────────────
+ *  ОПРЕДЕЛЕНИЕ КОШЕЛЬКОВ (EIP-6963 + legacy)
+ *
+ *  EIP-6963 — современный стандарт: каждый кошелёк
+ *  сам объявляет себя через событие 'eip6963:announceProvider'.
+ *  Это решает конфликт когда установлено несколько кошельков.
+ *
+ *  Legacy — старый способ через window.ethereum.
+ *  Используем как запасной вариант.
+ *
+ *  Phantom исключён — не поддерживает кастомные EVM сети.
+ * ─────────────────────────────────────────────────────
+ */
 
-// Detected wallet providers via EIP-6963
-const DETECTED_WALLETS = new Map(); // rdns -> {info, provider}
+// Карта обнаруженных кошельков: rdns → { info, provider }
+const DETECTED_WALLETS = new Map();
 
 // Listen for EIP-6963 announcements
 window.addEventListener('eip6963:announceProvider', (e) => {
@@ -2830,9 +2868,13 @@ async function connectMM() {
   openModal();
 }
 
-/* ═══════════════════════════════════════
-   WALLET DATA — fetch everything from chain
-═══════════════════════════════════════ */
+/*
+ * ─────────────────────────────────────────────────────
+ *  ДАННЫЕ КОШЕЛЬКА С БЛОКЧЕЙНА
+ *  Загружает баланс, количество транзакций и номер блока
+ *  напрямую с ноды KarChain через ethers.js.
+ * ─────────────────────────────────────────────────────
+ */
 async function fetchChainData(address, provider) {
   const results = { balance:'0.0000', nonce:0, block:0 };
   try {
@@ -2848,12 +2890,19 @@ async function fetchChainData(address, provider) {
   return results;
 }
 
-/* ═══════════════════════════════════════
-   TX HISTORY FROM BLOCKCHAIN
-   Scans last N blocks for txs involving address.
-   Works on any EVM node — no external API needed.
-═══════════════════════════════════════ */
-const TX_CACHE = new Map(); // address → { txs, scannedTo }
+/*
+ * ─────────────────────────────────────────────────────
+ *  ИСТОРИЯ ТРАНЗАКЦИЙ С БЛОКЧЕЙНА
+ *
+ *  Сканирует блоки в поисках транзакций адреса.
+ *  Работает без внешних API (Etherscan и т.д.) — только нода.
+ *
+ *  Умный кэш: при первом запросе сканирует все блоки,
+ *  при повторных — только новые блоки с последней проверки.
+ *  Останавливается раньше если нашли 50+ транзакций.
+ * ─────────────────────────────────────────────────────
+ */
+const TX_CACHE = new Map(); // адрес → { txs: [], scannedTo: номер_блока }
 
 async function fetchTxHistory(address, maxBlocks = 999999) {
   if (!address) return [];
@@ -2935,9 +2984,14 @@ function addrAvatar(address) {
   return address.slice(2,4).toUpperCase();
 }
 
-/* ═══════════════════════════════════════
-   SET CONNECTED STATE
-═══════════════════════════════════════ */
+/*
+ * ─────────────────────────────────────────────────────
+ *  ПОДКЛЮЧЕНИЕ КОШЕЛЬКА — обновление интерфейса
+ *  Вызывается после успешного подключения кошелька.
+ *  Обновляет: кнопку в навбаре, дропдаун, дашборд,
+ *  загружает баланс с ноды, рендерит задания и историю.
+ * ─────────────────────────────────────────────────────
+ */
 async function setConnected(address, preBalance, walletName) {
   const short = address.slice(0,6) + '…' + address.slice(-4);
 
@@ -3097,9 +3151,18 @@ function disconnect() {
   toast('Disconnected', 'Wallet session ended.', 'info');
 }
 
-/* ═══════════════════════════════════════
-   FAUCET LEVEL 1
-═══════════════════════════════════════ */
+/*
+ * ─────────────────────────────────────────────────────
+ *  ФАУСЕТ УРОВЕНЬ 1 — бесплатные 1 KRM каждые 24 часа
+ *
+ *  renderL1() — отрисовывает состояние фаусета:
+ *    - Если кулдаун не истёк → показывает таймер обратного отсчёта
+ *    - Если можно клеймить → показывает CAPTCHA и кнопку
+ *
+ *  claimL1() — отправляет запрос на сервер (server.js),
+ *  который переводит 1 KRM с treasury на кошелёк пользователя.
+ * ─────────────────────────────────────────────────────
+ */
 function renderL1() {
   const box  = document.getElementById('l1State');
   const now  = Date.now();
@@ -3206,9 +3269,15 @@ async function claimL1() {
   }
 }
 
-/* ═══════════════════════════════════════
-   FAUCET LEVEL 2
-═══════════════════════════════════════ */
+/*
+ * ─────────────────────────────────────────────────────
+ *  ФАУСЕТ УРОВЕНЬ 2 — 50 KRM за 0.005 ETH в день
+ *
+ *  Разблокируется после выполнения Задания 2.
+ *  Пользователь отправляет 0.005 ETH в treasury на Ethereum Mainnet,
+ *  получает 50 KRM на KarChain. MetaMask автоматически переключает сети.
+ * ─────────────────────────────────────────────────────
+ */
 function renderL2() {
   const box  = document.getElementById('l2State');
   const card = document.getElementById('l2Card');
@@ -3318,9 +3387,20 @@ async function claimL2() {
   }
 }
 
-/* ═══════════════════════════════════════
-   TASKS
-═══════════════════════════════════════ */
+/*
+ * ─────────────────────────────────────────────────────
+ *  ЗАДАНИЯ (Incentivized Tasks)
+ *
+ *  4 последовательных задания:
+ *    1. Social Identity  — подписаться на X и Telegram (+10 KRM)
+ *    2. First Transaction — отправить транзакцию на KarChain (+25 KRM)
+ *    3. Invite a Friend   — пригласить друга по реферальной ссылке (+30 KRM)
+ *    4. Genesis Registration — заполнить форму регистрации (+50 KRM)
+ *
+ *  Состояние хранится в localStorage И верифицируется on-chain.
+ *  renderTasks() — читает состояние и обновляет UI.
+ * ─────────────────────────────────────────────────────
+ */
 function renderTasks() {
   // Task 1 (Social) — unlocks after L1 faucet claimed (check localStorage first for speed)
   const l1Claimed = parseInt(localStorage.getItem('kc_l1_'+S.address)||'0') > 0;
@@ -3394,7 +3474,7 @@ function markDone(n) {
 
 function renderProgress() {
   const count = S.tasks.length;
-  const map   = {1:10, 2:25, 3:30, 4:50};
+  const map   = {1:20, 2:25, 3:25, 4:30};
   const total = S.tasks.reduce((s,n)=>s+(map[n]||0),0);
   document.getElementById('progChip').textContent  = `${count} / 4 Tasks`;
   document.getElementById('progFill').style.width  = (count/4*100) + '%';
@@ -3434,7 +3514,7 @@ async function verifyT1() {
       return;
     }
     S.addTask(1);
-    S.addTx({ hash: data.hash, value:'10.0000', type:'Task 1 Reward' });
+    S.addTx({ hash: data.hash, value:'20.0000', type:'Task 1 Reward' });
     setTimeout(async () => {
       const cd = await fetchChainData(S.address, S.provider);
       S.balance = cd.balance; updateDashboardBalance(cd.balance);
@@ -3557,7 +3637,7 @@ async function verifyT3() {
       body: JSON.stringify({ address: S.address, taskId: 3 })
     }).then(r=>r.json()).then(data => {
       if (data.hash) {
-        S.addTx({ hash: data.hash, value:'30.0000', type:'Task 3 Reward' });
+        S.addTx({ hash: data.hash, value:'25.0000', type:'Task 3 Reward' });
         setTimeout(async () => {
           const cd = await fetchChainData(S.address, S.provider);
           S.balance = cd.balance; updateDashboardBalance(cd.balance);
@@ -3591,7 +3671,7 @@ async function doForm() {
       body: JSON.stringify({ address: S.address, taskId: 4 })
     }).then(r=>r.json()).then(data => {
       if (data.hash) {
-        S.addTx({ hash: data.hash, value:'50.0000', type:'Task 4 Reward' });
+        S.addTx({ hash: data.hash, value:'30.0000', type:'Task 4 Reward' });
         setTimeout(async () => {
           const cd = await fetchChainData(S.address, S.provider);
           S.balance = cd.balance; updateDashboardBalance(cd.balance);
@@ -3608,9 +3688,13 @@ async function doForm() {
   }
 }
 
-/* ═══════════════════════════════════════
-   TX HISTORY
-═══════════════════════════════════════ */
+/*
+ * ─────────────────────────────────────────────────────
+ *  ОТОБРАЖЕНИЕ ИСТОРИИ ТРАНЗАКЦИЙ
+ *  Сканирует блокчейн и показывает все транзакции
+ *  подключённого кошелька. Входящие — зелёные, исходящие — красные.
+ * ─────────────────────────────────────────────────────
+ */
 async function renderTxs() {
   if (!S.address) return;
   const area = document.getElementById('txArea');
@@ -3662,9 +3746,14 @@ function toggleFaq(btn) {
   if (!isOpen) item.classList.add('open');
 }
 
-/* ═══════════════════════════════════════
-   STARS CANVAS
-═══════════════════════════════════════ */
+/*
+ * ─────────────────────────────────────────────────────
+ *  АНИМАЦИЯ ЗВЁЗД (фон)
+ *  50 частиц плавно поднимаются вверх и мигают.
+ *  Рисуются на canvas позади всего контента.
+ *  requestAnimationFrame — плавно, не грузит CPU.
+ * ─────────────────────────────────────────────────────
+ */
 function initStars() {
   const c   = document.getElementById('stars');
   const ctx = c.getContext('2d');
@@ -3704,9 +3793,14 @@ function initStars() {
   loop();
 }
 
-/* ═══════════════════════════════════════
-   HEX CANVAS (Vision page)
-═══════════════════════════════════════ */
+/*
+ * ─────────────────────────────────────────────────────
+ *  ГЕКСАГОНАЛЬНАЯ АНИМАЦИЯ (страница Vision)
+ *  Сетка шестиугольников последовательно подсвечивает
+ *  буквы K→A→R→C→H→A→I→N.
+ *  Каждая буква закодирована пиксельной картой 5×7.
+ * ─────────────────────────────────────────────────────
+ */
 function initHexCanvas() {
   const canvas = document.getElementById('hexCanvas');
   if (!canvas) return;
@@ -3880,14 +3974,21 @@ function animateCounter(el, from, to, dur=1600) {
   el._raf = requestAnimationFrame(step);
 }
 
-/* ═══════════════════════════════════════
-   BESU RPC ENGINE
-   Chain: KarChain | Client: Hyperledger Besu
-   Consensus: Ethash PoW (fixedDifficulty:1000)
-   APIs: ETH, NET, WEB3, MINER, ADMIN, TXPOOL
-═══════════════════════════════════════ */
-
-// Single JSON-RPC call
+/*
+ * ─────────────────────────────────────────────────────
+ *  RPC ДВИЖОК — общение с нодой KarChain
+ *
+ *  Нода: Hyperledger Besu
+ *  Консенсус: Ethash PoW (фиксированная сложность 1000)
+ *  Доступ: через ngrok туннель → server.js → localhost:8545
+ *
+ *  rpc(method, params) — один запрос к ноде
+ *  rpcBatch(calls)     — пакет запросов за один HTTP вызов (быстрее)
+ *
+ *  Заголовок 'ngrok-skip-browser-warning' — обходит
+ *  предупреждение ngrok которое ломает JSON ответы.
+ * ─────────────────────────────────────────────────────
+ */
 async function rpc(method, params=[]) {
   const r = await fetch(CFG.rpc, {
     method:  'POST',
@@ -3967,9 +4068,14 @@ async function countTotalTxs(latestBlockNum) {
   return total;
 }
 
-// State
+// Кэш статистики цепи — чтобы не анимировать одинаковые значения дважды
 const CS = { blocks:0, txs:0, peers:0, ok:false, _timer:null };
 
+/*
+ * loadChainStats() — загружает живые данные с ноды каждые 10 секунд:
+ * количество блоков, хэшрейт, сложность, цену газа, количество пиров.
+ * Все числа анимируются плавным счётчиком.
+ */
 async function loadChainStats() {
   const elStatus = document.getElementById('statsRpcStatus');
   const elDot    = document.getElementById('statsLiveDot');
@@ -4178,10 +4284,18 @@ window.addEventListener('scroll', () => {
   document.getElementById('scrolltop').classList.toggle('show', window.scrollY > 400);
 });
 
-/* ═══════════════════════════════════════
-   SESSION RESTORE
-═══════════════════════════════════════ */
-// Read referral param from URL
+/*
+ * ─────────────────────────────────────────────────────
+ *  ВОССТАНОВЛЕНИЕ СЕССИИ
+ *  При перезагрузке страницы — автоматически переподключает
+ *  кошелёк если он уже был подключён раньше.
+ *  Не показывает всплывающих окон — тихое восстановление.
+ *
+ *  readRefParam() — читает ?ref=0x... из URL.
+ *  Если пользователь пришёл по реферальной ссылке —
+ *  сохраняет адрес реферера до подключения кошелька.
+ * ─────────────────────────────────────────────────────
+ */
 function readRefParam() {
   const params = new URLSearchParams(window.location.search);
   const ref = params.get('ref');
@@ -4351,9 +4465,15 @@ async function restoreSession() {
 }
 
 
-/* ═══════════════════════════════════════
-   BLOCK EXPLORER
-═══════════════════════════════════════ */
+/*
+ * ─────────────────────────────────────────────────────
+ *  БЛОК ЭКСПЛОРЕР
+ *  Встроенный аналог Etherscan для сети KarChain.
+ *  Показывает последние блоки и транзакции в реальном времени.
+ *  Обновляется каждые 12 секунд.
+ *  Поиск по: хэшу транзакции, адресу кошелька, номеру блока.
+ * ─────────────────────────────────────────────────────
+ */
 const EXP = { timer: null, lastBlock: -1 };
 
 function timeAgo(ts) {
@@ -4623,13 +4743,25 @@ function initExplorer() {
 }
 
 
-/* ═══════════════════════════════════════
-   ON-CHAIN ACTION RECORDING
-   Every user action writes a tx to blockchain with data field.
-   Verification reads from chain — works across browsers/devices.
-═══════════════════════════════════════ */
-
-// Encode action string to hex data field
+/*
+ * ─────────────────────────────────────────────────────
+ *  ЗАПИСЬ ДЕЙСТВИЙ В БЛОКЧЕЙН
+ *
+ *  Каждое важное действие пользователя записывается
+ *  как транзакция с данными (data field) на блокчейн.
+ *  Это позволяет верифицировать выполнение заданий
+ *  на любом устройстве и в любом браузере.
+ *
+ *  Примеры записей:
+ *    KARCHAIN:FAUCET_L1  — пользователь получил фаусет
+ *    KARCHAIN:TASK1      — выполнил задание 1
+ *    KARCHAIN:REF:0x...  — подтвердил реферала
+ *    KARCHAIN:GENESIS    — зарегистрировался в Genesis
+ *
+ *  encodeAction() — переводит строку в hex для data поля
+ *  decodeData()   — обратно из hex в строку
+ * ─────────────────────────────────────────────────────
+ */
 function encodeAction(action) {
   // Convert string to hex: "KARCHAIN:TASK1" → "0x4b4152434841494e3a5441534b31"
   return '0x' + Array.from(new TextEncoder().encode(action))
@@ -4738,10 +4870,14 @@ async function checkOnChainReferral(myAddress, maxBlocks = 500) {
   } catch(err) { return { found: false }; }
 }
 
-/* ═══════════════════════════════════════
-   RESTORE TASKS FROM BLOCKCHAIN
-   Works across browsers and devices
-═══════════════════════════════════════ */
+/*
+ * ─────────────────────────────────────────────────────
+ *  ВОССТАНОВЛЕНИЕ ЗАДАНИЙ С БЛОКЧЕЙНА
+ *  При подключении кошелька — сканирует блокчейн
+ *  и восстанавливает прогресс заданий.
+ *  Работает на любом устройстве — данные хранятся on-chain.
+ * ─────────────────────────────────────────────────────
+ */
 async function restoreTasksFromChain(address) {
   try {
     const [r1, r2, r4, rRef] = await Promise.all([
@@ -4759,9 +4895,19 @@ async function restoreTasksFromChain(address) {
   } catch(e) { console.warn('[restoreChain]', e.message); }
 }
 
-/* ═══════════════════════════════════════
-   INIT
-═══════════════════════════════════════ */
+/*
+ * ─────────────────────────────────────────────────────
+ *  ИНИЦИАЛИЗАЦИЯ
+ *  Запускается когда страница полностью загружена.
+ *  Порядок важен:
+ *    1. Определяем начальную страницу из URL хэша
+ *    2. Инициализируем анимации (звёзды, гексагоны)
+ *    3. Запускаем опрос ноды (статистика блоков)
+ *    4. Запускаем эксплорер
+ *    5. Восстанавливаем сессию кошелька (тихо)
+ *    6. Читаем реферальный параметр из URL
+ * ─────────────────────────────────────────────────────
+ */
 window.addEventListener('DOMContentLoaded', () => {
   // Read page from URL hash (e.g. karchain.vercel.app/#explorer)
   const startPage = getHashPage();
