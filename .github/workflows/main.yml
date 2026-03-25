@@ -1,0 +1,40 @@
+name: Oracle Instance Creator
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  create-instance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install OCI CLI
+        run: pip install oci-cli
+
+      - name: Setup OCI config
+        run: |
+          mkdir -p ~/.oci
+          echo "${{ secrets.OCI_CONFIG }}" > ~/.oci/config
+          echo "${{ secrets.OCI_KEY }}" > ~/.oci/oci_api_key.pem
+          chmod 600 ~/.oci/oci_api_key.pem
+
+      - name: Try create instance
+        run: |
+          result=$(oci compute instance launch \
+            --compartment-id "ocid1.tenancy.oc1..aaaaaaaad3vxerewlftpwzhmjltndrxcsldzzk7tylz6cf6zptrre7jwiz7a" \
+            --availability-domain "BTAk:eu-amsterdam-1-AD-1" \
+            --shape "VM.Standard.A1.Flex" \
+            --shape-config '{"ocpus": 4, "memoryInGBs": 24}' \
+            --subnet-id "ocid1.subnet.oc1.eu-amsterdam-1.aaaaaaaahdwlodb2dy42jdromvdtlvgypdrzvnvecfpty4i46fnrxh53ffxq" \
+            --image-id "ocid1.image.oc1.eu-amsterdam-1.aaaaaaaawxl7mso7i6qmtewcjrpxkmao5xcjzipcyxvckqbpd4b5yzrb6boa" \
+            --display-name "karchain" \
+            --assign-public-ip true \
+            --ssh-authorized-keys-file <(echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC6bWGtcQznGf3y6X7wGLju5RysyiKe74Pd6qNqaE8lWfeMnwCmiy6hVD0SuraqxNigOiGzcSd7kcoG/Cp2WgC2Dx0meQxYtwDVnY0yQTOKZtBoNPujm6xaI9UoR75KnOMXcVgQyQXvuJFkveeZppCQ0OHcVH4yxktKxBWp4MB3tbMOEPCjgJFTg54CHU+2GBuzNIy011V3c3MUe/lUAdfy1J1RX/EfoJYKGyex2lq9chf9amQeeoV7BahwT8IIUoo2+YbWz14v5Wam6stF5LT+KmyKwa+eadHwyJaAvmUtejStXxTLSQYHS5LYLpbaPlLIOAmI3L05LT7k4STFsf4F") \
+            --boot-volume-size-in-gbs 50 2>&1) || true
+          echo "$result"
+          if echo "$result" | grep -q "lifecycle-state"; then
+            echo "SUCCESS! Instance created!"
+          elif echo "$result" | grep -q "capacity"; then
+            echo "No capacity yet"
+          fi
